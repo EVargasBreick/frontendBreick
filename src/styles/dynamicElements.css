@@ -1,0 +1,12 @@
+.normalSelected {
+  background-color: #5cb8b2;
+  color: white;
+  border-color: #5cb8b2;
+}
+
+.normal {
+  background-color: #eead1a;
+}
+.radioOp {
+  background-color: red;
+}

@@ -1,0 +1,20 @@
+.sidebarTittle {
+  text-align: center;
+  padding-left: 30%;
+}
+
+.icon {
+  width: 13%;
+  color: #6a4593;
+  padding-right: 3%;
+}
+.compIcon {
+  width: 100%;
+  padding-right: 3%;
+  color: #6a4593;
+}
+.pSidebar {
+  background-color: #6a4593;
+  width: 100%;
+  margin: 0;
+}

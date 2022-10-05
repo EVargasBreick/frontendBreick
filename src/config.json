@@ -1,0 +1,5 @@
+{
+  "secret": "BreickSecret2022",
+  "endpointUrl": "http://localhost",
+  "endpointPort": "5200"
+}

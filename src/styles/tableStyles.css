@@ -1,0 +1,41 @@
+.tableOne {
+  padding-top: 1%;
+  padding-bottom: 1%;
+}
+
+.tableHeader {
+  background-color: #5cb8b2;
+  color: white;
+  border-color: #6a4593;
+  border-width: 2px;
+  text-align: start;
+}
+
+.tableRow {
+  color: #6a4593;
+  text-align: start;
+  border-color: #6a4593;
+  border-width: 2px;
+  background-color: white;
+}
+
+.tableColumn {
+  width: 5%;
+  padding-left: 1%;
+}
+.tableColumnSmall {
+  width: 1%;
+}
+.tableButton {
+  background-color: #eead1a;
+  color: white;
+}
+.tableButtonAlt {
+  color: white;
+}
+.tableInput {
+  width: 100%;
+}
+.smallRow {
+  width: 30%;
+}

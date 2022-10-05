@@ -1,0 +1,66 @@
+.largeYellow {
+  width: 100%;
+  background-color: #eead1a;
+  border-color: white;
+  color: white;
+}
+.largeDarkYellow {
+  width: 100%;
+  background-color: #b38212;
+  border-color: white;
+  color: white;
+}
+.largePurple {
+  width: 100%;
+  background-color: #45236b;
+  border-color: white;
+  color: white;
+}
+
+.largeDarkPurple {
+  width: 100%;
+  background-color: #2e0f52;
+  border-color: white;
+  color: white;
+}
+
+.largeCyan {
+  width: 100%;
+  background-color: #5cb8b2;
+  border-color: white;
+  color: white;
+}
+
+.largeWhite {
+  width: 100%;
+  background-color: white;
+  border-color: #6a4593;
+  color: #6a4593;
+}
+.largeDarkCyan {
+  width: 100%;
+  background-color: #347571;
+  border-color: #6a4593;
+  color: white;
+}
+
+.invoiceButtons {
+  padding-top: 0.5%;
+  width: 100%;
+}
+.buttonContainer {
+  padding-bottom: 0%;
+}
+
+.buttonNormal {
+  background-color: #5cb8b2;
+  color: white;
+}
+.buttonSample {
+  background-color: #eead1a;
+  color: white;
+}
+.buttonBooking {
+  background-color: #2e0f52;
+  color: white;
+}
