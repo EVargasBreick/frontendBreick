@@ -5,7 +5,6 @@ const getZonas = () => {
     axios
       .get(`${config.endpointUrl}:${config.endpointPort}/zonas`)
       .then((response) => {
-        console.log("Respuesta zonas: ", response);
         resolve(response);
       });
   });
@@ -23,7 +22,6 @@ const getDias = () => {
 const getZoneById = (id, zonas) => {
   zonas.map((zona) => {
     if (zona.idZona === id) {
-      console.log("Se llego hasta aca", zona.zona);
       return zona.zona;
     }
   });

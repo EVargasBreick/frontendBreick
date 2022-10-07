@@ -77,7 +77,6 @@ export default function FormEditClient(props) {
   const [idContacta, setIdContacta] = useState("");
   const [idContactb, setIdContactb] = useState("");
   const [idContactc, setIdContactc] = useState("");
-
   const navigate = useNavigate();
   const [idUsuarioActual, setIdUsuarioActual] = useState();
   const handleClose = () => {
@@ -100,6 +99,7 @@ export default function FormEditClient(props) {
     }
   };
   useEffect(() => {
+    setisLoading(true);
     const usuarios = userBasic();
     usuarios.then((usu) => {
       setUsArray(usu.data[0]);
@@ -154,14 +154,15 @@ export default function FormEditClient(props) {
         res.data.data[0][2] !== undefined ? res.data.data[0][2].telefono : ""
       );
       setIdContacta(
-        res.data.data[0][0] !== undefined ? res.data.data[0][0].idContacta : ""
+        res.data.data[0][0] !== undefined ? res.data.data[0][0].idContacto : ""
       );
       setIdContactb(
-        res.data.data[0][1] !== undefined ? res.data.data[0][1].idContactb : ""
+        res.data.data[0][1] !== undefined ? res.data.data[0][1].idContacto : ""
       );
       setIdContactc(
-        res.data.data[0][2] !== undefined ? res.data.data[0][2].idContactc : ""
+        res.data.data[0][2] !== undefined ? res.data.data[0][2].idContacto : ""
       );
+      setisLoading(false);
     });
   }
 
@@ -361,7 +362,16 @@ export default function FormEditClient(props) {
   }
   return (
     <div>
-      <div className="formLabel">REGISTRAR CLIENTES</div>
+      <div className="formLabel">
+        {isLoading ? (
+          <div>
+            {"Cargando información del cliente... "}{" "}
+            <Image src={loading2} style={{ width: "2%" }} />
+          </div>
+        ) : (
+          "Editar Cliente"
+        )}
+      </div>
 
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>

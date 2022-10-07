@@ -23,6 +23,12 @@
   width: 5%;
   padding-left: 1%;
 }
+
+.tableColumn:hover {
+  background-color: #6945937c;
+  color: white;
+}
+
 .tableColumnSmall {
   width: 1%;
 }

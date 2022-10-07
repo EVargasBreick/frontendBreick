@@ -5,10 +5,17 @@ const getProducts = (id) => {
     axios
       .get(`${config.endpointUrl}:${config.endpointPort}/productos?id=${id}`)
       .then((response) => {
-        console.log("Respuesta: ", response);
         resolve(response);
       });
   });
 };
-
-export { getProducts };
+const getUserStock = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`${config.endpointUrl}:${config.endpointPort}/stockUsuario?id=${id}`)
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+export { getProducts, getUserStock };

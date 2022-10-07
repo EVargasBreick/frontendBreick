@@ -12,6 +12,8 @@ export default function FormSearchClient() {
   const [arraryDias, setArrayDias] = useState([]);
   const [search, setSearch] = useState("");
   const [clientes, setClientes] = useState([]);
+  const [sortedClients, setSortedClients] = useState([]);
+  const [isSorted, setIsSorted] = useState(0);
   const navigate = useNavigate();
   useEffect(() => {
     const zon = getZonas();
@@ -25,7 +27,6 @@ export default function FormSearchClient() {
   }, []);
   function searchClient() {
     setisLoading(true);
-    console.log("Zonaaaaas", gZonas);
     const found = getClient(search);
     found
       .then((res) => {
@@ -85,16 +86,8 @@ export default function FormSearchClient() {
                 <tr className="tableRow" key={client.idCliente}>
                   <td>{client.nit}</td>
                   <td>{client.razonSocial}</td>
-                  <td>
-                    {gZonas.find((zona) => zona.idZona === client.idZona).zona}
-                  </td>
-                  <td>
-                    {
-                      arraryDias.find(
-                        (dia) => dia.idDiasFrec === client.frecuencia
-                      ).dias
-                    }
-                  </td>
+                  <td>{client.zona}</td>
+                  <td>{client.dias}</td>
                   <td>{client.tipoPrecio}</td>
                   <td>
                     <Button

@@ -279,25 +279,45 @@ const updateContact = (contacto, idCliente) => {
       contacto.correo,
       contacto.telefono
     );
-    if (contacto.nombre && contacto.telefono) {
-      axios
-        .put(
-          `${config.endpointUrl}:${config.endpointPort}/contact?id=${contacto.idContacto}`,
-          {
+    if (!contacto.idContacto) {
+      if (contacto.nombre && contacto.telefono) {
+        axios
+          .post(`${config.endpointUrl}:${config.endpointPort}/contact`, {
             idCliente: idCliente,
             nombre: contacto.nombre,
             correo: contacto.correo,
             telefono: contacto.telefono,
-          }
-        )
-        .then((response) => {
-          resolve(response);
-        })
-        .catch((error) => {
-          reject(error);
-        });
+          })
+          .then((response) => {
+            resolve(response);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      } else {
+        resolve("contacto vacio");
+      }
     } else {
-      resolve("contacto vacio");
+      if (contacto.nombre && contacto.telefono) {
+        axios
+          .put(
+            `${config.endpointUrl}:${config.endpointPort}/contact?id=${contacto.idContacto}`,
+            {
+              idCliente: idCliente,
+              nombre: contacto.nombre,
+              correo: contacto.correo,
+              telefono: contacto.telefono,
+            }
+          )
+          .then((response) => {
+            resolve(response);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      } else {
+        resolve("contacto vacio");
+      }
     }
   });
 };
@@ -309,6 +329,7 @@ const getClient = (search) => {
         `${config.endpointUrl}:${config.endpointPort}/client/rs?search=${search}`
       )
       .then((response) => {
+        console.log("Clienteeeees:", response.data);
         resolve(response);
       })
       .catch((error) => {

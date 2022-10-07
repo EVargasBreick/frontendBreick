@@ -141,8 +141,9 @@ export default function FormNewUser() {
       });
   }
   function prepareStoreId(id) {
-    if (id.substring(0, 2) === "AG") {
-      setAgencia(id.substring(0, 5) + "");
+    const idSub = id.split(" ");
+    if (idSub[1]) {
+      setAgencia(idSub[0]);
     } else {
       setAgencia(id + "");
     }
@@ -301,10 +302,10 @@ export default function FormNewUser() {
               }}
             >
               <option>Seleccione Agencia</option>
-              {almacen.map((producto) => {
+              {almacen.map((ag) => {
                 return (
-                  <option value={producto.Nombre} key={producto.Nombre}>
-                    {producto.Nombre}
+                  <option value={ag.Nombre} key={ag.Nombre}>
+                    {ag.Nombre}
                   </option>
                 );
               })}
