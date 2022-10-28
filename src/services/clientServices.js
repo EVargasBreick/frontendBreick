@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from "../config.json";
+import { dateString } from "./dateServices";
 
 const verifyClientEmail = (email, isCorreo) => {
   const emailArray = email.split("@");
@@ -125,7 +126,7 @@ const structureClient = (
     tipoPrecio: tipoPrecio,
     usuarioCrea: usuario,
     idVendedor: idVendedor,
-    fechaCrea: new Date(),
+    fechaCrea: dateString(),
   };
   return new Promise((resolve) => {
     resolve(clientObject);
@@ -377,6 +378,19 @@ const getContact = (id) => {
   });
 };
 
+const numberOfClients = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`${config.endpointUrl}:${config.endpointPort}/client/count`)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   verifyClientEmail,
   verifyClientPhone,
@@ -393,4 +407,5 @@ export {
   getFullClient,
   updateClient,
   updateContact,
+  numberOfClients,
 };

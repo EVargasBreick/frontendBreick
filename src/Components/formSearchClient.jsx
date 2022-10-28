@@ -5,6 +5,7 @@ import { getClient } from "../services/clientServices";
 import { getDias, getZonas, getZoneById } from "../services/miscServices";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
+import "../styles/generalStyle.css";
 import { useNavigate } from "react-router-dom";
 export default function FormSearchClient() {
   const [isLoading, setisLoading] = useState(false);

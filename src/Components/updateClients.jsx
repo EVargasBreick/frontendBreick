@@ -2,6 +2,7 @@ import React from "react";
 
 import Display from "./display";
 import "../styles/formLayouts.css";
+import "../styles/generalStyle.css";
 import Sidebar from "./sidebar";
 import FormEditClient from "./formEditClient";
 import { useLocation } from "react-router-dom";
@@ -13,7 +14,8 @@ export default function RegisterClient() {
   }, []);
   return (
     <div>
-      <div className="user">
+      <div className="userBar">
+        <div></div>
         <Display />
       </div>
       <div className="form">

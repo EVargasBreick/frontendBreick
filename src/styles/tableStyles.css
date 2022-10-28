@@ -1,6 +1,7 @@
 .tableOne {
   padding-top: 1%;
-  padding-bottom: 1%;
+
+  width: 100%;
 }
 
 .tableHeader {
@@ -9,6 +10,13 @@
   border-color: #6a4593;
   border-width: 2px;
   text-align: start;
+}
+
+.tableFoot {
+  background-color: #5cb8b2;
+  color: white;
+  width: 100%;
+  border-color: #6a4593;
 }
 
 .tableRow {
@@ -20,8 +28,21 @@
 }
 
 .tableColumn {
-  width: 5%;
+  width: 18%;
   padding-left: 1%;
+}
+
+.tableColumnMedium {
+  width: 10%;
+  padding-left: 1%;
+  text-align: center;
+}
+
+.tableColumnMediumDyn {
+  width: 10%;
+  padding-left: 1%;
+  text-align: center;
+  background-color: #5cb8b2;
 }
 
 .tableColumn:hover {
@@ -30,8 +51,14 @@
 }
 
 .tableColumnSmall {
-  width: 1%;
+  width: 2%;
 }
+
+.tableColumnSmallInv {
+  background-color: #6a4593;
+  width: 2%;
+}
+
 .tableButton {
   background-color: #eead1a;
   color: white;
@@ -44,4 +71,56 @@
 }
 .smallRow {
   width: 30%;
+}
+.tableHalf {
+  padding-bottom: 0%;
+  padding-top: 2%;
+}
+.tableColumnTotal {
+  color: white;
+  text-align: end;
+}
+.tableColumnTotalData {
+  color: white;
+  text-align: center;
+
+  background-color: blue;
+}
+
+.tableColumnSmallInv {
+  background-color: #6a4593;
+  border-color: #6a4593;
+}
+
+.tableColumnInv {
+  background-color: #6a4593;
+  border-color: #6a4593;
+}
+.padded {
+  display: flex;
+  border-color: #6a4593;
+}
+
+.totalColumnText {
+  font-weight: bold;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+  background-color: #5cb8b2;
+  width: 16%;
+  text-align: center;
+}
+
+.totalColumnBlank {
+  background-color: #6a4593;
+  width: 71%;
+}
+.totalColumnData {
+  font-weight: bold;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+  color: #5cb8b2;
+
+  background-color: white;
+  width: 13%;
+  text-align: center;
 }

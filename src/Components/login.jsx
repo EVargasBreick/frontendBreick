@@ -19,6 +19,16 @@ import { useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
 
 export default function Login() {
+  const horaActual =
+    new Date().getHours() < 10
+      ? "0" + new Date().getHours()
+      : new Date().getHours();
+  const minutoActual =
+    new Date().getMinutes() < 10
+      ? "0" + new Date().getMinutes()
+      : new Date().getMinutes();
+  const horaFinal = horaActual + ":" + minutoActual + ":00";
+  const [isOutHours, setIsOutHours] = useState(false);
   const { setIsAuth } = useContext(UserContext);
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
@@ -52,6 +62,28 @@ export default function Login() {
             JSON.stringify(userDataFetchd.data.data[0][0]),
             { expires: 1 }
           );
+          console.log(
+            "Hora entrada",
+            userDataFetchd.data.data[0][0].horaEntrada + ":00"
+          );
+          if (
+            Date.parse("01/01/2000 " + horaFinal) <
+              Date.parse(
+                "01/01/2000 " +
+                  userDataFetchd.data.data[0][0].horaEntrada +
+                  ":00"
+              ) ||
+            Date.parse("01/01/2000 " + horaFinal) >
+              Date.parse(
+                "01/01/2000 " +
+                  userDataFetchd.data.data[0][0].horaSalida +
+                  ":00"
+              )
+          ) {
+            console.log("Entrando fuera de hora");
+          } else {
+            console.log("Entrando en hora");
+          }
 
           navigate("/principal");
         }

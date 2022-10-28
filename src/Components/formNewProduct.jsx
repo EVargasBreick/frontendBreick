@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
+import "../styles/generalStyle.css";
 export default function FormNewProduct() {
   const [desc, setDesc] = useState(false);
 

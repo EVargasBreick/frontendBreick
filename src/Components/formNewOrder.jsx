@@ -3,10 +3,24 @@ import { Form, Button, Table, Modal, Image } from "react-bootstrap";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
+import "../styles/generalStyle.css";
 import { getClient } from "../services/clientServices";
 import { useEffect } from "react";
-import { getProducts, getUserStock } from "../services/productServices";
+import {
+  availableProducts,
+  getProducts,
+  getUserStock,
+} from "../services/productServices";
 import Cookies from "js-cookie";
+import {
+  availabilityInterval,
+  createOrder,
+  getOrderList,
+  sendOrderEmail,
+  updateStock,
+} from "../services/orderServices";
+import { useNavigate } from "react-router-dom";
+import { dateString } from "../services/dateServices";
 export default function FormNewOrder() {
   const [isClient, setIsClient] = useState(false);
   const [isProduct, setIsProduct] = useState(false);
@@ -15,6 +29,8 @@ export default function FormNewOrder() {
   const [isLoading, setisLoading] = useState();
   const [isAlert, setIsAlert] = useState(false);
   const [alert, setAlert] = useState("");
+  const [isAlertSec, setIsAlertSec] = useState(false);
+  const [alertSec, setAlertSec] = useState("");
   const [isSelected, setIsSelected] = useState(false);
   const [prodList, setprodList] = useState([]);
   const [selectedProds, setSelectedProds] = useState([]);
@@ -27,18 +43,56 @@ export default function FormNewOrder() {
   const [tipo, setTipo] = useState("normal");
   const [isDesc, setIsDesc] = useState(false);
   const [pedidoFinal, setPedidoFinal] = useState({});
+  const [usuarioAct, setUsuarioAct] = useState("");
+  const [selectedClient, setSelectedClient] = useState("");
+  const [productObj, setProductObj] = useState([]);
+  const [observaciones, setObservaciones] = useState("");
+  const [available, setAvailable] = useState([]);
+  const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState("");
+  const [userStore, setUserStore] = useState("");
   useEffect(() => {
+    const UsuarioAct = Cookies.get("userAuth");
+    if (UsuarioAct) {
+      setUserEmail(JSON.parse(UsuarioAct).correo);
+      setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      console.log("Usuario actual", UsuarioAct.correo);
+    }
+    if (Cookies.get("userAuth")) {
+      setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
+      const disponibles = availableProducts(
+        JSON.parse(Cookies.get("userAuth")).idUsuario
+      );
+      disponibles.then((fetchedAvailable) => {
+        setAvailable(fetchedAvailable.data.data[0]);
+      });
+      const interval = setInterval(() => {
+        const disponibles = availableProducts(
+          JSON.parse(Cookies.get("userAuth")).idUsuario
+        );
+        disponibles.then((fetchedAvailable) => {
+          console.log("Stock automaticamente actualizado");
+          setAvailable(fetchedAvailable.data.data[0]);
+        });
+      }, 60000);
+      const userStock = getUserStock(
+        JSON.parse(Cookies.get("userAuth")).idUsuario
+      );
+      userStock.then((fetchedStock) => {
+        setStock(fetchedStock.data);
+      });
+    }
+
     const allProducts = getProducts("");
     allProducts.then((fetchedProducts) => {
       setprodList(fetchedProducts.data.data[0]);
     });
-    const userStock = getUserStock(
-      JSON.parse(Cookies.get("userAuth")).idUsuario
-    );
-    userStock.then((fetchedStock) => {
-      setStock(fetchedStock.data);
-    });
-  }, [descuento, precios]);
+    var idUsuarioAct;
+    if (UsuarioAct) {
+      idUsuarioAct = UsuarioAct.idUsuario;
+    }
+  }, []);
+
   function searchClient() {
     setIsSelected(false);
     setClientes([]);
@@ -59,6 +113,7 @@ export default function FormNewOrder() {
     });
   }
   function filterSelectedClient(id) {
+    setSelectedClient(id);
     const searchObject = clientes.find((cli) => cli.idCliente === id);
     const array = [];
     array.push(searchObject);
@@ -78,14 +133,11 @@ export default function FormNewOrder() {
     if (!aux) {
       setSelectedProds([...selectedProds, JSON.parse(product)]);
       const prodParsed = JSON.parse(product);
-      const found = stock[0].find(
-        (st) => st.idProducto == prodParsed.idProducto
-      );
       console.log("Codigo interno", prodParsed.codInterno);
       var prod = {
         id: prodParsed.codInterno,
         producto: prodParsed,
-        stock: found,
+        stock: prodParsed.cant_Actual,
       };
       setTotales((totales) => [...totales, prod]);
     }
@@ -96,6 +148,9 @@ export default function FormNewOrder() {
     setisLoading(false);
   };
   function deleteProduct(index, cod) {
+    const auxProds = [...productObj];
+    auxProds.splice(index, 1);
+    setProductObj(auxProds);
     const auxPre = [...precios];
     auxPre.splice(index, 1);
     setPrecios(auxPre);
@@ -107,28 +162,37 @@ export default function FormNewOrder() {
     setTotales(auxTot);
     console.log("Length:", selectedProds.length);
   }
-  function changeQuantitys(id, quantity, price, disp, aplica) {
+  function changeQuantitys(idBase, id, quantity, price, available) {
     const totAux = totalPrecio;
     const descAux = totalDesc;
     const aux = [...precios];
+    const auxP = [...productObj];
     const indexOfObject = aux.findIndex((object) => {
       return object.idProducto === id;
     });
     if (indexOfObject !== -1) {
       aux.splice(indexOfObject, 1);
+      auxP.splice(indexOfObject, 1);
     }
     var obj = {
+      idBase: idBase,
       idProducto: id,
       cantidad: quantity,
       precio: price,
       total: quantity * price,
-      descuento: aplica === "si" ? descuento : 0,
-      disponible: disp,
+      descuento: descuento,
+      disponible: available,
       descontado: quantity * price * (descuento / 100),
     };
+    var objProd = {
+      idProducto: idBase,
+      cantProducto: quantity,
+      totalProd: quantity * price,
+    };
+    setProductObj([...auxP, objProd]);
     setPrecios([...aux, obj]);
     setTotalPrecio(totAux + quantity * price);
-    setTotalDesc(descAux + quantity * price * (descuento / 100));
+    setTotalDesc(descAux + quantity * price);
   }
   function handleType(value) {
     setTipo(value);
@@ -139,41 +203,169 @@ export default function FormNewOrder() {
       setIsDesc(false);
     }
   }
-  function structureOrder() {
-    var error = false;
-    var ErrorMessage = "";
-    const tot = precios.reduce((accumulator, object) => {
-      return accumulator + object.total;
-    }, 0);
-    precios.map((pr) => {
-      if (pr.cantidad > pr.disponible) {
+  function structureOrder(availables) {
+    console.log("Se corrio la funcion de validar campos");
+    return new Promise((resolve) => {
+      console.log("Cantidades", precios);
+      var error = false;
+      if (selectedClient === "") {
         error = true;
-        ErrorMessage =
-          "Uno de los valores ingresados excede la capacidad disponible";
+        setAlert("Seleccione un cliente por favor");
       }
-      if (pr.cantidad < 1 || pr.cantidad === undefined) {
+      if (selectedProds.length === 0) {
         error = true;
-        ErrorMessage = "La cantidad elegida de algun producto esta en 0";
+        setAlert("Por favor seleccione al menos un producto");
+      }
+      precios.map((pr) => {
+        const dispo = availables.find(
+          (av) => pr.idProducto === av.codInterno
+        ).cant_Actual;
+        console.log(
+          `Cantidad escogida: ${pr.cantidad}, disponibilidad ${dispo}`
+        );
+        if (pr.cantidad > dispo) {
+          error = true;
+          setAlert(
+            "Uno de los valores ingresados excede la capacidad disponible actualizada"
+          );
+        }
+        if (pr.cantidad < 1 || pr.cantidad === "") {
+          error = true;
+          setAlert("La cantidad elegida de algun producto esta en 0");
+        }
+      });
+      if (precios.length === 0 || selectedProds.length > precios.length) {
+        error = true;
+        setAlert("La cantidad elegida de algun producto esta en 0");
+      }
+      resolve(error);
+    });
+  }
+
+  async function validateAvailability() {
+    console.log("Se corrio la funcion de validacion y espera");
+    setIsAlertSec(true);
+    setAlertSec("Validando Pedido");
+    setTimeout(() => {
+      const validateAva = availabilityInterval();
+      validateAva.then((res) => {
+        console.log("Esperaste:", res);
+        const disponibles = availableProducts(
+          JSON.parse(Cookies.get("userAuth")).idUsuario
+        );
+        disponibles.then((fetchedAvailable) => {
+          console.log("Disponibilidad verificada");
+          const avaSetted = async () => {
+            const setted = asyncSetAva(fetchedAvailable.data.data[0]);
+            setted.then((res) => {
+              setIsAlertSec(false);
+              console.log("Llamando a la funcion guardar", res);
+              saveOrder(fetchedAvailable.data.data[0]);
+            });
+          };
+          avaSetted();
+        });
+      });
+    }, 200);
+  }
+
+  const asyncSetAva = (array) => {
+    return new Promise((resolve) => {
+      setAvailable(array);
+      resolve(true);
+    });
+  };
+
+  function saveOrder(availables) {
+    const validatedOrder = structureOrder(availables);
+    validatedOrder.then((res) => {
+      setisLoading(true);
+      const tot = precios.reduce((accumulator, object) => {
+        return accumulator + object.total;
+      }, 0);
+      console.log("Respuesta del validador", res);
+      if (!res) {
+        setAlertSec("Creando pedido ...");
+        setIsAlertSec(true);
+        const ped = {
+          productos: precios,
+          total: tot,
+        };
+
+        const objPedido = {
+          pedido: {
+            idUsuarioCrea: usuarioAct,
+            idCliente: selectedClient,
+            fechaCrea: dateString(),
+            fechaActualizacion: dateString(),
+            estado: 0,
+            montoFacturar: tot,
+            montoTotal: tot - (tot * descuento) / 100,
+            tipo: tipo,
+            descuento: descuento,
+            notas: observaciones,
+          },
+          productos: productObj,
+        };
+        setPedidoFinal(ped);
+        const stockObject = {
+          accion: "take",
+          idAlmacen: userStore,
+          productos: productObj,
+        };
+        const updatedStock = updateStock(stockObject);
+        updatedStock
+          .then((updatedRes) => {
+            console.log("Stock updateado", updatedRes);
+            const newOrder = createOrder(objPedido);
+            newOrder
+              .then((res) => {
+                console.log("Resposta del pedido", res.data.data.idCreado);
+                const codPedido = getOrderList(res.data.data.idCreado);
+                codPedido.then((res) => {
+                  console.log(
+                    "Codigo del pedido creado:",
+                    res.data.data[0][0].codigoPedido
+                  );
+                  const emailBody = {
+                    codigoPedido: res.data.data[0][0].codigoPedido,
+                    correoUsuario: userEmail,
+                    fecha: dateString(),
+                  };
+                  const emailSent = sendOrderEmail(emailBody);
+                  emailSent
+                    .then((response) => {
+                      setIsAlertSec(false);
+                      console.log("Respuesta de la creacion", response);
+                      setAlert("Pedido Creado correctamente");
+                      setIsAlert(true);
+                      setTimeout(() => {
+                        navigate("/principal");
+                        setisLoading(false);
+                      }, 3000);
+                    })
+                    .catch((error) => {
+                      console.log("Error al enviar el correo", error);
+                    });
+                });
+              })
+              .catch((error) => {
+                console.log("Error", error);
+              });
+          })
+          .catch((error) => {
+            console.log("errooooooor");
+            setIsAlertSec(false);
+            setAlert(error.response.data.message);
+            setIsAlert(true);
+            console.log("Error de updateo", error.response.data.message);
+          });
+      } else {
+        setIsAlert(true);
       }
     });
-    if (error) {
-      setAlert(ErrorMessage);
-      setIsAlert(true);
-      console.log(
-        "Uno de los valores ingresados excede la capacidad disponible"
-      );
-    } else {
-      setAlert("Todo bien");
-      setIsAlert(true);
-    }
-    const ped = {
-      productos: precios,
-      total: tot,
-    };
-    setPedidoFinal(ped);
-    console.log("Pedido final", ped);
-    console.log("prezioz", precios);
   }
+
   function handleDiscount(value) {
     setDescuento(value);
   }
@@ -190,6 +382,15 @@ export default function FormNewOrder() {
             Confirmo, cerrar alerta
           </Button>
         </Modal.Footer>
+      </Modal>
+      <Modal show={isAlertSec}>
+        <Modal.Header closeButton>
+          <Modal.Title>{alertSec}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {" "}
+          <Image src={loading2} style={{ width: "5%" }} />
+        </Modal.Body>
       </Modal>
       <Form className="d-flex">
         <Form.Control
@@ -265,7 +466,7 @@ export default function FormNewOrder() {
           >
             <option>Seleccione producto</option>
 
-            {prodList.map((producto) => {
+            {available.map((producto) => {
               return (
                 <option
                   value={JSON.stringify(producto)}
@@ -297,6 +498,10 @@ export default function FormNewOrder() {
             <div className="comments">
               <Form.Control
                 type="text"
+                onChange={(e) => {
+                  setObservaciones(e.target.value);
+                }}
+                value={observaciones}
                 placeholder="Observaciones"
               ></Form.Control>
             </div>
@@ -367,13 +572,13 @@ export default function FormNewOrder() {
                             }
                             onChange={(e) =>
                               changeQuantitys(
+                                sp.idProducto,
                                 sp.codInterno,
                                 e.target.value,
                                 sp.precioDeFabrica,
-                                sp.aplicaDescuento,
-                                totales[index]
-                                  ? totales[index].stock.cant_Actual
-                                  : 0
+                                available.find(
+                                  (pr) => pr.idProducto === sp.idProducto
+                                ).cant_Actual
                               )
                             }
                           />
@@ -386,9 +591,11 @@ export default function FormNewOrder() {
                             : 0}
                         </td>
                         <td className="tableColumnSmall">
-                          {totales[index]
-                            ? totales[index].stock.cant_Actual
-                            : 0}
+                          {
+                            available.find(
+                              (pr) => pr.idProducto === sp.idProducto
+                            ).cant_Actual
+                          }
                         </td>
                       </tr>
                     );
@@ -430,9 +637,13 @@ export default function FormNewOrder() {
               <Button
                 variant="warning"
                 className="yellowLarge"
-                onClick={() => structureOrder()}
+                onClick={() => validateAvailability()}
               >
-                Cargar
+                {isLoading ? (
+                  <Image src={loading2} style={{ width: "5%" }} />
+                ) : (
+                  "Cargar Pedido"
+                )}
               </Button>
             </div>
           </Form.Group>

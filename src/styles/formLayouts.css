@@ -1,8 +1,7 @@
 .form {
   display: flex;
-  width: 99%;
-  padding-left: 1%;
-  align-items: stretch;
+  width: 100%;
+  align-items: baseline;
 }
 .sidebarDisplay {
   flex: 1;
@@ -37,7 +36,9 @@
 }
 .user {
   width: 100%;
-  padding-bottom: 0.5%;
+  padding-bottom: 0.1%;
+  background-color: #6a4593;
+  padding-right: 1%;
 }
 .formLabel {
   padding-bottom: 2%;
@@ -67,6 +68,11 @@
   padding-top: 2%;
   padding-bottom: 3%;
   width: 50%;
+}
+.fullRadio {
+  padding-top: 2%;
+  padding-bottom: 3%;
+  width: 100%;
 }
 .save {
   background-color: white;
@@ -222,7 +228,7 @@
 .selectorFull {
   background-color: #5cb8b2;
   color: white;
-  width: 80%;
+  width: 99%;
   border-color: white;
 }
 .invoiceDisplay {
@@ -239,4 +245,25 @@
 }
 .halfContainer {
   flex-direction: row;
+}
+
+.halfSelectors {
+  display: flex;
+  justify-content: space-between;
+}
+
+.halfSelect {
+  width: 45%;
+}
+
+.datePicker {
+  width: 45%;
+}
+
+.fileInput {
+  width: 40%;
+}
+.inputButton {
+  background-color: #5cb8b2;
+  color: white;
 }

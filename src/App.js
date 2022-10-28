@@ -16,6 +16,12 @@ import MainPage from "./Components/mainPage";
 import { UserProvider } from "./Context/UserContext";
 import CreateUser from "./Components/createUser";
 import UpdateClients from "./Components/updateClients";
+import RequireAuth from "./services/RequireAuth";
+import UpdateUser from "./Components/updateUser";
+import Transfer from "./Components/transfer";
+import ManageTransfer from "./Components/manageTransfer";
+import ViewTransfer from "./Components/viewTransfer";
+import UploadProducts from "./Components/uploadProducts";
 function App() {
   return (
     <div className="App">
@@ -23,18 +29,142 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Login></Login>}></Route>
-            <Route path="/display" element={<Display />} />
-            <Route path="/editarProducto" element={<EditProducts />}></Route>
-            <Route path="/nuevoProducto" element={<CreateProduct />}></Route>
-            <Route path="/adminPedidos" element={<ManageOrders />} />
-            <Route path="/modPedidos" element={<ModifyOrder />} />
-            <Route path="/regCliente" element={<RegisterClient />} />
-            <Route path="/buscarCliente" element={<FindClient />} />
-            <Route path="/regPedido" element={<NewOrder />} />
-            <Route path="/facturar" element={<NewInvoice />} />
-            <Route path="/principal" element={<MainPage />} />
-            <Route path="/nuevoUsuario" element={<CreateUser />} />
-            <Route path="/editarCliente" element={<UpdateClients />} />
+            <Route
+              path="/display"
+              element={
+                <RequireAuth>
+                  <Display />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/editarProducto"
+              element={
+                <RequireAuth>
+                  <EditProducts />
+                </RequireAuth>
+              }
+            ></Route>
+            <Route
+              path="/nuevoProducto"
+              element={
+                <RequireAuth>
+                  <CreateProduct />
+                </RequireAuth>
+              }
+            ></Route>
+            <Route
+              path="/adminPedidos"
+              element={
+                <RequireAuth>
+                  <ManageOrders />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/modPedidos"
+              element={
+                <RequireAuth>
+                  <ModifyOrder />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/regCliente"
+              element={
+                <RequireAuth>
+                  <RegisterClient />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/buscarCliente"
+              element={
+                <RequireAuth>
+                  <FindClient />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/regPedido"
+              element={
+                <RequireAuth>
+                  <NewOrder />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturar"
+              element={
+                <RequireAuth>
+                  <NewInvoice />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/principal"
+              element={
+                <RequireAuth>
+                  <MainPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/nuevoUsuario"
+              element={
+                <RequireAuth>
+                  <CreateUser />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/editarCliente"
+              element={
+                <RequireAuth>
+                  <UpdateClients />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/editarUsuario"
+              element={
+                <RequireAuth>
+                  <UpdateUser />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/traspaso"
+              element={
+                <RequireAuth>
+                  <Transfer />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/adminTraspaso"
+              element={
+                <RequireAuth>
+                  <ManageTransfer />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/verTraspaso"
+              element={
+                <RequireAuth>
+                  <ViewTransfer />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/cargarProductos"
+              element={
+                <RequireAuth>
+                  <UploadProducts />
+                </RequireAuth>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </UserProvider>

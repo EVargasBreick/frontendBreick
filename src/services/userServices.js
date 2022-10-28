@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from "../config.json";
+import { dateString } from "./dateServices";
 
 const controlUserInput = (
   nombre,
@@ -90,9 +91,9 @@ const structureUser = (
     rol: categoria,
     usuario: usuario,
     password: password,
-    fultimoa: new Date(),
-    fcreacion: new Date(),
-    factualizacion: new Date(),
+    fultimoa: dateString(),
+    fcreacion: dateString(),
+    factualizacion: dateString(),
     usuariocrea: idUsuario,
     idioma: idioma,
     idAlmacen: agencia,

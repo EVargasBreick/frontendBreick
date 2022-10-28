@@ -13,7 +13,7 @@ import {
 } from "../services/userServices";
 import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
-export default function FormNewUser() {
+export default function FormUpdateUser() {
   const [nombre, setNombre] = useState("");
   const [apPaterno, setapPaterno] = useState("");
   const [apMaterno, setapMaterno] = useState("");
@@ -194,42 +194,6 @@ export default function FormNewUser() {
               placeholder="ingrese apellido"
             />
           </Form.Group>
-          <Form.Group className="half" controlId="password">
-            <Form.Label>Contrasena</Form.Label>
-            <Form.Control
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="ingrese password"
-            />
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId="lastName">
-            <Form.Label>Ap. Materno</Form.Label>
-            <Form.Control
-              type="text"
-              onChange={(e) => setapMaterno(e.target.value)}
-              placeholder="ingrese apellido"
-            />
-          </Form.Group>
-          <Form.Group className="half" controlId="vpassword">
-            <Form.Label>Confirmar Contrasena</Form.Label>
-            <Form.Control
-              onChange={(e) => setvPassword(e.target.value)}
-              type="password"
-              placeholder="ingrese password nuevamente"
-            />
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId="ci">
-            <Form.Label>CI/Documento</Form.Label>
-            <Form.Control
-              onChange={(e) => setCi(e.target.value)}
-              type="text"
-              placeholder="ingrese numero de documento"
-            />
-          </Form.Group>
           <Form.Group className="half" controlId="access">
             <Form.Label>Acceso</Form.Label>
             <Form.Select onChange={(e) => setAcceso(e.target.value)}>
@@ -240,12 +204,12 @@ export default function FormNewUser() {
           </Form.Group>
         </div>
         <div className="halfContainer">
-          <Form.Group className="half" controlId="email">
-            <Form.Label>Correo Electronico</Form.Label>
+          <Form.Group className="half" controlId="lastName">
+            <Form.Label>Ap. Materno</Form.Label>
             <Form.Control
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="ingrese correo"
+              type="text"
+              onChange={(e) => setapMaterno(e.target.value)}
+              placeholder="ingrese apellido"
             />
           </Form.Group>
           <Form.Group className="half" controlId="category">
@@ -263,7 +227,14 @@ export default function FormNewUser() {
           </Form.Group>
         </div>
         <div className="halfContainer">
-          <Form.Group className="half" controlId=""></Form.Group>
+          <Form.Group className="half" controlId="ci">
+            <Form.Label>CI/Documento</Form.Label>
+            <Form.Control
+              onChange={(e) => setCi(e.target.value)}
+              type="text"
+              placeholder="ingrese numero de documento"
+            />
+          </Form.Group>
           <Form.Group className="half" controlId="languaje">
             <Form.Label>Idioma</Form.Label>
             <Form.Select onChange={(e) => setIdioma(e.target.value)}>
@@ -279,22 +250,13 @@ export default function FormNewUser() {
           </Form.Group>
         </div>
         <div className="halfContainer">
-          <Form.Group className="half" controlId="create">
-            <div className="buttonsLarge">
-              <Button
-                variant="warning"
-                className="cyanLarge"
-                onClick={() => {
-                  userVerification();
-                }}
-              >
-                {isLoading ? (
-                  <Image src={loading2} style={{ width: "5%" }} />
-                ) : (
-                  "Crear"
-                )}
-              </Button>
-            </div>
+          <Form.Group className="half" controlId="email">
+            <Form.Label>Correo Electronico</Form.Label>
+            <Form.Control
+              type="email"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ingrese correo"
+            />
           </Form.Group>
           <Form.Group className="half" controlId="formBasicEmail">
             <Form.Label>Agencia</Form.Label>
@@ -314,6 +276,28 @@ export default function FormNewUser() {
                 );
               })}
             </Form.Select>
+          </Form.Group>
+        </div>
+        <div className="halfContainer">
+          <Form.Group className="half" controlId=""></Form.Group>
+        </div>
+        <div className="halfContainer">
+          <Form.Group className="half" controlId="create">
+            <div className="buttonsLarge">
+              <Button
+                variant="warning"
+                className="cyanLarge"
+                onClick={() => {
+                  userVerification();
+                }}
+              >
+                {isLoading ? (
+                  <Image src={loading2} style={{ width: "5%" }} />
+                ) : (
+                  "Crear"
+                )}
+              </Button>
+            </div>
           </Form.Group>
         </div>
       </Form>

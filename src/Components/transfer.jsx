@@ -1,13 +1,14 @@
 import React from "react";
 import Display from "./display";
-import "../styles/generalStyle.css";
+
 import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
-import FormNewUser from "./formNewUser";
-export default function CreateUser() {
+import "../styles/generalStyle.css";
+import FormNewTransfer from "./formNewTransfer";
+export default function Transfer() {
   return (
     <div>
-      <div className="user">
+      <div className="userBar">
         <div></div>
         <Display />
       </div>
@@ -16,7 +17,7 @@ export default function CreateUser() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormNewUser />
+          <FormNewTransfer />
         </div>
       </div>
     </div>

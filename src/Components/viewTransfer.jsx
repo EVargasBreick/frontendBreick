@@ -3,11 +3,12 @@ import Display from "./display";
 import "../styles/generalStyle.css";
 import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
-import FormNewUser from "./formNewUser";
-export default function CreateUser() {
+
+import FormViewTransfer from "./formViewTransfer";
+export default function ViewTransfer() {
   return (
     <div>
-      <div className="user">
+      <div className="userBar">
         <div></div>
         <Display />
       </div>
@@ -16,7 +17,7 @@ export default function CreateUser() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormNewUser />
+          <FormViewTransfer />
         </div>
       </div>
     </div>

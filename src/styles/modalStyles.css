@@ -1,0 +1,14 @@
+.formModal {
+  max-width: none !important;
+}
+.modalHeader {
+  color: white;
+  background-color: #6a4593;
+  text-align: center;
+  padding-left: 1%;
+}
+.modalHeaderAlt {
+  color: #6a4593;
+  justify-content: center;
+  padding-left: 1%;
+}

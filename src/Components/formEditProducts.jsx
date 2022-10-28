@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import "../styles/formLayouts.css";
+import "../styles/generalStyle.css";
 import { getProducts } from "../services/productServices";
 export default function FormEditProducts() {
   const [desc, setDesc] = useState(false);

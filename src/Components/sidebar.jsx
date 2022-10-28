@@ -46,6 +46,7 @@ import Screen from "../assets/screen.png";
 import News from "../assets/news.png";
 import Hand from "../assets/hand.png";
 import { useNavigate } from "react-router-dom";
+import "../styles/generalStyle.css";
 export default function Sidebar() {
   const [toggled, setToggled] = useState(false);
   const [toggledProd, setToggledProd] = useState(false);
@@ -167,11 +168,15 @@ export default function Sidebar() {
               open={toggledProd}
               icon={<Image src={Prod} className="compIcon"></Image>}
             >
+              <MenuItem onClick={() => redirectOnClick("/nuevoProducto")}>
+                <Image src={File1} className="icon"></Image>
+                Crear Producto
+              </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/editarProducto")}>
                 <Image src={File1} className="icon"></Image>
-                Gestion Productos
+                Editar Producto
               </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/nuevoProducto")}>
+              <MenuItem onClick={() => redirectOnClick("/cargarProductos")}>
                 {" "}
                 <Image src={NewFile} className="icon"></Image>
                 Agregar productos
@@ -186,11 +191,22 @@ export default function Sidebar() {
               icon={<Image src={Barcode} className="compIcon"></Image>}
             >
               <MenuItem onClick={() => redirectOnClick("/adminPedidos")}>
-                <Image src={Check} className="icon"></Image>Aprobar Pedidos
+                <Image src={Check} className="icon"></Image>Aprobar Pedido
               </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/modPedidos")}>
                 <Image src={leftArrow} className="icon"></Image>
-                Modificar/Cancelar Pedidos
+                Modificar/Cancelar Pedido
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/traspaso")}>
+                {" "}
+                <Image src={ReturnWare} className="icon inverted"></Image>
+                Traspaso productos
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}>
+                <Image src={Check} className="icon"></Image>Aprobar Traspasos
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/verTraspaso")}>
+                <Image src={newOrder} className="icon"></Image>Ver Traspasos
               </MenuItem>
             </SubMenu>
             <SubMenu
@@ -397,7 +413,7 @@ export default function Sidebar() {
                 <Image src={Screen} className="icon"></Image>Registro estacion
                 de trabajo
               </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/editarUsuario")}>
                 <Image src={Gears} className="icon"></Image>Modificar usuarios
                 del sistema
               </MenuItem>
@@ -435,17 +451,17 @@ export default function Sidebar() {
               open={toggledRut}
               icon={<Image src={Truck} className="compIcon"></Image>}
             >
-              <MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/regPedido")}>
                 <Image src={Log} className="icon"></Image>Registro de Pedido
               </MenuItem>
               <MenuItem>
                 <Image src={Invoice} className="icon"></Image>Emision de
                 Facturas
               </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/regCliente")}>
                 <Image src={Client} className="icon"></Image>Gestion de clientes
               </MenuItem>
-              <MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/buscarCliente")}>
                 <Image src={Client} className="icon"></Image>Modificacion de
                 clientes
               </MenuItem>

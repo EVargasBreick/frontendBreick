@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Button, Modal, Alert, Image } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import "../styles/formLayouts.css";
+import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
 import { getLanguajes } from "../services/langServices";
 import { getDias, getZonas } from "../services/miscServices";
@@ -85,11 +86,11 @@ export default function FormRegisterClient() {
     }
   };
   useEffect(() => {
-    setIdUsuarioActual(JSON.parse(Cookies.get("userAuth")).idUsuario);
-    console.log(
-      "Id Usuario actual",
-      JSON.parse(Cookies.get("userAuth")).idUsuario
-    );
+    console.log("Userrr", Cookies.get("userAuth"));
+    if (Cookies.get("userAuth")) {
+      setIdUsuarioActual(JSON.parse(Cookies.get("userAuth")).idUsuario);
+    }
+
     const usuarios = userBasic();
     usuarios.then((usu) => {
       setUsArray(usu.data[0]);

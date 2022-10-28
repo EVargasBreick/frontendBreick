@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@david.kucsai/react-pdf-table": "^0.4.1",
+    "@react-pdf/renderer": "^3.0.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
@@ -12,19 +14,23 @@
     "js-cookie": "^3.0.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
+    "react-csv": "^2.2.2",
     "react-custom-checkbox": "^2.0.2",
     "react-custom-radio": "^1.0.7",
     "react-custom-radio-buttons-group": "^1.0.5",
-    "react-custom-radio-checkbox": "^1.0.2",
+    "react-digital-clock": "^0.1.2",
     "react-dom": "^18.2.0",
+    "react-export-excel": "^0.5.3",
     "react-icons": "^4.4.0",
     "react-pro-sidebar": "^0.7.1",
     "react-radio-buttons": "^1.2.2",
     "react-radioimg": "^1.1.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
+    "react-whatsapp": "^0.3.0",
     "sass": "^1.54.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -49,5 +55,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "json-loader": "^0.5.7"
   }
 }

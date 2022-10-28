@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Button, Modal, Alert, Image } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import "../styles/formLayouts.css";
+
 import loading2 from "../assets/loading2.gif";
 import { getLanguajes } from "../services/langServices";
 import { getDias, getZonas } from "../services/miscServices";
@@ -99,6 +100,10 @@ export default function FormEditClient(props) {
     }
   };
   useEffect(() => {
+    const UsuarioAct = Cookies.get("userAuth");
+    if (UsuarioAct) {
+      setIdUsuarioActual(JSON.parse(UsuarioAct).idUsuario);
+    }
     setisLoading(true);
     const usuarios = userBasic();
     usuarios.then((usu) => {
@@ -119,7 +124,6 @@ export default function FormEditClient(props) {
     getCliente();
     getContacts();
     console.log("id usuario a editar", props.id);
-    setIdUsuarioActual(JSON.parse(Cookies.get("userAuth")).idUsuario);
   }, []);
 
   function getContacts() {
@@ -132,7 +136,7 @@ export default function FormEditClient(props) {
       setNombrecb(
         res.data.data[0][1] !== undefined ? res.data.data[0][1].nombre : ""
       );
-      setNombrecb(
+      setNombrecc(
         res.data.data[0][2] !== undefined ? res.data.data[0][2].nombre : ""
       );
       setCorreoca(
@@ -430,7 +434,7 @@ export default function FormEditClient(props) {
                     setZona(e.target.value);
                   }}
                 >
-                  <option>S/Z</option>
+                  <option>{zonaActual ? zonaActual : "S/Z"}</option>
                   {gZonas.map((z) => {
                     return (
                       <option value={z.idZona} key={z.idZona}>
@@ -439,7 +443,6 @@ export default function FormEditClient(props) {
                     );
                   })}
                 </Form.Select>
-                <div>{"Valor actual: " + zonaActual}</div>
               </Form.Group>
               <Form.Group className="halfRadio" controlId="productDisccount">
                 <Form.Check
@@ -584,7 +587,9 @@ export default function FormEditClient(props) {
                     setIdioma(e.target.value);
                   }}
                 >
-                  <option>- Seleccione idioma * -</option>
+                  <option>
+                    {idiomaActual ? idiomaActual : "- Seleccione Idioma -"}
+                  </option>
 
                   {lang.map((z) => {
                     return (
@@ -594,7 +599,6 @@ export default function FormEditClient(props) {
                     );
                   })}
                 </Form.Select>
-                <div>{"Idioma actual: " + idiomaActual}</div>
               </Form.Group>
               <Form.Group className="selectHalf" controlId="productType">
                 <Form.Select
@@ -602,7 +606,10 @@ export default function FormEditClient(props) {
                     setTipop(e.target.value);
                   }}
                 >
-                  <option> - Seleccione tipo de precio * -</option>
+                  <option>
+                    {" "}
+                    {tipoP ? tipoP : "- Seleccione tipo de precio * -"}
+                  </option>
                   <option value="normal" key="1">
                     Normal
                   </option>
@@ -611,14 +618,17 @@ export default function FormEditClient(props) {
                   </option>
                 </Form.Select>
               </Form.Group>
-              <div>Valor actual:{tipoP}</div>
+
               <Form.Group className="selectHalf" controlId="productType">
                 <Form.Select
                   onChange={(e) => {
                     setFrecuencia(e.target.value);
                   }}
                 >
-                  <option> - Seleccionar Frecuencia * - </option>
+                  <option>
+                    {" "}
+                    {frecActual ? frecActual : "- Seleccione Frecuencia -"}
+                  </option>
                   {diasArray.map((z) => {
                     return (
                       <option value={z.idDiasFrec} key={z.idDiasFrec}>
@@ -627,7 +637,6 @@ export default function FormEditClient(props) {
                     );
                   })}
                 </Form.Select>
-                <div>{"Frecuencia actual: " + frecActual}</div>
               </Form.Group>
               <Form.Group className="selectHalf" controlId="productType">
                 <Form.Select
@@ -635,7 +644,12 @@ export default function FormEditClient(props) {
                     setUsuario(e.target.value);
                   }}
                 >
-                  <option> - Seleccionar Vendedor * -</option>
+                  <option>
+                    {" "}
+                    {usuarioActual
+                      ? usuarioActual
+                      : "- Seleccionar Vendedor * -"}
+                  </option>
                   {usArray.map((z) => {
                     return (
                       <option value={z.idUsuario} key={z.idUsuario}>
@@ -644,7 +658,6 @@ export default function FormEditClient(props) {
                     );
                   })}
                 </Form.Select>
-                <div>{"Vendedor actual: " + usuarioActual}</div>
               </Form.Group>
             </Form>
           </div>

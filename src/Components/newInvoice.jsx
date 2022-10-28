@@ -3,10 +3,12 @@ import { Button } from "react-bootstrap";
 import Display from "./display";
 import Sidebar from "./sidebar";
 import "../styles/buttonsStyles.css";
+import "../styles/generalStyle.css";
 export default function NewInvoice() {
   return (
     <div>
-      <div className="user">
+      <div className="userBar">
+        <div></div>
         <Display />
       </div>
       <div className="form">

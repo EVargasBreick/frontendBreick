@@ -3,8 +3,6 @@ import { Button } from "react-bootstrap";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 
-import Image from "react-bootstrap/Image";
-import User from "../assets/client.png";
 import "../styles/generalStyle.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -18,10 +16,21 @@ export default function CurrentUser() {
   const { setIsAuth, setuserData } = useContext(UserContext);
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
+
     if (isLogged) {
+      console.log("Usuario autenticado", JSON.parse(Cookies.get("userAuth")));
+      console.log(
+        "Hora actual",
+        new Date().getHours(),
+        new Date().getMinutes()
+      );
       setIsAuth(true);
       setuserData(isLogged);
-      setUserName(JSON.parse(Cookies.get("userAuth")).nombre);
+      setUserName(
+        `${JSON.parse(Cookies.get("userAuth")).nombre} ${
+          JSON.parse(Cookies.get("userAuth")).apPaterno
+        } ${JSON.parse(Cookies.get("userAuth")).apMaterno}`
+      );
     } else {
       navigate("/");
     }
@@ -31,33 +40,23 @@ export default function CurrentUser() {
     navigate("/");
   }
   return (
-    <div className="user">
-      <Dropdown>
-        <Dropdown.Toggle
-          variant="info"
-          id="dropdown-basic"
-          style={{ color: "white", backgroundColor: "#5cb8b2" }}
+    <Dropdown>
+      <Dropdown.Toggle
+        variant="light"
+        id="dropdown-basic"
+        className="dropButton"
+      >
+        {userName}
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        <Dropdown.Item
+          onClick={() => {
+            logOut();
+          }}
         >
-          {userName}
-        </Dropdown.Toggle>
-
-        <Dropdown.Menu>
-          <Dropdown.Item
-            onClick={() => {
-              console.log("Esto va a editar perfil");
-            }}
-          >
-            Editar perfil
-          </Dropdown.Item>
-          <Dropdown.Item
-            onClick={() => {
-              logOut();
-            }}
-          >
-            Cerrar Sesión
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-    </div>
+          Cerrar Sesión
+        </Dropdown.Item>
+      </Dropdown.Menu>
+    </Dropdown>
   );
 }
