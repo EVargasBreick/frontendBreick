@@ -16,7 +16,7 @@ import { getOrderStatus, getOrderType } from "../services/orderServices";
 import { numberOfClients } from "../services/clientServices";
 import loading2 from "../assets/loading2.gif";
 import { numberOfProducts } from "../services/productServices";
-
+import Cookies from "js-cookie";
 import "../styles/generalStyle.css";
 export default function MainPage() {
   const [estados, setEstados] = useState([]);
@@ -27,7 +27,16 @@ export default function MainPage() {
   const [normal, setNormal] = useState(0);
   const [muestra, setMuestra] = useState(0);
   const [reserva, setReserva] = useState(0);
+  const navigate = useNavigate();
   useEffect(() => {
+    const user = Cookies.get("userAuth");
+
+    if (user) {
+      console.log("Rol del usuario:", JSON.parse(Cookies.get("userAuth")).rol);
+      if (JSON.parse(Cookies.get("userAuth")).rol == 2) {
+        navigate("/ventaAgencia");
+      }
+    }
     const stats = getOrderStatus();
     stats.then((response) => {
       setEstados(response.data.data);

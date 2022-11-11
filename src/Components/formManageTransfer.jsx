@@ -218,7 +218,7 @@ export default function FormManageTransfer() {
         </Modal.Header>
         <Modal.Body>
           {!isLoading ? (
-            <Table bordered striped hover className="table">
+            <Table bordered striped hover className="tableSide">
               <thead>
                 <tr className="tableHeader">
                   <th className="tableColumnSmall">Nro</th>

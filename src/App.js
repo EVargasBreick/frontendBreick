@@ -22,6 +22,9 @@ import Transfer from "./Components/transfer";
 import ManageTransfer from "./Components/manageTransfer";
 import ViewTransfer from "./Components/viewTransfer";
 import UploadProducts from "./Components/uploadProducts";
+import NewSale from "./Components/newSale";
+import LogKardexReport from "./Components/logKardexReport";
+import CurrentKardexReport from "./Components/currentKardexReport";
 function App() {
   return (
     <div className="App">
@@ -162,6 +165,30 @@ function App() {
               element={
                 <RequireAuth>
                   <UploadProducts />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/ventaAgencia"
+              element={
+                <RequireAuth>
+                  <NewSale />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/log/kardex"
+              element={
+                <RequireAuth>
+                  <LogKardexReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/actual/kardex"
+              element={
+                <RequireAuth>
+                  <CurrentKardexReport />
                 </RequireAuth>
               }
             />

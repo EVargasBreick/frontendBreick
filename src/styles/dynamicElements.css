@@ -10,3 +10,7 @@
 .radioOp {
   background-color: red;
 }
+.hiddenQr {
+  width: 1%;
+  height: 1%;
+}

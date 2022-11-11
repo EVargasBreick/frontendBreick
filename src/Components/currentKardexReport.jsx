@@ -1,20 +1,26 @@
 import React from "react";
-
 import Display from "./display";
 import "../styles/formLayouts.css";
-import "../styles/generalStyle.css";
 import Sidebar from "./sidebar";
-import FormEditClient from "./formEditClient";
-import { useLocation } from "react-router-dom";
+import "../styles/generalStyle.css";
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-export default function UpdateClient() {
-  const location = useLocation();
+import Cookies from "js-cookie";
+
+import BodyCurrentKardex from "./bodyCurrentKardex";
+export default function CurrentKardexReport() {
   const navigate = useNavigate();
   useEffect(() => {
-    console.log("Props pasados", location);
-    if (location.state == null) {
-      navigate("/principal");
+    const user = Cookies.get("userAuth");
+    if (user) {
+      console.log("Rol del usuario:", JSON.parse(Cookies.get("userAuth")).rol);
+      if (JSON.parse(Cookies.get("userAuth")).rol < 10) {
+        console.log("Todo bien");
+      } else {
+        navigate("/principal");
+        console.log("Error");
+      }
     }
   }, []);
   return (
@@ -28,9 +34,7 @@ export default function UpdateClient() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormEditClient
-            id={location.state != null ? location.state.id : null}
-          />
+          <BodyCurrentKardex />
         </div>
       </div>
     </div>

@@ -5,7 +5,6 @@ const getStores = () => {
     axios
       .get(`${config.endpointUrl}:${config.endpointPort}/agencias`)
       .then((response) => {
-        console.log("Respuesta: ", response.data[0]);
         resolve(response);
       });
   });

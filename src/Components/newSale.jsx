@@ -1,23 +1,22 @@
 import React from "react";
 import Display from "./display";
-import "../styles/generalStyle.css";
-import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
+import "../styles/generalStyle.css";
+import FormNewSale from "./formNewSale";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import FormNewProduct from "./formNewProduct";
-export default function CreateProduct() {
+export default function NewSale() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-
     if (user) {
       console.log("Rol del usuario:", JSON.parse(Cookies.get("userAuth")).rol);
       if (
+        JSON.parse(Cookies.get("userAuth")).rol == 2 ||
         JSON.parse(Cookies.get("userAuth")).rol == 1 ||
         JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 10
+        JSON.parse(Cookies.get("userAuth")).rol == 9
       ) {
         console.log("Todo bien");
       } else {
@@ -37,7 +36,7 @@ export default function CreateProduct() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormNewProduct />
+          <FormNewSale />
         </div>
       </div>
     </div>

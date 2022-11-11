@@ -20,7 +20,7 @@ import {
   verifyOblFields,
 } from "../services/clientServices";
 import { useNavigate } from "react-router-dom";
-export default function FormRegisterClient() {
+export default function FormRegisterClient(props) {
   const [active, setActive] = useState(true);
   const [isLoading, setisLoading] = useState(false);
   const [razonSocial, setRazonSocial] = useState("");
@@ -196,10 +196,19 @@ export default function FormRegisterClient() {
                                   .then((contact) => {
                                     setIsAlert(true);
                                     setAlert("Cliente creado correctamente");
-                                    setTimeout(() => {
-                                      navigate("/principal");
-                                      setisLoading(false);
-                                    }, 3000);
+                                    if (props.isModal) {
+                                      Cookies.set("nit", nit);
+                                      setTimeout(() => {
+                                        window.location.reload(false);
+                                        setisLoading(false);
+                                      }, 1000);
+                                    } else {
+                                      setTimeout(() => {
+                                        navigate("/principal");
+                                        setisLoading(false);
+                                      }, 3000);
+                                    }
+
                                     console.log(contact);
                                   })
                                   .catch((err) => {

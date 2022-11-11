@@ -32,4 +32,15 @@ function ExportTemplate() {
     resolve(true);
   });
 }
-export { ExportToExcel, ExportTemplate };
+function ExportPastReport(objReporte, nombre, fecha) {
+  return new Promise((resolve) => {
+    var ws_data = objReporte;
+    var ws = XLSX.utils.json_to_sheet(ws_data);
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, `Reporte Kardex`);
+    XLSX.writeFile(wb, `Reporte ${nombre} en ${fecha}.xlsx`);
+    resolve(true);
+  });
+}
+export { ExportToExcel, ExportTemplate, ExportPastReport };
