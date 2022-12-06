@@ -5,7 +5,7 @@ export default function QrComponent(datos) {
   return (
     <QRCodeCanvas
       id="invoiceQr"
-      value={JSON.stringify(datos.datos)}
+      value="123"
       size={144}
       bgColor="#FFF"
       fgColor="#000"

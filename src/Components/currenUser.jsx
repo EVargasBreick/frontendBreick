@@ -18,12 +18,6 @@ export default function CurrentUser() {
     const isLogged = Cookies.get("userAuth");
 
     if (isLogged) {
-      console.log("Usuario autenticado", JSON.parse(Cookies.get("userAuth")));
-      console.log(
-        "Hora actual",
-        new Date().getHours(),
-        new Date().getMinutes()
-      );
       setIsAuth(true);
       setuserData(isLogged);
       setUserName(

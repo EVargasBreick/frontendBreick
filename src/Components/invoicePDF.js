@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
 });
 
 // Create Document Component
-export default function InvoicePDF(datos) {
+export default function InvoicePDF() {
   const dataUrl = document.getElementById("invoiceQr").toDataURL();
   const convertido = convertToText(2.3);
   const productos = [
@@ -190,14 +190,14 @@ export default function InvoicePDF(datos) {
       total: 6,
     },
   ];
-  console.log("Datos en pdf", datos.datos);
+
   return (
     <Document>
       <Page style={styles.page} size="A7" wrap={false}>
         <View style={styles.section}>
           <Text style={styles.tittle}>Incadex S R L </Text>
           <Text style={styles.bodyText}>Ag San Miguel </Text>
-          <Text style={styles.bodyText}>{datos.datos} </Text>
+          <Text style={styles.bodyText}>" " </Text>
           <Text style={styles.bodyTextSep}>Calle 21 Nº8332 Calacoto </Text>
           <Text style={styles.bodyText}>Telefono 2771133 </Text>
           <Text style={styles.bodyText}>La Paz - Bolivia </Text>

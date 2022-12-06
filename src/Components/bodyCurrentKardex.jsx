@@ -437,7 +437,7 @@ export default function BodyCurrentKardex() {
                       sortBy("agencia");
                     }}
                   >
-                    {`Agencia  ${
+                    {`Agencia/Almacen  ${
                       !isSSorted ? "-" : storeSorted == 0 ? "▲" : "▼"
                     }`}
                   </td>

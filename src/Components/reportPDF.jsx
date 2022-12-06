@@ -197,7 +197,7 @@ export const ReportPDF = ({ productos, fecha }) => {
               borderColor: "#45236b",
             }}
           >
-            {" Ag/Alm "}
+            {" Agencia/Almacen "}
           </Text>
         </View>
         {productos.map((producto, index) => {
@@ -317,6 +317,28 @@ export const ReportPDF = ({ productos, fecha }) => {
             </View>
           );
         })}
+        <View
+          fixed
+          style={{
+            backgroundColor: "white",
+            paddingTop: "2%",
+            paddingBottom: "2%",
+          }}
+        >
+          <Text
+            style={{
+              backgroundColor: "#5cb8b2",
+              color: "white",
+              paddingTop: "2%",
+              paddingBottom: "2%",
+              fontSize: "8px",
+              paddingRight: "2%",
+              textAlign: "right",
+            }}
+          >
+            Incadex S.R.L. {new Date().getFullYear()}
+          </Text>
+        </View>
       </Page>
     </Document>
   );

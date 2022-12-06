@@ -79,7 +79,7 @@
   color: #6a4593;
 }
 .secondHalf {
-  padding-top: 3%;
+  padding-top: 0%;
   padding-bottom: 2%;
 }
 .buttons {
@@ -265,5 +265,36 @@
 }
 .inputButton {
   background-color: #5cb8b2;
+  color: white;
+}
+
+.rowFormInputs {
+  display: flex;
+  justify-content: space-around;
+}
+.searchHalf {
+  width: 45%;
+}
+
+.selectorColor {
+  background-color: #5cb8b2;
+  color: white;
+}
+.modalBody {
+  background-color: #69459348;
+}
+.modalTable {
+  background-color: white;
+  color: #6a4593;
+  text-align: center;
+}
+.tableModalHeader {
+  background-color: #5cb8b2;
+  color: white;
+
+  text-align: center;
+}
+.modalTitle {
+  background-color: #6a4593;
   color: white;
 }

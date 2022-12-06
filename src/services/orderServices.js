@@ -119,7 +119,7 @@ function randomIntFromInterval(min, max) {
 }
 
 const availabilityInterval = () => {
-  const randnumb = randomIntFromInterval(1000, 3000);
+  const randnumb = randomIntFromInterval(1000, 2000);
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(randnumb);
@@ -219,6 +219,23 @@ const updateDbOrder = (body) => {
   });
 };
 
+const deleteProductOrder = (body) => {
+  console.log("Enviando body de remover productos", body);
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${config.endpointUrl}:${config.endpointPort}/pedidos/productos/borrar`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   createOrder,
   getOrderStatus,
@@ -235,4 +252,5 @@ export {
   addProductToOrder,
   updateOrderProduct,
   updateDbOrder,
+  deleteProductOrder,
 };

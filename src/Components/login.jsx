@@ -128,6 +128,7 @@ export default function Login() {
                 value={password}
                 type="password"
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyPress={(e) => (e.key === "Enter" ? login() : null)}
               />
             </Form.Group>
             <Button

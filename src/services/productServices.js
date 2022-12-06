@@ -56,10 +56,23 @@ const availableProducts = (id) => {
   });
 };
 
+const productsDiscount = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${config.endpointUrl}:${config.endpointPort}/productos/descuentos?id=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
 export {
   getProducts,
   getUserStock,
   numberOfProducts,
   availableProducts,
   getProductsWithStock,
+  productsDiscount,
 };

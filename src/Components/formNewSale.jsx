@@ -6,30 +6,17 @@ import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
 import { getClient } from "../services/clientServices";
 import { useEffect } from "react";
-import {
-  availableProducts,
-  getProducts,
-  getProductsWithStock,
-  getUserStock,
-} from "../services/productServices";
+import { getProductsWithStock } from "../services/productServices";
 import Cookies from "js-cookie";
-import {
-  availabilityInterval,
-  createOrder,
-  getOrderList,
-  sendOrderEmail,
-  updateStock,
-} from "../services/orderServices";
 import { useNavigate } from "react-router-dom";
-import { dateString } from "../services/dateServices";
 import FormRegisterClient from "./formRegisterClient";
 import { convertToText } from "../services/numberServices";
 import QrComponent from "./qrComponent";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePDF from "./invoicePDF";
+import SaleModal from "./saleModal";
 export default function FormNewSale() {
   const [isClient, setIsClient] = useState(false);
-  const [isProduct, setIsProduct] = useState(false);
   const [search, setSearch] = useState("");
   const [clientes, setClientes] = useState([]);
   const [isLoading, setisLoading] = useState();
@@ -38,11 +25,7 @@ export default function FormNewSale() {
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
   const [isSelected, setIsSelected] = useState(false);
-  const [prodList, setprodList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [stock, setStock] = useState([]);
-  const [totales, setTotales] = useState([]);
-  const [precios, setPrecios] = useState([]);
   const [descuento, setDescuento] = useState(0);
   const [totalPrecio, setTotalPrecio] = useState(0);
   const [totalDesc, setTotalDesc] = useState(0);
@@ -53,13 +36,19 @@ export default function FormNewSale() {
   const [selectedClient, setSelectedClient] = useState("");
   const [productObj, setProductObj] = useState([]);
   const [observaciones, setObservaciones] = useState("");
-  const [available, setAvailable] = useState([]);
+  const [filtered, setFiltered] = useState("");
+  const [willCreate, setWillCreate] = useState(false);
+  const [available, setAvailable] = useState([
+    { nombreProducto: "Cargando..." },
+  ]);
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [userStore, setUserStore] = useState("");
   const [isCreate, setIsCreate] = useState(false);
   const [isInvoice, setIsInvoice] = useState(false);
   const [datos, setDatos] = useState("");
+  const [auxProducts, setAuxProducts] = useState([]);
+
   useEffect(() => {
     console.log("Convertidooo", convertToText(2898.5).texto);
     const preNit = Cookies.get("nit");
@@ -71,7 +60,6 @@ export default function FormNewSale() {
     if (UsuarioAct) {
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
-      console.log("Usuario actual", UsuarioAct.correo);
     }
     if (Cookies.get("userAuth")) {
       setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
@@ -81,6 +69,7 @@ export default function FormNewSale() {
       );
       disponibles.then((fetchedAvailable) => {
         setAvailable(fetchedAvailable.data[0]);
+        setAuxProducts(fetchedAvailable.data[0]);
       });
       const interval = setInterval(() => {
         const disponibles = getProductsWithStock(
@@ -108,11 +97,24 @@ export default function FormNewSale() {
         setisLoading(false);
       } else {
         setIsClient(false);
+        setWillCreate(true);
         setIsAlert(true);
         setAlert("Usuario no encontrado");
       }
     });
   }
+
+  function filterProducts(value) {
+    setFiltered(value);
+    const newList = auxProducts.filter(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
+        dt.codInterno.toString().includes(value.toString()) ||
+        dt.codigoBarras.toString().includes(value.toString())
+    );
+    setAvailable([...newList]);
+  }
+
   function filterSelectedClient(id) {
     setSelectedClient(id);
     const searchObject = clientes.find((cli) => cli.idCliente === id);
@@ -120,38 +122,70 @@ export default function FormNewSale() {
     array.push(searchObject);
     setClientes(array);
     setIsSelected(true);
+
     console.log("Cliente seleccionado: ", searchObject);
   }
 
-  function addProductToList(product) {
-    const produc = JSON.parse(product);
-    var aux = false;
-    console.log("Producto seleccionado:", produc);
-    selectedProducts.map((sp) => {
-      if (sp.codInterno === produc.codInterno) {
-        console.log("Producto repetido");
-        setAlert("El producto ya se encuentra seleccionado");
-        setIsAlert(true);
-        aux = true;
+  function addProductToList(action, product) {
+    if (action == "manual") {
+      const produc = JSON.parse(product);
+      var aux = false;
+      console.log("Producto seleccionado:", produc);
+      selectedProducts.map((sp) => {
+        if (sp.codInterno === produc.codInterno) {
+          console.log("Producto repetido");
+          setAlert("El producto ya se encuentra seleccionado");
+          setIsAlert(true);
+          aux = true;
+        }
+      });
+      if (!aux) {
+        const productObj = {
+          codInterno: produc.codInterno,
+          cantProducto: 1,
+          nombreProducto: produc.nombreProducto,
+          idProducto: produc.idProducto,
+          cant_Actual: produc.cant_Actual,
+          cantidadRestante: produc.cant_Actual,
+          precioDeFabrica: produc.precioDeFabrica,
+          total: produc.precioDeFabrica,
+        };
+        setSelectedProducts([...selectedProducts, productObj]);
       }
-    });
-    if (!aux) {
-      const productObj = {
-        codInterno: produc.codInterno,
-        cantProducto: "",
-        nombreProducto: produc.nombreProducto,
-        idProducto: produc.idProducto,
-        cant_Actual: produc.cant_Actual,
-        cantidadRestante: produc.cant_Actual,
-        precioDeFabrica: produc.precioDeFabrica,
-        total: 0,
-      };
-      setSelectedProducts([...selectedProducts, productObj]);
+    } else {
+      const selected = available.find((pr) => pr.codigoBarras === filtered);
+      if (selected) {
+        var aux = false;
+        selectedProducts.map((sp) => {
+          if (sp.codInterno === selected.codInterno) {
+            const indexSelected = selectedProducts.indexOf(sp);
+            changeQuantities(indexSelected, sp.cantProducto + 1, sp);
+            aux = true;
+          }
+        });
+        if (!aux) {
+          const productObj = {
+            codInterno: selected.codInterno,
+            cantProducto: 1,
+            nombreProducto: selected.nombreProducto,
+            idProducto: selected.idProducto,
+            cant_Actual: selected.cant_Actual,
+            cantidadRestante: selected.cant_Actual,
+            precioDeFabrica: selected.precioDeFabrica,
+            total: selected.precioDeFabrica,
+          };
+          setSelectedProducts([...selectedProducts, productObj]);
+        }
+
+        console.log("Selected:", selected);
+      }
+      setFiltered("");
     }
   }
 
   const handleClose = () => {
     setIsAlert(false);
+    setWillCreate(false);
     setisLoading(false);
     setIsCreate(false);
   };
@@ -160,7 +194,11 @@ export default function FormNewSale() {
     auxArray.splice(index, 1);
     setSelectedProducts(auxArray);
   }
-
+  function addWithScanner(e) {
+    e.preventDefault();
+    console.log("Leido por scanner", e.target.value);
+    addProductToList("scanner");
+  }
   function changeQuantities(index, cantidad, prod) {
     let auxObj = {
       codInterno: prod.codInterno,
@@ -175,31 +213,43 @@ export default function FormNewSale() {
     let auxSelected = [...selectedProducts];
     auxSelected[index] = auxObj;
     setSelectedProducts(auxSelected);
+    setTotalDesc(
+      (selectedProducts.reduce((accumulator, object) => {
+        return accumulator + object.total;
+      }, 0) *
+        (100 - descuento)) /
+        100
+    );
   }
-
+  function handleModal() {
+    console.log("Cliente", clientes);
+    setIsInvoice(false);
+    setTimeout(() => {
+      setIsInvoice(true);
+    }, 100);
+  }
   return (
     <div>
       <div className="formLabel">VENTAS AGENCIA</div>
       {isInvoice ? (
         <div>
-          <QrComponent className="hiddenQr" datos={datos} />
-          <Modal>
-            <Modal.Header closeButton>
-              <Modal.Title>CONFIRMAR VENTA</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{"Imprimir Factura?"}</Modal.Body>
-            <Modal.Footer>
-              <Button variant="danger" onClick={handleClose}>
-                Imprimir Factura
-              </Button>
-            </Modal.Footer>
-          </Modal>
-          <PDFDownloadLink
-            fileName={`fileName`}
-            document={<InvoicePDF datos={datos} />}
-          >
-            Click Me
-          </PDFDownloadLink>
+          <SaleModal
+            datos={{
+              total: selectedProducts.reduce((accumulator, object) => {
+                return accumulator + object.total;
+              }, 0),
+              descuento,
+              totalDescontado:
+                (selectedProducts.reduce((accumulator, object) => {
+                  return accumulator + object.total;
+                }, 0) *
+                  (100 - descuento)) /
+                100,
+              nit: clientes[0].nit,
+              razonSocial: clientes[0].razonSocial,
+            }}
+            show={true}
+          />
         </div>
       ) : null}
       <Modal show={isAlert} onHide={handleClose}>
@@ -211,9 +261,11 @@ export default function FormNewSale() {
           <Button variant="danger" onClick={handleClose}>
             Cerrar
           </Button>
-          <Button variant="success" onClick={() => setIsCreate(true)}>
-            Crear Cliente
-          </Button>
+          {willCreate ? (
+            <Button variant="success" onClick={() => setIsCreate(true)}>
+              Crear Cliente
+            </Button>
+          ) : null}
         </Modal.Footer>
       </Modal>
       <Modal show={isAlertSec}>
@@ -241,7 +293,7 @@ export default function FormNewSale() {
       <Form className="d-flex">
         <Form.Control
           type="search"
-          placeholder="Buscar cliente por nit o razon social"
+          placeholder="Ingrese Nit"
           className="me-2"
           aria-label="Search"
           value={search}
@@ -255,7 +307,7 @@ export default function FormNewSale() {
           {isLoading ? (
             <Image src={loading2} style={{ width: "5%" }} />
           ) : search.length < 1 ? (
-            "Buscar todos"
+            "Buscar"
           ) : (
             "Buscar"
           )}
@@ -269,6 +321,7 @@ export default function FormNewSale() {
                 <th className="tableColumnSmall"></th>
                 <th className="tableColumn">Nit</th>
                 <th className="tableColumn">Razon Social</th>
+                <th className="tableColumn">Zona</th>
               </tr>
             </thead>
             <tbody>
@@ -291,6 +344,7 @@ export default function FormNewSale() {
                     </td>
                     <td className="tableColumn">{client.nit}</td>
                     <td className="tableColumn">{client.razonSocial}</td>
+                    <td className="tableColumn">{client.zona}</td>
                   </tr>
                 );
               })}
@@ -300,56 +354,48 @@ export default function FormNewSale() {
       ) : null}
       <div className="formLabelPurple"></div>
       <div className="formLabel">AGREGAR PRODUCTOS</div>
-      <Form>
-        <Form.Group className="mb-3" controlId="order">
-          <Form.Select
-            className="selectorFull"
-            onChange={(e) => {
-              addProductToList(e.target.value);
-            }}
-          >
-            <option>Seleccione producto</option>
-
-            {available.map((producto) => {
-              return (
-                <option
-                  value={JSON.stringify(producto)}
-                  key={producto.idProducto}
-                >
-                  {producto.nombreProducto}
-                </option>
-              );
-            })}
-          </Form.Select>
-        </Form.Group>
-      </Form>
-
+      <div className="rowFormInputs">
+        <Form className="mb-3 halfSelect">
+          <Form.Group controlId="order">
+            <Form.Select
+              className="selectorColor"
+              onChange={(e) => {
+                addProductToList("manual", e.target.value);
+              }}
+            >
+              {available.map((producto, index) => {
+                return (
+                  <option value={JSON.stringify(producto)} key={index}>
+                    {producto.nombreProducto}
+                  </option>
+                );
+              })}
+            </Form.Select>
+          </Form.Group>
+        </Form>
+        <Form onSubmit={(e) => addWithScanner(e)} className="mb-3 searchHalf">
+          <Form.Group>
+            <Form.Control
+              type="text"
+              placeholder="Buscar"
+              value={filtered}
+              onChange={(e) => filterProducts(e.target.value)}
+            ></Form.Control>
+          </Form.Group>
+        </Form>
+      </div>
       <div>
         <Form>
-          <Form.Group>
-            <div className="formLabel">DESCUENTO (%)</div>
-            <div className="percent">
-              <Form.Control
-                min="0"
-                max="100"
-                value={datos}
-                disabled={isDesc}
-                type="number"
-                placeholder="Ingrese porcentaje"
-                onChange={(e) => setDatos(e.target.value)}
-              ></Form.Control>
-            </div>
-          </Form.Group>
           {selectedProducts.length > 0 ? (
             <div className="tableOne">
               <Table>
                 <thead>
                   <tr className="tableHeader">
                     <th className="tableColumnSmall"></th>
-                    <th className="tableColumnSmall">Codigo Producto</th>
+                    <th className="tableColumnSmall">Codigo</th>
                     <th className="tableColumn">Producto</th>
-                    <th className="tableColumnSmall">Precio Unidad</th>
-                    <th className="tableColumnSmall">Cantidad</th>
+                    <th className="tableColumnSmall">Precio Unidad/Kg</th>
+                    <th className="tableColumnSmall">{`Cantidad/Peso(Gr)`}</th>
                     <th className="tableColumnSmall">Total</th>
                     <th className="tableColumnSmall">Cantidad Disponible</th>
                   </tr>
@@ -361,8 +407,10 @@ export default function FormNewSale() {
                         <td className="tableColumnSmall">
                           <div>
                             <Button
+                              onSubmit={(e) => e.preventDefault()}
                               variant="warning"
                               className="tableButtonAlt"
+                              onClick={() => deleteProduct(index)}
                             >
                               Quitar
                             </Button>
@@ -412,20 +460,34 @@ export default function FormNewSale() {
                   </tr>
                 </tfoot>
               </Table>
+              <Form.Group>
+                <Form.Group>
+                  <div className="formLabel">DESCUENTO (%)</div>
+                  <div className="percent">
+                    <Form.Control
+                      min="0"
+                      max="100"
+                      value={descuento}
+                      disabled={isDesc}
+                      type="number"
+                      placeholder="Ingrese porcentaje"
+                      onChange={(e) => setDescuento(e.target.value)}
+                    ></Form.Control>
+                  </div>
+                </Form.Group>
+                <div className="formLabel">CONFIRMAR PRODUCTOS</div>
+                <div className="percent">
+                  <Button
+                    variant="warning"
+                    className="yellowLarge"
+                    onClick={() => handleModal()}
+                  >
+                    Ir A Facturar
+                  </Button>
+                </div>
+              </Form.Group>
             </div>
           ) : null}
-          <Form.Group>
-            <div className="formLabel">CONFIRMAR PRODUCTOS</div>
-            <div className="percent">
-              <Button
-                variant="warning"
-                className="yellowLarge"
-                onClick={() => setIsInvoice(true)}
-              >
-                Facturar
-              </Button>
-            </div>
-          </Form.Group>
         </Form>
       </div>
     </div>

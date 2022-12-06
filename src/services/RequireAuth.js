@@ -3,7 +3,7 @@ import { useAuth } from "./useAuth";
 
 function RequireAuth({ children }) {
   const authed = useAuth();
-  console.log("Userrrr", authed);
+
   if (authed) {
     return children;
   } else {
