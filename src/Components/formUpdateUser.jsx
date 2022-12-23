@@ -13,6 +13,7 @@ import {
 } from "../services/userServices";
 import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
+import { getDepartamentos } from "../services/stateServices";
 export default function FormUpdateUser() {
   const [nombre, setNombre] = useState("");
   const [apPaterno, setapPaterno] = useState("");
@@ -33,6 +34,8 @@ export default function FormUpdateUser() {
   const [isAlert, setIsAlert] = useState(false);
   const [idUsuarioActual, setIdUsuarioActual] = useState();
   const [isLoading, setisLoading] = useState(false);
+  const [departamentos, setDepartamentos] = useState([]);
+  const [dpto, setDpto] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
@@ -52,6 +55,10 @@ export default function FormUpdateUser() {
     rol.then((r) => {
       console.log("Roles", r);
       setRoles(r.data[0]);
+    });
+    const deptos = getDepartamentos();
+    deptos.then((dp) => {
+      setDepartamentos(dp.data[0]);
     });
   }, []);
   function userVerification() {
@@ -89,7 +96,9 @@ export default function FormUpdateUser() {
               password,
               idUsuarioActual,
               idioma,
-              agencia
+              agencia,
+              agencia,
+              dpto
             );
             object.then((obj) => {
               guardar(obj);
@@ -280,6 +289,19 @@ export default function FormUpdateUser() {
         </div>
         <div className="halfContainer">
           <Form.Group className="half" controlId=""></Form.Group>
+          <Form.Group className="half" controlId="state">
+            <Form.Label>Ubicacion</Form.Label>
+            <Form.Select onChange={(e) => setDpto(e.target.value)}>
+              <option>Seleccione Departamento</option>
+              {departamentos.map((dp, index) => {
+                return (
+                  <option value={dp.idDepto} key={index}>
+                    {dp.departamento}
+                  </option>
+                );
+              })}
+            </Form.Select>
+          </Form.Group>
         </div>
         <div className="halfContainer">
           <Form.Group className="half" controlId="create">

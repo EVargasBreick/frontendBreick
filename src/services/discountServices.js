@@ -1,7 +1,11 @@
 function getDiscountPercentage(tipoProd, rango, discountList) {
   return discountList
     .filter((dl) => dl.idTiposProducto == tipoProd)
-    .find((fd) => fd.rango == rango).descuento;
+    .find((fd) => fd.rango == rango) != undefined
+    ? discountList
+        .filter((dl) => dl.idTiposProducto == tipoProd)
+        .find((fd) => fd.rango == rango).descuento
+    : 0;
 }
 
 function traditionalDiscounts(
@@ -534,6 +538,7 @@ function manualAutomaticDiscount(
       totalEspecial: totalEspecial,
       descCalculadoEspeciales: totalEspecial - totalEspecialDesc,
       facturar: totalEspecialDesc,
+      especial: true,
     };
   } else {
     return {
@@ -555,6 +560,7 @@ function manualAutomaticDiscount(
       totalEspecial: totalEspecial,
       descCalculadoEspeciales: 0,
       facturar: totalEspecial,
+      especial: false,
     };
   }
 }
@@ -745,8 +751,9 @@ function addProductDiscSimple(selectedProds, descSimple) {
           totalProd: sp.totalProd - descSimple.descCalculadoEspeciales,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
-          descuentoProd:
-            (sp.precioDeFabrica - sp.precioDescuentoFijo) * cantidadDeProducto,
+          descuentoProd: descSimple.especial
+            ? (sp.precioDeFabrica - sp.precioDescuentoFijo) * cantidadDeProducto
+            : 0,
         };
         auxProdObj.push(auxObj);
       } else {
@@ -783,6 +790,91 @@ function addProductDiscSimple(selectedProds, descSimple) {
   });
 }
 
+function verifyAutomaticDiscount(selectedProducts, descuento) {
+  return new Promise((resolve) => {
+    const divided = divideByType(selectedProducts);
+    divided.then((response) => {
+      const especiales = response.especiales;
+      const tradicionales = response.tradicionales;
+      const totEspeciales = especiales.reduce((accumulator, object) => {
+        return accumulator + object.total;
+      }, 0);
+      const totTradicional = tradicionales.reduce((accumulator, object) => {
+        return accumulator + object.total;
+      }, 0);
+      console.log("Especiales", totEspeciales);
+      console.log("Trads", totTradicional * 0.93);
+      if (totTradicional * 0.93 + totEspeciales > 1000) {
+        resolve(7);
+      } else {
+        resolve(descuento);
+      }
+    });
+  });
+}
+
+function divideByType(selectedProducts) {
+  const especiales = [];
+  const tradicionales = [];
+  return new Promise((resolve) => {
+    selectedProducts.map((sp) => {
+      if (sp.tipoProducto == 6) {
+        especiales.push(sp);
+      } else {
+        tradicionales.push(sp);
+      }
+    });
+    resolve({ especiales: especiales, tradicionales: tradicionales });
+  });
+}
+
+function saleDiscount(selectedProducts, descuento) {
+  var auxProducts = [];
+  return new Promise((resolve) => {
+    selectedProducts.map((sp) => {
+      if (sp.tipoProducto == 6) {
+        const productObj = {
+          codInterno: sp.codInterno,
+          cantProducto: sp.cantProducto,
+          nombreProducto: sp.nombreProducto,
+          idProducto: sp.idProducto,
+          cant_Actual: sp.cant_Actual,
+          cantidadRestante: sp.cant_Actual,
+          precioDeFabrica: sp.precioDeFabrica,
+          precioDescuentoFijo: sp.precioDescuentoFijo,
+          descuentoProd: 0,
+          total: sp.precioDeFabrica * sp.cantProducto,
+          tipoProducto: sp.tipoProducto,
+        };
+        auxProducts.push(productObj);
+      } else {
+        const productObj = {
+          codInterno: sp.codInterno,
+          cantProducto: sp.cantProducto,
+          nombreProducto: sp.nombreProducto,
+          idProducto: sp.idProducto,
+          cant_Actual: sp.cant_Actual,
+          cantidadRestante: sp.cant_Actual,
+          precioDeFabrica: sp.precioDeFabrica,
+          precioDescuentoFijo: sp.precioDescuentoFijo,
+          descuentoProd: (
+            (sp.precioDeFabrica - sp.precioDeFabrica * (1 - descuento / 100)) *
+            sp.cantProducto
+          ).toFixed(2),
+          total:
+            (sp.precioDeFabrica -
+              (sp.precioDeFabrica -
+                sp.precioDeFabrica * (1 - descuento / 100))) *
+            sp.cantProducto,
+          tipoProducto: sp.tipoProducto,
+        };
+        auxProducts.push(productObj);
+      }
+    });
+    resolve(auxProducts);
+  });
+}
+
 export {
   traditionalDiscounts,
   easterDiscounts,
@@ -791,4 +883,6 @@ export {
   manualAutomaticDiscount,
   addProductDiscounts,
   addProductDiscSimple,
+  saleDiscount,
+  verifyAutomaticDiscount,
 };

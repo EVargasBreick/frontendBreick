@@ -298,3 +298,108 @@
   background-color: #6a4593;
   color: white;
 }
+.dateReportContainer {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  padding-bottom: 2%;
+}
+
+.salesReportDate {
+  width: 50%;
+  justify-content: space-evenly;
+}
+
+.reportButtonG {
+  background-color: #5cb8b2;
+  color: white;
+  border-color: #5cb8b2;
+}
+.reportBody {
+  padding-bottom: 5%;
+}
+.reportButtonG:hover {
+  background-color: #5cb85e;
+  border-color: #5cb85e;
+  color: white;
+}
+.reportButtonG:focus {
+  background-color: #046c06;
+  border-color: #046c06;
+  box-shadow: #046c06;
+}
+.reportContainer {
+  background-color: rgb(235, 232, 232);
+  color: #6a4593;
+}
+.reportHeader {
+  vertical-align: top;
+  background-color: #5cb8b2;
+  color: white;
+  text-align: center;
+}
+.reportBody {
+  vertical-align: top;
+  text-align: center;
+  overflow-y: scroll;
+}
+.reportColumnLarge {
+  width: 35mm;
+}
+
+.reportColumnXLarge {
+  width: 50mm;
+}
+
+.reportColumnSmall {
+  width: 20mm;
+}
+
+.reportColumnMedium {
+  width: 25mm;
+}
+.reportCufColumm {
+  max-width: 40mm;
+  white-space: break-spaces;
+}
+.reportTableBig {
+  display: block;
+  overflow-x: scroll;
+  max-height: 500px;
+  border: 1px solid white;
+}
+
+th {
+  border: 1px solid white;
+  border-collapse: collapse;
+}
+td {
+  border: 1px solid white;
+  border-collapse: collapse;
+  margin: 10%;
+}
+
+.textxSmall {
+  font-size: x-small;
+}
+
+.textSmall {
+  font-size: small;
+}
+
+.textNormal {
+  font-size: medium;
+}
+
+.textLarge {
+  font-size: large;
+}
+
+.textxLarge {
+  font-size: x-large;
+}
+
+.reportTittle {
+  padding-bottom: 2%;
+  font-size: large;
+}

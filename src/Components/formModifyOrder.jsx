@@ -6,8 +6,8 @@ import {
   cancelOrder,
   deleteProductOrder,
   getOrderDetail,
-  getOrderList,
   getOrderProdList,
+  getUserOrderList,
   updateDbOrder,
   updateOrderProduct,
   updateStock,
@@ -18,7 +18,10 @@ import "../styles/formLayouts.css";
 import "../styles/tableStyles.css";
 import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
-import { availableProducts } from "../services/productServices";
+import {
+  availableProducts,
+  productsDiscount,
+} from "../services/productServices";
 import {
   addProductDiscounts,
   addProductDiscSimple,
@@ -95,9 +98,10 @@ export default function FormModifyOrders() {
   const [navObject, setNavObject] = useState({});
   const [hallObject, setHallObject] = useState({});
   const [descSimple, setDescSimple] = useState({});
-  const [tipoUsuario, setTipoUsuario] = useState("");
+
   const [discModalType, setDiscModalType] = useState(true);
   const [auxProds, setAuxProds] = useState([]);
+  const [tipoUsuario, setTipoUsuario] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -105,13 +109,21 @@ export default function FormModifyOrders() {
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
       console.log("Usuario actual", UsuarioAct.correo);
+      const listaPedidos = getUserOrderList(
+        JSON.parse(Cookies.get("userAuth")).idUsuario
+      );
+      listaPedidos.then((res) => {
+        setPedidosList(res.data.data[0]);
+        console.log("Lista de pedidos", res.data.data[0]);
+      });
+      setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
     }
-    const listaPedidos = getOrderList("");
-    listaPedidos.then((res) => {
-      setPedidosList(res.data.data[0]);
-      console.log("Lista de pedidos", res.data.data[0]);
-    });
 
+    const dl = productsDiscount(JSON.parse(Cookies.get("userAuth")).idUsuario);
+    dl.then((res) => {
+      console.log("Descuentos para el usuario", res.data.data[0]);
+      setDiscountList(res.data.data[0]);
+    });
     const disponibles = availableProducts(
       JSON.parse(Cookies.get("userAuth")).idUsuario
     );
@@ -652,27 +664,28 @@ export default function FormModifyOrders() {
       setNavObject(navObj);
       setHallObject(hallObj);
       setTotalDesc(
-        tradObj.descCalculado +
-          pasObj.descCalculado +
-          navObj.descCalculado +
-          hallObj.descCalculado
+        (
+          parseFloat(pasObject.descCalculado) +
+          parseFloat(tradObject.descCalculado) +
+          parseFloat(navObject.descCalculado) +
+          parseFloat(hallObject.descCalculado)
+        ).toFixed(2)
       );
       setTotalPrevio(
-        parseFloat(
-          (tradObj.total + pasObj.total + navObj.total + hallObj.total).toFixed(
-            2
-          )
-        )
+        (
+          parseFloat(tradObj.total) +
+          parseFloat(pasObj.total) +
+          parseFloat(navObj.total) +
+          parseFloat(hallObj.total)
+        ).toFixed(2)
       );
       setTotalFacturar(
-        parseFloat(
-          (
-            tradObj.facturar +
-            pasObj.facturar +
-            navObj.facturar +
-            hallObj.facturar
-          ).toFixed(2)
-        )
+        (
+          parseFloat(tradObject.facturar) +
+          parseFloat(pasObject.facturar) +
+          parseFloat(navObject.facturar) +
+          parseFloat(hallObject.facturar)
+        ).toFixed(2)
       );
       setDiscModalType(true);
       setDiscModal(true);
@@ -744,7 +757,7 @@ export default function FormModifyOrders() {
       </Modal>
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>ALERTA</Modal.Title>
+          <Modal.Title>Mensaje del Sistema</Modal.Title>
         </Modal.Header>
         <Modal.Body>{alert}</Modal.Body>
         <Modal.Footer>
@@ -893,6 +906,7 @@ export default function FormModifyOrders() {
                 min="0"
                 max="100"
                 value={descuento}
+                disabled={tipoUsuario == 1 ? false : true}
                 onChange={(e) => handleDiscount(e.target.value)}
                 type="number"
                 placeholder="Ingrese porcentaje"
@@ -987,15 +1001,15 @@ export default function FormModifyOrders() {
                 <div className="padded">
                   <div className="totalColumnBlank"></div>
                   <div className="totalColumnText"> Descuento:</div>
-                  <div className="totalColumnData">{`${totalDesc?.toFixed(
-                    2
-                  )}`}</div>
+                  <div className="totalColumnData">{`${parseFloat(
+                    totalDesc
+                  )?.toFixed(2)}`}</div>
                 </div>
                 <div className="padded">
                   <div className="totalColumnBlank"></div>
                   <div className="totalColumnText"> A Facturar:</div>
                   <div className="totalColumnData">
-                    {`${totalFacturar?.toFixed(2)} Bs.`}
+                    {`${parseFloat(totalFacturar)?.toFixed(2)} Bs.`}
                   </div>
                 </div>
               </div>

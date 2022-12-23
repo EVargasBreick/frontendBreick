@@ -10,4 +10,14 @@ const getStores = () => {
   });
 };
 
-export { getStores };
+const getBranches = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`${config.endpointUrl}:${config.endpointPort}/sucursales`)
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
+export { getStores, getBranches };

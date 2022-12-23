@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Button, Image, Modal, Table } from "react-bootstrap";
+import { Button, Image, Modal, Tab, Table } from "react-bootstrap";
 import Dropdown from "react-bootstrap/Dropdown";
 import Form from "react-bootstrap/Form";
 import "../styles/generalStyle.css";
@@ -35,7 +35,9 @@ export default function FormManageOrders() {
   const [fechaCrea, setFechaCrea] = useState("");
   const [codigoPedido, setCodigoPedido] = useState("");
   const [isPdf, setIsPdf] = useState(false);
+  const [nit, setNit] = useState("");
   const pdfRef = useRef();
+  const [descCalculado, setDescCalculado] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -71,6 +73,7 @@ export default function FormManageOrders() {
     setSelectedOrder(stringParts[0]);
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
+      console.log("error", res);
       const fechaDesc = res.data.data[0][0].fechaCrea
         .substring(0, 10)
         .split("/");
@@ -82,16 +85,19 @@ export default function FormManageOrders() {
       const prodHeaderObj = {
         vendedor: res.data.data[0][0].nombreVendedor,
         cliente: res.data.data[0][0].razonSocial,
+        nit: res.data.data[0][0].nit,
         zona: res.data.data[0][0].zona,
-        montoTotal: res.data.data[0][0].montoFacturar,
+        montoTotal: res.data.data[0][0].montoFacturar?.toFixed(2),
         descuento: res.data.data[0][0].descuento,
-        facturado: res.data.data[0][0].montoTotal,
+        "descuento calculado":
+          res.data.data[0][0].descuentoCalculado?.toFixed(2),
+        facturado: res.data.data[0][0].montoTotal?.toFixed(2),
         fechaCrea:
-          fechaDesc[2] +
+          fechaDesc[0] +
           " de " +
           meses[fechaDesc[1] - 1] +
           " de " +
-          fechaDesc[0],
+          fechaDesc[2],
       };
       setVendedor(res.data.data[0][0].nombreVendedor);
       setCliente(res.data.data[0][0].razonSocial);
@@ -99,7 +105,8 @@ export default function FormManageOrders() {
       setTotal(res.data.data[0][0].montoFacturar);
       setDescuento(res.data.data[0][0].descuento);
       setFacturado(res.data.data[0][0].montoTotal);
-
+      setDescCalculado(res.data.data[0][0].descuentoCalculado);
+      setNit(res.data.data[0][0].nit);
       const prodList = getOrderProdList(stringParts[0]);
       prodList.then((res) => {
         console.log("Lista de productos", res.data.data);
@@ -107,8 +114,9 @@ export default function FormManageOrders() {
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,
-            precio: pr.precioDeFabrica,
-            total: pr.totalProd,
+            precio: pr.precioDeFabrica?.toFixed(2),
+            total: pr.totalProd?.toFixed(2),
+            "descuento calculado": pr.descuentoProducto?.toFixed(2),
           };
           setProductTable((productTable) => [...productTable, pTable]);
         });
@@ -160,12 +168,12 @@ export default function FormManageOrders() {
     <div>
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>ALERTA</Modal.Title>
+          <Modal.Title>Mensaje del Sistema</Modal.Title>
         </Modal.Header>
         <Modal.Body>{alert}</Modal.Body>
         <Modal.Footer>
           <Button variant="danger" onClick={handleClose}>
-            Confirmo, cerrar alerta
+            Confirmo, cerrar Mensaje del Sistema
           </Button>
         </Modal.Footer>
       </Modal>
@@ -204,41 +212,23 @@ export default function FormManageOrders() {
               value={vendedor}
             />
           </Form.Group>
-          <Form.Group className="half" controlId="client">
-            <Form.Label>Cliente</Form.Label>
-            <Form.Control type="text" placeholder="" disabled value={cliente} />
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
           <Form.Group className="half" controlId="zone">
             <Form.Label>Zona</Form.Label>
             <Form.Control type="text" placeholder="" disabled value={zona} />
           </Form.Group>
-          <Form.Group className="half" controlId="total">
-            <Form.Label>Total</Form.Label>
-            <Form.Control type="number" placeholder="" disabled value={total} />
-          </Form.Group>
         </div>
         <div className="halfContainer">
-          <Form.Group className="half" controlId="discount">
-            <Form.Label>Descuento</Form.Label>
-            <Form.Control
-              type="number"
-              placeholder=""
-              disabled
-              value={descuento}
-            />
+          <Form.Group className="half" controlId="client">
+            <Form.Label>Cliente</Form.Label>
+            <Form.Control type="text" placeholder="" disabled value={cliente} />
           </Form.Group>
-          <Form.Group className="half" controlId="invoiced">
-            <Form.Label>Total Facturado</Form.Label>
-            <Form.Control
-              type="number"
-              placeholder=""
-              disabled
-              value={facturado}
-            />
+
+          <Form.Group className="half" controlId="total">
+            <Form.Label>Nit</Form.Label>
+            <Form.Control type="number" placeholder="" disabled value={nit} />
           </Form.Group>
         </div>
+
         <div className="halfContainer">
           <Form.Group className="half" controlId="discount">
             <Form.Label>Fecha de creación</Form.Label>
@@ -251,40 +241,72 @@ export default function FormManageOrders() {
           </Form.Group>
         </div>
       </Form>
-
       <div className="tableHalf">
         <div className="formLabel">Detalle</div>
         <div className="tableOne">
           {isOrder ? (
-            <Table bordered striped hover>
-              <thead>
-                <tr className="tableHeader">
-                  <th className="tableColumn">Producto</th>
+            <div>
+              <Table bordered striped hover>
+                <thead>
+                  <tr className="tableHeader">
+                    <th className="tableColumn">Producto</th>
 
-                  <th className="tableColumnSmall">Precio</th>
-                  <th className="tableColumnSmall">Cantidad</th>
-                  <th className="tableColumnSmall">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productList.map((product, index) => {
-                  return (
-                    <tr className="tableRow" key={index}>
-                      <td className="tableColumn">{product.nombreProducto}</td>
-                      <td className="tableColumnSmall">
-                        {product.precioDeFabrica + " Bs."}
-                      </td>
-                      <td className="tableColumnSmall">
-                        {product.cantidadProducto}
-                      </td>
-                      <td className="tableColumnSmall">
-                        {product.totalProd + " Bs."}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
+                    <th className="tableColumnSmall">Precio</th>
+                    <th className="tableColumnSmall">Cantidad</th>
+                    <th className="tableColumnSmall">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productList.map((product, index) => {
+                    return (
+                      <tr className="tableRow" key={index}>
+                        <td className="tableColumn">
+                          {product.nombreProducto}
+                        </td>
+                        <td className="tableColumnSmall">
+                          {product.precioDeFabrica + " Bs."}
+                        </td>
+                        <td className="tableColumnSmall">
+                          {product.cantidadProducto}
+                        </td>
+                        <td className="tableColumnSmall">
+                          {`${product.totalProd.toFixed(2)} Bs.`}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr className="tableRow">
+                    <th className="totalColumnOrder" colSpan={3}>
+                      Total
+                    </th>
+                    <td>{`${total?.toFixed(2)} Bs.`}</td>
+                  </tr>
+                  <tr className="tableRow">
+                    <th
+                      colSpan={3}
+                      className="totalColumnOrder"
+                    >{`Descuento (%)`}</th>
+                    <td>{`${descuento} %`}</td>
+                  </tr>
+                  <tr className="tableRow">
+                    <th
+                      colSpan={3}
+                      className="totalColumnOrder"
+                    >{`Descuento calculado`}</th>
+                    <td>{`${descCalculado?.toFixed(2)} Bs.`}</td>
+                  </tr>
+                  <tr className="tableRow">
+                    <th
+                      colSpan={3}
+                      className="totalColumnOrder"
+                    >{`Total a facturar`}</th>
+                    <td>{`${facturado?.toFixed(2)} Bs.`}</td>
+                  </tr>
+                </tfoot>
+              </Table>
+            </div>
           ) : null}
         </div>
       </div>

@@ -51,7 +51,7 @@
 }
 
 .tableColumnSmall {
-  width: 2%;
+  width: 3%;
 }
 
 .tableColumnSmallInv {
@@ -123,4 +123,16 @@
   background-color: white;
   width: 13%;
   text-align: center;
+}
+
+.totalColumnOrder {
+  width: 85%;
+  text-align: end;
+}
+
+.specialDiscountHeader {
+  text-align: center;
+  font-weight: 600;
+  background-color: #6a4593;
+  color: white;
 }

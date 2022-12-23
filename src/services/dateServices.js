@@ -8,6 +8,6 @@ export const dateString = () => {
         d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes(),
         d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds(),
       ].join(":");
-  console.log("Hora enviada", dformat);
+
   return dformat;
 };

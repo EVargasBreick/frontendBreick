@@ -473,8 +473,8 @@ export default function BodyLogKardex() {
               </tbody>
             </Table>
             <Pagination
-              postsPerPage={recordsPerPage}
-              totalPosts={dataTable.length}
+              postsperpage={recordsPerPage}
+              totalposts={dataTable.length}
               paginate={paginate}
             />
           </div>

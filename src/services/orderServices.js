@@ -42,6 +42,21 @@ const getOrderList = (id) => {
   });
 };
 
+const getUserOrderList = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${config.endpointUrl}:${config.endpointPort}/pedidos/lista/usuario?id=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 const getOrderDetail = (id) => {
   return new Promise((resolve, reject) => {
     axios
@@ -253,4 +268,5 @@ export {
   updateOrderProduct,
   updateDbOrder,
   deleteProductOrder,
+  getUserOrderList,
 };

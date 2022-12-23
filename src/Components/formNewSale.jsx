@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Form, Button, Table, Modal, Image } from "react-bootstrap";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
@@ -11,10 +11,22 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import FormRegisterClient from "./formRegisterClient";
 import { convertToText } from "../services/numberServices";
+import config from "../config.json";
 import QrComponent from "./qrComponent";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePDF from "./invoicePDF";
 import SaleModal from "./saleModal";
+import { dateString } from "../services/dateServices";
+import { createSale } from "../services/saleServices";
+import { getBranches } from "../services/storeServices";
+import { createInvoice, deleteInvoice } from "../services/invoiceServices";
+
+import {
+  saleDiscount,
+  verifyAutomaticDiscount,
+} from "../services/discountServices";
+import { updateStock } from "../services/orderServices";
+
 export default function FormNewSale() {
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
@@ -27,8 +39,9 @@ export default function FormNewSale() {
   const [isSelected, setIsSelected] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [descuento, setDescuento] = useState(0);
-  const [totalPrecio, setTotalPrecio] = useState(0);
+  const [totalPrevio, setTotalPrevio] = useState(0);
   const [totalDesc, setTotalDesc] = useState(0);
+  const [totalFacturar, setTotalFacturar] = useState(0);
   const [tipo, setTipo] = useState("normal");
   const [isDesc, setIsDesc] = useState(false);
   const [pedidoFinal, setPedidoFinal] = useState({});
@@ -41,6 +54,12 @@ export default function FormNewSale() {
   const [available, setAvailable] = useState([
     { nombreProducto: "Cargando..." },
   ]);
+  const [isSaleModal, setIsSaleModal] = useState(true);
+  const [tipoPago, setTipoPago] = useState(0);
+  const [cambio, setCambio] = useState(0);
+  const [cancelado, setCancelado] = useState(0);
+  const [cardNumbersA, setCardNumbersA] = useState("");
+  const [cardNumbersB, setCardNumbersB] = useState("");
   const navigate = useNavigate();
   const [userEmail, setUserEmail] = useState("");
   const [userStore, setUserStore] = useState("");
@@ -48,8 +67,15 @@ export default function FormNewSale() {
   const [isInvoice, setIsInvoice] = useState(false);
   const [datos, setDatos] = useState("");
   const [auxProducts, setAuxProducts] = useState([]);
-
+  const [especiales, setEspeciales] = useState([]);
+  const [sucursal, setSucursal] = useState("");
+  const [branchInfo, setBranchInfo] = useState({});
+  const [invoice, setInvoice] = useState("");
+  const [fechaHora, setFechaHora] = useState("");
+  const [auxSelectedProducts, setAuxSelectedProducts] = useState("");
   useEffect(() => {
+    const spplited = dateString().split(" ");
+    console.log("Fecha y hora", spplited[1].substring(0, 5));
     console.log("Convertidooo", convertToText(2898.5).texto);
     const preNit = Cookies.get("nit");
     if (preNit) {
@@ -58,6 +84,7 @@ export default function FormNewSale() {
     }
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
+      console.log("Usuario actual", UsuarioAct);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
     }
@@ -71,7 +98,24 @@ export default function FormNewSale() {
         setAvailable(fetchedAvailable.data[0]);
         setAuxProducts(fetchedAvailable.data[0]);
       });
-      const interval = setInterval(() => {
+      const suc = getBranches();
+      suc.then((resp) => {
+        console.log("Sucursales", resp.data[0]);
+        const sucursales = resp.data[0];
+        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+        console.log("Almacen", alm);
+        const sucur = sucursales.find((sc) => alm == sc.idAgencia);
+        setSucursal(sucur);
+        const branchData = {
+          nombre: sucur.nombre,
+          dir: sucur.direccion,
+          tel: sucur.telefono,
+          ciudad: sucur.ciudad,
+          nro: sucur.idImpuestos,
+        };
+        setBranchInfo(branchData);
+      });
+      /*const interval = setInterval(() => {
         const disponibles = getProductsWithStock(
           JSON.parse(Cookies.get("userAuth")).idAlmacen,
           "all"
@@ -79,7 +123,7 @@ export default function FormNewSale() {
         disponibles.then((fetchedAvailable) => {
           setAvailable(fetchedAvailable.data[0]);
         });
-      }, 60000);
+      }, 60000);*/
     }
   }, []);
 
@@ -147,10 +191,15 @@ export default function FormNewSale() {
           idProducto: produc.idProducto,
           cant_Actual: produc.cant_Actual,
           cantidadRestante: produc.cant_Actual,
+          precioDescuentoFijo: produc.precioDescuentoFijo,
           precioDeFabrica: produc.precioDeFabrica,
+          descuentoProd: 0,
           total: produc.precioDeFabrica,
+          tipoProducto: produc.tipoProducto,
         };
+
         setSelectedProducts([...selectedProducts, productObj]);
+        setAuxSelectedProducts([...auxSelectedProducts, productObj]);
       }
     } else {
       const selected = available.find((pr) => pr.codigoBarras === filtered);
@@ -172,9 +221,13 @@ export default function FormNewSale() {
             cant_Actual: selected.cant_Actual,
             cantidadRestante: selected.cant_Actual,
             precioDeFabrica: selected.precioDeFabrica,
+            precioDescuentoFijo: selected.precioDescuentoFijo,
+            descuentoProd: 0,
             total: selected.precioDeFabrica,
+            tipoProducto: selected.tipoProducto,
           };
           setSelectedProducts([...selectedProducts, productObj]);
+          setAuxSelectedProducts([...auxSelectedProducts, productObj]);
         }
 
         console.log("Selected:", selected);
@@ -191,8 +244,11 @@ export default function FormNewSale() {
   };
   function deleteProduct(index) {
     const auxArray = [...selectedProducts];
+    const auxAux = [...auxSelectedProducts];
     auxArray.splice(index, 1);
+    auxAux.splice(index, 1);
     setSelectedProducts(auxArray);
+    setAuxSelectedProducts(auxAux);
   }
   function addWithScanner(e) {
     e.preventDefault();
@@ -200,33 +256,177 @@ export default function FormNewSale() {
     addProductToList("scanner");
   }
   function changeQuantities(index, cantidad, prod) {
+    const arrCant = cantidad.split(".");
+    const isThree =
+      cantidad === ""
+        ? ""
+        : arrCant[1]?.length > config.decimales
+        ? prod.cantProducto
+        : cantidad;
+    const total = parseFloat(prod.precioDeFabrica) * parseFloat(isThree);
     let auxObj = {
       codInterno: prod.codInterno,
-      cantProducto: cantidad,
+      cantProducto: isThree,
       nombreProducto: prod.nombreProducto,
       idProducto: prod.idProducto,
       cant_Actual: prod.cant_Actual,
       cantidadRestante: prod.cant_Actual - cantidad,
+      descuentoProd: total - total * (1 - descuento / 100),
       precioDeFabrica: prod.precioDeFabrica,
-      total: prod.precioDeFabrica * cantidad,
+      precioDescuentoFijo: prod.precioDescuentoFijo,
+      total: total,
+      descuentoProd: 0,
     };
     let auxSelected = [...selectedProducts];
     auxSelected[index] = auxObj;
+    console.log("descuento aplicado", total - total * (1 - descuento / 100));
     setSelectedProducts(auxSelected);
-    setTotalDesc(
-      (selectedProducts.reduce((accumulator, object) => {
-        return accumulator + object.total;
-      }, 0) *
-        (100 - descuento)) /
-        100
-    );
+    setAuxSelectedProducts(auxSelected);
   }
   function handleModal() {
-    console.log("Cliente", clientes);
-    setIsInvoice(false);
-    setTimeout(() => {
-      setIsInvoice(true);
-    }, 100);
+    if (isSelected) {
+      const invoiceBody = {
+        nroFactura: 1,
+        idSucursal: sucursal.idImpuestos,
+        nitEmpresa: config.nitEmpresa,
+        fechaHora: fechaHora,
+        nitCliente: clientes[0].nit,
+        razonSocial: clientes[0].razonSocial,
+        tipoPago: tipoPago,
+        pagado: cancelado,
+        cambio: cambio,
+        nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
+        cuf: `123456789ABCDEFGHIJKLMNIOPQRSTUVWXYZ`,
+        importeBase: parseFloat(cancelado - cambio).toFixed(2),
+        debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
+        desembolsada: 0,
+      };
+      setInvoice(invoiceBody);
+      const totPrev = parseFloat(
+        auxSelectedProducts.reduce((accumulator, object) => {
+          return accumulator + object.total;
+        }, 0)
+      ).toFixed(2);
+      const totDesc = selectedProducts.reduce((accumulator, object) => {
+        return accumulator + object.total;
+      }, 0);
+      setTotalPrevio(totPrev);
+      setTotalDesc(totPrev - totDesc);
+      setTotalFacturar(totDesc);
+      setIsInvoice(false);
+      setTimeout(() => {
+        setIsInvoice(true);
+      }, 100);
+    } else {
+      setAlert("Por favor, seleccione un cliente");
+      setIsAlert(true);
+    }
+  }
+  function saveSale(createdId) {
+    const totPrev = parseFloat(
+      auxSelectedProducts.reduce((accumulator, object) => {
+        return accumulator + object.total;
+      }, 0)
+    ).toFixed(2);
+    const totDesc = selectedProducts.reduce((accumulator, object) => {
+      return accumulator + object.total;
+    }, 0);
+    return new Promise((resolve, reject) => {
+      setFechaHora(dateString());
+      const objVenta = {
+        pedido: {
+          idUsuarioCrea: usuarioAct,
+          idCliente: selectedClient,
+          fechaCrea: dateString(),
+          fechaActualizacion: dateString(),
+          montoTotal: parseFloat(totPrev).toFixed(2),
+          descCalculado: parseFloat(totPrev - totDesc).toFixed(2),
+          descuento: descuento,
+          montoFacturar: parseFloat(totDesc).toFixed(2),
+          idPedido: "",
+          idFactura: createdId,
+        },
+        productos: selectedProducts,
+      };
+      const ventaCreada = createSale(objVenta);
+      ventaCreada
+        .then((res) => {
+          const updatedStock = updateStock({
+            accion: "take",
+            idAlmacen: userStore,
+            productos: selectedProducts,
+          });
+          updatedStock.then((us) => {
+            console.log("Stock actualizado", us);
+            console.log("Venta creada", res);
+            setAlertSec("Gracias por su compra!");
+            resolve(true);
+            setIsAlertSec(true);
+            setTimeout(() => {
+              setIsAlertSec(false);
+            }, 1000);
+          });
+        })
+        .catch((err) => {
+          console.log("Error al crear la venta", err);
+          const deletedInvoice = deleteInvoice(createdId);
+          reject(false);
+          console.log("Venta y factura borradas", deletedInvoice);
+        });
+    });
+  }
+  function saveInvoice(cuf, nro) {
+    return new Promise((resolve, reject) => {
+      setAlertSec("Guardando Venta");
+      const invoiceBody = {
+        nroFactura: nro,
+        idSucursal: sucursal.idImpuestos,
+        nitEmpresa: config.nitEmpresa,
+        fechaHora: dateString(),
+        nitCliente: clientes[0].nit,
+        razonSocial: clientes[0].razonSocial,
+        tipoPago: tipoPago,
+        pagado: cancelado,
+        cambio: cambio,
+        nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
+        cuf: cuf,
+        importeBase: parseFloat(cancelado - cambio).toFixed(2),
+        debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
+        desembolsada: 0,
+      };
+      setInvoice(invoiceBody);
+      const newInvoice = createInvoice(invoiceBody);
+      newInvoice
+        .then((res) => {
+          console.log("Respuesta de creacion de la factura", res);
+          const newId = res.data.idCreado;
+          const created = saveSale(newId);
+          created
+            .then((res) => {
+              resolve(true);
+            })
+            .catch((error) => {
+              reject(false);
+            });
+        })
+        .catch((error) => {
+          console.log("Error en la creacion de la factura", error);
+        });
+      console.log("Cancelado:", cancelado);
+      console.log("Cambio", cambio);
+      setIsSaleModal(!isSaleModal);
+    });
+  }
+  function handleDiscount() {
+    const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
+    newDiscount.then((nd) => {
+      setDescuento(nd);
+      const discountedProds = saleDiscount(selectedProducts, nd);
+      discountedProds.then((res) => {
+        setSelectedProducts(res);
+        handleModal();
+      });
+    });
   }
   return (
     <div>
@@ -235,26 +435,55 @@ export default function FormNewSale() {
         <div>
           <SaleModal
             datos={{
-              total: selectedProducts.reduce((accumulator, object) => {
-                return accumulator + object.total;
-              }, 0),
+              total: totalPrevio,
               descuento,
-              totalDescontado:
-                (selectedProducts.reduce((accumulator, object) => {
+              totalDescontado: selectedProducts.reduce(
+                (accumulator, object) => {
                   return accumulator + object.total;
-                }, 0) *
-                  (100 - descuento)) /
-                100,
+                },
+                0
+              ),
               nit: clientes[0].nit,
               razonSocial: clientes[0].razonSocial,
             }}
             show={true}
+            isSaleModal={isSaleModal}
+            setIsSaleModal={setIsSaleModal}
+            tipoPago={tipoPago}
+            setTipoPago={setTipoPago}
+            setCambio={setCambio}
+            cambio={cambio}
+            cancelado={cancelado}
+            setCancelado={setCancelado}
+            cardNumbersA={cardNumbersA}
+            setCardNumbersA={setCardNumbersA}
+            cardNumbersB={cardNumbersB}
+            setCardNumbersB={setCardNumbersB}
+            saveInvoice={saveInvoice}
+            setAlert={setAlert}
+            setIsAlert={setIsAlert}
+            branchInfo={branchInfo}
+            selectedProducts={selectedProducts}
+            invoice={invoice}
+            total={totalPrevio}
+            descuentoCalculado={
+              auxSelectedProducts.reduce((accumulator, object) => {
+                return accumulator + object.total;
+              }, 0) -
+              selectedProducts.reduce((accumulator, object) => {
+                return accumulator + object.total;
+              }, 0)
+            }
+            totalDescontado={selectedProducts.reduce((accumulator, object) => {
+              return accumulator + object.total;
+            }, 0)}
+            fechaHora={fechaHora}
           />
         </div>
       ) : null}
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>ALERTA</Modal.Title>
+          <Modal.Title>Mensaje del Sistema</Modal.Title>
         </Modal.Header>
         <Modal.Body>{alert}</Modal.Body>
         <Modal.Footer>
@@ -432,7 +661,9 @@ export default function FormNewSale() {
                             }}
                           />
                         </td>
-                        <td className="tableColumnSmall">{sp.total}</td>
+                        <td className="tableColumnSmall">
+                          {sp.total.toFixed(2)}
+                        </td>
                         <td className="tableColumnSmall">{sp.cant_Actual}</td>
                       </tr>
                     );
@@ -445,18 +676,21 @@ export default function FormNewSale() {
                     <th className="tableColumn"></th>
                     <th className="tableColumnSmall">{"Total: "}</th>
                     <th className="tableColumnSmall">
-                      {`${selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + object.total;
-                      }, 0)} Bs.`}
+                      {`${selectedProducts
+                        .reduce((accumulator, object) => {
+                          return accumulator + object.total;
+                        }, 0)
+                        .toFixed(2)} Bs.`}
                     </th>
                     <th className="tableColumnSmall">{"Total descontado: "}</th>
-                    <th className="tableColumnSmall">{`${
+                    <th className="tableColumnSmall">{`${(
                       (selectedProducts.reduce((accumulator, object) => {
                         return accumulator + object.total;
                       }, 0) *
                         (100 - descuento)) /
                       100
-                    } Bs.`}</th>
+                    ).toFixed(2)}
+                     Bs.`}</th>
                   </tr>
                 </tfoot>
               </Table>
@@ -480,7 +714,7 @@ export default function FormNewSale() {
                   <Button
                     variant="warning"
                     className="yellowLarge"
-                    onClick={() => handleModal()}
+                    onClick={() => handleDiscount()}
                   >
                     Ir A Facturar
                   </Button>

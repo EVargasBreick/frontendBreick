@@ -79,8 +79,18 @@ const structureUser = (
   password,
   idUsuario,
   idioma,
-  agencia
+  agencia,
+  departamento
 ) => {
+  const corpArray = ["1", "2", "5", "6", "7", "8", "9", "10"];
+  const tipoUsuario = corpArray.includes(categoria)
+    ? 1
+    : categoria == 4
+    ? 4
+    : departamento == 1
+    ? 2
+    : 3;
+
   var userObject = {
     nombre: nombre,
     apPaterno: apPaterno,
@@ -97,7 +107,10 @@ const structureUser = (
     usuariocrea: idUsuario,
     idioma: idioma,
     idAlmacen: agencia,
+    idDepto: departamento,
+    tipoUsuario: tipoUsuario,
   };
+  console.log("Objeto nuevo usuarii", userObject);
   return new Promise((resolve, reject) => {
     resolve(userObject);
   });

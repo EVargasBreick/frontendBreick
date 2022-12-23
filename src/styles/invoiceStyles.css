@@ -1,0 +1,58 @@
+.invoicePage {
+  width: 81mm;
+  text-align: center;
+  padding-top: 10mm;
+  margin: 1mm;
+  font-size: small;
+}
+.simpleSeparator {
+  padding: 2.5mm;
+}
+
+.textWithLine {
+  border: solid;
+  border-bottom-width: 0.1mm;
+  border-top-width: 0mm;
+  border-left-width: 0mm;
+  border-right-width: 0mm;
+  border-color: black;
+}
+
+.leftText {
+  text-align: left;
+}
+
+.ProductLeft {
+  width: 25%;
+  text-align: right;
+}
+.smallProductLeft {
+  width: 15%;
+  text-align: right;
+}
+.xsmallProductLeft {
+  width: 10%;
+  text-align: right;
+}
+.smallProductRight {
+  width: 20%;
+  text-align: left;
+}
+.largeProduct {
+  width: 35%;
+  text-align: left;
+  padding-left: 2%;
+}
+
+.totals {
+  text-align: left;
+  width: 50%;
+}
+
+.totalsData {
+  text-align: right;
+  width: 100%;
+}
+.tablaTotales {
+  width: 100%;
+}

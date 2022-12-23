@@ -167,7 +167,9 @@ export default function SidebarRouteSales() {
               open={toggledRep}
               icon={<Image src={Report} className="compIcon"></Image>}
             >
-              <MenuItem>
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/general")}
+              >
                 <Image src={Book} className="icon"></Image>Reporte libro de
                 ventas
               </MenuItem>

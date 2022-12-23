@@ -13,6 +13,7 @@ import {
 } from "../services/userServices";
 import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
+import { getDepartamentos } from "../services/stateServices";
 export default function FormNewUser() {
   const [nombre, setNombre] = useState("");
   const [apPaterno, setapPaterno] = useState("");
@@ -33,6 +34,8 @@ export default function FormNewUser() {
   const [isAlert, setIsAlert] = useState(false);
   const [idUsuarioActual, setIdUsuarioActual] = useState();
   const [isLoading, setisLoading] = useState(false);
+  const [departamentos, setDepartamentos] = useState([]);
+  const [dpto, setDpto] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
@@ -52,6 +55,10 @@ export default function FormNewUser() {
     rol.then((r) => {
       console.log("Roles", r);
       setRoles(r.data[0]);
+    });
+    const deptos = getDepartamentos();
+    deptos.then((dp) => {
+      setDepartamentos(dp.data[0]);
     });
   }, []);
   function userVerification() {
@@ -89,7 +96,8 @@ export default function FormNewUser() {
               password,
               idUsuarioActual,
               idioma,
-              agencia
+              agencia,
+              dpto
             );
             object.then((obj) => {
               guardar(obj);
@@ -151,6 +159,19 @@ export default function FormNewUser() {
     } else {
       setAgencia(id + "");
     }
+  }
+  function userType() {
+    const corpArray = ["1", "2", "5", "6", "7", "8", "9", "10"];
+    console.log("Categoria:", categoria);
+    console.log("Es categoria 1?", corpArray.includes(categoria));
+    const tipoUsuario = corpArray.includes(categoria)
+      ? 1
+      : categoria == 4
+      ? 4
+      : dpto == 1
+      ? 2
+      : 3;
+    console.log("Tipo usuario:", tipoUsuario);
   }
   return (
     <div>
@@ -263,7 +284,6 @@ export default function FormNewUser() {
           </Form.Group>
         </div>
         <div className="halfContainer">
-          <Form.Group className="half" controlId=""></Form.Group>
           <Form.Group className="half" controlId="languaje">
             <Form.Label>Idioma</Form.Label>
             <Form.Select onChange={(e) => setIdioma(e.target.value)}>
@@ -277,7 +297,22 @@ export default function FormNewUser() {
               })}
             </Form.Select>
           </Form.Group>
+
+          <Form.Group className="half" controlId="state">
+            <Form.Label>Ubicacion</Form.Label>
+            <Form.Select onChange={(e) => setDpto(e.target.value)}>
+              <option>Seleccione Departamento</option>
+              {departamentos.map((dp, index) => {
+                return (
+                  <option value={dp.idDepto} key={index}>
+                    {dp.departamento}
+                  </option>
+                );
+              })}
+            </Form.Select>
+          </Form.Group>
         </div>
+
         <div className="halfContainer">
           <Form.Group className="half" controlId="create">
             <div className="buttonsLarge">

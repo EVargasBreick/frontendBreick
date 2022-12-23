@@ -99,6 +99,21 @@ export const OrderPDF = ({ detalle, productos, codigo }) => {
               paddingRight: "2%",
               borderColor: "#45236b",
               fontSize: "12px",
+              width: "33%",
+              backgroundColor: "#5cb8b2",
+              color: "white",
+              paddingTop: "1%",
+              paddingBottom: "3%",
+            }}
+          >
+            {" Nit "}
+          </Text>
+          <Text
+            style={{
+              border: "1px",
+              paddingRight: "2%",
+              borderColor: "#45236b",
+              fontSize: "12px",
               width: "34%",
               backgroundColor: "#5cb8b2",
               color: "white",
@@ -139,6 +154,22 @@ export const OrderPDF = ({ detalle, productos, codigo }) => {
             }}
           >
             {" " + detalle.cliente}
+          </Text>
+          <Text
+            style={{
+              border: "1px",
+              paddingRight: "2%",
+              paddingLeft: "1%",
+              fontSize: "12px",
+              width: "33%",
+              borderColor: "#45236b",
+              backgroundColor: "white",
+              paddingTop: "1%",
+              paddingBottom: "3%",
+              color: "#347571",
+            }}
+          >
+            {" " + detalle.nit}
           </Text>
           <Text
             style={{
@@ -511,6 +542,65 @@ export const OrderPDF = ({ detalle, productos, codigo }) => {
             }}
           >
             {detalle.descuento + "%"}
+          </Text>
+        </View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            width: "100%",
+            backgroundColor: "#5cb8b2",
+          }}
+        >
+          <Text
+            style={{
+              border: "1px",
+              paddingRight: "2%",
+              fontSize: "12px",
+              borderBottomColor: "white",
+              paddingLeft: "1%",
+              width: "47%",
+              backgroundColor: "white",
+              borderTopColor: "white",
+              borderLeftColor: "white",
+              paddingTop: "1%",
+              paddingBottom: "3%",
+              color: "white",
+            }}
+          ></Text>
+          <Text
+            style={{
+              border: "1px",
+              paddingRight: "4%",
+              textAlign: "right",
+              paddingLeft: "1%",
+              fontSize: "12px",
+              borderColor: "#45236b",
+              width: "29%",
+              backgroundColor: "#5cb8b2",
+              paddingTop: "1%",
+              paddingBottom: "3%",
+              color: "white",
+            }}
+          >
+            {" Descuento calculado: "}
+          </Text>
+          <Text
+            style={{
+              border: "1px",
+              paddingRight: "5%",
+              textAlign: "right",
+              fontSize: "12px",
+              paddingLeft: "1%",
+              width: "24%",
+              borderColor: "#45236b",
+              backgroundColor: "white",
+              paddingTop: "1%",
+              paddingBottom: "3%",
+              color: "#347571",
+            }}
+          >
+            {`${detalle["descuento calculado"]} Bs`}
           </Text>
         </View>
         <View

@@ -115,7 +115,7 @@ export default function FormViewTransfer() {
       </Modal>
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>ALERTA</Modal.Title>
+          <Modal.Title>Mensaje del Sistema</Modal.Title>
         </Modal.Header>
         <Modal.Body>{alert}</Modal.Body>
         <Modal.Footer>

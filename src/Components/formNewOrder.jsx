@@ -78,6 +78,7 @@ export default function FormNewOrder() {
   const [filtered, setFiltered] = useState("");
   const [auxProds, setAuxProds] = useState([]);
   const [auxProducts, setAuxProducts] = useState([]);
+  const [isSpecial, setIsSpecial] = useState(false);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -428,15 +429,16 @@ export default function FormNewOrder() {
             fechaCrea: dateString(),
             fechaActualizacion: dateString(),
             estado: 0,
-            montoFacturar: totalPrevio,
-            montoTotal: totalFacturar,
+            montoFacturar: parseFloat(totalPrevio).toFixed(2),
+            montoTotal: parseFloat(totalFacturar).toFixed(2),
             tipo: tipo,
             descuento: descuento,
-            descCalculado: totalDesc,
+            descCalculado: parseFloat(totalDesc).toFixed(2),
             notas: observaciones,
           },
           productos: selectedProds,
         };
+        console.log("Objeto siendo enviado al pedido", objPedido);
         setPedidoFinal(ped);
         const stockObject = {
           accion: "take",
@@ -543,34 +545,41 @@ export default function FormNewOrder() {
         sinDesc,
         discountList
       );
+      setIsSpecial(tradObj.especial);
       const pasObj = easterDiscounts(pascua, discountList);
       const navObj = christmassDiscounts(navidad, discountList);
       const hallObj = halloweenDiscounts(halloween, discountList);
-      console.log("Objeto tradicionales", tradObj);
-      console.log("Objeto pascua", pasObj);
-      console.log("Objeto navidad", navObj);
-      console.log("Objeto Hall", hallObj);
+
       setTradObject(tradObj);
       setPasObject(pasObj);
       setNavObject(navObj);
       setHallObject(hallObj);
       setTotalDesc(
-        tradObj.descCalculado +
-          pasObj.descCalculado +
-          navObj.descCalculado +
-          hallObj.descCalculado
+        (
+          parseFloat(pasObject.descCalculado) +
+          parseFloat(tradObject.descCalculado) +
+          parseFloat(navObject.descCalculado) +
+          parseFloat(hallObject.descCalculado)
+        ).toFixed(2)
       );
+
       setTotalPrevio(
-        parseFloat(tradObj.total + pasObj.total + navObj.total + hallObj.total)
+        (
+          parseFloat(tradObj.total) +
+          parseFloat(pasObj.total) +
+          parseFloat(navObj.total) +
+          parseFloat(hallObj.total)
+        ).toFixed(2)
       );
       setTotalFacturar(
-        parseFloat(
-          tradObj.facturar +
-            pasObj.facturar +
-            navObj.facturar +
-            hallObj.facturar
-        )
+        (
+          parseFloat(tradObject.facturar) +
+          parseFloat(pasObject.facturar) +
+          parseFloat(navObject.facturar) +
+          parseFloat(hallObject.facturar)
+        ).toFixed(2)
       );
+
       setDiscModalType(true);
       setDiscModal(true);
       const newArr = addProductDiscounts(
@@ -625,12 +634,12 @@ export default function FormNewOrder() {
       <div className="formLabel">REGISTRAR PEDIDOS</div>
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>ALERTA</Modal.Title>
+          <Modal.Title>Mensaje del Sistema</Modal.Title>
         </Modal.Header>
         <Modal.Body>{alert}</Modal.Body>
         <Modal.Footer>
           <Button variant="danger" onClick={handleClose}>
-            Confirmo, cerrar alerta
+            Confirmo, cerrar Mensaje del Sistema
           </Button>
         </Modal.Footer>
       </Modal>
@@ -659,12 +668,20 @@ export default function FormNewOrder() {
                 navObject={navObject}
                 hallObject={hallObject}
               />
-              <SpecialsTable especiales={especiales} totales={descSimple} />
+              <SpecialsTable
+                especiales={especiales}
+                totales={descSimple}
+                isEsp={isSpecial}
+              />
             </div>
           ) : (
             <div>
               <SimpleDiscountTable totales={descSimple} />
-              <SpecialsTable especiales={especiales} totales={descSimple} />
+              <SpecialsTable
+                especiales={especiales}
+                totales={descSimple}
+                isEsp={isSpecial}
+              />
             </div>
           )}
         </Modal.Body>
@@ -810,7 +827,7 @@ export default function FormNewOrder() {
                 min="0"
                 max="100"
                 value={descuento}
-                disabled={isDesc}
+                disabled={tipoUsuario == 1 ? false : true}
                 onChange={(e) => handleDiscount(e.target.value)}
                 type="number"
                 placeholder="Ingrese porcentaje"

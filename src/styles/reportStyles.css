@@ -7,6 +7,26 @@
 .reportOption {
   width: 40%;
 }
+.reportZoom {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+  padding-bottom: 3%;
+}
+
+@media (max-width: 1150px) {
+  .reportZoom {
+    flex-direction: column;
+  }
+  .dateReportContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  .salesReportDate {
+    width: 100%;
+    justify-content: space-evenly;
+  }
+}
 
 .reportOptionDrop {
   background-color: #5cb8b2;
@@ -41,7 +61,6 @@
   background-color: #5cb8b2;
   color: white;
   font-weight: bold;
-  font-size: small;
 }
 .sticky {
   position: sticky;
@@ -49,7 +68,7 @@
 
 .tableBodyReport {
   background-color: white;
-  font-size: smaller;
+
   color: #6a4593;
 }
 
@@ -129,4 +148,26 @@
   padding-left: 10%;
   padding-bottom: 2%;
   width: 60%;
+}
+
+.zfull {
+  font-size: medium;
+}
+
+.zsmall {
+  font-size: small;
+}
+
+.zlarge {
+  font-size: large;
+}
+
+.zxlarge {
+  font-size: larger;
+}
+
+.loadingGif {
+  padding-top: 10%;
+  padding-left: 50%;
+  padding-bottom: 30%;
 }

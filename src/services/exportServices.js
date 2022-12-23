@@ -43,4 +43,33 @@ function ExportPastReport(objReporte, nombre, fecha) {
     resolve(true);
   });
 }
-export { ExportToExcel, ExportTemplate, ExportPastReport };
+
+function ExportGeneralSalesReport(objReporte, totales, search, sorted) {
+  console.log("Objeto pal reporte", totales);
+  const filtro = search.length > 0 ? `-${search}` : "";
+  const sortd = sorted.length > 0 ? `-por ${sorted}` : "";
+  console.log("Search", filtro);
+  console.log("Sorted", sortd);
+  return new Promise((resolve) => {
+    var ws_data = objReporte;
+    var ws = XLSX.utils.json_to_sheet(ws_data);
+
+    var ws_data2 = totales;
+    var ws2 = XLSX.utils.json_to_sheet(ws_data2);
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, `Detalle ventas`);
+    XLSX.utils.book_append_sheet(wb, ws2, "Totales");
+    XLSX.writeFile(
+      wb,
+      `Reporte ${totales[0]["fecha desde"]}-${totales[0]["fecha hasta"]}${filtro}${sortd}.xlsx`
+    );
+    resolve(true);
+  });
+}
+export {
+  ExportToExcel,
+  ExportTemplate,
+  ExportPastReport,
+  ExportGeneralSalesReport,
+};

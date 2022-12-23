@@ -11,9 +11,11 @@ import {
 import "../styles/pdfStyles.css";
 import { convertToText } from "../services/numberServices";
 import QrComponent from "./qrComponent";
+import { dateString } from "../services/dateServices";
 const styles = StyleSheet.create({
   page: {
     backgroundColor: "white",
+    width: "79mm",
   },
   section: {
     flexGrow: 1,
@@ -38,16 +40,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlign: "center",
     fontSize: 7,
-    paddingLeft: "10%",
-    paddingRight: "10%",
   },
   bodyTextSepCentEnd: {
     paddingTop: "5%",
     textAlign: "center",
     textAlign: "center",
     fontSize: 7,
-    paddingLeft: "10%",
-    paddingRight: "10%",
     paddingBottom: "10%",
   },
   bodyTextBold: {
@@ -75,17 +73,15 @@ const styles = StyleSheet.create({
   leftTextTop: {
     fontSize: 7,
     paddingTop: "5%",
-    paddingLeft: "2%",
   },
   rightTextTop: {
     fontSize: 7,
     paddingTop: "5%",
-    paddingRight: "2%",
   },
   leftTextTopMar: {
     fontSize: 7,
     paddingTop: "5%",
-    paddingLeft: "2%",
+
     borderColor: "black",
     borderTopWidth: "0.5",
   },
@@ -102,7 +98,6 @@ const styles = StyleSheet.create({
     fontSize: 7,
     borderColor: "black",
     borderBottomWidth: "0.5",
-    paddingLeft: "2%",
   },
   table: {
     display: "flex",
@@ -143,7 +138,6 @@ const styles = StyleSheet.create({
     width: "20%",
     paddingTop: "1%",
     textAlign: "right",
-    paddingRight: "10%",
   },
   tableTextL: {
     fontSize: 7,
@@ -167,81 +161,66 @@ const styles = StyleSheet.create({
 });
 
 // Create Document Component
-export default function InvoicePDF() {
+export default function InvoicePDF({
+  branchInfo,
+  selectedProducts,
+  cuf,
+  invoice,
+  paymentData,
+  totalsData,
+}) {
   const dataUrl = document.getElementById("invoiceQr").toDataURL();
-  const convertido = convertToText(2.3);
-  const productos = [
-    {
-      cantidad: 1,
-      detalle: "Producto 1",
-      precio: 1,
-      total: 1,
-    },
-    {
-      cantidad: 2,
-      detalle: "Producto 2",
-      precio: 3,
-      total: 6,
-    },
-    {
-      cantidad: 2,
-      detalle: "Producto 2",
-      precio: 3,
-      total: 6,
-    },
-  ];
-
+  const convertido = convertToText(totalsData.totalDescontado);
+  const splittedDate = dateString().split(" ");
+  const date = splittedDate[0];
+  const time = splittedDate[1].substring(0, 5);
   return (
     <Document>
-      <Page style={styles.page} size="A7" wrap={false}>
+      <Page style={styles.page} wrap={false}>
         <View style={styles.section}>
           <Text style={styles.tittle}>Incadex S R L </Text>
-          <Text style={styles.bodyText}>Ag San Miguel </Text>
-          <Text style={styles.bodyText}>" " </Text>
-          <Text style={styles.bodyTextSep}>Calle 21 Nº8332 Calacoto </Text>
-          <Text style={styles.bodyText}>Telefono 2771133 </Text>
-          <Text style={styles.bodyText}>La Paz - Bolivia </Text>
-          <Text style={styles.bodyTextBold}>Sucursal No 7 </Text>
+          <Text style={styles.bodyText}>{`${branchInfo.nombre}`} </Text>
+          <Text style={styles.bodyTextSep}>{`${branchInfo.dir}`} </Text>
+          <Text style={styles.bodyText}>{`Telefono ${branchInfo.tel}`} </Text>
+          <Text style={styles.bodyText}>
+            {`${branchInfo.ciudad} - Bolivia`}{" "}
+          </Text>
+          <Text style={styles.bodyTextBold}>
+            {`Sucursal No ${branchInfo.nro}`}
+          </Text>
           <Text style={styles.bodyTextBoldSep}>FACTURA</Text>
-          <Text style={styles.bodyTextBoldBottom}>COPIA</Text>
-          <Text style={styles.bodyTextSep}>NIT 128153028 </Text>
-          <Text style={styles.bodyText}>FACTURA Nº 4496 </Text>
-          <Text style={styles.bodyTextBottomSep}>
-            AUTORIZACION Nº 114401200309824{" "}
-          </Text>
-          <Text style={styles.bodyTextBoldSep}>
-            Elaboracion de Otros Productos
-          </Text>
+          <Text style={styles.bodyTextBoldBottom}>{`ORIGINAL`}</Text>
+          <Text style={styles.bodyTextSep}>{`NIT ${invoice.nitEmpresa}`} </Text>
+          <Text
+            style={styles.bodyText}
+          >{`FACTURA Nº ${invoice.nroFactura}`}</Text>
+          <Text style={styles.bodyTextBottomSep}>{`CUF: ${cuf}`}</Text>
           <Text style={styles.bodyText}>
-            {`Alimenticios (Tostado, Torrado, Molienda de`}
-          </Text>
-          <Text style={styles.bodyText}>
-            {`Cafe, Elab de Te, Mates, Miel Artificial`}
-          </Text>
-          <Text style={styles.bodyText}>{`Chocolates, Etc.)`}</Text>
-          <Text style={styles.bodyText}>
-            {`Venta al por menor de otros productos`}
-          </Text>
-          <Text style={styles.bodyTextBoldBottom}>
-            {`en almacenes no especializados`}
+            {`ELABORACIÓN DE OTROS PRODUCTOS ALIMENTICIOS (TOSTADO, TORRADO, MOLIENDA DE CAFÉ, ELAB. DE TÉ, MATES, MIEL ARTIFICIAL, CHOCOLATES, ETC.)`}
           </Text>
           <Text
             style={styles.leftTextTop}
-          >{`Fecha:  13/09/2022   Hora:  14:26`}</Text>
-          <Text style={styles.leftText}>{`Señor(es)  NOMBRE AQUI`}</Text>
-          <Text style={styles.leftTextBottom}>{`NIT/CI: 00000000`}</Text>
+          >{`Fecha:  ${date}   Hora:  ${time}`}</Text>
+          <Text
+            style={styles.leftText}
+          >{`Señor(es)  ${invoice.razonSocial}`}</Text>
+          <Text
+            style={styles.leftTextBottom}
+          >{`NIT/CI: ${invoice.nitCliente}`}</Text>
           <View style={styles.table}>
             <Text style={styles.tableHeaderM}>Cant</Text>
             <Text style={styles.tableHeaderL}>Detalle</Text>
             <Text style={styles.tableHeaderM}>Unit</Text>
             <Text style={styles.tableHeaderM}>Sub Total</Text>
           </View>
-          {productos.map((producto, index) => {
+          {selectedProducts.map((producto, index) => {
             return (
               <View style={styles.table} key={index}>
-                <Text style={styles.tableTextM}>{producto.cantidad}</Text>
-                <Text style={styles.tableTextL}>{producto.detalle}</Text>
-                <Text style={styles.tableTextM}>{producto.precio}</Text>
+                <Text style={styles.tableTextM}>{producto.cantProducto}</Text>
+                <Text style={styles.tableTextL}>{producto.nombreProducto}</Text>
+                <Text style={styles.tableTextM}>
+                  {producto.precioDeFabrica}
+                </Text>
                 <Text style={styles.tableTextM}>{producto.total}</Text>
               </View>
             );
@@ -249,15 +228,19 @@ export default function InvoicePDF() {
 
           <View style={styles.total}>
             <Text style={styles.leftTextTop}>{`TOTAL`}</Text>
-            <Text style={styles.rightTextTop}>{`2.30`}</Text>
+            <Text style={styles.rightTextTop}>{`${totalsData.total}`}</Text>
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.leftTextTop}>{`DESCUENTO`}</Text>
-            <Text style={styles.rightTextTop}>{`0`}</Text>
+            <Text
+              style={styles.rightTextTop}
+            >{`${totalsData.descuentoCalculado}`}</Text>
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.leftText}>{`TOTAL FACT`}</Text>
-            <Text style={styles.rightText}>{`2.30`}</Text>
+            <Text
+              style={styles.rightText}
+            >{`${totalsData.totalDescontado}`}</Text>
           </View>
           <Text
             style={styles.leftTextTop}
@@ -266,17 +249,17 @@ export default function InvoicePDF() {
           }/100`}</Text>
           <Text style={styles.leftText}>{`Bolivianos`}</Text>
           <View style={styles.totalRow}>
-            <Text style={styles.leftTextTop}>{`RECIBIDOS EFECTIVO Bs.`}</Text>
-            <Text style={styles.rightTextTop}>{`5.00`}</Text>
+            <Text
+              style={styles.leftTextTop}
+            >{`RECIBIDOS ${paymentData.tipoPago} Bs.`}</Text>
+            <Text
+              style={styles.rightTextTop}
+            >{`${paymentData.cancelado}`}</Text>
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.leftText}>{`Cambio`}</Text>
-            <Text style={styles.rightText}>{`3.70`}</Text>
+            <Text style={styles.rightText}>{`${paymentData.cambio}`}</Text>
           </View>
-          <Text style={styles.leftTextTop}>{`Cod Control 06-8F-6G-00`}</Text>
-          <Text
-            style={styles.leftText}
-          >{`Fecha limite de emisión: 20/11/2022`}</Text>
           <View style={styles.qrContainer}>
             <Image allowDangerousPaths src={dataUrl} style={styles.qrImage} />
           </View>
