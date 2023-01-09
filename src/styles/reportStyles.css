@@ -1,0 +1,177 @@
+.reportSelector {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+  padding-bottom: 5%;
+}
+.reportOption {
+  width: 40%;
+}
+.reportZoom {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
+  padding-bottom: 3%;
+}
+
+@media (max-width: 1150px) {
+  .reportZoom {
+    flex-direction: column;
+  }
+  .dateReportContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  .filterMiddleContainer {
+    padding-bottom: 2%;
+    width: 100%;
+  }
+  .salesReportDate {
+    width: 100%;
+    justify-content: space-evenly;
+  }
+}
+
+.reportOptionDrop {
+  background-color: #5cb8b2;
+  color: white;
+}
+
+.reportOptionLarge {
+  width: 50%;
+}
+.reportButtonContainer {
+  padding-top: 2%;
+  width: 20%;
+}
+.reportButton {
+  color: white;
+  height: 100%;
+  background-color: #eead1a;
+  border-color: #6a4593;
+}
+.reportButtonGroup {
+  display: flex;
+  justify-content: space-evenly;
+  padding-bottom: 2%;
+}
+.reportButton:hover {
+  background-color: white;
+  color: #6a4593;
+  border-color: #6a4593;
+}
+
+.tableHeaderReport {
+  background-color: #5cb8b2;
+  color: white;
+  font-weight: bold;
+}
+.sticky {
+  position: sticky;
+}
+
+.tableBodyReport {
+  background-color: white;
+
+  color: #6a4593;
+}
+
+.tableHeaderColS {
+  width: 5%;
+}
+.tableHeaderColS:hover {
+  background-color: #1e7e76;
+}
+.tableHeaderColM:hover {
+  background-color: #1e7e76;
+}
+.tableHeaderColL:hover {
+  background-color: #1e7e76;
+}
+.tableHeaderColM {
+  width: 12%;
+}
+.tableHeaderColL {
+  width: 30%;
+}
+.reportDate {
+  background-color: #5cb8b2;
+  padding-left: 1%;
+  padding-bottom: 1%;
+  padding-top: 1%;
+  font-weight: bold;
+  font-size: small;
+  width: 20%;
+}
+.scrollable {
+  overflow-y: scroll;
+  height: 100px;
+}
+
+.tableScroll {
+  overflow-y: scroll;
+}
+
+.reportTable {
+  overflow-y: scroll;
+}
+
+.pdfButton {
+  color: white;
+  transition: 1s;
+}
+
+.excelButton {
+  color: white;
+  transition: 1s;
+}
+
+.pdfButton:hover {
+  background-color: white;
+  color: #ff0000;
+  border-color: white;
+  transition: 1s;
+}
+
+.excelButton:hover {
+  background-color: rgb(255, 255, 255);
+  color: #008900;
+  border-color: white;
+  transition: 1s;
+}
+.headerRows {
+  display: flex;
+}
+.reportSearch {
+  padding-left: 10%;
+  padding-bottom: 2%;
+  width: 100%;
+}
+
+.reportSearchL {
+  padding-left: 10%;
+  padding-bottom: 2%;
+  width: 60%;
+}
+
+.zfull {
+  font-size: medium;
+}
+
+.zsmall {
+  font-size: small;
+}
+
+.zlarge {
+  font-size: large;
+}
+
+.zxlarge {
+  font-size: larger;
+}
+
+.loadingGif {
+  padding-top: 10%;
+  padding-left: 50%;
+  padding-bottom: 30%;
+}

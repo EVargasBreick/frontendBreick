@@ -1,0 +1,7 @@
+{
+  "secret": "BreickSecret2022",
+  "endpointUrl": "http://localhost",
+  "endpointPort": "5200",
+  "decimales": 3,
+  "nitEmpresa": "128153028"
+}

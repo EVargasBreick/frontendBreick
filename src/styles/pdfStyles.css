@@ -1,0 +1,11 @@
+.page-pdf {
+  margin: 0 auto;
+  width: 80% !important;
+  height: 100% !important;
+  background-color: aqua;
+  color: red;
+}
+.invoiceTable {
+  display: flex;
+  flex-direction: row;
+}

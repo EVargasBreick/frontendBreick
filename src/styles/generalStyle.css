@@ -1,0 +1,191 @@
+.user {
+  display: flex;
+}
+.userBar {
+  display: flex;
+  background-color: white;
+  justify-content: space-between;
+  padding-right: 0.1%;
+  width: 100%;
+}
+
+.dropButton {
+  color: white;
+
+  background-color: #5cb8b2;
+}
+.userIcon {
+  width: 15%;
+  padding-right: 10%;
+}
+.layout {
+  width: 20%;
+  background-color: white;
+  color: white;
+  flex-direction: row;
+}
+
+.current {
+  color: white;
+  background-color: red;
+  width: 20%;
+}
+
+.name {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.mainRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mainColumn {
+  flex-direction: row;
+  width: 25%;
+  padding-right: 2%;
+}
+.first {
+  padding-bottom: 2%;
+}
+
+.second {
+  padding-bottom: 10%;
+}
+
+.main {
+  display: flex;
+  border-radius: 3%;
+  padding-bottom: 20%;
+  padding-top: 10%;
+}
+
+.mainCard {
+  display: flex;
+  border-radius: 3%;
+  padding-bottom: 10%;
+  padding-top: 10%;
+}
+
+.dPurple {
+  background-color: #2e0f52;
+}
+
+.mCyan {
+  background-color: #5cb8b2;
+}
+
+.mPurple {
+  background-color: #6a4593;
+}
+
+.mYellow {
+  background-color: #eead1a;
+}
+
+.dYellow {
+  background-color: #e9bd58;
+}
+
+.dCyan {
+  background-color: #347571;
+}
+
+.mGreen {
+  background-color: #07a55a;
+}
+
+.mRed {
+  background-color: rgb(188, 65, 65);
+}
+
+.mBlue {
+  background-color: rgb(76, 76, 184);
+}
+
+.smRow {
+  padding-left: 2%;
+  flex-direction: row;
+  align-items: flex-end;
+  width: 40%;
+}
+
+.lgRow {
+  padding-left: 2%;
+  flex-direction: row;
+  align-items: flex-end;
+  width: 60%;
+  color: white;
+  text-align: center;
+}
+
+.summImgCt {
+  padding-right: 20%;
+  padding-left: 10%;
+
+  transition: transform 0.8s;
+}
+
+.summImgCt:hover {
+  transform: scale(1.3);
+}
+
+.summImg {
+  width: 85%;
+  opacity: 0.4;
+}
+
+.nData {
+  padding-left: 1%;
+  font-size: 30px;
+  text-align: center;
+  color: white;
+  padding-bottom: 1%;
+}
+
+.tittle {
+  padding-bottom: 3%;
+}
+
+.alertStyle {
+  background-color: "#5cb8b2";
+  color: "white";
+}
+.dateInvoice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 2%;
+  text-align: center;
+  flex-direction: column;
+}
+.dateInvoiceSelector {
+  width: 50%;
+  padding-bottom: 1%;
+}
+.invoiceButtonGroup {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+.invoiceTable {
+  display: block;
+  overflow-x: scroll;
+  max-height: 500px;
+}
+.invoiceListContainer {
+  padding-bottom: 5%;
+}
+.lowerLabel {
+  padding-top: 2%;
+}
+
+.editButton {
+  display: flex;
+  padding-top: 1%;
+  padding-bottom: 1%;
+  justify-content: space-evenly;
+}
