@@ -153,3 +153,39 @@
   background-color: "#5cb8b2";
   color: "white";
 }
+.dateInvoice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 2%;
+  text-align: center;
+  flex-direction: column;
+}
+.dateInvoiceSelector {
+  width: 50%;
+  padding-bottom: 1%;
+}
+.invoiceButtonGroup {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+.invoiceTable {
+  display: block;
+  overflow-x: scroll;
+  max-height: 500px;
+}
+.invoiceListContainer {
+  padding-bottom: 5%;
+}
+.lowerLabel {
+  padding-top: 2%;
+}
+
+.editButton {
+  display: flex;
+  padding-top: 1%;
+  padding-bottom: 1%;
+  justify-content: space-evenly;
+}

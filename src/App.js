@@ -27,6 +27,8 @@ import LogKardexReport from "./Components/logKardexReport";
 import CurrentKardexReport from "./Components/currentKardexReport";
 import { InvoiceComponent } from "./Components/invoiceComponent";
 import SalesReport from "./Components/salesreport";
+import SalesByProductReport from "./Components/salesByProductReport";
+import InvoiceOrders from "./Components/invoiceOrders";
 function App() {
   return (
     <div className="App">
@@ -207,6 +209,22 @@ function App() {
               element={
                 <RequireAuth>
                   <SalesReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/productos"
+              element={
+                <RequireAuth>
+                  <SalesByProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/pedidos/facturar"
+              element={
+                <RequireAuth>
+                  <InvoiceOrders />
                 </RequireAuth>
               }
             />

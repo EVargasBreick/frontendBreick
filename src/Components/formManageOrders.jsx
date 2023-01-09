@@ -288,7 +288,7 @@ export default function FormManageOrders() {
                       colSpan={3}
                       className="totalColumnOrder"
                     >{`Descuento (%)`}</th>
-                    <td>{`${descuento} %`}</td>
+                    <td>{`${((descCalculado / total) * 100).toFixed(2)} %`}</td>
                   </tr>
                   <tr className="tableRow">
                     <th

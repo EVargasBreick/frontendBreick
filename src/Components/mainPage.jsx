@@ -38,19 +38,17 @@ export default function MainPage() {
       }
     }
     const stats = getOrderStatus();
+
     stats.then((response) => {
       setEstados(response.data.data);
-      console.log(response.data.data);
-      if (response.data.data[0][0]) {
-        setPendientes(response.data.data[0][0].conteo);
-      } else {
-        setPendientes(0);
-      }
-      if (response.data.data[0][1]) {
-        setAprobados(response.data.data[0][1].conteo);
-      } else {
-        setAprobados(0);
-      }
+      console.log("Pedidos aprobados:", response.data.data);
+      const pendientes = response.data.data[0].find((pd) => pd.estado == 0);
+      console.log("Pendientes:", pendientes);
+      const cantPen = pendientes != undefined ? pendientes.conteo : 0;
+      setPendientes(cantPen);
+      const aprobados = response.data.data[0].find((pd) => pd.estado == 1);
+      const cantAp = aprobados != undefined ? aprobados.conteo : 0;
+      setAprobados(cantAp);
     });
     const types = getOrderType();
     types.then((type) => {

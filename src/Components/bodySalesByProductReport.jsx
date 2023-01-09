@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { Button, Form, Image } from "react-bootstrap";
 import Pagination from "./pagination";
-import { getGeneralSalesReport } from "../services/reportServices";
+import { getProductSalesReport } from "../services/reportServices";
 import "../styles/formLayouts.css";
 import loading2 from "../assets/loading2.gif";
 import { ExportGeneralSalesReport } from "../services/exportServices";
-export default function BodySalesReport() {
+export default function BodySalesByProductReport() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [newCuf, setNewCuf] = useState("");
   const [reportTable, setReportTable] = useState([]);
   const [auxReportTable, setAuxReportTable] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,12 +22,7 @@ export default function BodySalesReport() {
   const [byState, setByState] = useState("-1");
   const [sort, setSort] = useState("fecha");
   const [isReportLoading, setIsReportLoading] = useState(false);
-
-  useEffect(() => {
-    const cuf = `LAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDFLAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDFLAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDFLAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDF`;
-    const splitedCuf = cuf.match(/.{40}/g);
-    setNewCuf(splitedCuf.join(" "));
-  }, []);
+  useEffect(() => {}, []);
   function formatDate() {
     const spplited = fromDate.split("-");
     const fromNewFormat = `${spplited[2]}/${spplited[1]}/${spplited[0]}`;
@@ -40,12 +34,13 @@ export default function BodySalesReport() {
     };
   }
   function generateReport() {
+    setSearchBox("");
     setIsReportLoading(true);
     console.log("Sooort", sort);
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       console.log("Desde", fromDate, "Hasta", toDate);
-      const reportData = getGeneralSalesReport(
+      const reportData = getProductSalesReport(
         formatted.from,
         formatted.to,
         sort
@@ -79,23 +74,17 @@ export default function BodySalesReport() {
         dt.nombreCompleto
           .toString()
           .toLowerCase()
+          .includes(value.toString().toLowerCase()) ||
+        dt.nombreProducto
+          .toString()
+          .toLowerCase()
+          .includes(value.toString().toLowerCase()) ||
+        dt.codInterno
+          .toString()
+          .toLowerCase()
           .includes(value.toString().toLowerCase())
     ); //
     setReportTable([...newList]);
-  }
-  function filterByState(value) {
-    setByState(value);
-    if (value == 2) {
-      setReportTable([...auxReportTable]);
-    } else {
-      if (value == 0) {
-        const newList = auxReportTable.filter((dt) => dt.estado == 0);
-        setReportTable([...newList]);
-      } else {
-        const newList = auxReportTable.filter((dt) => dt.estado == 1);
-        setReportTable([...newList]);
-      }
-    }
   }
   function sortData(value) {
     setIsReportLoading(true);
@@ -103,7 +92,7 @@ export default function BodySalesReport() {
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       console.log("Desde", fromDate, "Hasta", toDate);
-      const reportData = getGeneralSalesReport(
+      const reportData = getProductSalesReport(
         formatted.from,
         formatted.to,
         value
@@ -114,29 +103,14 @@ export default function BodySalesReport() {
           setAuxReportTable(response.data.data[0]);
           console.log(response.data.data[0]);
           setIsReportLoading(false);
+          if (searchBox != "") {
+            searchItem(searchBox);
+          }
         })
         .catch((error) => {
           console.log(error);
         });
     }
-  }
-  function countElements(array, condition) {
-    let count = 0;
-    for (let element of array) {
-      if (condition(element)) {
-        count++;
-      }
-    }
-    return count;
-  }
-  function sumElements(array, condition) {
-    let sum = 0;
-    for (let element of array) {
-      if (condition(element)) {
-        sum = sum + element.montoFacturar;
-      }
-    }
-    return sum;
   }
   async function setExcelData() {
     const newArray = [];
@@ -144,32 +118,20 @@ export default function BodySalesReport() {
       reportTable.map((rt, index) => {
         const dataRecord = {
           nro: index + 1,
-          cuf: rt.cuf,
           fecha: rt.fecha,
           hora: rt.hora,
           "nit cliente": rt.nitCliente,
-          complemento: 0,
           "razon social": rt.razonSocial,
-          "importe total": rt.montoTotal,
-          ICE: 0,
-          IEHD: 0,
-          IPJ: 0,
-          TASAS: 0,
-          "NO IVA": 0,
-          EXPORTACIONES: 0,
-          GRAVADAS: 0,
-          "Sub Total": rt.montoTotal,
-          descuentos: (rt.montoTotal - rt.montoFacturar).toFixed(2),
-          "gift card": 0,
           "importe base": rt.montoFacturar.toFixed(2),
           "debito fiscal": (rt.montoFacturar * 0.13).toFixed(2),
-          estado: rt.estado == 0 ? "Valida" : "Cancelada",
-          "derecho fiscal": "si",
-          "estado pago": rt.desembolsada == 0 ? "Pagada" : "Pendiente",
+          "cod interno": rt.codInterno,
+          producto: rt.nombreProducto,
+          cantidad: rt.cantidadProducto,
+          "precio unitario": rt.precioDeFabrica,
+          "total Producto": rt.totalProd,
+          "descuento producto": rt.descuentoProducto,
           vendedor: rt.nombreCompleto,
           agencia: rt.Agencia,
-          "monto a pagar":
-            rt.desembolsada == 0 ? 0 : rt.montoFacturar.toFixed(2),
         };
         newArray.push(dataRecord);
       })
@@ -180,32 +142,6 @@ export default function BodySalesReport() {
         "fecha desde": fromDate,
         "fecha hasta": toDate,
         "nro registros": reportTable.length,
-        "suma importe total": reportTable
-          .reduce((accumulator, object) => {
-            return accumulator + object.montoTotal;
-          }, 0)
-          .toFixed(2),
-        "total ice": 0.0,
-        "total iehd": 0.0,
-        "total ipj": 0.0,
-        "total tasas": 0.0,
-        "total no iva": 0.0,
-        "total exportaciones": 0.0,
-        "total gravadas": 0.0,
-        "sub total": reportTable
-          .reduce((accumulator, object) => {
-            return accumulator + object.montoTotal;
-          }, 0)
-          .toFixed(2),
-        descuentos: (
-          reportTable.reduce((accumulator, object) => {
-            return accumulator + object.montoTotal;
-          }, 0) -
-          reportTable.reduce((accumulator, object) => {
-            return accumulator + object.montoFacturar;
-          }, 0)
-        ).toFixed(2),
-        "total gift card": 0,
         "total importe base": reportTable
           .reduce((accumulator, object) => {
             return accumulator + object.montoFacturar;
@@ -216,30 +152,16 @@ export default function BodySalesReport() {
             return accumulator + object.montoFacturar;
           }, 0) * 0.13
         ).toFixed(2),
-        "facturas validas": countElements(
-          reportTable,
-          (dato) => dato.estado == 0
-        ),
-        "facturas canceladas": countElements(
-          reportTable,
-          (dato) => dato.estado == 1
-        ),
-        "cant facturas pagadas": countElements(
-          reportTable,
-          (dato) => dato.desembolsada == 0
-        ),
-        "cant facturas por pagar": countElements(
-          reportTable,
-          (dato) => dato.desembolsada == 1
-        ),
-        "total bs facturas pagadas": sumElements(
-          reportTable,
-          (dato) => dato.estado == 0
-        ),
-        "total bs facturas por pagar ": sumElements(
-          reportTable,
-          (dato) => dato.estado == 1
-        ),
+        "total productos": reportTable
+          .reduce((accumulator, object) => {
+            return accumulator + object.totalProd;
+          }, 0)
+          .toFixed(2),
+        "total descuentos": reportTable
+          .reduce((accumulator, object) => {
+            return accumulator + object.descuentoProducto;
+          }, 0)
+          .toFixed(2),
       },
     ];
     const exported = ExportGeneralSalesReport(
@@ -253,13 +175,9 @@ export default function BodySalesReport() {
     });
     console.log("A ver que pex", totales);
   }
-  function formattedCuf(cuf) {
-    const splitted = cuf.match(/.{25}/g);
-    return splitted ? splitted.join(" ") : cuf;
-  }
   return (
     <div>
-      <div className="formLabel">REPORTE GENERAL DE VENTAS</div>
+      <div className="formLabel">REPORTE DE VENTAS POR PRODUCTO</div>
       <div className="formLabel">Seleccione rango de fechas</div>
       <div>
         <Form className="dateReportContainer">
@@ -313,25 +231,13 @@ export default function BodySalesReport() {
               </Form.Select>
             </div>
             <div>
-              <Form.Label>{`Buscar (Nit, r. social, vendedor, agencia)`}</Form.Label>
+              <Form.Label>{`Buscar (Nit, r. social, vendedor, agencia, producto, codigo int)`}</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="ingrese término"
                 onChange={(e) => searchItem(e.target.value)}
                 value={searchBox}
               />
-            </div>
-            <div>
-              <Form.Label>Estado de las facturas</Form.Label>
-              <Form.Select
-                className="reportOptionDrop"
-                value={byState}
-                onChange={(e) => filterByState(e.target.value)}
-              >
-                <option value="2">Todas</option>
-                <option value="0">Validas</option>
-                <option value="1">Canceladas</option>
-              </Form.Select>
             </div>
             <div>
               <Form.Label>Ordenar por</Form.Label>
@@ -346,8 +252,8 @@ export default function BodySalesReport() {
                 <option value="razonSocial asc">Razon social</option>
                 <option value="nombreCompleto asc">Vendedor</option>
                 <option value="Agencia asc">Agencia</option>
-                <option value="hora">Hora</option>
-                <option value="montoFacturar desc">Importe Base</option>
+                <option value="descuentoProducto desc">Descuento</option>
+                <option value="nombreProducto asc">Nombre Producto</option>
               </Form.Select>
             </div>
           </Form.Group>
@@ -360,27 +266,21 @@ export default function BodySalesReport() {
                   <th className="reportColumnXSmall">NRO</th>
                   <th className="reportColumnMedium">FECHA</th>
                   <th className="reportColumnSmall ">HORA</th>
-                  <th className="reportColumnSmall ">NRO FACTURA</th>
-                  <th className="reportColumnSmall ">CUF</th>
+                  <th className="reportColumnXSmall ">NRO FACTURA</th>
+                  <th className="reportColumnSmall ">ZONA</th>
                   <th className="reportColumnMedium ">NIT CLIENTE</th>
-                  <th className="reportColumnXSmall ">COMPLE MENTO</th>
                   <th className="reportColumnMedium ">RAZON SOCIAL</th>
-                  <th className="reportColumnXSmall ">IMPORTE TOTAL</th>
-                  <th className="reportColumnXSmall ">ICE</th>
-                  <th className="reportColumnXSmall ">IEHD</th>
-                  <th className="reportColumnXSmall ">IPJ</th>
-                  <th className="reportColumnXSmall ">TASAS</th>
-                  <th className="reportColumnXSmall ">NO IVA</th>
-                  <th className="reportColumnXSmall ">EXPOR TACIONES</th>
-                  <th className="reportColumnXSmall "> GRAV ADAS</th>
-                  <th className="reportColumnSmall "> SUB TOTAL</th>
-                  <th className="reportColumnSmall ">DCTOS</th>
-                  <th className="reportColumnXSmall ">GIFT CARD</th>
-                  <th className="reportColumnSmall ">IMPORTE BASE</th>
+                  <th className="reportColumnXSmall ">IMPORTE TOTAL VENTA</th>
+                  <th className="reportColumnSmall "> SUB TOTAL VENTA</th>
+                  <th className="reportColumnSmall ">IMPORTE BASE VENTA</th>
                   <th className="reportColumnSmall ">DEBITO FISCAL</th>
-                  <th className="reportColumnSmall ">ESTADO</th>
-                  <th className="reportColumnSmall ">DERECHO FISCAL</th>
-                  <th className="reportColumnSmall ">ESTADO PAGO</th>
+                  <th className="reportColumnMedium">COD INTERNO</th>
+                  <th className="reportColumnMedium">NOMBRE PRODUCTO</th>
+                  <th className="reportColumnXSmall">CAN TIDAD</th>
+                  <th className="reportColumnMedium">PRECIO UNIT</th>
+
+                  <th className="reportColumnMedium">TOTAL PROD</th>
+                  <th className="reportColumnMedium">DESCUENTO PROD</th>
                   <th className="reportColumnMedium ">VENDEDOR</th>
                   <th className="reportColumnMedium ">AGENCIA</th>
                 </tr>
@@ -392,38 +292,38 @@ export default function BodySalesReport() {
                       <td className="reportColumnXSmall">{index + 1}</td>
                       <td className="reportColumnMedium">{rt.fecha}</td>
                       <td className="reportColumnMedium">{rt.hora}</td>
-                      <td className="reportCufColumn">{rt.nroFactura}</td>
-                      <td className="reportColumnMedium">
-                        {formattedCuf(rt.cuf)}
-                      </td>
+                      <td className="reportCufColumnXSmall">{rt.nroFactura}</td>
+                      <td className="reportCufColumn">{rt.zona}</td>
                       <td className="reportColumnXSmall">{`${rt.nitCliente}`}</td>
-                      <td className="reportColumnXSmall">{0}</td>
                       <td className="reportColumnMedium">{rt.razonSocial}</td>
-                      <td className="reportColumnXSmall">{rt.montoTotal}</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall"> 0</td>
-                      <td className="reportColumnSmall"> {rt.montoTotal}</td>
-                      <td className="reportColumnSmall">
-                        {(rt.montoTotal - rt.montoFacturar).toFixed(2)}
+                      <td className="reportColumnXSmall">
+                        {rt.montoFacturar.toFixed(2)}
                       </td>
-                      <td className="reportColumnXSmall">{"0"}</td>
+                      <td className="reportColumnSmall">
+                        {" "}
+                        {rt.montoFacturar.toFixed(2)}
+                      </td>
                       <td className="reportColumnSmall">
                         {rt.montoFacturar.toFixed(2)}
                       </td>
                       <td className="reportColumnSmall">
-                        {(rt.montoFacturar * 0.13).toFixed(2)}
+                        {rt.debitoFiscal.toFixed(2)}
                       </td>
-                      <td className="reportColumnSmall">
-                        {rt.estado == 0 ? "Valida" : "Cancelada"}
+                      <td className="reportColumnMedium">{rt.codInterno}</td>
+                      <td className="reportColumnMedium">
+                        {rt.nombreProducto}
                       </td>
-                      <td className="reportColumnSmall">SI</td>
-                      <td className="reportColumnSmall">
-                        {rt.desembolsada == 0 ? "Pagada" : "Pendiente"}
+                      <td className="reportColumnMedium">
+                        {rt.cantidadProducto}
+                      </td>
+                      <td className="reportColumnMedium">
+                        {rt.precioDeFabrica.toFixed(2)}
+                      </td>
+                      <td className="reportColumnMedium">
+                        {rt.totalProd.toFixed(2)}
+                      </td>
+                      <td className="reportColumnMedium">
+                        {rt.descuentoProducto.toFixed(2)}
                       </td>
                       <td className="reportColumnMedium">
                         {rt.nombreCompleto}

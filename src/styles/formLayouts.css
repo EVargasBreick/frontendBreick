@@ -305,8 +305,13 @@
   padding-bottom: 2%;
 }
 
+.filterMiddleContainer {
+  padding-bottom: 2%;
+  width: 40%;
+}
+
 .salesReportDate {
-  width: 50%;
+  width: 100%;
   justify-content: space-evenly;
 }
 
@@ -333,6 +338,8 @@
   color: #6a4593;
 }
 .reportHeader {
+  position: sticky;
+  top: 0;
   vertical-align: top;
   background-color: #5cb8b2;
   color: white;

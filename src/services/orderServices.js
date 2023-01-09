@@ -251,6 +251,52 @@ const deleteProductOrder = (body) => {
   });
 };
 
+const orderToInvoiceList = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${config.endpointUrl}:${config.endpointPort}/pedidos/lista/facturar`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const orderDetailsInvoice = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${config.endpointUrl}:${config.endpointPort}/pedidos/detalles/facturar?id=${id}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const updateInvoicedOrder = (id, fecha) => {
+  console.log("SE CORRIO ESTOOO");
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${config.endpointUrl}:${config.endpointPort}/pedidos/actualizar/facturar?idPedido=${id}&fechaHora=${fecha}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   createOrder,
   getOrderStatus,
@@ -269,4 +315,7 @@ export {
   updateDbOrder,
   deleteProductOrder,
   getUserOrderList,
+  orderToInvoiceList,
+  orderDetailsInvoice,
+  updateInvoicedOrder,
 };

@@ -274,9 +274,8 @@ export default function SidebarCeo() {
                 <Image src={ReturnWare} className="icon inverted"></Image>
                 Traspaso productos
               </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/facturar")}>
-                <Image src={Invoice} className="icon"></Image>Emision de
-                Facturas
+              <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
+                <Image src={Invoice} className="icon"></Image>Facturar Pedidos
               </MenuItem>
               <MenuItem>
                 {" "}
@@ -361,9 +360,11 @@ export default function SidebarCeo() {
                 <Image src={Book} className="icon"></Image>Reporte libro de
                 ventas
               </MenuItem>
-              <MenuItem>
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/productos")}
+              >
                 <Image src={Book} className="icon"></Image>Reporte libro de
-                ventas producto
+                ventas por producto
               </MenuItem>
               <MenuItem>
                 <Image src={Ticket} className="icon"></Image>Reporte facturados

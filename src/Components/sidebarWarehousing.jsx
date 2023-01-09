@@ -224,9 +224,11 @@ export default function SidebarWarehousing() {
                 <Image src={Book} className="icon"></Image>Reporte libro de
                 ventas
               </MenuItem>
-              <MenuItem>
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/productos")}
+              >
                 <Image src={Book} className="icon"></Image>Reporte libro de
-                ventas producto
+                ventas por producto
               </MenuItem>
               <MenuItem>
                 <Image src={Ticket} className="icon"></Image>Reporte facturados
