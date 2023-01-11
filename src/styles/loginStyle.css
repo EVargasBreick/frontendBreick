@@ -2,11 +2,12 @@
   background-color: "#6a4593";
 }
 .center {
-  padding-left: 37%;
-  padding-right: 37%;
-  padding-top: 7%;
-  padding-bottom: 20%;
-  background-color: "#6a4593";
+  display: flex;
+  height: auto;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .loginForm {
@@ -25,10 +26,14 @@
 }
 .box {
   background-color: white;
-  padding-top: 10%;
-  padding-bottom: 25%;
-  padding-left: 2%;
-  padding-right: 2%;
+  width: 35%;
+}
+
+@media (max-width: 700px) {
+  .box {
+    background-color: white;
+    width: 85%;
+  }
 }
 
 .label {

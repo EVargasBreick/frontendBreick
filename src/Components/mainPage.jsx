@@ -18,6 +18,7 @@ import loading2 from "../assets/loading2.gif";
 import { numberOfProducts } from "../services/productServices";
 import Cookies from "js-cookie";
 import "../styles/generalStyle.css";
+import SidebarAdmin from "./sidebarAdmin";
 export default function MainPage() {
   const [estados, setEstados] = useState([]);
   const [pendientes, setPendientes] = useState(-1);
@@ -27,6 +28,7 @@ export default function MainPage() {
   const [normal, setNormal] = useState(0);
   const [muestra, setMuestra] = useState(0);
   const [reserva, setReserva] = useState(0);
+
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
@@ -78,6 +80,7 @@ export default function MainPage() {
       setNumProds(number.data.data[0][0].NumeroProductos);
     });
   }, []);
+
   const renderTooltip = (props) => (
     <Tooltip id="button-tooltip" {...props}>
       {`Normales: ${normal} | \nMuestras: ${muestra}\nReservas: ${reserva}`}
@@ -85,156 +88,153 @@ export default function MainPage() {
   );
 
   return (
-    <div>
-      <div>
-        <div className="userBar">
-          <div></div>
-          <Display />
+    <div className="appContainer">
+      <div className="userBar">
+        <div></div>
+        <Display />
+      </div>
+      <div className="form">
+        <div className="sidebarDisplay">
+          <SidebarAdmin></SidebarAdmin>
         </div>
-        <div className="form">
-          <div className="sidebarDisplay">
-            <Sidebar />
-          </div>
-          <div className="formDisplayWhite">
-            <div className="tittle">Inicio</div>
-            <div className="mainRow">
-              <OverlayTrigger
-                placement="top"
-                delay={{ show: 250, hide: 400 }}
-                overlay={renderTooltip}
-              >
-                <div className="mainColumn first">
-                  <div className="mainCard mCyan">
-                    <div className="lgRow">
-                      <div className="nData">
-                        {pendientes < 0 ? (
-                          <Image src={loading2} style={{ width: "25%" }} />
-                        ) : (
-                          pendientes
-                        )}
-                      </div>
-                      <div>Pedidos pendientes</div>
-                    </div>
-                    <div className="smRow">
-                      <div className="summImgCt">
-                        <Image src={CartPlus} className="summImg"></Image>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </OverlayTrigger>
-
-              <div className="mainColumn first">
-                <div className="mainCard mYellow">
+        <div className="formDisplayWhite mainOverflow">
+          <div className="tittle">Inicio</div>
+          <div className="mainRow">
+            <OverlayTrigger
+              placement="top"
+              delay={{ show: 250, hide: 400 }}
+              overlay={renderTooltip}
+            >
+              <div className="dataCard">
+                <div className="mainCard mCyan">
                   <div className="lgRow">
                     <div className="nData">
-                      {aprobados < 0 ? (
+                      {pendientes < 0 ? (
                         <Image src={loading2} style={{ width: "25%" }} />
                       ) : (
-                        aprobados
+                        pendientes
                       )}
                     </div>
-                    <div>Pedidos aprobados</div>
+                    <div>Pedidos pendientes</div>
                   </div>
                   <div className="smRow">
                     <div className="summImgCt">
-                      <Image src={CartLogo} className="summImg"></Image>
+                      <Image src={CartPlus} className="summImg"></Image>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="mainColumn first">
-                <div className="mainCard dPurple">
-                  <div className="lgRow">
-                    <div className="nData">1</div>
-                    <div>Pedidos por facturar</div>
+            </OverlayTrigger>
+            <div className="dataCard">
+              <div className="mainCard mYellow">
+                <div className="lgRow">
+                  <div className="nData">
+                    {aprobados < 0 ? (
+                      <Image src={loading2} style={{ width: "25%" }} />
+                    ) : (
+                      aprobados
+                    )}
                   </div>
-                  <div className="smRow">
-                    <div className="summImgCt">
-                      <Image src={Square} className="summImg"></Image>
-                    </div>
-                  </div>
+                  <div>Pedidos aprobados</div>
                 </div>
-              </div>
-              <div className="mainColumn first">
-                <div className="mainCard mGreen">
-                  <div className="lgRow">
-                    <div className="nData">1</div>
-                    <div>Pedidos Facturados</div>
-                  </div>
-                  <div className="smRow">
-                    <div className="summImgCt">
-                      <Image src={CheckMain} className="summImg"></Image>
-                    </div>
+                <div className="smRow">
+                  <div className="summImgCt">
+                    <Image src={CartLogo} className="summImg"></Image>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="mainRow">
-              <div className="mainColumn second">
-                <div>
-                  <div className="mainCard dYellow">
-                    <div className="lgRow">
-                      <div className="nData">
-                        {numClientes < 0 ? (
-                          <Image src={loading2} style={{ width: "25%" }} />
-                        ) : (
-                          numClientes
-                        )}
-                      </div>
-                      <div>Clientes Registrados</div>
-                    </div>
-                    <div className="smRow">
-                      <div className="summImgCt">
-                        <Image src={Add} className="summImg"></Image>
-                      </div>
-                    </div>
+            <div className="dataCard">
+              <div className="mainCard dPurple">
+                <div className="lgRow">
+                  <div className="nData">1</div>
+                  <div>Pedidos por facturar</div>
+                </div>
+                <div className="smRow">
+                  <div className="summImgCt">
+                    <Image src={Square} className="summImg"></Image>
                   </div>
                 </div>
               </div>
-              <div className="mainColumn second">
-                <div className="mainCard mPurple">
-                  <div className="lgRow">
-                    <div className="nData">
-                      {" "}
-                      {numProds < 0 ? (
-                        <Image src={loading2} style={{ width: "25%" }} />
-                      ) : (
-                        numProds
-                      )}
-                    </div>
-                    <div>Productos Registrados</div>
-                  </div>
-                  <div className="smRow">
-                    <div className="summImgCt">
-                      <Image src={ProductMain} className="summImg"></Image>
-                    </div>
+            </div>
+          </div>
+          <div className="mainRow">
+            <div className="dataCard ">
+              <div className="mainCard mGreen">
+                <div className="lgRow">
+                  <div className="nData">1</div>
+                  <div>Pedidos Facturados</div>
+                </div>
+                <div className="smRow">
+                  <div className="summImgCt">
+                    <Image src={CheckMain} className="summImg"></Image>
                   </div>
                 </div>
               </div>
-              <div className="mainColumn second">
-                <div className="mainCard mRed">
-                  <div className="lgRow">
-                    <div className="nData">1</div>
-                    <div>Facturas Anuladas</div>
+            </div>
+            <div className="dataCard ">
+              <div className="mainCard dYellow">
+                <div className="lgRow">
+                  <div className="nData">
+                    {numClientes < 0 ? (
+                      <Image src={loading2} style={{ width: "25%" }} />
+                    ) : (
+                      numClientes
+                    )}
                   </div>
-                  <div className="smRow">
-                    <div className="summImgCt">
-                      <Image src={Minus} className="summImg"></Image>
-                    </div>
+                  <div>Clientes Registrados</div>
+                </div>
+                <div className="smRow">
+                  <div className="summImgCt">
+                    <Image src={Add} className="summImg"></Image>
                   </div>
                 </div>
               </div>
-              <div className="mainColumn second">
-                <div className="mainCard mBlue">
-                  <div className="lgRow">
-                    <div className="nData">1</div>
-                    <div>Muestras Aprobadas</div>
+            </div>
+            <div className="dataCard">
+              <div className="mainCard mPurple">
+                <div className="lgRow">
+                  <div className="nData">
+                    {" "}
+                    {numProds < 0 ? (
+                      <Image src={loading2} style={{ width: "25%" }} />
+                    ) : (
+                      numProds
+                    )}
                   </div>
-                  <div className="smRow">
-                    <div className="summImgCt">
-                      <Image src={GiftMain} className="summImg"></Image>
-                    </div>
+                  <div>Productos Registrados</div>
+                </div>
+                <div className="smRow">
+                  <div className="summImgCt">
+                    <Image src={ProductMain} className="summImg"></Image>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mainRow">
+            <div className="dataCard">
+              <div className="mainCard mRed">
+                <div className="lgRow">
+                  <div className="nData">1</div>
+                  <div>Facturas Anuladas</div>
+                </div>
+                <div className="smRow">
+                  <div className="summImgCt">
+                    <Image src={Minus} className="summImg"></Image>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="dataCard">
+              <div className="mainCard mBlue">
+                <div className="lgRow">
+                  <div className="nData">1</div>
+                  <div>Muestras Aprobadas</div>
+                </div>
+                <div className="smRow">
+                  <div className="summImgCt">
+                    <Image src={GiftMain} className="summImg"></Image>
                   </div>
                 </div>
               </div>

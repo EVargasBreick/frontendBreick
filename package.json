@@ -1,8 +1,4 @@
 {
-<<<<<<< HEAD
-=======
-  "homepage": "https://EVargasBreick.github.io/frontendBreick",
->>>>>>> parent of c21deca (Updates)
   "name": "prototipo",
   "version": "0.1.0",
   "private": true,
@@ -38,13 +34,16 @@
     "react-to-print": "^2.14.10",
     "react-whatsapp": "^0.3.0",
     "sass": "^1.54.4",
+    "stream": "^0.0.2",
+    "timers": "^0.1.1",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xml2js": "^0.4.23"
   },
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -b main -d build",
-    "start": "react-scripts start",
+    "start": "PORT=3006 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

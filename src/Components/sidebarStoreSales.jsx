@@ -1,7 +1,7 @@
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/sidebarStyle.scss";
 import "../styles/sidebar.css";
 import File1 from "../assets/file2b.png";
@@ -57,6 +57,7 @@ export default function SidebarStoreSales() {
   const [toggledRep, setToggledRep] = useState(false);
   const [toggledPar, setToggledPar] = useState(false);
   const [toggledRut, setToggledRut] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   function toggleCollapsed() {
     setToggled(!toggled);
@@ -64,6 +65,20 @@ export default function SidebarStoreSales() {
   function redirectOnClick(path) {
     navigate(path);
   }
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 950) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    }
+    handleResize(); // set the initial state on mount
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   function toggleSub(selected) {
     if (selected === 1) {
       setToggledAlm(false);
@@ -148,7 +163,11 @@ export default function SidebarStoreSales() {
   }
   return (
     <div className="pSidebar">
-      <ProSidebar collapsed={false}>
+      <ProSidebar
+        collapsed={isMobile}
+        className="sidebarComponent"
+        collapsedWidth={"100%"}
+      >
         <Menu>
           <MenuItem
             onClick={() => {

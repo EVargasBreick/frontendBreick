@@ -17,6 +17,7 @@ import { UserContext } from "../Context/UserContext";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
+import { comfiarLogin } from "../services/soapServices";
 
 export default function Login() {
   const horaActual =
@@ -101,7 +102,7 @@ export default function Login() {
   }
 
   return (
-    <div style={{ backgroundColor: "#6a4593" }}>
+    <div className="appContainer">
       <div className="center">
         <Alert
           variant="danger"
