@@ -15,10 +15,9 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 import Cookies from "js-cookie";
+
 import { useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
-import { comfiarLogin } from "../services/soapServices";
-
 export default function Login() {
   const horaActual =
     new Date().getHours() < 10
@@ -61,7 +60,7 @@ export default function Login() {
           Cookies.set(
             "userAuth",
             JSON.stringify(userDataFetchd.data.data[0][0]),
-            { expires: 1 }
+            { expires: 0.5 }
           );
           console.log(
             "Hora entrada",
@@ -100,7 +99,6 @@ export default function Login() {
       setAlert("Por favor ingrese usuario y contraseña ");
     }
   }
-
   return (
     <div className="appContainer">
       <div className="center">
@@ -145,6 +143,7 @@ export default function Login() {
               )}
             </Button>
           </Form>
+
           <Image src={Powered2} className="powered"></Image>
         </div>
       </div>

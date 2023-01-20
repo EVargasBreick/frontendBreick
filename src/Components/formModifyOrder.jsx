@@ -20,7 +20,9 @@ import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
 import {
   availableProducts,
+  logShortage,
   productsDiscount,
+  updateForMissing,
 } from "../services/productServices";
 import {
   addProductDiscounts,
@@ -34,6 +36,7 @@ import {
 import ComplexDiscountTable from "./complexDiscountTable";
 import SimpleDiscountTable from "./simpleDiscountTable";
 import SpecialsTable from "./specialsTable";
+import { dateString } from "../services/dateServices";
 export default function FormModifyOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [totalDesc, setTotalDesc] = useState(0);
@@ -70,6 +73,9 @@ export default function FormModifyOrders() {
   const [filtered, setFiltered] = useState("");
   const [auxAva, setAuxAva] = useState([]);
   const [auxProducts, setAuxProducts] = useState([]);
+  const [faltantes, setFaltantes] = useState();
+  const [flagDiscount, setFlagDiscount] = useState(false);
+  const [fechaPedido, setFechaPedido] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -98,7 +104,7 @@ export default function FormModifyOrders() {
   const [navObject, setNavObject] = useState({});
   const [hallObject, setHallObject] = useState({});
   const [descSimple, setDescSimple] = useState({});
-
+  const [usuarioCrea, setUsuarioCrea] = useState("");
   const [discModalType, setDiscModalType] = useState(true);
   const [auxProds, setAuxProds] = useState([]);
   const [tipoUsuario, setTipoUsuario] = useState("");
@@ -133,6 +139,11 @@ export default function FormModifyOrders() {
       setAuxAva(fetchedAvailable.data.data[0]);
     });
   }, []);
+  useEffect(() => {
+    if (flagDiscount) {
+      processDiscounts();
+    }
+  }, [flagDiscount]);
   function selectProduct(product) {
     const parsed = JSON.parse(product);
     var aux = false;
@@ -151,6 +162,7 @@ export default function FormModifyOrders() {
       totalProd: 0,
       tipoProducto: parsed.tipoProducto,
       descuentoProd: 0,
+      unidadDeMedida: parsed.unidadDeMedida,
     };
     selectedProds.map((sp) => {
       if (sp.codInterno === JSON.parse(product).codInterno) {
@@ -266,6 +278,7 @@ export default function FormModifyOrders() {
       setSelectedProds([]);
       console.log("Detalles de la orden", res.data.data[0][0]);
       setAuxOrder(res.data.data[0][0]);
+      setFechaPedido(res.data.data[0][0].fechaCrea);
       const fechaDesc = res.data.data[0][0].fechaCrea
         .substring(0, 10)
         .split("/");
@@ -298,6 +311,8 @@ export default function FormModifyOrders() {
       setTotalPrevio(res.data.data[0][0].montoFacturar);
       setTotalDesc(res.data.data[0][0].descuentoCalculado);
       setTotalFacturar(res.data.data[0][0].montoTotal);
+      setUsuarioCrea(res.data.data[0][0].idUsuarioCrea);
+      setCodigoPedido(res.data.data[0][0].codigoPedido);
       const prodList = getOrderProdList(stringParts[0]);
 
       prodList.then((res) => {
@@ -336,6 +351,7 @@ export default function FormModifyOrders() {
             totalDescFijo: parsed.cantidadProducto * parsed.precioDescuentoFijo,
             tipoProducto: parsed.tipoProducto,
             descuentoProd: 0,
+            unidadDeMedida: parsed.unidadDeMedida,
           };
           setSelectedProds((selectedProds) => [...selectedProds, prodObj]);
           switch (parsed.tipoProducto) {
@@ -379,7 +395,13 @@ export default function FormModifyOrders() {
       });
     });
   }
-  function changeQuantitys(index, cantidad, prod) {
+  function changeQuantitys(index, cantidades, prod) {
+    var cantidad;
+    if (prod.unidadDeMedida == "unidad") {
+      cantidad = cantidades != "" ? parseInt(cantidades) : 0;
+    } else {
+      cantidad = cantidades;
+    }
     let auxObj = {
       cantPrevia: prod.cantPrevia,
       cantProducto: cantidad,
@@ -395,6 +417,7 @@ export default function FormModifyOrders() {
       totalDescFijo: cantidad * prod.precioDescuentoFijo,
       tipoProducto: prod.tipoProducto,
       descuentoProd: 0,
+      unidadDeMedida: prod.unidadDeMedida,
     };
     let auxSelected = [...selectedProds];
     auxSelected[index] = auxObj;
@@ -593,12 +616,30 @@ export default function FormModifyOrders() {
                       const updOrder = updateDbOrder(objUpdateOrder);
                       updOrder
                         .then((upo) => {
-                          console.log("Productos actualizados en pedido");
-                          setAlertSec("Pedido actualizado correctamente");
-                          setIsAlertSec(true);
-                          setTimeout(() => {
-                            navigate("/principal");
-                          }, 1500);
+                          if (faltantes.length > 0) {
+                            const bodyFaltantes = {
+                              idPedido: idPedido,
+                              fecha: dateString(),
+                              idUsuarioCrea: usuarioCrea,
+                              idAgencia: userStore,
+                              idString: codigoPedido,
+                              products: faltantes,
+                            };
+                            const faltantesLogged = logShortage(bodyFaltantes);
+                            faltantesLogged.then((fl) => {
+                              setAlertSec("Pedido actualizado correctamente");
+                              setIsAlertSec(true);
+                              setTimeout(() => {
+                                navigate("/principal");
+                              }, 3000);
+                            });
+                          } else {
+                            setTimeout(() => {
+                              setAlertSec("Pedido actualizado correctamente");
+                              setIsAlertSec(true);
+                              navigate("/principal");
+                            }, 3000);
+                          }
                         })
                         .catch((error) => {
                           console.log(error);
@@ -611,10 +652,28 @@ export default function FormModifyOrders() {
             console.log(res);
           })
           .catch((error) => {
-            setIsAlertSec(false);
-            setAlert(error.response.data.message);
-            setIsAlert(true);
-            console.log("Error en el update", error.response.data.message);
+            setFaltantes(error.response.data.faltantes);
+            const updateado = updateForMissing(
+              selectedProds,
+              error.response.data.faltantes
+            );
+            updateado.then((upd) => {
+              setSelectedProds(upd.modificados);
+              setTradicionales(upd.trads);
+              setPascua(upd.pas);
+              setNavidad(upd.nav);
+              setHalloween(upd.hall);
+              setSinDesc(upd.sd);
+              setEspeciales(upd.esp);
+              setAlertSec(
+                "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
+              );
+              setIsAlertSec(true);
+              setTimeout(() => {
+                setIsAlertSec(false);
+                setFlagDiscount(true);
+              }, 5000);
+            });
           });
       }
     }
@@ -697,13 +756,11 @@ export default function FormModifyOrders() {
         hallObj
       );
       newArr.then((result) => {
-        console.log("Array Alterado", result);
         setSelectedProds(result);
       });
     }
   }
   function validateProductLen() {
-    console.log("Especiales", especiales);
     if (selectedProds.length > 0) {
       setAuxProds(selectedProds);
       processDiscounts();

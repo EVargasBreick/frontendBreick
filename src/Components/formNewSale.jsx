@@ -12,12 +12,9 @@ import { useNavigate } from "react-router-dom";
 import FormRegisterClient from "./formRegisterClient";
 import { convertToText } from "../services/numberServices";
 import config from "../config.json";
-import QrComponent from "./qrComponent";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import InvoicePDF from "./invoicePDF";
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
-import { createSale } from "../services/saleServices";
+import { createSale, verifyQuantities } from "../services/saleServices";
 import { getBranches } from "../services/storeServices";
 import { createInvoice, deleteInvoice } from "../services/invoiceServices";
 
@@ -73,7 +70,13 @@ export default function FormNewSale() {
   const [invoice, setInvoice] = useState("");
   const [fechaHora, setFechaHora] = useState("");
   const [auxSelectedProducts, setAuxSelectedProducts] = useState("");
+  const [idSelectedClient, setIdSelectedClient] = useState("");
+  const [userName, setUserName] = useState("");
+  const [tipoDoc, setTipoDoc] = useState("");
+  const searchRef = useRef(null);
+  const productRef = useRef(null);
   useEffect(() => {
+    searchRef.current.focus();
     const spplited = dateString().split(" ");
     console.log("Fecha y hora", spplited[1].substring(0, 5));
     console.log("Convertidooo", convertToText(2898.5).texto);
@@ -87,6 +90,7 @@ export default function FormNewSale() {
       console.log("Usuario actual", UsuarioAct);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      setUserName(JSON.parse(UsuarioAct).usuario);
     }
     if (Cookies.get("userAuth")) {
       setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
@@ -127,7 +131,8 @@ export default function FormNewSale() {
     }
   }, []);
 
-  function searchClient() {
+  function searchClient(e) {
+    e.preventDefault();
     setIsSelected(false);
     setClientes([]);
     setisLoading(true);
@@ -136,14 +141,18 @@ export default function FormNewSale() {
       setIsClient(true);
       if (res.data.data[0][0]) {
         console.log("Cliente(s) encontrados:", res.data.data);
-        setClientes(res.data.data[0]);
-        console.log("Clientes encontrados:", res.data.data[0]);
+
+        if (res.data.data[0].length == 1) {
+          filterSelectedOnlyClient(res.data.data[0]);
+        } else {
+          setClientes(res.data.data[0]);
+        }
         setisLoading(false);
       } else {
         setIsClient(false);
         setWillCreate(true);
         setIsAlert(true);
-        setAlert("Usuario no encontrado");
+        setAlert("Cliente no encontrado");
       }
     });
   }
@@ -166,8 +175,20 @@ export default function FormNewSale() {
     array.push(searchObject);
     setClientes(array);
     setIsSelected(true);
-
+    setIdSelectedClient(searchObject.idCliente);
+    setTipoDoc(searchObject.tipoDocumento);
     console.log("Cliente seleccionado: ", searchObject);
+    productRef.current.focus();
+  }
+  function filterSelectedOnlyClient(cliente) {
+    const client = cliente[0];
+    setSelectedClient(client.idCliente);
+    setClientes(cliente);
+    setIsSelected(true);
+    setIdSelectedClient(client.idCliente);
+    setTipoDoc(client.tipoDocumento);
+    console.log("Cliente seleccionado: ", client);
+    productRef.current.focus();
   }
 
   function addProductToList(action, product) {
@@ -187,6 +208,9 @@ export default function FormNewSale() {
         const productObj = {
           codInterno: produc.codInterno,
           cantProducto: 1,
+          codigoSin: produc.codigoSin,
+          actividadEconomica: produc.actividadEconomica,
+          codigoUnidad: produc.codigoUnidad,
           nombreProducto: produc.nombreProducto,
           idProducto: produc.idProducto,
           cant_Actual: produc.cant_Actual,
@@ -196,6 +220,7 @@ export default function FormNewSale() {
           descuentoProd: 0,
           total: produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
+          unidadDeMedida: produc.unidadDeMedida,
         };
 
         setSelectedProducts([...selectedProducts, productObj]);
@@ -208,7 +233,9 @@ export default function FormNewSale() {
         selectedProducts.map((sp) => {
           if (sp.codInterno === selected.codInterno) {
             const indexSelected = selectedProducts.indexOf(sp);
-            changeQuantities(indexSelected, sp.cantProducto + 1, sp);
+            console.log("Index test", indexSelected, sp.cantProducto, sp);
+            const added = parseInt(sp.cantProducto) + 1;
+            changeQuantities(indexSelected, added, sp, true);
             aux = true;
           }
         });
@@ -216,6 +243,9 @@ export default function FormNewSale() {
           const productObj = {
             codInterno: selected.codInterno,
             cantProducto: 1,
+            codigoSin: selected.codigoSin,
+            actividadEconomica: selected.actividadEconomica,
+            codigoUnidad: selected.codigoUnidad,
             nombreProducto: selected.nombreProducto,
             idProducto: selected.idProducto,
             cant_Actual: selected.cant_Actual,
@@ -225,6 +255,7 @@ export default function FormNewSale() {
             descuentoProd: 0,
             total: selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
+            unidadDeMedida: selected.unidadDeMedida,
           };
           setSelectedProducts([...selectedProducts, productObj]);
           setAuxSelectedProducts([...auxSelectedProducts, productObj]);
@@ -255,8 +286,9 @@ export default function FormNewSale() {
     console.log("Leido por scanner", e.target.value);
     addProductToList("scanner");
   }
-  function changeQuantities(index, cantidad, prod) {
-    const arrCant = cantidad.split(".");
+  function changeQuantities(index, cantidad, prod, isScanner) {
+    console.log("Scanner?", isScanner);
+    const arrCant = !isScanner ? cantidad.split(".") : cantidad;
     const isThree =
       cantidad === ""
         ? ""
@@ -267,6 +299,9 @@ export default function FormNewSale() {
     let auxObj = {
       codInterno: prod.codInterno,
       cantProducto: isThree,
+      codigoSin: prod.codigoSin,
+      actividadEconomica: prod.actividadEconomica,
+      codigoUnidad: prod.codigoUnidad,
       nombreProducto: prod.nombreProducto,
       idProducto: prod.idProducto,
       cant_Actual: prod.cant_Actual,
@@ -276,16 +311,17 @@ export default function FormNewSale() {
       precioDescuentoFijo: prod.precioDescuentoFijo,
       total: total,
       descuentoProd: 0,
+      unidadDeMedida: prod.unidadDeMedida,
     };
     let auxSelected = [...selectedProducts];
     auxSelected[index] = auxObj;
-    console.log("descuento aplicado", total - total * (1 - descuento / 100));
     setSelectedProducts(auxSelected);
     setAuxSelectedProducts(auxSelected);
   }
   function handleModal() {
     if (isSelected) {
       const invoiceBody = {
+        idCliente: idSelectedClient,
         nroFactura: 1,
         idSucursal: sucursal.idImpuestos,
         nitEmpresa: config.nitEmpresa,
@@ -313,9 +349,9 @@ export default function FormNewSale() {
       setTotalPrevio(totPrev);
       setTotalDesc(totPrev - totDesc);
       setTotalFacturar(totDesc);
-      setIsInvoice(false);
       setTimeout(() => {
         setIsInvoice(true);
+        setIsSaleModal(true);
       }, 100);
     } else {
       setAlert("Por favor, seleccione un cliente");
@@ -375,10 +411,18 @@ export default function FormNewSale() {
         });
     });
   }
-  function saveInvoice(cuf, nro) {
+  function saveInvoice(
+    cuf,
+    cufd,
+    autorizacion,
+    fechaEmision,
+    nro,
+    idTransaccion
+  ) {
     return new Promise((resolve, reject) => {
       setAlertSec("Guardando Venta");
       const invoiceBody = {
+        idCliente: selectedClient,
         nroFactura: nro,
         idSucursal: sucursal.idImpuestos,
         nitEmpresa: config.nitEmpresa,
@@ -393,6 +437,10 @@ export default function FormNewSale() {
         importeBase: parseFloat(cancelado - cambio).toFixed(2),
         debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
         desembolsada: 0,
+        autorizacion: autorizacion,
+        cufd: cufd,
+        fechaEmision: fechaEmision,
+        nroTransaccion: idTransaccion,
       };
       setInvoice(invoiceBody);
       const newInvoice = createInvoice(invoiceBody);
@@ -419,14 +467,31 @@ export default function FormNewSale() {
   }
   function handleDiscount() {
     const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
+    console.log("Flag bug 2");
     newDiscount.then((nd) => {
       setDescuento(nd);
+      console.log("Flag bug 3");
       const discountedProds = saleDiscount(selectedProducts, nd);
       discountedProds.then((res) => {
+        console.log("Flag bug 4");
         setSelectedProducts(res);
         handleModal();
       });
     });
+  }
+
+  function validateQuantities() {
+    console.log("Id selected client", idSelectedClient, selectedClient);
+    const validated = verifyQuantities(selectedProducts);
+    console.log("Flag bug 1");
+    validated
+      .then(() => {
+        handleDiscount();
+      })
+      .catch((err) => {
+        setAlert(err);
+        setIsAlert(true);
+      });
   }
   return (
     <div>
@@ -447,8 +512,10 @@ export default function FormNewSale() {
               razonSocial: clientes[0].razonSocial,
             }}
             show={true}
+            setDescuento={setDescuento}
             isSaleModal={isSaleModal}
             setIsSaleModal={setIsSaleModal}
+            setIsInvoice={setIsInvoice}
             tipoPago={tipoPago}
             setTipoPago={setTipoPago}
             setCambio={setCambio}
@@ -478,6 +545,8 @@ export default function FormNewSale() {
               return accumulator + object.total;
             }, 0)}
             fechaHora={fechaHora}
+            tipoDocumento={tipoDoc}
+            userName={userName}
           />
         </div>
       ) : null}
@@ -521,17 +590,19 @@ export default function FormNewSale() {
       </Modal>
       <Form className="d-flex">
         <Form.Control
+          ref={searchRef}
           type="search"
           placeholder="Ingrese Nit"
           className="me-2"
           aria-label="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyPress={(e) => (e.key === "Enter" ? searchClient(e) : null)}
         />
         <Button
           variant="warning"
           className="search"
-          onClick={() => searchClient()}
+          onClick={(e) => searchClient(e)}
         >
           {isLoading ? (
             <Image src={loading2} style={{ width: "5%" }} />
@@ -550,7 +621,6 @@ export default function FormNewSale() {
                 <th className="tableColumnSmall"></th>
                 <th className="tableColumn">Nit</th>
                 <th className="tableColumn">Razon Social</th>
-                <th className="tableColumn">Zona</th>
               </tr>
             </thead>
             <tbody>
@@ -573,7 +643,6 @@ export default function FormNewSale() {
                     </td>
                     <td className="tableColumn">{client.nit}</td>
                     <td className="tableColumn">{client.razonSocial}</td>
-                    <td className="tableColumn">{client.zona}</td>
                   </tr>
                 );
               })}
@@ -592,6 +661,7 @@ export default function FormNewSale() {
                 addProductToList("manual", e.target.value);
               }}
             >
+              <option>Seleccionar Producto</option>
               {available.map((producto, index) => {
                 return (
                   <option value={JSON.stringify(producto)} key={index}>
@@ -605,6 +675,7 @@ export default function FormNewSale() {
         <Form onSubmit={(e) => addWithScanner(e)} className="mb-3 searchHalf">
           <Form.Group>
             <Form.Control
+              ref={productRef}
               type="text"
               placeholder="Buscar"
               value={filtered}
@@ -714,7 +785,7 @@ export default function FormNewSale() {
                   <Button
                     variant="warning"
                     className="yellowLarge"
-                    onClick={() => handleDiscount()}
+                    onClick={() => validateQuantities()}
                   >
                     Ir A Facturar
                   </Button>

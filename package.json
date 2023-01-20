@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.27.2",
     "bootstrap": "^5.2.0",
+    "buffer": "^6.0.3",
     "conversor-numero-a-letras-es-ar": "^1.0.3",
     "encrypt-string": "^1.0.0",
     "gh-pages": "^4.0.0",
@@ -67,6 +68,7 @@
     ]
   },
   "devDependencies": {
+    "http-proxy-middleware": "^2.0.6",
     "json-loader": "^0.5.7"
   }
 }

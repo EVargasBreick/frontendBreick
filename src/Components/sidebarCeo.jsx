@@ -349,21 +349,6 @@ export default function SidebarCeo() {
                 <Image src={ReturnWare} className="icon inverted"></Image>
                 Traspaso productos
               </MenuItem>
-              <MenuItem>
-                {" "}
-                <Image src={Ticket} className="icon"></Image>Registro de Vales
-              </MenuItem>
-              <MenuItem>
-                <Image src={Campaign} className="icon"></Image>Registro de
-                campanias
-              </MenuItem>
-              <MenuItem>
-                {" "}
-                <Image src={Star} className="icon"></Image>Registro Pack
-              </MenuItem>
-              <MenuItem>
-                <Image src={hStar} className="icon"></Image>Eliminar Pack
-              </MenuItem>
             </SubMenu>
             <SubMenu
               title="Modulo Reportes"

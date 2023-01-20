@@ -62,9 +62,26 @@ const getCurrentStockProduct = (idProducto) => {
   });
 };
 
+const updateFullStock = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${config.endpointUrl}:${config.endpointPort}/stock/full/update`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   getLogStockProduct,
   getLogStockStore,
   getCurrentStockProduct,
   getCurrentStockStore,
+  updateFullStock,
 };

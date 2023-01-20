@@ -3,5 +3,7 @@
   "endpointUrl": "http://localhost",
   "endpointPort": "5200",
   "decimales": 3,
-  "nitEmpresa": "128153028"
+  "nitEmpresa": "128153028",
+  "formatoId": 10,
+  "compraVenta": 1
 }

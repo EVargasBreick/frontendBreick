@@ -187,26 +187,43 @@ export default function SidebarStoreSales() {
               icon={<Image src={Map} className="compIcon"></Image>}
             >
               <MenuItem onClick={() => redirectOnClick("/ventaAgencia")}>
-                <Image src={newOrder} className="icon"></Image>
+                <Image src={Invoice} className="icon"></Image>
                 Ventas Agencia
               </MenuItem>
-
+              <MenuItem onClick={() => redirectOnClick("/facturas/anular")}>
+                {" "}
+                <Image src={cancelInvoice} className="icon"></Image>Anular
+                Facturas
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/stock/actualizar")}>
+                <Image src={ReturnWare} className="icon inverted"></Image>
+                Actualizar Stock
+              </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/traspaso")}>
                 <Image src={ReturnWare} className="icon inverted"></Image>
                 Traspaso productos
               </MenuItem>
-              <MenuItem>
-                <Image src={Ticket} className="icon"></Image>Registro de Vales
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/general")}
+              >
+                <Image src={Book} className="icon"></Image>Reporte libro de
+                ventas
               </MenuItem>
-              <MenuItem>
-                <Image src={Campaign} className="icon"></Image>Registro de
-                campanias
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/productos")}
+              >
+                <Image src={Book} className="icon"></Image>Reporte libro de
+                ventas por producto
               </MenuItem>
-              <MenuItem>
-                <Image src={Star} className="icon"></Image>Registro Pack
+              <MenuItem onClick={() => redirectOnClick("/reportes/log/kardex")}>
+                <Image src={Lines} className="icon"></Image>
+                Reporte Kardex Pasado
               </MenuItem>
-              <MenuItem>
-                <Image src={hStar} className="icon"></Image>Eliminar Pack
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/actual/kardex")}
+              >
+                <Image src={Chocolate} className="icon"></Image>Reporte Kardex
+                Actual
               </MenuItem>
             </SubMenu>
           </Menu>

@@ -153,4 +153,40 @@ function saveSaleFromOrder(
   });
 }
 
-export { createInvoice, deleteInvoice, saveInvoice };
+function getStoreInvoices(id) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${config.endpointUrl}:${config.endpointPort}/facturas/lista?idSucursal='${id}'`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+function cancelInvoiceUpdate(id) {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${config.endpointUrl}:${config.endpointPort}/facturas/anular?id='${id}'`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+export {
+  createInvoice,
+  deleteInvoice,
+  saveInvoice,
+  getStoreInvoices,
+  cancelInvoiceUpdate,
+};

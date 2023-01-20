@@ -74,7 +74,6 @@ const verifyOblFields = (
       zona &&
       idioma &&
       tipoPrecio &&
-      frecuencia &&
       vendedor &&
       nombre &&
       telefono
@@ -106,7 +105,8 @@ const structureClient = (
   frecuencia,
   usuario,
   notas,
-  idVendedor
+  idVendedor,
+  tipoDoc
 ) => {
   const telefonos = tela + "|" + telb + "|" + telc;
   const direcciones = dira + "|" + dirb + "|" + dirc;
@@ -127,6 +127,7 @@ const structureClient = (
     usuarioCrea: usuario,
     idVendedor: idVendedor,
     fechaCrea: dateString(),
+    tipoDocumento: tipoDoc,
   };
   return new Promise((resolve) => {
     resolve(clientObject);

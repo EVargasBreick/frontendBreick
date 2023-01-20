@@ -10,7 +10,9 @@ import {
   availableProducts,
   getProducts,
   getUserStock,
+  logShortage,
   productsDiscount,
+  updateForMissing,
 } from "../services/productServices";
 import Cookies from "js-cookie";
 import {
@@ -79,12 +81,20 @@ export default function FormNewOrder() {
   const [auxProds, setAuxProds] = useState([]);
   const [auxProducts, setAuxProducts] = useState([]);
   const [isSpecial, setIsSpecial] = useState(false);
+  const [faltantes, setFaltantes] = useState([]);
+  const [flagDiscount, setFlagDiscount] = useState(false);
+  const [userName, setUserName] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       console.log("Usuario actual", UsuarioAct);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      setUserName(
+        `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${
+          JSON.parse(UsuarioAct).apPaterno
+        }`
+      );
     }
     if (Cookies.get("userAuth")) {
       setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
@@ -115,7 +125,11 @@ export default function FormNewOrder() {
       }, 300000);*/
     }
   }, []);
-
+  useEffect(() => {
+    if (flagDiscount) {
+      processDiscounts();
+    }
+  }, [flagDiscount]);
   function searchClient() {
     setIsSelected(false);
     setClientes([]);
@@ -164,6 +178,7 @@ export default function FormNewOrder() {
       totalDescFijo: 0,
       tipoProducto: parsed.tipoProducto,
       descuentoProd: 0,
+      unidadDeMedida: parsed.unidadDeMedida,
     };
     selectedProds.map((sp) => {
       if (sp.codInterno === JSON.parse(product).codInterno) {
@@ -252,7 +267,15 @@ export default function FormNewOrder() {
         break;
     }
   }
-  function changeQuantitys(index, cantidad, prod) {
+  function changeQuantitys(index, cantidades, prod) {
+    var cantidad;
+    if (prod.unidadDeMedida == "unidad") {
+      cantidad = cantidades != "" ? parseInt(cantidades) : 0;
+    } else {
+      cantidad = cantidades;
+    }
+
+    console.log("Unidad de medida", prod.unidadDeMedida);
     let auxObj = {
       cant_Actual: prod.cant_Actual,
       cantPrevia: prod.cantPrevia,
@@ -267,6 +290,7 @@ export default function FormNewOrder() {
       totalDescFijo: cantidad * prod.precioDescuentoFijo,
       tipoProducto: prod.tipoProducto,
       descuentoProd: 0,
+      unidadDeMedida: prod.unidadDeMedida,
     };
     let auxSelected = [...selectedProds];
     auxSelected[index] = auxObj;
@@ -350,24 +374,11 @@ export default function FormNewOrder() {
         setAlert("Por favor seleccione al menos un producto");
       }
       selectedProds.map((pr) => {
-        const dispo = availables.find(
-          (av) => pr.codInterno === av.codInterno
-        ).cant_Actual;
-        console.log(
-          `Cantidad escogida: ${pr.cantProducto}, disponibilidad ${dispo}`
-        );
-        if (pr.cantProducto > dispo) {
-          error = true;
-          setAlert(
-            "Uno de los valores ingresados excede la capacidad disponible actualizada"
-          );
-        }
         if (pr.cantProducto < 1 || pr.cantProducto === "") {
           error = true;
           setAlert("La cantidad elegida de algun producto esta en 0");
         }
       });
-
       resolve(error);
     });
   }
@@ -407,6 +418,7 @@ export default function FormNewOrder() {
   };
 
   function saveOrder(availables) {
+    console.log("Productos selecionaods", selectedProds);
     const validatedOrder = structureOrder(availables);
     validatedOrder.then((res) => {
       setisLoading(true);
@@ -453,6 +465,7 @@ export default function FormNewOrder() {
             newOrder
               .then((res) => {
                 console.log("Resposta del pedido", res.data.data.idCreado);
+                const idPedidoCreado = res.data.data.idCreado;
                 const codPedido = getOrderList(res.data.data.idCreado);
                 codPedido.then((res) => {
                   console.log(
@@ -471,10 +484,28 @@ export default function FormNewOrder() {
                       console.log("Respuesta de la creacion", response);
                       setAlert("Pedido Creado correctamente");
                       setIsAlert(true);
-                      setTimeout(() => {
-                        navigate("/principal");
-                        setisLoading(false);
-                      }, 3000);
+                      if (faltantes.length > 0) {
+                        const bodyFaltantes = {
+                          idPedido: idPedidoCreado,
+                          fecha: dateString(),
+                          idUsuarioCrea: usuarioAct,
+                          idAgencia: userStore,
+                          idString: `${userName}-${tipo}00${idPedidoCreado}`,
+                          products: faltantes,
+                        };
+                        const faltantesLogged = logShortage(bodyFaltantes);
+                        faltantesLogged.then((fl) => {
+                          setTimeout(() => {
+                            navigate("/principal");
+                            setisLoading(false);
+                          }, 3000);
+                        });
+                      } else {
+                        setTimeout(() => {
+                          navigate("/principal");
+                          setisLoading(false);
+                        }, 3000);
+                      }
                     })
                     .catch((error) => {
                       console.log("Error al enviar el correo", error);
@@ -486,11 +517,28 @@ export default function FormNewOrder() {
               });
           })
           .catch((error) => {
-            console.log("errooooooor");
-            setIsAlertSec(false);
-            setAlert(error.response.data.message);
-            setIsAlert(true);
-            console.log("Error de updateo", error.response.data.message);
+            setFaltantes(error.response.data.faltantes);
+            const updateado = updateForMissing(
+              selectedProds,
+              error.response.data.faltantes
+            );
+            updateado.then((upd) => {
+              setSelectedProds(upd.modificados);
+              setTradicionales(upd.trads);
+              setPascua(upd.pas);
+              setNavidad(upd.nav);
+              setHalloween(upd.hall);
+              setSinDesc(upd.sd);
+              setEspeciales(upd.esp);
+              setAlertSec(
+                "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
+              );
+              setIsAlertSec(true);
+              setTimeout(() => {
+                setIsAlertSec(false);
+                setFlagDiscount(true);
+              }, 5000);
+            });
           });
       } else {
         setIsAlert(true);

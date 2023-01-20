@@ -56,3 +56,7 @@
 .tablaTotales {
   width: 100%;
 }
+.cufWidth {
+  max-width: 75mm;
+  text-align: center;
+}

@@ -214,7 +214,7 @@ export default function FormInvoiceOrder() {
                   <tr key={index}>
                     <td>{index + 1}</td>
                     <td>{ol.idString}</td>
-                    <td>{ol.fechaCrea.substring(0, 9)}</td>
+                    <td>{ol.fechaCrea.split(" ")[0]}</td>
                     <td>{ol.razonSocial}</td>
                     <td>{ol.nit}</td>
                     <td>{ol.montoFacturar.toFixed(2)}</td>

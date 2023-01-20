@@ -68,6 +68,98 @@ const productsDiscount = (id) => {
   });
 };
 
+const updateForMissing = (selectedProds, faltantes) => {
+  var modifiedProds = [];
+  var tradicionales = [];
+  var pascua = [];
+  var navidad = [];
+  var halloween = [];
+  var sinDesc = [];
+  var especiales = [];
+  selectedProds.map((prod) => {
+    console.log("Producto que llego hasta aca", prod);
+    const foundProd = faltantes.find((ft) => ft.idProducto == prod.idProducto);
+    let auxObj;
+
+    var isZero = false;
+    if (foundProd != undefined) {
+      const cantDisp =
+        foundProd.cantProducto - foundProd.faltante + prod.cantPrevia;
+      if (cantDisp < 1) {
+        isZero = true;
+      }
+      auxObj = {
+        cant_Actual: prod.cant_Actual,
+        cantPrevia: prod.cantPrevia,
+        cantProducto: cantDisp,
+        codInterno: prod.codInterno,
+        codigoBarras: prod.codigoBarras,
+        idProducto: prod.idProducto,
+        idPedidoProducto: prod.idPedidoProducto,
+        nombreProducto: prod.nombreProducto,
+        precioDeFabrica: prod.precioDeFabrica,
+        precioDescuentoFijo: prod.precioDescuentoFijo,
+        totalProd: cantDisp * prod.precioDeFabrica,
+        totalDescFijo: cantDisp * prod.precioDescuentoFijo,
+        tipoProducto: prod.tipoProducto,
+        descuentoProd: 0,
+        unidadDeMedida: prod.unidadDeMedida,
+      };
+    } else {
+      auxObj = {
+        cant_Actual: prod.cant_Actual,
+        cantPrevia: prod.cantPrevia,
+        cantProducto: prod.cantProducto,
+        codInterno: prod.codInterno,
+        codigoBarras: prod.codigoBarras,
+        idProducto: prod.idProducto,
+        idPedidoProducto: prod.idPedidoProducto,
+        nombreProducto: prod.nombreProducto,
+        precioDeFabrica: prod.precioDeFabrica,
+        precioDescuentoFijo: prod.precioDescuentoFijo,
+        totalProd: prod.cantProducto * prod.precioDeFabrica,
+        totalDescFijo: prod.cantProducto * prod.precioDescuentoFijo,
+        tipoProducto: prod.tipoProducto,
+        descuentoProd: 0,
+        unidadDeMedida: prod.unidadDeMedida,
+      };
+    }
+    if (!isZero) {
+      prod.tipoProducto == 1
+        ? tradicionales.push(auxObj)
+        : prod.tipoProducto == 2
+        ? pascua.push(auxObj)
+        : prod.tipoProducto == 3
+        ? navidad.push(auxObj)
+        : prod.tipoProducto == 4
+        ? halloween.push(auxObj)
+        : prod.tipoProducto == 5
+        ? sinDesc.push(auxObj)
+        : especiales.push(auxObj);
+      modifiedProds.push(auxObj);
+    }
+  });
+  return Promise.resolve({
+    modificados: modifiedProds,
+    trads: tradicionales,
+    pas: pascua,
+    nav: navidad,
+    hall: halloween,
+    sd: sinDesc,
+    esp: especiales,
+  });
+};
+
+const logShortage = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(`${config.endpointUrl}:${config.endpointPort}/faltantes`, body)
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
 export {
   getProducts,
   getUserStock,
@@ -75,4 +167,6 @@ export {
   availableProducts,
   getProductsWithStock,
   productsDiscount,
+  updateForMissing,
+  logShortage,
 };

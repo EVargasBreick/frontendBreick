@@ -29,6 +29,8 @@ import { InvoiceComponent } from "./Components/invoiceComponent";
 import SalesReport from "./Components/salesreport";
 import SalesByProductReport from "./Components/salesByProductReport";
 import InvoiceOrders from "./Components/invoiceOrders";
+import CancelInvoice from "./Components/cancelInvoice";
+import UpdateStock from "./Components/updateStock";
 function App() {
   return (
     <div className="App">
@@ -225,6 +227,22 @@ function App() {
               element={
                 <RequireAuth>
                   <InvoiceOrders />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturas/anular"
+              element={
+                <RequireAuth>
+                  <CancelInvoice />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/stock/actualizar"
+              element={
+                <RequireAuth>
+                  <UpdateStock />
                 </RequireAuth>
               }
             />

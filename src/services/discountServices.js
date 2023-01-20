@@ -576,6 +576,9 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -594,6 +597,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
               sp.precioDeFabrica * (1 - tradObj.descuento / 100)) *
             cantidadDeProducto
           ).toFixed(2),
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       }
@@ -604,6 +608,9 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -622,6 +629,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
               sp.precioDeFabrica * (1 - pasObj.descuento / 100)) *
             cantidadDeProducto
           ).toFixed(2),
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       }
@@ -632,6 +640,9 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -650,6 +661,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
               sp.precioDeFabrica * (1 - navObj.descuento / 100)) *
             cantidadDeProducto
           ).toFixed(2),
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       }
@@ -660,6 +672,9 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -678,6 +693,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
               sp.precioDeFabrica * (1 - hallObj.descuento / 100)) *
             cantidadDeProducto
           ).toFixed(2),
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       }
@@ -688,6 +704,9 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -698,6 +717,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: 0,
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       }
@@ -708,6 +728,9 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -722,6 +745,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           descuentoProd: tradObj.especial
             ? (sp.precioDeFabrica - sp.precioDescuentoFijo) * cantidadDeProducto
             : 0,
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       }
@@ -742,6 +766,9 @@ function addProductDiscSimple(selectedProds, descSimple) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -754,6 +781,7 @@ function addProductDiscSimple(selectedProds, descSimple) {
           descuentoProd: descSimple.especial
             ? (sp.precioDeFabrica - sp.precioDescuentoFijo) * cantidadDeProducto
             : 0,
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       } else {
@@ -764,6 +792,9 @@ function addProductDiscSimple(selectedProds, descSimple) {
           cant_Actual: sp.cant_Actual,
           cantPrevia: sp.cantPrevia,
           cantProducto: cantidadDeProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           codInterno: sp.codInterno,
           idProducto: sp.idProducto,
           idPedidoProducto: sp.idPedidoProducto,
@@ -782,6 +813,7 @@ function addProductDiscSimple(selectedProds, descSimple) {
               sp.precioDeFabrica * (1 - descSimple.descuento / 100)) *
             cantidadDeProducto
           ).toFixed(2),
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProdObj.push(auxObj);
       }
@@ -836,6 +868,9 @@ function saleDiscount(selectedProducts, descuento) {
         const productObj = {
           codInterno: sp.codInterno,
           cantProducto: sp.cantProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           nombreProducto: sp.nombreProducto,
           idProducto: sp.idProducto,
           cant_Actual: sp.cant_Actual,
@@ -845,12 +880,16 @@ function saleDiscount(selectedProducts, descuento) {
           descuentoProd: 0,
           total: sp.precioDeFabrica * sp.cantProducto,
           tipoProducto: sp.tipoProducto,
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProducts.push(productObj);
       } else {
         const productObj = {
           codInterno: sp.codInterno,
           cantProducto: sp.cantProducto,
+          codigoSin: sp.codigoSin,
+          actividadEconomica: sp.actividadEconomica,
+          codigoUnidad: sp.codigoUnidad,
           nombreProducto: sp.nombreProducto,
           idProducto: sp.idProducto,
           cant_Actual: sp.cant_Actual,
@@ -867,6 +906,7 @@ function saleDiscount(selectedProducts, descuento) {
                 sp.precioDeFabrica * (1 - descuento / 100))) *
             sp.cantProducto,
           tipoProducto: sp.tipoProducto,
+          unidadDeMedida: sp.unidadDeMedida,
         };
         auxProducts.push(productObj);
       }

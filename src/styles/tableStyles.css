@@ -5,6 +5,8 @@
 }
 
 .tableHeader {
+  position: sticky;
+  top: 0;
   background-color: #5cb8b2;
   color: white;
   border-color: #6a4593;
@@ -13,6 +15,9 @@
 }
 
 .tableFoot {
+  position: sticky;
+  bottom: 0;
+
   background-color: #5cb8b2;
   color: white;
   width: 100%;

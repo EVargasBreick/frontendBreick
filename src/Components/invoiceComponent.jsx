@@ -12,6 +12,10 @@ export const InvoiceComponent = React.forwardRef(
     const splittedDate = dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
+    function formattedCuf(cuf) {
+      const splitted = cuf.match(/.{25}/g);
+      return splitted ? splitted.join(" ") : cuf;
+    }
     return (
       <div ref={ref} className="invoicePage">
         <div className="invoiceTittle">Incadex S.R.L</div>
@@ -27,7 +31,7 @@ export const InvoiceComponent = React.forwardRef(
         <div className="simpleSeparator"></div>
         <div>{`NIT ${invoice.nitEmpresa}`}</div>
         <div>{`FACTURA Nº ${invoice.nroFactura}`}</div>
-        <div>{`CUF: ${cuf}`}</div>
+        <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
         <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>
         <div className="simpleSeparator"></div>
@@ -109,11 +113,15 @@ export const InvoiceComponent = React.forwardRef(
             <tbody>
               <tr>
                 <td className="totals">{`RECIBIDOS ${paymentData.tipoPago} Bs.`}</td>
-                <td className="totalsData">{`${paymentData.cancelado}`}</td>
+                <td className="totalsData">{`${parseFloat(
+                  paymentData.cancelado
+                ).toFixed(2)}`}</td>
               </tr>
               <tr>
                 <td className="totals">Cambio</td>
-                <td className="totalsData">{`${paymentData.cambio}`}</td>
+                <td className="totalsData">{`${parseFloat(
+                  paymentData.cambio
+                ).toFixed(2)}`}</td>
               </tr>
             </tbody>
           </table>

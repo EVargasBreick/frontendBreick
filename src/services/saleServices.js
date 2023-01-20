@@ -14,4 +14,22 @@ const createSale = (saleObject) => {
   });
 };
 
-export { createSale };
+const verifyQuantities = (selectedProducts) => {
+  return new Promise((resolve, reject) => {
+    const mappedArr = selectedProducts.map((item) => {
+      // Perform mapping logic here
+      if (item.cant_Actual == 0) {
+        reject(
+          `El producto ${item.nombreProducto} no tiene existencias disponibles`
+        );
+      }
+      if (item.cantProducto == 0) {
+        reject("Un producto esta en 0");
+      }
+      return item;
+    });
+    resolve(mappedArr);
+  });
+};
+
+export { createSale, verifyQuantities };

@@ -4,7 +4,7 @@ import { getBranches } from "../services/storeServices";
 import loading2 from "../assets/loading2.gif";
 import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
-import { generateCuf, getInvoiceNumber } from "../services/mockedServices";
+import { structureXml, getInvoiceNumber } from "../services/mockedServices";
 import { dateString } from "../services/dateServices";
 import config from "../config.json";
 import "../styles/generalStyle.css";
@@ -141,7 +141,7 @@ export default function PaymentModal({
     newId.then((res) => {
       setInvoiceNumber(res);
       setAlertSec("Generando CUF");
-      const cufd = generateCuf(res);
+      const cufd = structureXml(res);
       cufd.then((resp) => {
         console.log("Cuf generado:", resp);
         const saved = saveInvoice(

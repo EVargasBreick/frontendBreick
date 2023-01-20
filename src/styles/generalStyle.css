@@ -225,3 +225,17 @@
   padding-bottom: 1%;
   justify-content: space-evenly;
 }
+
+.modalFooter {
+  display: flex;
+  justify-content: space-evenly;
+}
+.modalHeader {
+  text-align: center;
+  background-color: #6a4593;
+  color: white;
+}
+.fullProductTable {
+  max-height: 750px;
+  overflow-y: auto;
+}

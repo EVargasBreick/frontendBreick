@@ -27,7 +27,7 @@ export default function FormRegisterClient(props) {
 
   const [nit, setNit] = useState("");
   const [correo, setCorreo] = useState("");
-  const [zona, setZona] = useState("");
+  const [zona, setZona] = useState("1");
   const [dira, setDira] = useState("");
   const [dirb, setDirb] = useState("");
   const [dirc, setDirc] = useState("");
@@ -58,6 +58,7 @@ export default function FormRegisterClient(props) {
   const [isButton, setIsButton] = useState(false);
   const [isAlert, setIsAlert] = useState(false);
   const [alert, setAlert] = useState(false);
+  const [tipoDoc, setTipoDoc] = useState(1);
   const [isCorreoA, setIsCorreoA] = useState(false);
   const [isPhoneA, setIsPhoneA] = useState(false);
   const [isAdress, setIsAdress] = useState(false);
@@ -157,7 +158,8 @@ export default function FormRegisterClient(props) {
                       frecuencia,
                       idUsuarioActual,
                       notas,
-                      usuario
+                      usuario,
+                      tipoDoc
                     );
                     clientObject.then((client) => {
                       if (
@@ -314,7 +316,7 @@ export default function FormRegisterClient(props) {
                 />
               </Form.Group>
               <Form.Group className="completeHalf" controlId="productName">
-                <Form.Label>NIT*</Form.Label>
+                <Form.Label>NIT/CI*</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Ingrese Nit"
@@ -323,6 +325,18 @@ export default function FormRegisterClient(props) {
                     setNit(e.target.value);
                   }}
                 />
+                <Form.Label>Tipo Documento</Form.Label>
+                <Form.Select
+                  onChange={(e) => {
+                    setTipoDoc(e.target.value);
+                  }}
+                >
+                  <option value="1">Cédula de Identidad</option>
+                  <option value="2">Cédula de Identidad Extranjero</option>
+                  <option value="3">Pasaporte</option>
+                  <option value="4">Otro documento de identidad</option>
+                  <option value="5">NIT</option>
+                </Form.Select>
               </Form.Group>
 
               <Form.Group className="completeHalf" controlId="comName">
