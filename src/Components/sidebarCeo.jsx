@@ -341,13 +341,43 @@ export default function SidebarCeo() {
               icon={<Image src={Map} className="compIcon"></Image>}
             >
               <MenuItem onClick={() => redirectOnClick("/ventaAgencia")}>
-                <Image src={newOrder} className="icon"></Image>
+                <Image src={Invoice} className="icon"></Image>
                 Ventas Agencia
               </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/traspaso")}>
+              <MenuItem onClick={() => redirectOnClick("/facturas/anular")}>
                 {" "}
+                <Image src={cancelInvoice} className="icon"></Image>Anular
+                Facturas
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/stock/actualizar")}>
+                <Image src={ReturnWare} className="icon inverted"></Image>
+                Actualizar Stock
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/traspaso")}>
                 <Image src={ReturnWare} className="icon inverted"></Image>
                 Traspaso productos
+              </MenuItem>
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/general")}
+              >
+                <Image src={Book} className="icon"></Image>Reporte libro de
+                ventas
+              </MenuItem>
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/productos")}
+              >
+                <Image src={Book} className="icon"></Image>Reporte libro de
+                ventas por producto
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/reportes/log/kardex")}>
+                <Image src={Lines} className="icon"></Image>
+                Reporte Kardex Pasado
+              </MenuItem>
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/actual/kardex")}
+              >
+                <Image src={Chocolate} className="icon"></Image>Reporte Kardex
+                Actual
               </MenuItem>
             </SubMenu>
             <SubMenu
