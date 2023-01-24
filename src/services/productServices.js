@@ -160,6 +160,48 @@ const logShortage = (body) => {
   });
 };
 
+const newProduct = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${config.endpointUrl}:${config.endpointPort}/productos/nuevo`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const getCodes = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`${config.endpointUrl}:${config.endpointPort}/productos/codigos`)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const productTypes = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`${config.endpointUrl}:${config.endpointPort}/productos/tipos`)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export {
   getProducts,
   getUserStock,
@@ -169,4 +211,7 @@ export {
   productsDiscount,
   updateForMissing,
   logShortage,
+  newProduct,
+  getCodes,
+  productTypes,
 };

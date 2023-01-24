@@ -77,7 +77,14 @@
 .buttonContainer {
   padding-bottom: 0%;
 }
-
+.buttonContainerAlt {
+  justify-content: space-between;
+}
+.modalButtons {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
 .buttonNormal {
   background-color: #5cb8b2;
   color: white;

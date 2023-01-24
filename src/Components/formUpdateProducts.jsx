@@ -13,8 +13,6 @@ import { ExportTemplate } from "../services/exportServices";
 import { updateStock } from "../services/orderServices";
 export default function FormUpdateProducts() {
   const navigate = useNavigate();
-  const [desc, setDesc] = useState(false);
-  const [type, setType] = useState(true);
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
   const [prodList, setprodList] = useState([]);

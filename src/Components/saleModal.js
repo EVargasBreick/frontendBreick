@@ -181,7 +181,7 @@ export default function SaleModal({
     });
   }
   async function invoiceProcess() {
-    setAlertSec("Generando informacion de ultima factura");
+    setAlertSec("Generando información de última factura");
     console.log("Branch info", branchInfo);
     setIsAlertSec(true);
     const lastIdObj = {
@@ -195,7 +195,7 @@ export default function SaleModal({
         console.log("ULTIMO NUMERO COMPROBANTE", res.response.data);
         setInvoiceId(res);
         setInvoiceId(res);
-        setAlertSec("Generando CUF");
+        setAlertSec("Generando Codigo Único de Facturación");
 
         const xmlRes = structureXml(
           selectedProducts,
@@ -211,7 +211,6 @@ export default function SaleModal({
         );
         xmlRes.then((resp) => {
           const lineal = resp.replace(/ {4}|[\t\n\r]/gm, "");
-
           const cufObj = {
             nit: invoice.nitEmpresa,
             idSucursal: branchInfo.nro,
@@ -234,6 +233,7 @@ export default function SaleModal({
                 };
                 const idTransaccion =
                   result.SalidaTransaccion.Transaccion[0].ID[0];
+                var intento = 1;
                 let intervalId = setInterval(function () {
                   const transaccion = SoapInvoiceTransaction(transacObj);
                   transaccion
@@ -243,21 +243,19 @@ export default function SaleModal({
                         resp.response.data.SalidaTransaccionBoliviaResponse[0]
                           .SalidaTransaccionBoliviaResult[0]
                       );
-
-                      if (
+                      const invocieResponse =
                         resp.response.data.SalidaTransaccionBoliviaResponse[0]
-                          .SalidaTransaccionBoliviaResult[0].Transaccion[0]
-                          .Estado[0] != "ProcesandoAFIP"
-                      ) {
-                        const invocieResponse =
-                          resp.response.data.SalidaTransaccionBoliviaResponse[0]
-                            .SalidaTransaccionBoliviaResult[0]
-                            .TransaccionSalidaUnificada[0];
+                          .SalidaTransaccionBoliviaResult[0]
+                          .TransaccionSalidaUnificada[0];
+                      if (invocieResponse.CUF[0].length > 10) {
+                        setAlertSec("Generando Factura");
                         const resCuf = invocieResponse.CUF[0];
+                        console.log("Rescuf:", resCuf);
                         const resCufd = invocieResponse.CUFD[0];
                         const aut = invocieResponse.Autorizacion[0];
                         const fe = invocieResponse.FECHAEMISION[0];
                         const numFac = invocieResponse.NumeroFactura[0];
+                        console.log("guardando factura ", intento);
                         const saved = saveInvoice(
                           resCuf,
                           resCufd,
@@ -272,12 +270,16 @@ export default function SaleModal({
                           setIsAlertSec(false);
                         });
                         clearInterval(intervalId);
+                      } else {
+                        intento += 1;
+                        setAlertSec("Error al cargar los datos, reintentando");
+                        console.log("Testeando cuf", invocieResponse.CUF);
                       }
                     })
                     .catch((error) => {
                       console.log("Esto paso", error);
                     });
-                }, 8000);
+                }, 3000);
               });
             })
             .catch((err) => console.log("Esto paso", err));

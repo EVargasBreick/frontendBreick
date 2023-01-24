@@ -87,7 +87,14 @@
 }
 .half {
   padding-top: 1%;
-  width: 45%;
+  width: 50%;
+  flex: 1;
+  padding-right: 1%;
+  flex-direction: row;
+}
+.halfAlt {
+  padding-top: 1%;
+  width: 90%;
   flex: 1;
   padding-right: 1%;
   flex-direction: row;
@@ -176,8 +183,12 @@
 }
 
 .select {
-  width: 50%;
+  width: 49%;
   padding-top: 2%;
+}
+.selectAlt {
+  width: 89%;
+  padding-top: 1%;
 }
 
 .halfContainer {
@@ -277,6 +288,8 @@
 
 .formTwoCol {
   display: flex;
+  flex-direction: row;
+  width: 100%;
 }
 .halfContainer {
   flex-direction: row;
@@ -297,6 +310,17 @@
 
 .fileInput {
   width: 40%;
+}
+.fileInputAlt {
+  margin-top: 1rem;
+  width: 100%;
+}
+.fileInputContainer {
+  width: 100%;
+}
+
+.allProducts {
+  border-radius: 10%;
 }
 .inputButton {
   background-color: #5cb8b2;
@@ -444,4 +468,8 @@ td {
 .reportTittle {
   padding-bottom: 2%;
   font-size: large;
+}
+
+.halfForm {
+  width: 50%;
 }
