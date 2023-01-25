@@ -57,7 +57,6 @@ export default function BodyCurrentKardex() {
     });
     const agencias = getStores();
     agencias.then((res) => {
-      console.log("Agencias", res.data[0]);
       setStoreList(res.data[0]);
     });
   }, []);
@@ -83,13 +82,12 @@ export default function BodyCurrentKardex() {
   }
   function selectProduct(prod) {
     setSelectedProduct(prod);
-    console.log("Id elegido", prod);
+
     setInternal(productList.find((pr) => pr.idProducto == prod).codInterno);
   }
   function sortBy(atributo) {
     const sorted = sortedFun(atributo);
     sorted.then((sr) => {
-      console.log("Sorted", sr);
       setDataTable([...sr]);
     });
   }
@@ -102,14 +100,12 @@ export default function BodyCurrentKardex() {
         setIsPrSorted(false);
         setIsCSorted(false);
         if (quantitySorted == 0) {
-          console.log("Ascendente");
           setQuantitySorted(1);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.cantidad < p2.cantidad ? 1 : p1.cantidad > p2.cantidad ? -1 : 0
           );
           resolve(sortedProducts);
         } else {
-          console.log("Descendente");
           setQuantitySorted(0);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.cantidad > p2.cantidad ? 1 : p1.cantidad < p2.cantidad ? -1 : 0
@@ -124,7 +120,6 @@ export default function BodyCurrentKardex() {
         setIsPrSorted(false);
         setIsCSorted(false);
         if (storeSorted == 0) {
-          console.log("Ascendente");
           setStoreSorted(1);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.NombreAgencia < p2.NombreAgencia
@@ -135,7 +130,6 @@ export default function BodyCurrentKardex() {
           );
           resolve(sortedProducts);
         } else {
-          console.log("Descendente");
           setStoreSorted(0);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.NombreAgencia > p2.NombreAgencia
@@ -154,7 +148,6 @@ export default function BodyCurrentKardex() {
         setIsPrSorted(false);
         setIsCSorted(false);
         if (productSorted == 0) {
-          console.log("Ascendente");
           setProductSorted(1);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.nombreProducto < p2.nombreProducto
@@ -165,7 +158,6 @@ export default function BodyCurrentKardex() {
           );
           resolve(sortedProducts);
         } else {
-          console.log("Descendente");
           setProductSorted(0);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.nombreProducto > p2.nombreProducto
@@ -184,7 +176,6 @@ export default function BodyCurrentKardex() {
         setIsPrSorted(false);
         setIsCSorted(true);
         if (codeSorted == 0) {
-          console.log("Ascendente");
           setCodeSorted(1);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.codInterno < p2.codInterno
@@ -195,7 +186,6 @@ export default function BodyCurrentKardex() {
           );
           resolve(sortedProducts);
         } else {
-          console.log("Descendente");
           setCodeSorted(0);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.codInterno > p2.codInterno
@@ -214,7 +204,6 @@ export default function BodyCurrentKardex() {
         setIsPrSorted(true);
         setIsCSorted(false);
         if (priceSorted == 0) {
-          console.log("Ascendente");
           setPriceSorted(1);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.precioDeFabrica < p2.precioDeFabrica
@@ -225,7 +214,6 @@ export default function BodyCurrentKardex() {
           );
           resolve(sortedProducts);
         } else {
-          console.log("Descendente");
           setPriceSorted(0);
           let sortedProducts = dataTable.sort((p1, p2) =>
             p1.precioDeFabrica > p2.precioDeFabrica
@@ -244,7 +232,7 @@ export default function BodyCurrentKardex() {
     setIsAlertSec(true);
     setCurrentPage(1);
     setDataTable([]);
-    console.log("Generando reporte ... ");
+
     if (criteria != "") {
       if (criteria == 1) {
         if (selectedStore == "") {
@@ -256,7 +244,6 @@ export default function BodyCurrentKardex() {
         } else {
           const reportData = getCurrentStockStore(selectedStore);
           reportData.then((rd) => {
-            console.log("Datos obtenidos:", rd.data[0]);
             setDataTable(rd.data[0]);
             setAuxDataTable(rd.data[0]);
             setIsAlertSec(false);
@@ -273,7 +260,6 @@ export default function BodyCurrentKardex() {
         } else {
           const reportData = getCurrentStockProduct(selectedProduct);
           reportData.then((rd) => {
-            console.log("Datos obtenidos:", rd.data[0]);
             setDataTable(rd.data[0]);
             setIsReported(true);
             setAuxDataTable(rd.data[0]);
@@ -282,7 +268,6 @@ export default function BodyCurrentKardex() {
         }
       }
     } else {
-      console.log("Seleccione un criterio para el reporte por favor");
     }
   }
   const paginate = (pageNumber) => setCurrentPage(pageNumber);

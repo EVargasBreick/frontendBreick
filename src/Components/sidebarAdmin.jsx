@@ -271,13 +271,23 @@ export default function SidebarAdmin() {
                 <Image src={leftArrow} className="icon"></Image>
                 Modificar/Cancelar Pedido
               </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
+                <Image src={Invoice} className="icon"></Image>Facturar Pedidos
+              </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/traspaso")}>
                 {" "}
                 <Image src={ReturnWare} className="icon inverted"></Image>
                 Traspaso productos
               </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
-                <Image src={Invoice} className="icon"></Image>Facturar Pedidos
+              <MenuItem onClick={() => redirectOnClick("/packs/registrar")}>
+                {" "}
+                <Image src={Star} className="icon inverted"></Image>
+                Registrar Pack
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/packs/asignar")}>
+                {" "}
+                <Image src={Star} className="icon inverted"></Image>
+                Asignar Packs
               </MenuItem>
               <MenuItem>
                 {" "}

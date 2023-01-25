@@ -1,11 +1,10 @@
 import axios from "axios";
-import config from "../config.json";
 
 const getLogStockProduct = (idProducto, fecha) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/log/stock/producto?idProducto=${idProducto}&fecha=${fecha}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/log/stock/producto?idProducto=${idProducto}&fecha=${fecha}`
       )
       .then((res) => {
         resolve(res);
@@ -21,7 +20,7 @@ const getLogStockStore = (idAgencia, fecha) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/log/stock/agencia?idAgencia=${idAgencia}&fecha='${fecha}'`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/log/stock/agencia?idAgencia=${idAgencia}&fecha='${fecha}'`
       )
       .then((res) => {
         resolve(res);
@@ -36,7 +35,7 @@ const getCurrentStockStore = (idAgencia) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/actual/stock/agencia?idAgencia=${idAgencia}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/actual/stock/agencia?idAgencia=${idAgencia}`
       )
       .then((res) => {
         resolve(res);
@@ -51,7 +50,7 @@ const getCurrentStockProduct = (idProducto) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/actual/stock/producto?idProducto=${idProducto}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/actual/stock/producto?idProducto=${idProducto}`
       )
       .then((res) => {
         resolve(res);
@@ -66,7 +65,7 @@ const updateFullStock = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/stock/full/update`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/full/update`,
         body
       )
       .then((res) => {

@@ -1,10 +1,11 @@
 import axios from "axios";
-import config from "../config.json";
 
 const getLanguajes = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/language`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/language`
+      )
       .then((response) => {
         console.log("Lenguajes encontrados", response.status);
         if (response.status === 200) {

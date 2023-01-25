@@ -1,10 +1,11 @@
 import axios from "axios";
-import config from "../config.json";
 
 const getDepartamentos = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/departamentos`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/departamentos`
+      )
       .then((response) => {
         if (response.status === 200) {
           resolve(response);

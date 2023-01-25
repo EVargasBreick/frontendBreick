@@ -80,6 +80,12 @@
   padding-top: 2%;
   border-top: 1px solid #5cb8b2;
 }
+.formLabelAlt {
+  text-align: start;
+  padding-bottom: 2%;
+  padding-top: 2%;
+  border-top: 1px solid #5cb8b2;
+}
 .formLabelPurple {
   padding-bottom: 2%;
   padding-top: 2%;

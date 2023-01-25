@@ -1,5 +1,5 @@
 import axios from "axios";
-import config from "../config.json";
+
 import { dateString } from "./dateServices";
 
 const verifyClientEmail = (email, isCorreo) => {
@@ -219,7 +219,10 @@ const structureEditContacts = (
 const createClient = (clientObject) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${config.endpointUrl}:${config.endpointPort}/client`, clientObject)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client`,
+        clientObject
+      )
       .then((response) => {
         resolve(response);
       })
@@ -233,7 +236,7 @@ const updateClient = (clientObject, id) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/client?id=${id}`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client?id=${id}`,
         clientObject
       )
       .then((response) => {
@@ -255,12 +258,15 @@ const createContact = (contacto, idCliente) => {
     );
     if (contacto.nombre && contacto.telefono) {
       axios
-        .post(`${config.endpointUrl}:${config.endpointPort}/contact`, {
-          idCliente: idCliente,
-          nombre: contacto.nombre,
-          correo: contacto.correo,
-          telefono: contacto.telefono,
-        })
+        .post(
+          `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/contact`,
+          {
+            idCliente: idCliente,
+            nombre: contacto.nombre,
+            correo: contacto.correo,
+            telefono: contacto.telefono,
+          }
+        )
         .then((response) => {
           resolve(response);
         })
@@ -284,12 +290,15 @@ const updateContact = (contacto, idCliente) => {
     if (!contacto.idContacto) {
       if (contacto.nombre && contacto.telefono) {
         axios
-          .post(`${config.endpointUrl}:${config.endpointPort}/contact`, {
-            idCliente: idCliente,
-            nombre: contacto.nombre,
-            correo: contacto.correo,
-            telefono: contacto.telefono,
-          })
+          .post(
+            `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/contact`,
+            {
+              idCliente: idCliente,
+              nombre: contacto.nombre,
+              correo: contacto.correo,
+              telefono: contacto.telefono,
+            }
+          )
           .then((response) => {
             resolve(response);
           })
@@ -303,7 +312,7 @@ const updateContact = (contacto, idCliente) => {
       if (contacto.nombre && contacto.telefono) {
         axios
           .put(
-            `${config.endpointUrl}:${config.endpointPort}/contact?id=${contacto.idContacto}`,
+            `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/contact?id=${contacto.idContacto}`,
             {
               idCliente: idCliente,
               nombre: contacto.nombre,
@@ -328,7 +337,7 @@ const getClient = (search) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/client/rs?search=${search}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client/rs?search=${search}`
       )
       .then((response) => {
         console.log("Clienteeeees:", response.data);
@@ -343,7 +352,9 @@ const getClient = (search) => {
 const getClientById = (id) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/client?id=${id}`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client?id=${id}`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -356,7 +367,9 @@ const getClientById = (id) => {
 const getFullClient = (id) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/client/full?id=${id}`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client/full?id=${id}`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -369,7 +382,9 @@ const getFullClient = (id) => {
 const getContact = (id) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/contact?id=${id}`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/contact?id=${id}`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -382,7 +397,9 @@ const getContact = (id) => {
 const numberOfClients = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/client/count`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client/count`
+      )
       .then((response) => {
         resolve(response);
       })

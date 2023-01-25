@@ -1,5 +1,5 @@
 import axios from "axios";
-import config from "../config.json";
+
 import { dateString } from "./dateServices";
 
 const controlUserInput = (
@@ -119,7 +119,10 @@ const structureUser = (
 const createUser = (userObject) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${config.endpointUrl}:${config.endpointPort}/user`, userObject)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/user`,
+        userObject
+      )
       .then((response) => {
         console.log("Error del post", response.message);
         resolve(response);
@@ -134,7 +137,9 @@ const createUser = (userObject) => {
 const userBasic = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/user/basic`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/user/basic`
+      )
       .then((response) => {
         console.log("Error del post", response.message);
         resolve(response);

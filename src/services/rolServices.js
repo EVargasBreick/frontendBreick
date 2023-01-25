@@ -1,10 +1,11 @@
 import axios from "axios";
-import config from "../config.json";
 
 const getRoles = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/roles`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/roles`
+      )
       .then((response) => {
         console.log("Respuesta", response.status);
         if (response.status === 200) {

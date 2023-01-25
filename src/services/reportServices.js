@@ -1,11 +1,10 @@
 import axios from "axios";
-import config from "../config.json";
 
 const getGeneralSalesReport = (desde, hasta, sort) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/reportes/ventas/general?idate=${desde}&fdate=${hasta}&sort=${sort}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/general?idate=${desde}&fdate=${hasta}&sort=${sort}`
       )
       .then((response) => {
         console.log("Respuesta", response.status);
@@ -22,7 +21,7 @@ const getProductSalesReport = (desde, hasta, sort) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/reportes/ventas/productos?idate=${desde}&fdate=${hasta}&sort=${sort}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/productos?idate=${desde}&fdate=${hasta}&sort=${sort}`
       )
       .then((response) => {
         console.log("Respuesta", response.status);

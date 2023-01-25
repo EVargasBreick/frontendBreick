@@ -1,9 +1,11 @@
 import axios from "axios";
-import config from "../config.json";
+
 const getZonas = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/zonas`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/zonas`
+      )
       .then((response) => {
         resolve(response);
       });
@@ -12,7 +14,9 @@ const getZonas = () => {
 const getDias = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/dias`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/dias`
+      )
       .then((response) => {
         resolve(response);
       });

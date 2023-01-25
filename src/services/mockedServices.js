@@ -1,6 +1,5 @@
 import { convertJsonToXml, generateInvoiceJson } from "../Xml/invoiceFormat";
 import { SoapLastId } from "../Xml/soapLastId";
-import { dateString } from "./dateServices";
 
 function getInvoiceNumber(body) {
   console.log("Body recibido", body);

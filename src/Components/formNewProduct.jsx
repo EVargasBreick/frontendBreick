@@ -4,14 +4,16 @@ import Form from "react-bootstrap/Form";
 import {
   getCodes,
   newProduct,
+  productOrigin,
   productTypes,
 } from "../services/productServices";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
 export default function FormNewProduct() {
   //Listas cargadas en render
-  const [codeList, setCodeList] = useState();
+  const [codeList, setCodeList] = useState([]);
   const [typeList, setTypeList] = useState([]);
+  const [originList, setOriginList] = useState([]);
   // Atributos de producto
   const [desc, setDesc] = useState("");
   const [codInterno, setCodInterno] = useState("");
@@ -23,6 +25,7 @@ export default function FormNewProduct() {
   const [unidadMedida, setUnidadMedida] = useState("");
   const [precioDescuento, setPrecioDescuento] = useState("");
   const [codigoBarras, setCodigoBarras] = useState("");
+  const [origen, setOrigen] = useState("");
   // Validadores de estado
   const [alert, setAlert] = useState("");
   const [isAlert, setIsAlert] = useState(false);
@@ -45,6 +48,15 @@ export default function FormNewProduct() {
       })
       .catch((err) => {
         console.log("Error al cargar los tipos", err);
+      });
+    const origenes = productOrigin();
+    origenes
+      .then((origen) => {
+        console.log("Origenes", origen.data.data[0]);
+        setOriginList(origen.data.data[0]);
+      })
+      .catch((err) => {
+        console.log("Error al cargar los origenes", err);
       });
   }, []);
   function saveProduct() {
@@ -71,6 +83,7 @@ export default function FormNewProduct() {
           actividadEconomica: 107900,
           codigoSin: 99100,
           codigoUnidad: unidadMedida == "unidad" ? 57 : 22,
+          origenProducto: origen,
         };
         const added = newProduct(objProd);
         added
@@ -224,6 +237,19 @@ export default function FormNewProduct() {
                 return (
                   <option value={tl.idTiposProducto} key={index}>
                     {tl.tipoProducto}
+                  </option>
+                );
+              })}
+            </Form.Select>
+          </Form.Group>
+          <Form.Group className="selectAlt" controlId="productType">
+            <Form.Label>Origen</Form.Label>
+            <Form.Select onChange={(e) => setOrigen(e.target.value)}>
+              <option>Seleccione origen del producto</option>
+              {originList.map((tl, index) => {
+                return (
+                  <option value={tl.idOrigenProducto} key={index}>
+                    {tl.origenProducto}
                   </option>
                 );
               })}

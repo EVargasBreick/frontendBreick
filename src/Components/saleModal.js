@@ -10,7 +10,7 @@ import { getInvoiceNumber, structureXml } from "../services/mockedServices";
 import { SoapInvoice } from "../Xml/soapInvoice";
 import xml2js from "xml2js";
 import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
-import config from "../config.json";
+
 export default function SaleModal({
   datos,
   show,
@@ -215,7 +215,7 @@ export default function SaleModal({
             nit: invoice.nitEmpresa,
             idSucursal: branchInfo.nro,
             tipoComprobante: 1,
-            formatoId: config.formatoId,
+            formatoId: process.env.REACT_APP_FORMATO_ID,
             XML: lineal,
           };
           const comprobante = SoapInvoice(cufObj);

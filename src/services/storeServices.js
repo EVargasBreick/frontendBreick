@@ -1,9 +1,23 @@
 import axios from "axios";
-import config from "../config.json";
+
 const getStores = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/agencias`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/agencias`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
+const getOnlyStores = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/agencias/solo`
+      )
       .then((response) => {
         resolve(response);
       });
@@ -13,11 +27,13 @@ const getStores = () => {
 const getBranches = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/sucursales`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/sucursales`
+      )
       .then((response) => {
         resolve(response);
       });
   });
 };
 
-export { getStores, getBranches };
+export { getStores, getBranches, getOnlyStores };

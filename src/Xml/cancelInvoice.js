@@ -1,11 +1,10 @@
 import axios from "axios";
-import config from "../config.json";
 
 const CancelInvoice = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
-        `${config.endpointUrl}:${config.endpointPort}/xml/cancelarComprobante`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/xml/cancelarComprobante`,
         body
       )
       .then((response) => {

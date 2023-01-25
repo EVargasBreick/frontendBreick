@@ -31,6 +31,8 @@ import SalesByProductReport from "./Components/salesByProductReport";
 import InvoiceOrders from "./Components/invoiceOrders";
 import CancelInvoice from "./Components/cancelInvoice";
 import UpdateStock from "./Components/updateStock";
+import NewPack from "./Components/newPack";
+import AsignPack from "./Components/asignPack";
 function App() {
   return (
     <div className="App">
@@ -243,6 +245,22 @@ function App() {
               element={
                 <RequireAuth>
                   <UpdateStock />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packs/registrar"
+              element={
+                <RequireAuth>
+                  <NewPack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packs/asignar"
+              element={
+                <RequireAuth>
+                  <AsignPack />
                 </RequireAuth>
               }
             />

@@ -1,11 +1,10 @@
 import axios from "axios";
-import config from "../config.json";
 
 const SoapLastId = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
-        `${config.endpointUrl}:${config.endpointPort}/xml/ultimoComprobante`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/xml/ultimoComprobante`,
         body
       )
       .then((response) => {

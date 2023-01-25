@@ -1,10 +1,12 @@
 import axios from "axios";
-import config from "../config.json";
 
 const createSale = (saleObject) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${config.endpointUrl}:${config.endpointPort}/venta`, saleObject)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/venta`,
+        saleObject
+      )
       .then((response) => {
         resolve(response);
       })

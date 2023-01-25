@@ -1,5 +1,5 @@
 import axios from "axios";
-import config from "../config.json";
+
 import { dateString } from "./dateServices";
 import { updateInvoicedOrder } from "./orderServices";
 
@@ -9,7 +9,7 @@ const createInvoice = (invoiceObject) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
-        `${config.endpointUrl}:${config.endpointPort}/factura`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/factura`,
         invoiceObject
       )
       .then((response) => {
@@ -24,7 +24,9 @@ const createInvoice = (invoiceObject) => {
 const deleteInvoice = (id) => {
   return new Promise((resolve, reject) => {
     axios
-      .delete(`${config.endpointUrl}:${config.endpointPort}/factura?id=${id}`)
+      .delete(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/factura?id=${id}`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -59,7 +61,7 @@ function saveInvoice(
     const invoiceBody = {
       nroFactura: nro,
       idSucursal: sucursal.idImpuestos,
-      nitEmpresa: config.nitEmpresa,
+      nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
       fechaHora: dateString(),
       nitCliente: cliente.nit,
       razonSocial: cliente.razonSocial,
@@ -157,7 +159,7 @@ function getStoreInvoices(id) {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/facturas/lista?idSucursal='${id}'`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/facturas/lista?idSucursal='${id}'`
       )
       .then((response) => {
         resolve(response);
@@ -172,7 +174,7 @@ function cancelInvoiceUpdate(id) {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/facturas/anular?id='${id}'`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/facturas/anular?id='${id}'`
       )
       .then((response) => {
         resolve(response);

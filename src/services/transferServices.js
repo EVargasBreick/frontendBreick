@@ -1,11 +1,10 @@
 import axios from "axios";
-import config from "../config.json";
 
 const createTransfer = (transferObject) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
-        `${config.endpointUrl}:${config.endpointPort}/traspaso`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso`,
         transferObject
       )
       .then((response) => {
@@ -21,7 +20,7 @@ const transferList = (accion) => {
   return new Promise((resolve) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/traspaso/lista?crit=${accion}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/lista?crit=${accion}`
       )
       .then((response) => {
         resolve(response);
@@ -33,7 +32,7 @@ const transferProducts = (id) => {
   return new Promise((resolve) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/traspaso/productos?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -45,7 +44,7 @@ const updateTransfer = (body) => {
   return new Promise((resolve) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/traspaso/actualizar`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/actualizar`,
         body
       )
       .then((response) => {

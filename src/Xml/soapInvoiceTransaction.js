@@ -1,11 +1,10 @@
 import axios from "axios";
-import config from "../config.json";
 
 const SoapInvoiceTransaction = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
-        `${config.endpointUrl}:${config.endpointPort}/xml/salidaTransaccion`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/xml/salidaTransaccion`,
         body
       )
       .then((response) => {

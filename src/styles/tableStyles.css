@@ -1,6 +1,11 @@
 .tableOne {
-  padding-top: 1%;
+  padding-top: 3%;
 
+  width: 100%;
+}
+
+.tableOneAlt {
+  margin-top: 1rem;
   width: 100%;
 }
 
@@ -140,4 +145,16 @@
   font-weight: 600;
   background-color: #6a4593;
   color: white;
+}
+
+.smallTableCol {
+  width: 4%;
+}
+
+.mediumTableCol {
+  width: 10%;
+}
+
+.largeTableCol {
+  width: 40%;
 }

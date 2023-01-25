@@ -1,12 +1,13 @@
 import axios from "axios";
-import config from "../config.json";
+
 import { dateString } from "./dateServices";
+
 const loginRequest = (username, password) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${
-          config.endpointPort
+        `${process.env.REACT_APP_ENDPOINT_URL}${
+          process.env.REACT_APP_ENDPOINT_PORT
         }/login/?usuario=${username}&password=${password}&date='${dateString()}'`
       )
       .then((response) => {

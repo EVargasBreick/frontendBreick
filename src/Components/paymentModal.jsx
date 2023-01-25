@@ -6,9 +6,10 @@ import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
 import { structureXml, getInvoiceNumber } from "../services/mockedServices";
 import { dateString } from "../services/dateServices";
-import config from "../config.json";
+
 import "../styles/generalStyle.css";
 import { saveInvoice } from "../services/invoiceServices";
+
 export default function PaymentModal({
   setIsInvoice,
   isSaleModal,
@@ -222,7 +223,7 @@ export default function PaymentModal({
                   invoice={{
                     nroFactura: invoiceNumber,
                     idSucursal: branchInfo.idImpuestos,
-                    nitEmpresa: config.nitEmpresa,
+                    nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
                     fechaHora: fechaHora,
                     nitCliente: cliente.nit,
                     razonSocial: cliente.razonSocial,

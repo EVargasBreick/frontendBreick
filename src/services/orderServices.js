@@ -1,10 +1,12 @@
 import axios from "axios";
-import config from "../config.json";
 
 const createOrder = (orderObject) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${config.endpointUrl}:${config.endpointPort}/pedidos`, orderObject)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos`,
+        orderObject
+      )
       .then((response) => {
         resolve(response);
       })
@@ -17,7 +19,9 @@ const createOrder = (orderObject) => {
 const getOrderStatus = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/pedidos/estado`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/estado`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -31,7 +35,7 @@ const getOrderList = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/lista?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -46,7 +50,7 @@ const getUserOrderList = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/lista/usuario?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista/usuario?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -61,7 +65,7 @@ const getOrderDetail = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/detalle?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/detalle?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -75,7 +79,9 @@ const getOrderDetail = (id) => {
 const getOrderType = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/pedidos/tipo`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/tipo`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -88,7 +94,10 @@ const getOrderType = () => {
 const sendOrderEmail = (emailBody) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${config.endpointUrl}:${config.endpointPort}/correo`, emailBody)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/correo`,
+        emailBody
+      )
       .then((response) => {
         resolve(response);
       })
@@ -102,7 +111,7 @@ const approveOrderFromId = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/aprobar?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/aprobar?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -117,7 +126,7 @@ const getOrderProdList = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/productos?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/productos?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -146,7 +155,7 @@ const updateStock = (updateObj) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/stock/update`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/update`,
         updateObj
       )
       .then((res) => {
@@ -161,7 +170,9 @@ const updateStock = (updateObj) => {
 const deleteOrder = (id) => {
   return new Promise((resolve, reject) => {
     axios
-      .delete(`${config.endpointUrl}:${config.endpointPort}/pedidos?id=${id}`)
+      .delete(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos?id=${id}`
+      )
       .then((res) => {
         resolve(res);
       })
@@ -175,7 +186,7 @@ const cancelOrder = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/cancelar?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/cancelar?id=${id}`
       )
       .then((res) => {
         resolve(res);
@@ -190,7 +201,7 @@ const addProductToOrder = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/productos/agregar`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/productos/agregar`,
         body
       )
       .then((res) => {
@@ -206,7 +217,7 @@ const updateOrderProduct = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/productos/actualizar`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/productos/actualizar`,
         body
       )
       .then((res) => {
@@ -222,7 +233,7 @@ const updateDbOrder = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/actualizar`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/actualizar`,
         body
       )
       .then((res) => {
@@ -239,7 +250,7 @@ const deleteProductOrder = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/productos/borrar`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/productos/borrar`,
         body
       )
       .then((res) => {
@@ -255,7 +266,7 @@ const orderToInvoiceList = () => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/lista/facturar`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista/facturar`
       )
       .then((res) => {
         resolve(res);
@@ -270,7 +281,7 @@ const orderDetailsInvoice = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/detalles/facturar?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/detalles/facturar?id=${id}`
       )
       .then((res) => {
         resolve(res);
@@ -286,7 +297,7 @@ const updateInvoicedOrder = (id, fecha) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${config.endpointUrl}:${config.endpointPort}/pedidos/actualizar/facturar?idPedido=${id}&fechaHora=${fecha}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/actualizar/facturar?idPedido=${id}&fechaHora=${fecha}`
       )
       .then((res) => {
         resolve(res);

@@ -11,9 +11,10 @@ import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
-import config from "../config.json";
+
 import { CancelInvoice } from "../Xml/cancelInvoice";
 import { updateStock } from "../services/orderServices";
+
 export default function FormCancelInvoice() {
   const [userStore, setUserStore] = useState("");
   const [facturas, setFacturas] = useState([]);
@@ -61,9 +62,9 @@ export default function FormCancelInvoice() {
       transaccionId: invoice.nroTransaccion,
       puntoDeVentaId: invoice.idImpuestos,
       numeroComprobante: parseInt(invoice.nroFactura),
-      tipoComprobante: config.compraVenta,
+      tipoComprobante: process.env.REACT_APP_COMPRAVENTA,
       motivoAnulacion: motivo,
-      nit: parseInt(config.nitEmpresa),
+      nit: parseInt(process.env.REACT_APP_NIT_EMPRESA),
     };
     console.log(cancelObj);
     const canceled = CancelInvoice(cancelObj);

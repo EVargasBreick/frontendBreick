@@ -1,9 +1,11 @@
 import axios from "axios";
-import config from "../config.json";
+
 const getProducts = (id) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/productos?id=${id}`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos?id=${id}`
+      )
       .then((response) => {
         resolve(response);
       });
@@ -14,7 +16,7 @@ const getProductsWithStock = (idAlmacen, id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/productos/stock?idAlmacen=${idAlmacen}&id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/stock?idAlmacen=${idAlmacen}&id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -25,7 +27,9 @@ const getProductsWithStock = (idAlmacen, id) => {
 const getUserStock = (id) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/stockUsuario?id=${id}`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stockUsuario?id=${id}`
+      )
       .then((response) => {
         resolve(response);
       });
@@ -34,7 +38,9 @@ const getUserStock = (id) => {
 const numberOfProducts = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/productos/count`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/count`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -48,7 +54,7 @@ const availableProducts = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/productos/disponible?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/disponible?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -60,7 +66,7 @@ const productsDiscount = (id) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${config.endpointUrl}:${config.endpointPort}/productos/descuentos?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/descuentos?id=${id}`
       )
       .then((response) => {
         resolve(response);
@@ -153,7 +159,10 @@ const updateForMissing = (selectedProds, faltantes) => {
 const logShortage = (body) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${config.endpointUrl}:${config.endpointPort}/faltantes`, body)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/faltantes`,
+        body
+      )
       .then((response) => {
         resolve(response);
       });
@@ -164,7 +173,7 @@ const newProduct = (body) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
-        `${config.endpointUrl}:${config.endpointPort}/productos/nuevo`,
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/nuevo`,
         body
       )
       .then((response) => {
@@ -179,7 +188,9 @@ const newProduct = (body) => {
 const getCodes = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/productos/codigos`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/codigos`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -192,7 +203,24 @@ const getCodes = () => {
 const productTypes = () => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${config.endpointUrl}:${config.endpointPort}/productos/tipos`)
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/tipos`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const productOrigin = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/origen`
+      )
       .then((response) => {
         resolve(response);
       })
@@ -214,4 +242,5 @@ export {
   newProduct,
   getCodes,
   productTypes,
+  productOrigin,
 };

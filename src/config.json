@@ -1,8 +1,8 @@
 {
   "secret": "BreickSecret2022",
   "endpointUrl": "http://localhost",
-  "endpointPort": "5200",
-  "decimales": 3,
+  "endpointPort": ":5200",
+  "REACT_APP_DECIMALES": 3,
   "nitEmpresa": "128153028",
   "formatoId": 10,
   "compraVenta": 1

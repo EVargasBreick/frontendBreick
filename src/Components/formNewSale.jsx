@@ -11,7 +11,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import FormRegisterClient from "./formRegisterClient";
 import { convertToText } from "../services/numberServices";
-import config from "../config.json";
+
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
 import { createSale, verifyQuantities } from "../services/saleServices";
@@ -109,6 +109,7 @@ export default function FormNewSale() {
         const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
         console.log("Almacen", alm);
         const sucur = sucursales.find((sc) => alm == sc.idAgencia);
+        console.log("Sucursal", sucur);
         setSucursal(sucur);
         const branchData = {
           nombre: sucur.nombre,
@@ -292,7 +293,7 @@ export default function FormNewSale() {
     const isThree =
       cantidad === ""
         ? ""
-        : arrCant[1]?.length > config.decimales
+        : arrCant[1]?.length > process.env.REACT_APP_DECIMALES
         ? prod.cantProducto
         : cantidad;
     const total = parseFloat(prod.precioDeFabrica) * parseFloat(isThree);
@@ -324,7 +325,7 @@ export default function FormNewSale() {
         idCliente: idSelectedClient,
         nroFactura: 1,
         idSucursal: sucursal.idImpuestos,
-        nitEmpresa: config.nitEmpresa,
+        nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: fechaHora,
         nitCliente: clientes[0].nit,
         razonSocial: clientes[0].razonSocial,
@@ -425,7 +426,7 @@ export default function FormNewSale() {
         idCliente: selectedClient,
         nroFactura: nro,
         idSucursal: sucursal.idImpuestos,
-        nitEmpresa: config.nitEmpresa,
+        nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
         nitCliente: clientes[0].nit,
         razonSocial: clientes[0].razonSocial,

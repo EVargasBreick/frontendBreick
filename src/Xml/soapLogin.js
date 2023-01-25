@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
-import config from "../config.json";
 
 const SoapLogin = () => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${config.endpointUrl}:${config.endpointPort}/xml/login`, {
-        email: "evargas@breick.com.bo",
-        password: "Qgt<18",
-      })
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/xml/login`,
+        {
+          email: "evargas@breick.com.bo",
+          password: "Qgt<18",
+        }
+      )
       .then((response) => {
         resolve({
           response,
