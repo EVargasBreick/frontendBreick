@@ -5,8 +5,8 @@ import { dateString } from "./dateServices";
 const verifyClientEmail = (email, isCorreo) => {
   const emailArray = email.split("@");
   return new Promise((resolve, reject) => {
-    if (!email && !isCorreo) {
-      reject("Recuerde preguntar el correo del cliente");
+    /* if (!email && !isCorreo) {
+      resolve("v");
     } else {
       if (emailArray[1]) {
         resolve("v");
@@ -14,38 +14,43 @@ const verifyClientEmail = (email, isCorreo) => {
         if (isCorreo) {
           resolve("v");
         } else {
-          reject("El correo provisto no es válido, ingrese otro por favor");
+          resolve("v");
         }
       }
-    }
+    }*/
+    resolve("v");
   });
 };
 
 const verifyClientPhone = (phone, isTelef) => {
   return new Promise((resolve, reject) => {
+    /*
     if (isTelef) {
       resolve("Teléfono válido");
     } else {
       if (phone) {
         resolve("Teléfono válido");
       } else {
-        reject("Recuerde preguntar el teléfono del cliente");
+        resolve("Teléfono válido");
       }
-    }
+    }*/
+    resolve("Telefono valido");
   });
 };
 
 const verifyClientAdress = (address, isAdress) => {
   return new Promise((resolve, reject) => {
+    /*
     if (isAdress) {
       resolve("Direccion valida");
     } else {
       if (address) {
         resolve("Direccion válida");
       } else {
-        reject("Recuerde preguntar la dirección del cliente");
+        resolve("Direccion válida");
       }
-    }
+    }*/
+    resolve("Direccion valida");
   });
 };
 
@@ -68,16 +73,7 @@ const verifyOblFields = (
     console.log("Tipo Precio:", tipoPrecio);
     console.log("Frecuencia:", frecuencia);
     console.log("Id vendedor", vendedor);
-    if (
-      razonSocial &&
-      nit &&
-      zona &&
-      idioma &&
-      tipoPrecio &&
-      vendedor &&
-      nombre &&
-      telefono
-    ) {
+    if (razonSocial && nit && zona) {
       resolve("Campos obligatorios llenos");
     } else {
       reject("Por favor, ingrese todos los campos obligatorios (*)");

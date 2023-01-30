@@ -1,14 +1,14 @@
 import React from "react";
 import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
-import { convertToText } from "../services/numberServices";
+//import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
-export const InvoiceComponent = React.forwardRef(
+export const InvoiceComponentAlt = React.forwardRef(
   (
     { branchInfo, selectedProducts, cuf, invoice, paymentData, totalsData },
     ref
   ) => {
-    const convertido = convertToText(totalsData?.totalDescontado);
+    //const convertido = convertToText(totalsData?.totalDescontado);
     const splittedDate = dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
@@ -31,7 +31,7 @@ export const InvoiceComponent = React.forwardRef(
         <div className="simpleSeparator"></div>
         <div>{`NIT ${invoice?.nitEmpresa}`}</div>
         <div>{`FACTURA Nº ${invoice?.nroFactura}`}</div>
-        <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
+        <div className="cufWidth">{`CUF: `}</div>
         <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>
         <div className="simpleSeparator"></div>
@@ -54,7 +54,7 @@ export const InvoiceComponent = React.forwardRef(
               </tr>
             </thead>
             <tbody>
-              {selectedProducts.map((producto, index) => {
+              {selectedProducts?.map((producto, index) => {
                 return (
                   <tr key={index}>
                     <td className="xsmallProductLeft">
@@ -103,9 +103,7 @@ export const InvoiceComponent = React.forwardRef(
           </table>
         </div>
         <div className="simpleSeparator"></div>
-        <div className="leftText">{`Son: ${convertido?.texto.toUpperCase()} CON ${
-          convertido.resto
-        }/100`}</div>
+        <div className="leftText">{`Son:  CON /100`}</div>
         <div className="leftText">{`Bolivianos`}</div>
         <div className="simpleSeparator"></div>
         <div>

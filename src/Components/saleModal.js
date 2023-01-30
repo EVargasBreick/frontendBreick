@@ -40,9 +40,12 @@ export default function SaleModal({
   fechaHora,
   tipoDocumento,
   userName,
+  pointOfSale,
+  otherPayments,
 }) {
   const numberARef = useRef();
   const numberBRef = useRef();
+  const canceledRef = useRef();
   const [stringPago, setStringPago] = useState("");
   const [isFactura, setIsFactura] = useState(false);
   const invoiceRef = useRef();
@@ -53,13 +56,16 @@ export default function SaleModal({
   const [invoiceId, setInvoiceId] = useState("");
   const componentRef = useRef();
   const [approvedId, setApprovedId] = useState("");
-
+  const [ofp, setOfp] = useState(0);
+  const [giftCard, setGiftCard] = useState(0);
+  const [aPagar, setAPagar] = useState(0);
   useEffect(() => {
     if (cuf.length > 0) {
       console.log("Correr esto cuando exista cuf");
       setIsFactura(true);
       setInvoceMod(true);
     }
+    console.log("Point of sale in the modal", pointOfSale);
   }, [cuf]);
   useEffect(() => {
     if (isFactura) {
@@ -68,8 +74,28 @@ export default function SaleModal({
     }
   }, [isFactura]);
   useEffect(() => {
-    setCambio(Math.abs((cancelado - datos.totalDescontado).toFixed(2)));
+    setCambio(
+      Math.abs((cancelado - (datos.totalDescontado - giftCard)).toFixed(2))
+    );
   }, [cancelado]);
+
+  useEffect(() => {
+    const canceled = (datos.totalDescontado - giftCard).toFixed(2);
+    setCancelado(canceled < 0 ? 0 : canceled);
+    setCambio(0);
+  }, [giftCard]);
+
+  useEffect(() => {
+    if (tipoPago == 1) {
+      canceledRef.current.focus();
+    }
+    if (tipoPago == 2) {
+      numberARef.current.focus();
+    }
+    if (tipoPago == 10) {
+      canceledRef.current.focus();
+    }
+  }, [tipoPago]);
   function handleCardNumber(number, card) {
     if (card == "A") {
       if (number <= 9999) {
@@ -91,23 +117,27 @@ export default function SaleModal({
         setStringPago("Efectivo");
         setCardNumbersA("");
         setCardNumbersB("");
+        setOfp(0);
         break;
       case "2":
         setStringPago("Tarjeta");
         setCancelado(datos.totalDescontado);
         setCambio(0);
+        setOfp(0);
         break;
       case "3":
         setStringPago("Cheque");
         setCancelado(datos.totalDescontado);
         setCambio(0);
+        setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
       case "4":
         setStringPago("Vales");
-        setCancelado(datos.totalDescontado);
+        setCancelado(0);
         setCambio(0);
+        setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
@@ -120,8 +150,10 @@ export default function SaleModal({
         break;
       case "6":
         setStringPago("Pago Posterior");
+        setAPagar(1);
         setCancelado(datos.totalDescontado);
         setCambio(0);
+        setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
@@ -129,6 +161,7 @@ export default function SaleModal({
         setStringPago("Transferencia");
         setCancelado(datos.totalDescontado);
         setCambio(0);
+        setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
@@ -136,6 +169,7 @@ export default function SaleModal({
         setStringPago("Deposito");
         setCancelado(datos.totalDescontado);
         setCambio(0);
+        setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
@@ -143,17 +177,20 @@ export default function SaleModal({
         setStringPago("Transferencia Swift");
         setCancelado(datos.totalDescontado);
         setCambio(0);
+        setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
       case "10":
         setStringPago("Efectivo-tarjeta");
-        setCancelado(datos.totalDescontado);
+        setCancelado(datos.totalDescontado.toFixed(2));
+        setOfp(0);
         setCambio(0);
         break;
     }
   }
-  function validateFormOfPayment() {
+  function validateFormOfPayment(e) {
+    e.preventDefault();
     return new Promise((resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
@@ -174,6 +211,29 @@ export default function SaleModal({
             } else {
               invoiceProcess();
             }
+          }
+          if (tipoPago == 4) {
+            if (giftCard == 0) {
+              setAlert("Ingrese un valor válido para el vale");
+              setIsAlert(true);
+            } else {
+              if (cancelado - (datos.totalDescontado - giftCard) < 0) {
+                setAlert("Ingrese un valor mayor al saldo");
+                setIsAlert(true);
+              } else {
+                invoiceProcess();
+              }
+            }
+          }
+          if (
+            tipoPago == 3 ||
+            tipoPago == 5 ||
+            tipoPago == 6 ||
+            tipoPago == 7 ||
+            tipoPago == 8 ||
+            tipoPago == 9
+          ) {
+            invoiceProcess();
           }
         }
       }
@@ -196,7 +256,6 @@ export default function SaleModal({
         setInvoiceId(res);
         setInvoiceId(res);
         setAlertSec("Generando Codigo Único de Facturación");
-
         const xmlRes = structureXml(
           selectedProducts,
           branchInfo,
@@ -207,7 +266,9 @@ export default function SaleModal({
           res.response.data + 1,
           `${cardNumbersA}00000000${cardNumbersB}`,
           userName,
-          tipoDocumento
+          tipoDocumento,
+          pointOfSale,
+          giftCard
         );
         xmlRes.then((resp) => {
           const lineal = resp.replace(/ {4}|[\t\n\r]/gm, "");
@@ -262,7 +323,10 @@ export default function SaleModal({
                           aut,
                           fe,
                           numFac,
-                          idTransaccion
+                          idTransaccion,
+                          ofp,
+                          giftCard,
+                          aPagar
                         );
                         saved.then((res) => {
                           setCuf(resCuf);
@@ -398,6 +462,31 @@ export default function SaleModal({
               </Form>
             </div>
           </div>
+          {tipoPago == 5 ? (
+            <div>
+              <div className="modalRows">
+                <div className="modalLabel"> Otro Tipo de pago:</div>
+                <div className="modalData">
+                  <Form>
+                    <Form.Select
+                      onChange={(e) => setOfp(e.target.value)}
+                      value={ofp}
+                    >
+                      <option>Seleccione Otro Tipo </option>
+                      {otherPayments.map((op, index) => {
+                        return (
+                          <option value={op.idOtroPago} key={index}>
+                            {op.otroPago}
+                          </option>
+                        );
+                      })}
+                    </Form.Select>
+                  </Form>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           {tipoPago == 1 ? (
             <div>
               <div className="modalRows">
@@ -405,9 +494,13 @@ export default function SaleModal({
                 <div className="modalData">
                   <Form>
                     <Form.Control
+                      ref={canceledRef}
                       value={cancelado}
-                      type="text"
+                      type="number"
                       onChange={(e) => setCancelado(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" ? validateFormOfPayment(e) : null
+                      }
                     />
                   </Form>
                 </div>
@@ -441,6 +534,9 @@ export default function SaleModal({
                       type="number"
                       onChange={(e) => handleCardNumber(e.target.value, "B")}
                       value={cardNumbersB}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" ? validateFormOfPayment(e) : null
+                      }
                     ></Form.Control>
                   </Form>
                 }
@@ -453,9 +549,13 @@ export default function SaleModal({
                 <div className="modalData">
                   <Form>
                     <Form.Control
+                      ref={canceledRef}
                       value={cancelado}
-                      type="text"
+                      type="number"
                       onChange={(e) => setCancelado(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" ? validateFormOfPayment(e) : null
+                      }
                     />
                   </Form>
                 </div>
@@ -485,6 +585,9 @@ export default function SaleModal({
                         type="number"
                         onChange={(e) => handleCardNumber(e.target.value, "B")}
                         value={cardNumbersB}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" ? validateFormOfPayment(e) : null
+                        }
                       ></Form.Control>
                     </Form>
                   }
@@ -492,9 +595,68 @@ export default function SaleModal({
               </div>
             </div>
           ) : null}
+          {tipoPago == 4 ? (
+            <div>
+              <div className="modalRows">
+                <div className="modalLabel"> Valor del Vale:</div>
+                <div className="modalData">
+                  <Form>
+                    <Form.Control
+                      ref={canceledRef}
+                      value={giftCard}
+                      type="number"
+                      onChange={(e) => setGiftCard(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" ? validateFormOfPayment(e) : null
+                      }
+                    />
+                  </Form>
+                </div>
+              </div>
+              <div className="modalRows">
+                <div className="modalLabel"> A pagar en efectivo:</div>
+                <div className="modalData">{`${
+                  giftCard - datos.totalDescontado > 0
+                    ? "El valor del Vale es mayor al monto de la compra"
+                    : `${(-giftCard + datos.totalDescontado).toFixed(2)} Bs.`
+                } `}</div>
+              </div>
+              {datos.totalDescontado - giftCard > 0 ? (
+                <div>
+                  <div className="modalRows">
+                    <div className="modalLabel"> Cancelado:</div>
+                    <div className="modalData">
+                      <Form>
+                        <Form.Control
+                          ref={canceledRef}
+                          value={cancelado}
+                          type="number"
+                          onChange={(e) => setCancelado(e.target.value)}
+                          onKeyDown={(e) =>
+                            e.key === "Enter" ? validateFormOfPayment(e) : null
+                          }
+                        />
+                      </Form>
+                    </div>
+                  </div>
+                  <div className="modalRows">
+                    <div className="modalLabel"> Cambio:</div>
+                    <div className="modalData">{`${
+                      cancelado - (datos.totalDescontado - giftCard) < 0
+                        ? "Ingrese un monto igual o superior"
+                        : `${(
+                            cancelado -
+                            (datos.totalDescontado - giftCard)
+                          ).toFixed(2)} Bs.`
+                    } `}</div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="success" onClick={() => validateFormOfPayment()}>
+          <Button variant="success" onClick={(e) => validateFormOfPayment(e)}>
             Facturar
           </Button>
           <Button variant="danger" onClick={() => handleClose()}>

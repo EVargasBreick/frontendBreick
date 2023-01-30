@@ -31,6 +31,7 @@ export default function CurrentUser() {
   }, []);
   function logOut() {
     Cookies.remove("userAuth");
+    Cookies.remove("pdv");
     navigate("/");
   }
   return (

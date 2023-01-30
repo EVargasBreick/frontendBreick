@@ -39,8 +39,8 @@ export default function FormRegisterClient(props) {
   const [telc, setTelc] = useState("");
   const [idioma, setIdioma] = useState(1);
   const [tipoP, setTipop] = useState("");
-  const [frecuencia, setFrecuencia] = useState("");
-  const [usuario, setUsuario] = useState("");
+  const [frecuencia, setFrecuencia] = useState(1);
+  const [usuario, setUsuario] = useState(props.idUsuario);
   const [notas, setNotas] = useState("");
   const [gZonas, setgZonas] = useState([]);
   const [nombreca, setNombreca] = useState("");
@@ -58,7 +58,7 @@ export default function FormRegisterClient(props) {
   const [isButton, setIsButton] = useState(false);
   const [isAlert, setIsAlert] = useState(false);
   const [alert, setAlert] = useState(false);
-  const [tipoDoc, setTipoDoc] = useState(1);
+  const [tipoDoc, setTipoDoc] = useState("1");
   const [isCorreoA, setIsCorreoA] = useState(false);
   const [isPhoneA, setIsPhoneA] = useState(false);
   const [isAdress, setIsAdress] = useState(false);
@@ -159,7 +159,7 @@ export default function FormRegisterClient(props) {
                       idUsuarioActual,
                       notas,
                       usuario,
-                      tipoDoc
+                      tipoDoc == undefined ? 1 : tipoDoc
                     );
                     clientObject.then((client) => {
                       if (

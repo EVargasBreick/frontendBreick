@@ -1,11 +1,17 @@
 .formModal {
   max-width: none !important;
 }
+
+.formModalAlt {
+  background-color: #6a4593;
+  color: white;
+}
+
 .modalHeader {
   color: white;
   background-color: #5cb8b2;
   text-align: center;
-  padding-left: 1%;
+  padding-left: 3%;
 }
 .bodyModal {
   background-color: #e2dddd;
@@ -52,4 +58,10 @@
 .modalHyphen {
   padding: 2%;
   color: #6a4593;
+}
+
+.productModal {
+  text-align: center;
+  margin: 5px;
+  padding-bottom: 5%;
 }

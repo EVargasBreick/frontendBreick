@@ -1,10 +1,11 @@
 .invoicePage {
-  margin: 5px;
-  width: 79mm;
+  justify-content: center;
+  width: 70mm;
   text-align: center;
   padding-top: 10mm;
   margin: 1mm;
-  font-size: small;
+  padding-left: 25px;
+  font-size: smaller;
 }
 .simpleSeparator {
   padding: 2.5mm;

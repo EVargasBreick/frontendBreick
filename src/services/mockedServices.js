@@ -27,11 +27,14 @@ function structureXml(
   nroFac,
   nroTarjeta,
   user,
-  tipoDocumento
+  tipoDocumento,
+  puntoDeVenta,
+  giftCard
 ) {
   const current = new Date();
   const formatted = current.toISOString();
   const parts = formatted.split("Z");
+  console.log("Codigo punto de venta en el xml", puntoDeVenta);
   return new Promise((resolve, reject) => {
     const dataObj = {
       nitEmisor: invoice.nitEmpresa,
@@ -41,7 +44,7 @@ function structureXml(
       numeroFactura: nroFac,
       codigoSucursal: branchInfo.nro,
       direccion: branchInfo.dir,
-      codigoPuntoVenta: 0,
+      codigoPuntoVenta: puntoDeVenta,
       fechaEmision: parts[0],
       razonSocialCliente: invoice.razonSocial,
       tipoDocumento: tipoDocumento,
@@ -53,7 +56,7 @@ function structureXml(
       codigoMoneda: 1,
       tipoCambio: 1,
       montoTotalMoneda: totalDescontado,
-      montoGiftCard: 0,
+      montoGiftCard: giftCard,
       descuento: descuentoCalculado,
       leyenda: `Ley Nº 453: El proveedor debe brindar atención sin discriminación, con respeto, calidez y cordialidad a los usuarios`,
       nombreUsuario: user,

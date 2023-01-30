@@ -8,12 +8,14 @@ function generateInvoiceJson(data) {
       codigoProductoSin: product.codigoSin,
       codigoProducto: product.codInterno,
       descripcion: product.nombreProducto,
-      cantidad: product.cantProducto,
+      cantidad: parseFloat(product.cantProducto).toFixed(2),
       unidadMedida: product.codigoUnidad,
       precioUnitario: product.precioDeFabrica,
-      montoDescuento: product.descuentoProd,
+      montoDescuento: parseFloat(product.descuentoProd).toFixed(2),
       subTotal:
-        product.totalProd != undefined ? product.totalProd : product.total,
+        product.totalProd != undefined
+          ? parseFloat(product.totalProd).toFixed(2)
+          : parseFloat(product.total).toFixed(2),
       numeroSerie: {
         $: {
           "xsi:nil": true,
@@ -68,13 +70,15 @@ function generateInvoiceJson(data) {
                         "xsi:nil": true,
                       },
                     },
-              montoTotal: data.montoFacturar,
-              montoTotalSujetoIva: data.montoFacturar - data.montoGiftCard,
+              montoTotal: parseFloat(data.montoFacturar).toFixed(2),
+              montoTotalSujetoIva: parseFloat(
+                data.montoFacturar - data.montoGiftCard
+              ).toFixed(2),
               codigoMoneda: data.codigoMoneda,
               tipoCambio: data.tipoCambio,
-              montoTotalMoneda: data.montoTotalMoneda,
-              montoGiftCard: data.montoGiftCard,
-              descuentoAdicional: data.descuento,
+              montoTotalMoneda: parseFloat(data.montoTotalMoneda).toFixed(2),
+              montoGiftCard: parseFloat(data.montoGiftCard).toFixed(2),
+              descuentoAdicional: parseFloat(data.descuento).toFixed(2),
               codigoExcepcion: 0,
               cafc: {
                 $: {

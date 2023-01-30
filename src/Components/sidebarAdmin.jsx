@@ -350,6 +350,14 @@ export default function SidebarAdmin() {
                 <Image src={ReturnWare} className="icon inverted"></Image>
                 Traspaso productos
               </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/verTraspaso")}>
+                <Image src={newOrder} className="icon"></Image>Ver Traspasos
+              </MenuItem>
+              <MenuItem
+                onClick={() => redirectOnClick("/reportes/ventas/cierre")}
+              >
+                <Image src={Book} className="icon"></Image>Reporte cierre diario
+              </MenuItem>
               <MenuItem
                 onClick={() => redirectOnClick("/reportes/ventas/general")}
               >

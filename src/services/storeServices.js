@@ -36,4 +36,34 @@ const getBranches = () => {
   });
 };
 
-export { getStores, getBranches, getOnlyStores };
+const getSalePoints = (idAgencia) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/agencias/puntos?idAgencia=${idAgencia}`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
+const getSalePointsAndStores = (idAgencia) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/agencias/puntos/nombres?idAlmacen=${idAgencia}`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
+export {
+  getStores,
+  getBranches,
+  getOnlyStores,
+  getSalePoints,
+  getSalePointsAndStores,
+};

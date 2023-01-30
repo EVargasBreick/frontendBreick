@@ -337,8 +337,10 @@ export default function PaymentModal({
                   <Form>
                     <Form.Control
                       value={cancelado}
-                      type="text"
-                      onChange={(e) => setCancelado(e.target.value)}
+                      type="number"
+                      onChange={(e) =>
+                        setCancelado(parseFloat(e.target.value).toFixed)
+                      }
                     />
                   </Form>
                 </div>

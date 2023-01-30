@@ -185,10 +185,26 @@ function cancelInvoiceUpdate(id) {
   });
 }
 
+function otherPaymentsList() {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pagos/otros`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 export {
   createInvoice,
   deleteInvoice,
   saveInvoice,
   getStoreInvoices,
   cancelInvoiceUpdate,
+  otherPaymentsList,
 };

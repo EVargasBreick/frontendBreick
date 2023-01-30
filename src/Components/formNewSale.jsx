@@ -9,20 +9,25 @@ import { useEffect } from "react";
 import { getProductsWithStock } from "../services/productServices";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import FormRegisterClient from "./formRegisterClient";
+
 import { convertToText } from "../services/numberServices";
 
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
 import { createSale, verifyQuantities } from "../services/saleServices";
-import { getBranches } from "../services/storeServices";
-import { createInvoice, deleteInvoice } from "../services/invoiceServices";
+import { getBranches, getSalePoints } from "../services/storeServices";
+import {
+  createInvoice,
+  deleteInvoice,
+  otherPaymentsList,
+} from "../services/invoiceServices";
 
 import {
   saleDiscount,
   verifyAutomaticDiscount,
 } from "../services/discountServices";
 import { updateStock } from "../services/orderServices";
+import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 
 export default function FormNewSale() {
   const [isClient, setIsClient] = useState(false);
@@ -44,8 +49,6 @@ export default function FormNewSale() {
   const [pedidoFinal, setPedidoFinal] = useState({});
   const [usuarioAct, setUsuarioAct] = useState("");
   const [selectedClient, setSelectedClient] = useState("");
-  const [productObj, setProductObj] = useState([]);
-  const [observaciones, setObservaciones] = useState("");
   const [filtered, setFiltered] = useState("");
   const [willCreate, setWillCreate] = useState(false);
   const [available, setAvailable] = useState([
@@ -62,9 +65,7 @@ export default function FormNewSale() {
   const [userStore, setUserStore] = useState("");
   const [isCreate, setIsCreate] = useState(false);
   const [isInvoice, setIsInvoice] = useState(false);
-  const [datos, setDatos] = useState("");
   const [auxProducts, setAuxProducts] = useState([]);
-  const [especiales, setEspeciales] = useState([]);
   const [sucursal, setSucursal] = useState("");
   const [branchInfo, setBranchInfo] = useState({});
   const [invoice, setInvoice] = useState("");
@@ -73,27 +74,58 @@ export default function FormNewSale() {
   const [idSelectedClient, setIdSelectedClient] = useState("");
   const [userName, setUserName] = useState("");
   const [tipoDoc, setTipoDoc] = useState("");
+  const [isQuantity, setIsQuantity] = useState(false);
+  const [modalQuantity, setModalQuantity] = useState("");
+  const [currentProd, setCurrentProd] = useState({});
+  const [pointList, setPointList] = useState([]);
+  const [pointOfSale, setPointOfsale] = useState("");
+  const [isPoint, setIsPoint] = useState(false);
+  const [otherPayments, setOtherPayments] = useState([]);
+  const [giftCard, setGiftCard] = useState(0);
   const searchRef = useRef(null);
   const productRef = useRef(null);
+  const quantref = useRef(null);
   useEffect(() => {
     searchRef.current.focus();
     const spplited = dateString().split(" ");
     console.log("Fecha y hora", spplited[1].substring(0, 5));
     console.log("Convertidooo", convertToText(2898.5).texto);
-    const preNit = Cookies.get("nit");
-    if (preNit) {
-      setSearch(preNit);
+    const newly = Cookies.get("nit");
+    if (newly) {
+      setSearch(newly);
       Cookies.remove("nit");
     }
     const UsuarioAct = Cookies.get("userAuth");
+
     if (UsuarioAct) {
+      const PuntoDeVenta = Cookies.get("pdv");
       console.log("Usuario actual", UsuarioAct);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setUserName(JSON.parse(UsuarioAct).usuario);
+      const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
+      pl.then((res) => {
+        console.log("Puntos de venta", res.data.data[0]);
+        setPointList(res.data.data[0]);
+      });
+      if (PuntoDeVenta) {
+        setIsPoint(true);
+        setPointOfsale(PuntoDeVenta);
+      } else {
+        setIsPoint(false);
+      }
     }
     if (Cookies.get("userAuth")) {
       setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
+      const otrosPagos = otherPaymentsList();
+      otrosPagos
+        .then((op) => {
+          console.log("Otros pagos", op.data.data[0]);
+          setOtherPayments(op.data.data[0]);
+        })
+        .catch((err) => {
+          console.log("Otros pagos?", err);
+        });
       const disponibles = getProductsWithStock(
         JSON.parse(Cookies.get("userAuth")).idAlmacen,
         "all"
@@ -132,6 +164,12 @@ export default function FormNewSale() {
     }
   }, []);
 
+  useEffect(() => {
+    if (isQuantity) {
+      quantref.current.focus();
+    }
+  }, [isQuantity]);
+
   function searchClient(e) {
     e.preventDefault();
     setIsSelected(false);
@@ -166,6 +204,9 @@ export default function FormNewSale() {
         dt.codInterno.toString().includes(value.toString()) ||
         dt.codigoBarras.toString().includes(value.toString())
     );
+    if (newList.length == 1) {
+      console.log("Solo uno, proceder");
+    }
     setAvailable([...newList]);
   }
 
@@ -200,6 +241,7 @@ export default function FormNewSale() {
       selectedProducts.map((sp) => {
         if (sp.codInterno === produc.codInterno) {
           console.log("Producto repetido");
+          setIsQuantity(false);
           setAlert("El producto ya se encuentra seleccionado");
           setIsAlert(true);
           aux = true;
@@ -223,13 +265,22 @@ export default function FormNewSale() {
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
         };
-
+        setCurrentProd(productObj);
         setSelectedProducts([...selectedProducts, productObj]);
         setAuxSelectedProducts([...auxSelectedProducts, productObj]);
       }
+      setIsQuantity(true);
     } else {
-      const selected = available.find((pr) => pr.codigoBarras === filtered);
-      if (selected) {
+      setModalQuantity("");
+      const selected = available.find(
+        (pr) =>
+          pr.codigoBarras === filtered ||
+          pr.codInterno == filtered ||
+          pr.nombreProducto.toLowerCase().includes(filtered.toLowerCase())
+      );
+      console.log("AAAAA", selected);
+      if (selected != undefined) {
+        console.log("Aca solo se entra si se encuentra producto");
         var aux = false;
         selectedProducts.map((sp) => {
           if (sp.codInterno === selected.codInterno) {
@@ -258,14 +309,30 @@ export default function FormNewSale() {
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
           };
+          setCurrentProd(productObj);
           setSelectedProducts([...selectedProducts, productObj]);
           setAuxSelectedProducts([...auxSelectedProducts, productObj]);
         }
 
         console.log("Selected:", selected);
+        setFiltered("");
+        setIsQuantity(true);
+      } else {
+        setAlert("Producto No Encontrado");
+        setIsAlert(true);
       }
-      setFiltered("");
     }
+  }
+  function changeQuantitiesModal(e) {
+    e.preventDefault();
+    console.log("cantidad capturada en el modal", modalQuantity);
+    const index = selectedProducts.length - 1;
+    const selectedProd = selectedProducts[index];
+    console.log("Index en el arraaaay", selectedProd);
+    changeQuantities(index, modalQuantity, selectedProd, false);
+    setIsQuantity(false);
+    setModalQuantity("");
+    searchRef.current.focus();
   }
 
   const handleClose = () => {
@@ -299,7 +366,8 @@ export default function FormNewSale() {
     const total = parseFloat(prod.precioDeFabrica) * parseFloat(isThree);
     let auxObj = {
       codInterno: prod.codInterno,
-      cantProducto: isThree,
+      cantProducto:
+        prod.unidadDeMedida == "Unidad" ? parseInt(isThree) : isThree,
       codigoSin: prod.codigoSin,
       actividadEconomica: prod.actividadEconomica,
       codigoUnidad: prod.codigoUnidad,
@@ -418,7 +486,10 @@ export default function FormNewSale() {
     autorizacion,
     fechaEmision,
     nro,
-    idTransaccion
+    idTransaccion,
+    ofp,
+    giftCard,
+    aPagar
   ) {
     return new Promise((resolve, reject) => {
       setAlertSec("Guardando Venta");
@@ -442,6 +513,10 @@ export default function FormNewSale() {
         cufd: cufd,
         fechaEmision: fechaEmision,
         nroTransaccion: idTransaccion,
+        idOtroPago: ofp,
+        vale: giftCard,
+        aPagar: aPagar,
+        puntoDeVenta: pointOfSale,
       };
       setInvoice(invoiceBody);
       const newInvoice = createInvoice(invoiceBody);
@@ -494,9 +569,62 @@ export default function FormNewSale() {
         setIsAlert(true);
       });
   }
+  function createNewClient(e) {
+    e.preventDefault();
+    setIsCreate(true);
+  }
+  function handleSalePoint(id) {
+    console.log("Id punto de venta", id);
+    setPointOfsale(id);
+    Cookies.set("pdv", id, { expires: 0.5 });
+    setIsPoint(true);
+  }
   return (
     <div>
       <div className="formLabel">VENTAS AGENCIA</div>
+      <Modal show={!isPoint}>
+        <Modal.Header className="modalHeader">Seleccion de Caja</Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Select
+              onChange={(e) => {
+                handleSalePoint(e.target.value);
+              }}
+            >
+              <option>Seleccione una caja</option>
+              {pointList.map((pl, index) => {
+                return (
+                  <option value={pl.nroPuntoDeVenta} key={index}>{`Caja ${
+                    pl.nroPuntoDeVenta + 1
+                  }`}</option>
+                );
+              })}
+            </Form.Select>
+          </Form>
+        </Modal.Body>
+      </Modal>
+      <Modal show={isQuantity}>
+        <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
+        <Modal.Body>
+          <div className="productModal">{currentProd.nombreProducto}</div>
+          <Form>
+            <Form.Control
+              type="number"
+              onChange={(e) => setModalQuantity(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === "Enter" ? changeQuantitiesModal(e) : null
+              }
+              ref={quantref}
+              value={modalQuantity}
+            />
+          </Form>
+        </Modal.Body>
+        <Modal.Footer className="modalFooter">
+          <Button variant="success" onClick={(e) => changeQuantitiesModal(e)}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      </Modal>
       {isInvoice ? (
         <div>
           <SaleModal
@@ -548,10 +676,20 @@ export default function FormNewSale() {
             fechaHora={fechaHora}
             tipoDocumento={tipoDoc}
             userName={userName}
+            pointOfSale={pointOfSale}
+            otherPayments={otherPayments}
+            giftCard={giftCard}
+            setGiftCard={setGiftCard}
           />
         </div>
       ) : null}
-      <Modal show={isAlert} onHide={handleClose}>
+      <Modal
+        show={isAlert}
+        onHide={handleClose}
+        onKeyDown={(e) =>
+          e.key === "Enter" && willCreate ? createNewClient(e) : null
+        }
+      >
         <Modal.Header closeButton>
           <Modal.Title>Mensaje del Sistema</Modal.Title>
         </Modal.Header>
@@ -576,12 +714,16 @@ export default function FormNewSale() {
           <Image src={loading2} style={{ width: "5%" }} />
         </Modal.Body>
       </Modal>
-      <Modal show={isCreate} size="xl">
+      <Modal show={isCreate} size="lg">
         <Modal.Header>
           <Modal.Title>Clientes</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <FormRegisterClient isModal={true} />
+        <Modal.Body className="formModalAlt">
+          <FormSimpleRegisterClient
+            isModal={true}
+            idUsuario={usuarioAct}
+            nit={search}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="danger" onClick={handleClose}>
@@ -598,7 +740,7 @@ export default function FormNewSale() {
           aria-label="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onKeyPress={(e) => (e.key === "Enter" ? searchClient(e) : null)}
+          onKeyDown={(e) => (e.key === "Enter" ? searchClient(e) : null)}
         />
         <Button
           variant="warning"
@@ -736,7 +878,11 @@ export default function FormNewSale() {
                         <td className="tableColumnSmall">
                           {sp.total.toFixed(2)}
                         </td>
-                        <td className="tableColumnSmall">{sp.cant_Actual}</td>
+                        <td className="tableColumnSmall">
+                          {sp.unidadDeMedida == "Unidad"
+                            ? parseFloat(sp.cant_Actual).toFixed(0)
+                            : parseFloat(sp.cant_Actual).toFixed(3)}
+                        </td>
                       </tr>
                     );
                   })}

@@ -33,6 +33,8 @@ import CancelInvoice from "./Components/cancelInvoice";
 import UpdateStock from "./Components/updateStock";
 import NewPack from "./Components/newPack";
 import AsignPack from "./Components/asignPack";
+import EndOfDayReport from "./Components/endOfDayReport";
+
 function App() {
   return (
     <div className="App">
@@ -261,6 +263,14 @@ function App() {
               element={
                 <RequireAuth>
                   <AsignPack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/cierre"
+              element={
+                <RequireAuth>
+                  <EndOfDayReport />
                 </RequireAuth>
               }
             />
