@@ -9,6 +9,8 @@ import {
 } from "../services/productServices";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
+import { initializeStock } from "../services/stockServices";
+import { dateString } from "../services/dateServices";
 export default function FormNewProduct() {
   //Listas cargadas en render
   const [codeList, setCodeList] = useState([]);
@@ -88,12 +90,18 @@ export default function FormNewProduct() {
         const added = newProduct(objProd);
         added
           .then((res) => {
-            console.log("Producto agregado correctamente", res);
-            setAlertSec("Producto agregado correctamente");
-            setIsAlertSec(true);
-            setTimeout(() => {
-              window.location.reload(false);
-            }, 2000);
+            const inicializado = initializeStock({
+              idProducto: res.data.id,
+              fechaHora: dateString(),
+            });
+            inicializado.then((response) => {
+              console.log("Producto agregado correctamente", res, response);
+              setAlertSec("Producto agregado correctamente");
+              setIsAlertSec(true);
+              setTimeout(() => {
+                window.location.reload(false);
+              }, 2000);
+            });
           })
           .catch((err) => console.log("Error al crear producto", err));
       })
@@ -116,11 +124,19 @@ export default function FormNewProduct() {
         resolve(true);
       } else {
         if (foundInt.length > 0 && foundBar.length > 0) {
-          reject("ambos");
+          if (codigoBarras.length < 2) {
+            resolve(true);
+          } else {
+            reject("ambos");
+          }
         } else if (foundInt.length > 0) {
           reject("codInterno");
         } else {
-          reject("codigoBarras");
+          if (codigoBarras.length < 2) {
+            resolve(true);
+          } else {
+            reject("codigoBarras");
+          }
         }
       }
     });

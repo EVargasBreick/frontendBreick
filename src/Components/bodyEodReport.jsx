@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Button, Table } from "react-bootstrap";
 import { getBranches, getSalePointsAndStores } from "../services/storeServices";
 import Cookies from "js-cookie";
@@ -6,14 +6,44 @@ import { dateString } from "../services/dateServices";
 import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
-import { getEndOfDayReport } from "../services/reportServices";
+import {
+  firstAndLastReport,
+  getEndOfDayReport,
+} from "../services/reportServices";
+import ReactToPrint from "react-to-print";
+import { EndOfDayComponent } from "./endOfDayComponent";
 export default function BodyEodReport() {
   const [idSucursal, setIdSucursal] = useState("");
   const [puntoDeVenta, setPuntoDeVenta] = useState();
   const [storeData, setStoreData] = useState({});
+  const [isReporte, setIsReporte] = useState(false);
+  const [isNota, setIsNota] = useState(false);
+  //totales
+  const [efectivo, setEfectivo] = useState(0);
+  const [tarjeta, setTarjeta] = useState(0);
+  const [cheque, setCheque] = useState(0);
+  const [vale, setVale] = useState(0);
+  const [posterior, setPosterior] = useState(0);
+  const [transfer, setTransfer] = useState(0);
+  const [deposito, setDeposito] = useState(0);
+  const [swift, setSwift] = useState(0);
+  const [qr, setQr] = useState(0);
+  const [qhantuy, setQhantuy] = useState(0);
+  const [cln, setCln] = useState(0);
+  const [firstInv, setFirstInv] = useState("");
+  const [lastInv, setLastInv] = useState("");
+  const [numberInv, setNumberInv] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [hora, setHora] = useState("");
+  const [userName, setUserName] = useState("");
+  const componentRef = useRef();
   useEffect(() => {
+    setFecha(dateString().split(" ").shift());
+    setHora(dateString().split(" ").pop());
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
+      console.log("Usuario actual", JSON.parse(UsuarioAct));
+      setUserName(JSON.parse(UsuarioAct).usuario);
       const PuntoDeVenta = Cookies.get("pdv");
       const suc = getBranches();
       suc.then((resp) => {
@@ -44,6 +74,7 @@ export default function BodyEodReport() {
       idSucursal: idSucursal,
       idPuntoDeVenta: puntoDeVenta,
     });
+
     report.then((rp) => {
       const data = rp.data.data[0];
       console.log("Data", data);
@@ -57,16 +88,46 @@ export default function BodyEodReport() {
       const swift = data.find((dt) => dt.tipoPago == 9);
       const mixto = data.find((dt) => dt.tipoPago == 10);
       const otros = data.filter((dt) => dt.tipoPago == 5);
+      const gf = pagadoVale ? pagadoVale.totalVale : 0;
+      setVale(gf);
+      if (otros.length > 0) {
+        const qrTot = otros.find((ot) => (ot.idOtroPago = 1));
+        const qhantuyTot = otros.find((ot) => (ot.idOtroPago = 2));
+        const clnTot = otros.find((ot) => (ot.idOtroPago = 3));
+        qrTot ? setQr(qrTot.totalPagado) : setQr(0);
+        qhantuyTot ? setQhantuy(qhantuyTot.totalPagado) : setQhantuy(0);
+        clnTot ? setCln(clnTot.totalPagado) : setCln(0);
+      }
       const totalTarjeta =
         (tarjeta ? tarjeta.totalPagado : 0) + (mixto ? mixto.totalCambio : 0);
+      setTarjeta(totalTarjeta);
       const totalEfectivo =
         (efectivo ? efectivo.totalPagado : 0) -
         (efectivo ? efectivo.totalCambio : 0) +
         (mixto ? mixto.totalCambio : 0) +
         ((pagadoVale ? pagadoVale.totalPagado : 0) -
           (pagadoVale ? pagadoVale.totalCambio : 0));
+      setEfectivo(totalEfectivo);
+      cheque ? setCheque(cheque.totalPagado) : setCheque(0);
+      posterior ? setPosterior(posterior.totalPagado) : setPosterior(0);
+      transfer ? setTransfer(transfer.totalPagado) : setTransfer(0);
+      deposito ? setDeposito(deposito.totalPagado) : setDeposito(0);
+      swift ? setSwift(swift.totalPagado) : setSwift(0);
       console.log("Otros", otros);
       console.log("Total efectivo", totalEfectivo);
+      const details = firstAndLastReport({
+        idSucursal: idSucursal,
+        idPuntoDeVenta: puntoDeVenta,
+      });
+      details.then((dt) => {
+        const det = dt.data.data[0][0];
+        console.log("Detallesss", det);
+        setNumberInv(det.CantidadFacturas);
+        setFirstInv(det.PrimeraFactura);
+        setLastInv(det.UltimaFactura);
+        setIsReporte(true);
+        setIsNota(true);
+      });
     });
   }
   return (
@@ -88,7 +149,7 @@ export default function BodyEodReport() {
               <tr className="tableRow">
                 <td>{storeData?.nombre}</td>
                 <td>{storeData?.nroPuntoDeVenta + 1}</td>
-                <td>{dateString().split(" ").shift()}</td>
+                <td>{fecha}</td>
               </tr>
             </tbody>
             <tfoot className="tableHeader">
@@ -101,24 +162,140 @@ export default function BodyEodReport() {
           "Cargando"
         )}
       </div>
-      <div>
-        <Table>
-          <thead>
-            <tr>
-              <th></th>
-            </tr>
-          </thead>
-        </Table>
-      </div>
-      <div className="formLabel">
-        <Button
-          variant="warning"
-          className="yellowLarge"
-          onClick={() => generateReport()}
-        >
-          Generar reporte
-        </Button>
-      </div>
+      {isReporte ? (
+        <div className="thinTableContainer">
+          <Table className="thinTable">
+            <thead>
+              <tr className="tableHeaderCenter">
+                <th colSpan={3}>Detalles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="tableHeaderCenter">
+                <th>{`Primera Factura: ${firstInv}`}</th>
+                <th>{`Ultima factura: ${lastInv}`}</th>
+                <th>{`Cant Facturas: ${numberInv}`}</th>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Efectivo
+                </th>
+                <td>{efectivo.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Tarjeta
+                </th>
+                <td>{tarjeta.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Qr
+                </th>
+                <td>{qr.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Transferencia
+                </th>
+                <td>{transfer.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Qhantuy
+                </th>
+                <td>{qhantuy.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Consume lo Nuestro
+                </th>
+                <td>{cln.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Vales
+                </th>
+                <td>{vale.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Pago Posterior
+                </th>
+                <td>{posterior.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Cheque
+                </th>
+                <td>{cheque.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Deposito
+                </th>
+                <td>{deposito.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Transf. Swift
+                </th>
+                <td>{swift.toFixed(2)} Bs</td>
+              </tr>
+            </tbody>
+          </Table>
+
+          {isNota ? (
+            <div className="wrappedButton">
+              <ReactToPrint
+                trigger={() => <Button variant="success">Imprimir Nota</Button>}
+                content={() => componentRef.current}
+              />
+              <Button hidden>
+                <EndOfDayComponent
+                  ref={componentRef}
+                  branchInfo={{
+                    nombre: storeData.nombre,
+                    puntoDeVenta: storeData.nroPuntoDeVenta + 1,
+                  }}
+                  data={{
+                    primeraFactura: firstInv,
+                    ultimaFactura: lastInv,
+                    cantFacturas: numberInv,
+                    fecha: fecha,
+                    hora: hora,
+                  }}
+                  totales={{
+                    efectivo: efectivo.toFixed(2),
+                    tarjeta: tarjeta.toFixed(2),
+                    qr: qr.toFixed(2),
+                    transferencia: transfer.toFixed(2),
+                    qhantuy: qhantuy.toFixed(2),
+                    cln: cln.toFixed(2),
+                    vales: vale.toFixed(2),
+                    posterior: posterior.toFixed(2),
+                    deposito: deposito.toFixed(2),
+                    swift: swift.toFixed(2),
+                    cheque: cheque.toFixed(2),
+                  }}
+                  usuario={userName}
+                />
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {storeData.nombre ? (
+        <div className="formLabel">
+          <Button
+            variant="warning"
+            className="yellowLarge"
+            onClick={() => generateReport()}
+          >
+            Generar reporte
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

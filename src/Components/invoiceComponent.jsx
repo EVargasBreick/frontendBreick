@@ -35,7 +35,7 @@ export const InvoiceComponent = React.forwardRef(
         <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>
         <div className="simpleSeparator"></div>
-        <div>{`ELABORACIÓN DE OTROS PRODUCTOS ALIMENTICIOS (TOSTADO, TORRADO, MOLIENDA DE CAFÉ, ELAB. DE TÉ, MATES, MIEL ARTIFICIAL, CHOCOLATES, ETC.)`}</div>
+        <div>{`Elaboración de otros productos alimenticios (Tostado, torrado, molienda de cafe, elab. De Té, mates, miel artificial, chocolates. etc.)`}</div>
         <div className="textWithLine"></div>
         <div className="simpleSeparator"></div>
         <div className="leftText">{`Fecha:  ${date}   Hora:  ${time}`}</div>
@@ -147,7 +147,7 @@ export const InvoiceComponent = React.forwardRef(
             )}
           />
         </div>
-        <div>{`"ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAIS. EL USO ILICITO DE ESTA SERA SANCIONADO DE ACUERDO A LA LEY"`}</div>
+        <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
         <div className="simpleSeparator"></div>
         <div>
           {" "}

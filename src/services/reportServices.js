@@ -50,4 +50,27 @@ const getEndOfDayReport = (params) => {
       });
   });
 };
-export { getGeneralSalesReport, getProductSalesReport, getEndOfDayReport };
+
+const firstAndLastReport = (params) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre/detalles/facturas?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}`
+      )
+      .then((response) => {
+        console.log("Respuesta", response.status);
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+export {
+  getGeneralSalesReport,
+  getProductSalesReport,
+  getEndOfDayReport,
+  firstAndLastReport,
+};

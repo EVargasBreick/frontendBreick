@@ -287,7 +287,7 @@ export default function SidebarAdmin() {
               <MenuItem onClick={() => redirectOnClick("/packs/asignar")}>
                 {" "}
                 <Image src={Star} className="icon inverted"></Image>
-                Asignar Packs
+                Asignar/Retirar Packs
               </MenuItem>
               <MenuItem>
                 {" "}

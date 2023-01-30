@@ -4,8 +4,10 @@ import Form from "react-bootstrap/Form";
 import "../styles/tableStyles.css";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
-import { getProducts } from "../services/productServices";
-import { registerPack } from "../services/packServices";
+import { getProducts, newProduct } from "../services/productServices";
+import { addPackid, registerPack } from "../services/packServices";
+import { initializeStock } from "../services/stockServices";
+import { dateString } from "../services/dateServices";
 export default function FormNewPack() {
   // Listas cargadas en render
   const [prodList, setProdList] = useState([]);
@@ -76,14 +78,59 @@ export default function FormNewPack() {
     const packSaved = registerPack(objSave);
     packSaved
       .then((ps) => {
-        setIsAlertSec(false);
-        setAlert("Pack Guardado Correctamente");
-        setIsAlert(true);
-        console.log("Pack guardado", ps);
+        console.log("Pack del id", ps);
+        saveProduct(ps);
       })
       .catch((err) => {
         console.log("Error al guardar", err);
       });
+  }
+  function saveProduct(data) {
+    const packId = data.data.id;
+    console.log("Se va a guardar el producto");
+    const objProd = {
+      codInterno: 0,
+      nombreProducto: nombrePack,
+      descProducto: nombrePack,
+      gramajeProducto: 0,
+      precioDeFabrica: totalPack,
+      codigoBarras: "-",
+      cantCajon: 0,
+      unidadDeMedida: "unidad",
+      tiempoDeVida: 1,
+      activo: 1,
+      precioPDV: 0,
+      cantDisplay: 0,
+      aplicaDescuento: "No",
+      tipoProducto: 1,
+      precioDescuentoFijo: totalPack,
+      actividadEconomica: 107900,
+      codigoSin: 99100,
+      codigoUnidad: 57,
+      origenProducto: 1,
+    };
+    const added = newProduct(objProd);
+    added
+      .then((res) => {
+        const addedId = addPackid({
+          idProducto: res.data.id,
+          idPack: packId,
+        });
+        addedId.then((ai) => {
+          const inicializado = initializeStock({
+            idProducto: res.data.id,
+            fechaHora: dateString(),
+          });
+          inicializado.then((response) => {
+            setAlertSec("Pack Guardado Correctamente");
+            setIsAlertSec(true);
+            setTimeout(() => {
+              window.location.reload(false);
+            }, 2000);
+          });
+        });
+      })
+      .catch((err) => console.log("Error al crear producto", err));
   }
   return (
     <div>

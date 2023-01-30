@@ -77,10 +77,27 @@ const updateFullStock = (body) => {
   });
 };
 
+const initializeStock = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/inicializar`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   getLogStockProduct,
   getLogStockStore,
   getCurrentStockProduct,
   getCurrentStockStore,
   updateFullStock,
+  initializeStock,
 };

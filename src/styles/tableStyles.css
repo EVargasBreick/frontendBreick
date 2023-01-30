@@ -18,6 +18,15 @@
   border-width: 2px;
   text-align: start;
 }
+.tableHeaderCenter {
+  position: sticky;
+  top: 0;
+  background-color: #5cb8b2;
+  color: white;
+  border-color: #6a4593;
+  border-width: 2px;
+  text-align: center;
+}
 
 .tableFoot {
   position: sticky;
@@ -157,4 +166,20 @@
 
 .largeTableCol {
   width: 40%;
+}
+
+.headerCol {
+  background-color: white;
+  text-align: center;
+  width: 68%;
+}
+.thinTable {
+  width: 40%;
+}
+.thinTableContainer {
+  justify-content: center;
+  align-items: center;
+}
+.wrappedButton {
+  margin: 2rem;
 }

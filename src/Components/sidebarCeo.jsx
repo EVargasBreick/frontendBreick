@@ -293,6 +293,16 @@ export default function SidebarCeo() {
                 <Image src={ReturnWare} className="icon inverted"></Image>
                 Traspaso productos
               </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/packs/registrar")}>
+                {" "}
+                <Image src={Star} className="icon inverted"></Image>
+                Registrar Pack
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/packs/asignar")}>
+                {" "}
+                <Image src={Star} className="icon inverted"></Image>
+                Asignar/Retirar Packs
+              </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
                 <Image src={Invoice} className="icon"></Image>Facturar Pedidos
               </MenuItem>

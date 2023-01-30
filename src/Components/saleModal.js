@@ -118,6 +118,7 @@ export default function SaleModal({
         setCardNumbersA("");
         setCardNumbersB("");
         setOfp(0);
+        setCancelado("");
         break;
       case "2":
         setStringPago("Tarjeta");
@@ -336,14 +337,14 @@ export default function SaleModal({
                         clearInterval(intervalId);
                       } else {
                         intento += 1;
-                        setAlertSec("Error al cargar los datos, reintentando");
+                        setAlertSec("Generando Codigo Único de Facturación");
                         console.log("Testeando cuf", invocieResponse.CUF);
                       }
                     })
                     .catch((error) => {
                       console.log("Esto paso", error);
                     });
-                }, 3000);
+                }, 7000);
               });
             })
             .catch((err) => console.log("Esto paso", err));
