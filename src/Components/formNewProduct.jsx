@@ -230,8 +230,8 @@ export default function FormNewProduct() {
             <Form.Label>Unidad de medida</Form.Label>
             <Form.Select onChange={(e) => setUnidadMedida(e.target.value)}>
               <option>Seleccione unidad de medida</option>
-              <option value="unidad">Unidad</option>
-              <option value="kg">Por Kg (granel)</option>
+              <option value="Unidad">Unidad</option>
+              <option value="Kg">Por Kg (granel)</option>
             </Form.Select>
           </Form.Group>
 

@@ -96,7 +96,7 @@ export default function FormNewPack() {
       precioDeFabrica: totalPack,
       codigoBarras: "-",
       cantCajon: 0,
-      unidadDeMedida: "unidad",
+      unidadDeMedida: "Unidad",
       tiempoDeVida: 1,
       activo: 1,
       precioPDV: 0,

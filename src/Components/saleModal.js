@@ -344,7 +344,7 @@ export default function SaleModal({
                     .catch((error) => {
                       console.log("Esto paso", error);
                     });
-                }, 7000);
+                }, 5000);
               });
             })
             .catch((err) => console.log("Esto paso", err));
