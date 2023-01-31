@@ -2,6 +2,7 @@
   "name": "prototipo",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/ventas",
   "dependencies": {
     "@david.kucsai/react-pdf-table": "^0.4.1",
     "@react-pdf/renderer": "^3.0.0",
@@ -20,10 +21,6 @@
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-csv": "^2.2.2",
-    "react-custom-checkbox": "^2.0.2",
-    "react-custom-radio": "^1.0.7",
-    "react-custom-radio-buttons-group": "^1.0.5",
-    "react-digital-clock": "^0.1.2",
     "react-dom": "^18.2.0",
     "react-export-excel": "^0.5.3",
     "react-icons": "^4.4.0",
