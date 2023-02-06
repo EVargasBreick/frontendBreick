@@ -84,6 +84,7 @@ export default function FormNewSale() {
   const [giftCard, setGiftCard] = useState(0);
   const searchRef = useRef(null);
   const productRef = useRef(null);
+
   const quantref = useRef(null);
   useEffect(() => {
     searchRef.current.focus();

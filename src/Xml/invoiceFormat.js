@@ -4,8 +4,8 @@ function generateInvoiceJson(data) {
   const detalleArray = [];
   data.products.map((product) => {
     const prodObj = {
-      actividadEconomica: product.actividadEconomica,
-      codigoProductoSin: product.codigoSin,
+      actividadEconomica: 107900,
+      codigoProductoSin: 99100,
       codigoProducto: product.codInterno,
       descripcion: product.nombreProducto,
       cantidad: parseFloat(product.cantProducto).toFixed(2),

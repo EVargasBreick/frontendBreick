@@ -86,7 +86,6 @@ const updateForMissing = (selectedProds, faltantes) => {
     console.log("Producto que llego hasta aca", prod);
     const foundProd = faltantes.find((ft) => ft.idProducto == prod.idProducto);
     let auxObj;
-
     var isZero = false;
     if (foundProd != undefined) {
       const cantDisp =
@@ -153,6 +152,91 @@ const updateForMissing = (selectedProds, faltantes) => {
     hall: halloween,
     sd: sinDesc,
     esp: especiales,
+  });
+};
+
+const updateForMissingSample = (selectedProds, faltantes) => {
+  var modifiedProds = [];
+  selectedProds.map((prod) => {
+    console.log("Producto que llego hasta aca", prod);
+    const foundProd = faltantes.find((ft) => ft.idProducto == prod.idProducto);
+    let auxObj;
+    var isZero = false;
+    if (foundProd != undefined) {
+      const cantDisp =
+        foundProd.cantProducto - foundProd.faltante + prod.cantPrevia;
+      if (cantDisp < 1) {
+        isZero = true;
+      }
+      auxObj = {
+        cant_Actual: prod.cant_Actual,
+        cantPrevia: prod.cantPrevia,
+        cantProducto: cantDisp,
+        codInterno: prod.codInterno,
+        codigoBarras: prod.codigoBarras,
+        idProducto: prod.idProducto,
+        idPedidoProducto: prod.idPedidoProducto,
+        nombreProducto: prod.nombreProducto,
+        precioDeFabrica: prod.precioDeFabrica,
+        precioDescuentoFijo: 0,
+        totalProd: 0,
+        totalDescFijo: 0,
+        tipoProducto: prod.tipoProducto,
+        descuentoProd: 0,
+        unidadDeMedida: prod.unidadDeMedida,
+      };
+    } else {
+      auxObj = {
+        cant_Actual: prod.cant_Actual,
+        cantPrevia: prod.cantPrevia,
+        cantProducto: prod.cantProducto,
+        codInterno: prod.codInterno,
+        codigoBarras: prod.codigoBarras,
+        idProducto: prod.idProducto,
+        idPedidoProducto: prod.idPedidoProducto,
+        nombreProducto: prod.nombreProducto,
+        precioDeFabrica: prod.precioDeFabrica,
+        precioDescuentoFijo: prod.precioDescuentoFijo,
+        totalProd: 0,
+        totalDescFijo: 0,
+        tipoProducto: prod.tipoProducto,
+        descuentoProd: 0,
+        unidadDeMedida: prod.unidadDeMedida,
+      };
+    }
+    if (!isZero) {
+      modifiedProds.push(auxObj);
+    }
+  });
+  return Promise.resolve({
+    modificados: modifiedProds,
+  });
+};
+
+const setTotalProductsToZero = (selectedProds) => {
+  const modifiedArray = [];
+  selectedProds.map((prod) => {
+    const auxObj = {
+      cant_Actual: prod.cant_Actual,
+      cantPrevia: prod.cantPrevia,
+      cantProducto: prod.cantProducto,
+      codInterno: prod.codInterno,
+      codigoBarras: prod.codigoBarras,
+      idProducto: prod.idProducto,
+      idPedidoProducto: prod.idPedidoProducto,
+      nombreProducto: prod.nombreProducto,
+      precioDeFabrica: prod.precioDeFabrica,
+      precioDescuentoFijo: 0,
+      totalProd: 0,
+      totalDescFijo: 0,
+      tipoProducto: prod.tipoProducto,
+      descuentoProd: 0,
+      unidadDeMedida: prod.unidadDeMedida,
+    };
+    modifiedArray.push(auxObj);
+  });
+  return Promise.resolve({
+    modificados: modifiedArray,
   });
 };
 
@@ -243,4 +327,6 @@ export {
   getCodes,
   productTypes,
   productOrigin,
+  updateForMissingSample,
+  setTotalProductsToZero,
 };

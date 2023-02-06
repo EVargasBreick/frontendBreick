@@ -59,7 +59,7 @@ export default function SidebarAdmin() {
   const [toggledPar, setToggledPar] = useState(false);
   const [toggledRut, setToggledRut] = useState(false);
   const [toggledMan, setToggledMan] = useState(false);
-
+  const [toggleLog, setToggleLog] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
@@ -107,6 +107,7 @@ export default function SidebarAdmin() {
       setToggledMan(false);
       setToggledAlm(!toggledAlm);
       setToggledProd(false);
+      setToggleLog(false);
       setToggledVent(false);
       setToggledAg(false);
       setToggledQr(false);
@@ -117,6 +118,7 @@ export default function SidebarAdmin() {
     if (selected === 3) {
       setToggledMan(false);
       setToggledAlm(false);
+      setToggleLog(false);
       setToggledProd(false);
       setToggledVent(!toggledVent);
       setToggledAg(false);
@@ -129,6 +131,7 @@ export default function SidebarAdmin() {
       setToggledMan(false);
       setToggledAlm(false);
       setToggledProd(false);
+      setToggleLog(false);
       setToggledVent(false);
       setToggledAg(!toggledAg);
       setToggledQr(false);
@@ -140,6 +143,7 @@ export default function SidebarAdmin() {
       setToggledMan(false);
       setToggledAlm(false);
       setToggledProd(false);
+      setToggleLog(false);
       setToggledVent(false);
       setToggledAg(false);
       setToggledQr(false);
@@ -150,6 +154,7 @@ export default function SidebarAdmin() {
     if (selected === 6) {
       setToggledMan(false);
       setToggledAlm(false);
+      setToggleLog(false);
       setToggledProd(false);
       setToggledVent(false);
       setToggledAg(false);
@@ -164,6 +169,7 @@ export default function SidebarAdmin() {
       setToggledProd(false);
       setToggledVent(false);
       setToggledAg(false);
+      setToggleLog(false);
       setToggledQr(false);
       setToggledRep(false);
       setToggledPar(!toggledPar);
@@ -174,11 +180,25 @@ export default function SidebarAdmin() {
       setToggledAlm(false);
       setToggledProd(false);
       setToggledVent(false);
+      setToggleLog(false);
       setToggledAg(false);
       setToggledQr(false);
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(!toggledRut);
+    }
+    if (selected === 10) {
+      setToggledMan(false);
+      setToggledAlm(false);
+      setToggledProd(false);
+      setToggleLog(false);
+      setToggledVent(false);
+      setToggledAg(false);
+      setToggledQr(false);
+      setToggledRep(false);
+      setToggledPar(false);
+      setToggledRut(false);
+      setToggleLog(!toggleLog);
     }
   }
   return (
@@ -211,30 +231,23 @@ export default function SidebarAdmin() {
                 <Image src={File1} className="icon"></Image>
                 Crear Producto
               </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/editarProducto")}>
-                <Image src={File1} className="icon"></Image>
-                Editar Producto
-              </MenuItem>
+
               <MenuItem onClick={() => redirectOnClick("/cargarProductos")}>
                 {" "}
                 <Image src={NewFile} className="icon"></Image>
-                Agregar productos
+                Cargar Prod a Almacen
               </MenuItem>
             </SubMenu>
             <SubMenu
               onClick={() => {
-                toggleSub(2);
+                toggleSub(10);
               }}
-              open={toggledAlm}
-              title="Modulo Almacenes"
+              open={toggleLog}
+              title="Modulo Logistica"
               icon={<Image src={Barcode} className="compIcon"></Image>}
             >
               <MenuItem onClick={() => redirectOnClick("/adminPedidos")}>
                 <Image src={Check} className="icon"></Image>Aprobar Pedido
-              </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/modPedidos")}>
-                <Image src={leftArrow} className="icon"></Image>
-                Modificar/Cancelar Pedido
               </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/traspaso")}>
                 {" "}
@@ -249,6 +262,26 @@ export default function SidebarAdmin() {
               </MenuItem>
             </SubMenu>
             <SubMenu
+              onClick={() => {
+                toggleSub(2);
+              }}
+              open={toggledAlm}
+              title="Modulo Almacenes"
+              icon={<Image src={Load} className="compIcon"></Image>}
+            >
+              <MenuItem
+                onClick={() =>
+                  redirectOnClick("/almacenes/recepcionar-pedidos")
+                }
+              >
+                <Image src={leftArrow} className="icon"></Image>Pedidos
+                Entrantes
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/alistarPedidos")}>
+                <Image src={appBooking} className="icon"></Image>Alistar Pedidos
+              </MenuItem>
+            </SubMenu>
+            <SubMenu
               title="Modulo Ventas"
               onClick={() => {
                 toggleSub(3);
@@ -256,6 +289,7 @@ export default function SidebarAdmin() {
               open={toggledVent}
               icon={<Image src={Flag} className="compIcon"></Image>}
             >
+              <div>Clientes</div>
               <MenuItem onClick={() => redirectOnClick("/regCliente")}>
                 <Image src={Client} className="icon"></Image>Gestion de Clientes
               </MenuItem>
@@ -263,6 +297,7 @@ export default function SidebarAdmin() {
                 <Image src={newClient} className="icon"></Image>Modificacion de
                 Clientes
               </MenuItem>
+              <div>Pedidos</div>
               <MenuItem onClick={() => redirectOnClick("/regPedido")}>
                 <Image src={newOrder} className="icon"></Image>Registro de
                 Pedido
@@ -274,6 +309,12 @@ export default function SidebarAdmin() {
               <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
                 <Image src={Invoice} className="icon"></Image>Facturar Pedidos
               </MenuItem>
+              <MenuItem>
+                {" "}
+                <Image src={cancelInvoice} className="icon"></Image>Anular
+                Facturas
+              </MenuItem>
+              <div>Productos</div>
               <MenuItem onClick={() => redirectOnClick("/traspaso")}>
                 {" "}
                 <Image src={ReturnWare} className="icon inverted"></Image>
@@ -289,11 +330,7 @@ export default function SidebarAdmin() {
                 <Image src={Star} className="icon inverted"></Image>
                 Asignar/Retirar Packs
               </MenuItem>
-              <MenuItem>
-                {" "}
-                <Image src={cancelInvoice} className="icon"></Image>Anular
-                Facturas
-              </MenuItem>
+              <div>En Desarrollo ...</div>
               <MenuItem>
                 <Image src={cancelSample} className="icon"></Image> Anular
                 Muestras
@@ -493,38 +530,16 @@ export default function SidebarAdmin() {
               open={toggledPar}
               icon={<Image src={Gears} className="compIcon"></Image>}
             >
-              <MenuItem>
-                <Image src={LoginIcon} className="icon"></Image>Configuracion de
-                accesos
-              </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/nuevoUsuario")}>
                 <Image src={LoginIcon} className="icon"></Image> Registro
                 usuarios del sistema
               </MenuItem>
-              <MenuItem>
-                <Image src={Screen} className="icon"></Image>Registro estacion
-                de trabajo
-              </MenuItem>
+
               <MenuItem onClick={() => redirectOnClick("/editarUsuario")}>
                 <Image src={Gears} className="icon"></Image>Modificar usuarios
                 del sistema
               </MenuItem>
-              <MenuItem>
-                <Image src={Gears} className="icon"></Image>Asignar precios a
-                vendedores
-              </MenuItem>
-              <MenuItem>
-                <Image src={Gears} className="icon"></Image>Parametros del
-                sistema
-              </MenuItem>
-              <MenuItem>
-                <Image src={Gears} className="icon"></Image>Registro
-                dosificacion
-              </MenuItem>
-              <MenuItem>
-                <Image src={Gears} className="icon"></Image>Registro
-                dosificacion en Agencia
-              </MenuItem>
+
               <MenuItem>
                 <Image src={Truck} className="icon"></Image>Registro Vehiculo
               </MenuItem>
@@ -549,6 +564,11 @@ export default function SidebarAdmin() {
               <MenuItem>
                 <Image src={Invoice} className="icon"></Image>Emision de
                 Facturas
+              </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/traspasoMovil")}>
+                {" "}
+                <Image src={ReturnWare} className="icon inverted"></Image>
+                Traspaso a ag. Movil
               </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/regCliente")}>
                 <Image src={Client} className="icon"></Image>Gestion de clientes

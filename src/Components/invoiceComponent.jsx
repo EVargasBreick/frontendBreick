@@ -118,7 +118,11 @@ export const InvoiceComponent = React.forwardRef(
                 ).toFixed(2)}`}</td>
               </tr>
               <tr>
-                <td className="totals">Cambio</td>
+                <td className="totals">
+                  {paymentData?.cambio == "Efectivo-tarjeta"
+                    ? `Tarjeta `
+                    : `Cambio `}
+                </td>
                 <td className="totalsData">{`${parseFloat(
                   paymentData?.cambio
                 ).toFixed(2)}`}</td>

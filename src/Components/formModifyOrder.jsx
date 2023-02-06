@@ -116,7 +116,8 @@ export default function FormModifyOrders() {
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
       console.log("Usuario actual", UsuarioAct.correo);
       const listaPedidos = getUserOrderList(
-        JSON.parse(Cookies.get("userAuth")).idUsuario
+        JSON.parse(Cookies.get("userAuth")).idUsuario,
+        "and estado=0"
       );
       listaPedidos.then((res) => {
         setPedidosList(res.data.data[0]);

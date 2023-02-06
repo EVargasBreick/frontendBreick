@@ -12,7 +12,9 @@ import {
   getUserStock,
   logShortage,
   productsDiscount,
+  setTotalProductsToZero,
   updateForMissing,
+  updateForMissingSample,
 } from "../services/productServices";
 import Cookies from "js-cookie";
 import {
@@ -545,6 +547,123 @@ export default function FormNewOrder() {
       }
     });
   }
+
+  function saveSampleAndTransfer() {
+    const arrayInZero = setTotalProductsToZero(selectedProds);
+    arrayInZero.then((zero) => {
+      console.log("Productos en cero", zero.modificados);
+      const validatedOrder = structureOrder();
+      validatedOrder.then((res) => {
+        setisLoading(true);
+        if (!res) {
+          setAlertSec("Creando pedido ...");
+          setIsAlertSec(true);
+          const objPedido = {
+            pedido: {
+              idUsuarioCrea: usuarioAct,
+              idCliente: selectedClient,
+              fechaCrea: dateString(),
+              fechaActualizacion: dateString(),
+              estado: 0,
+              montoFacturar: 0,
+              montoTotal: 0,
+              tipo: tipo,
+              descuento: 0,
+              descCalculado: 0,
+              notas: observaciones,
+            },
+            productos: zero.modificados,
+          };
+          console.log("Objeto siendo enviado al pedido", objPedido);
+          const stockObject = {
+            accion: "take",
+            idAlmacen: userStore,
+            productos: zero.modificados,
+          };
+          const updatedStock = updateStock(stockObject);
+          updatedStock
+            .then((updatedRes) => {
+              console.log("Stock updateado", updatedRes);
+              const newOrder = createOrder(objPedido);
+              newOrder
+                .then((res) => {
+                  console.log("Resposta del pedido", res.data.data.idCreado);
+                  const idPedidoCreado = res.data.data.idCreado;
+                  const codPedido = getOrderList(res.data.data.idCreado);
+                  codPedido.then((res) => {
+                    console.log(
+                      "Codigo del pedido creado:",
+                      res.data.data[0][0].codigoPedido
+                    );
+                    const emailBody = {
+                      codigoPedido: res.data.data[0][0].codigoPedido,
+                      correoUsuario: userEmail,
+                      fecha: dateString(),
+                    };
+                    const emailSent = sendOrderEmail(emailBody);
+                    emailSent
+                      .then((response) => {
+                        setIsAlertSec(false);
+                        console.log("Respuesta de la creacion", response);
+                        setAlert("Pedido Creado correctamente");
+                        setIsAlert(true);
+                        if (faltantes.length > 0) {
+                          const bodyFaltantes = {
+                            idPedido: idPedidoCreado,
+                            fecha: dateString(),
+                            idUsuarioCrea: usuarioAct,
+                            idAgencia: userStore,
+                            idString: `${userName}-${tipo}00${idPedidoCreado}`,
+                            products: faltantes,
+                          };
+                          const faltantesLogged = logShortage(bodyFaltantes);
+                          faltantesLogged.then((fl) => {
+                            setTimeout(() => {
+                              navigate("/principal");
+                              setisLoading(false);
+                            }, 3000);
+                          });
+                        } else {
+                          setTimeout(() => {
+                            navigate("/principal");
+                            setisLoading(false);
+                          }, 3000);
+                        }
+                      })
+                      .catch((error) => {
+                        console.log("Error al enviar el correo", error);
+                      });
+                  });
+                })
+                .catch((error) => {
+                  console.log("Error", error);
+                });
+            })
+            .catch((error) => {
+              setFaltantes(error.response.data.faltantes);
+              const updateado = updateForMissingSample(
+                zero.modificados,
+                error.response.data.faltantes
+              );
+              updateado.then((upd) => {
+                setSelectedProds(upd.modificados);
+                setAlertSec(
+                  "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
+                );
+                setIsAlertSec(true);
+                setTimeout(() => {
+                  setIsAlertSec(false);
+                  setFlagDiscount(true);
+                }, 5000);
+              });
+            });
+        } else {
+          setIsAlert(true);
+        }
+      });
+    });
+  }
+
   function handleDiscount(value) {
     setDescuento(value);
   }
@@ -553,7 +672,12 @@ export default function FormNewOrder() {
     if (selectedClient != "") {
       if (selectedProds.length > 0) {
         setAuxProds(selectedProds);
-        processDiscounts();
+        if (tipo == "normal") {
+          processDiscounts();
+        } else {
+          saveSampleAndTransfer();
+          console.log("El pedido es muestra o transfer");
+        }
       } else {
         setAlert("Seleccione al menos un producto por favor");
         setIsAlert(true);
@@ -852,10 +976,8 @@ export default function FormNewOrder() {
             >
               <option value="normal">Normal</option>
               <option value="muestra">Muestra</option>
-              <option value="reserva">Reserva</option>
             </Form.Select>
           </Form.Group>
-
           <Form.Group>
             <div className="comments">
               <Form.Control
@@ -864,7 +986,7 @@ export default function FormNewOrder() {
                   setObservaciones(e.target.value);
                 }}
                 value={observaciones}
-                placeholder="Observaciones"
+                placeholder="Notas adicionales"
               ></Form.Control>
             </div>
           </Form.Group>
@@ -969,8 +1091,10 @@ export default function FormNewOrder() {
               >
                 {isLoading ? (
                   <Image src={loading2} style={{ width: "5%" }} />
-                ) : (
+                ) : tipo == "normal" ? (
                   "Procesar descuentos"
+                ) : (
+                  `Cargar Pedido`
                 )}
               </Button>
             </div>

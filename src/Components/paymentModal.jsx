@@ -6,10 +6,18 @@ import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
 import { structureXml, getInvoiceNumber } from "../services/mockedServices";
 import { dateString } from "../services/dateServices";
-
+import Cookies from "js-cookie";
 import "../styles/generalStyle.css";
-import { saveInvoice } from "../services/invoiceServices";
-
+import {
+  createInvoice,
+  deleteInvoice,
+  otherPaymentsList,
+} from "../services/invoiceServices";
+import { SoapInvoice } from "../Xml/soapInvoice";
+import xml2js from "xml2js";
+import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
+import { updateInvoicedOrder, updateStock } from "../services/orderServices";
+import { createSale } from "../services/saleServices";
 export default function PaymentModal({
   setIsInvoice,
   isSaleModal,
@@ -44,7 +52,27 @@ export default function PaymentModal({
   const [fechaHora, setFechaHora] = useState("");
   const [desembolsada, setDesembolsada] = useState(0);
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [userName, setUserName] = useState("");
+  const [giftCard, setGiftCard] = useState(0);
+  const [approvedId, setApprovedId] = useState("");
+  const [aPagar, setAPagar] = useState(0);
+  const [ofp, setOfp] = useState(0);
+  const [otherPayments, setOtherPayments] = useState([]);
+  const [invoice, setInvoice] = useState({});
   useEffect(() => {
+    const otrosPagos = otherPaymentsList();
+    otrosPagos
+      .then((op) => {
+        console.log("Otros pagos", op.data.data[0]);
+        setOtherPayments(op.data.data[0]);
+      })
+      .catch((err) => {
+        console.log("Otros pagos?", err);
+      });
+    const UsuarioAct = Cookies.get("userAuth");
+    if (UsuarioAct) {
+      setUserName(JSON.parse(UsuarioAct).usuario);
+    }
     const suc = getBranches();
     suc.then((resp) => {
       const sucursales = resp.data[0];
@@ -54,7 +82,7 @@ export default function PaymentModal({
         dir: sucur.direccion,
         tel: sucur.telefono,
         ciudad: sucur.ciudad,
-        idImpuestos: sucur.idImpuestos,
+        nro: sucur.idImpuestos,
       };
       console.log("Informacion de la sucursal", branchData);
       setBranchInfo(branchData);
@@ -73,7 +101,7 @@ export default function PaymentModal({
     }
   }, [isFactura]);
   useEffect(() => {
-    setCambio((cancelado - totales.montoFacturar).toFixed(2));
+    setCambio(parseFloat(cancelado - totales.montoFacturar).toFixed(2));
   }, [cancelado]);
   function handleCardNumber(number, card) {
     if (card == "A") {
@@ -91,41 +119,128 @@ export default function PaymentModal({
   }
   function handleTipoPago(value) {
     setTipoPago(value);
-    if (value == 1) {
-      setStringPago("Efectivo");
-      setCardNumbersA("");
-      setCardNumbersB("");
-    } else {
-      setStringPago("Tarjeta");
-      setCancelado(totales.montoFacturar);
-      setCambio(0);
-    }
-    if (tipoPago == 5) {
-      setDesembolsada(1);
+    switch (value) {
+      case "1":
+        setStringPago("Efectivo");
+        setCardNumbersA("");
+        setCardNumbersB("");
+        setOfp(0);
+
+        break;
+      case "2":
+        setStringPago("Tarjeta");
+        setCancelado(totales.montoFacturar);
+        setCambio(0);
+        setOfp(0);
+        break;
+      case "3":
+        setStringPago("Cheque");
+        setCancelado(totales.montoFacturar);
+        setCambio(0);
+        setOfp(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
+        break;
+      case "4":
+        setStringPago("Vales");
+        setCancelado(0);
+        setCambio(0);
+        setOfp(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
+        break;
+      case "5":
+        setStringPago("Otros");
+        setCancelado(totales.montoFacturar);
+        setCambio(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
+        break;
+      case "6":
+        setStringPago("Pago Posterior");
+        setAPagar(1);
+        setCancelado(totales.montoFacturar);
+        setCambio(0);
+        setOfp(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
+        break;
+      case "7":
+        setStringPago("Transferencia");
+        setCancelado(totales.montoFacturar);
+        setCambio(0);
+        setOfp(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
+        break;
+      case "8":
+        setStringPago("Deposito");
+        setCancelado(totales.montoFacturar);
+        setCambio(0);
+        setOfp(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
+        break;
+      case "9":
+        setStringPago("Transferencia Swift");
+        setCancelado(totales.montoFacturar);
+        setCambio(0);
+        setOfp(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
+        break;
+      case "10":
+        setStringPago("Efectivo-tarjeta");
+        setCancelado(totales.montoFacturar);
+        setOfp(0);
+        setCambio(0);
+        break;
     }
   }
-  function validateFormOfPayment() {
+  function validateFormOfPayment(e) {
+    e.preventDefault();
     return new Promise((resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          if ((cancelado = 0 || cancelado < totales.montoFacturar)) {
+          if (cancelado == 0 || cancelado < totales.montoFacturar) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
             invoiceProcess();
           }
         } else {
-          if (tipoPago == 2) {
+          if (tipoPago == 2 || tipoPago == 10) {
             if (cardNumbersA.length < 4 || cardNumbersB.length < 4) {
               setAlert("Ingrese valores válidos para la tarjeta por favor");
               setIsAlert(true);
             } else {
               invoiceProcess();
             }
-          } else {
+          }
+          if (tipoPago == 4) {
+            if (giftCard == 0) {
+              setAlert("Ingrese un valor válido para el vale");
+              setIsAlert(true);
+            } else {
+              if (cancelado - (totales.montoFacturar - giftCard) < 0) {
+                setAlert("Ingrese un valor mayor al saldo");
+                setIsAlert(true);
+              } else {
+                invoiceProcess();
+              }
+            }
+          }
+          if (
+            tipoPago == 3 ||
+            tipoPago == 5 ||
+            tipoPago == 6 ||
+            tipoPago == 7 ||
+            tipoPago == 8 ||
+            tipoPago == 9
+          ) {
             invoiceProcess();
           }
         }
@@ -135,50 +250,130 @@ export default function PaymentModal({
   }
 
   async function invoiceProcess() {
+    const invoiceBody = {
+      idCliente: totales.idCliente,
+      nroFactura: 1,
+      idSucursal: 0,
+      nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
+      fechaHora: dateString(),
+      nitCliente: cliente.nit,
+      razonSocial: cliente.razonSocial,
+      tipoPago: tipoPago,
+      pagado: cancelado,
+      cambio: cambio,
+      nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
+      cuf: `123456789ABCDEFGHIJKLMNIOPQRSTUVWXYZ`,
+      importeBase: parseFloat(cancelado - cambio).toFixed(2),
+      debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
+      desembolsada: 0,
+    };
     setFechaHora(dateString());
     setAlertSec("Generando informacion de ultima factura");
     setIsAlertSec(true);
-    const newId = getInvoiceNumber();
-    newId.then((res) => {
-      setInvoiceNumber(res);
-      setAlertSec("Generando CUF");
-      const cufd = structureXml(res);
-      cufd.then((resp) => {
-        console.log("Cuf generado:", resp);
-        const saved = saveInvoice(
-          resp,
-          res + 1,
-          branchInfo,
-          cliente,
-          cancelado,
-          cambio,
-          cardNumbersA,
-          cardNumbersB,
-          tipoPago,
-          tipoPago == 5 ? 1 : 0,
-          totales.montoTotal,
-          totales.descuento,
-          totales.descuentoCalculado,
-          totales.montoFacturar,
-          totales.idUsuarioCrea,
-          totales.idCliente,
-          totales.idPedido,
+    const lastIdObj = {
+      nit: process.env.REACT_APP_NIT_EMPRESA,
+      puntoDeVentaId: branchInfo.nro,
+      tipoComprobante: 1,
+    };
+    const newId = getInvoiceNumber(lastIdObj);
+    newId
+      .then((res) => {
+        const xmlRes = structureXml(
           selectedProducts,
-          fechaHora
+          branchInfo,
+          tipoPago,
+          totales.montoFacturar,
+          totales.descuentoCalculado,
+          invoiceBody,
+          res.response.data + 1,
+          `${cardNumbersA}00000000${cardNumbersB}`,
+          userName,
+          1,
+          0,
+          0
         );
-        setCuf(resp);
-        saved.then((res) => {
-          console.log("Se renderizo la factura?", isFactura);
-          setIsAlertSec(false);
+        xmlRes.then((resp) => {
+          const lineal = resp.replace(/ {4}|[\t\n\r]/gm, "");
+          const cufObj = {
+            nit: process.env.REACT_APP_NIT_EMPRESA,
+            idSucursal: branchInfo.nro,
+            tipoComprobante: 1,
+            formatoId: process.env.REACT_APP_FORMATO_ID,
+            XML: lineal,
+          };
+          const comprobante = SoapInvoice(cufObj);
+          comprobante
+            .then((res) => {
+              console.log(
+                "Resultado de la validacion del comprobante",
+                res.response.data
+              );
+              xml2js.parseString(res.response.data, (err, result) => {
+                setApprovedId(result.SalidaTransaccion.Transaccion[0].ID[0]);
+                const transacObj = {
+                  nit: process.env.REACT_APP_NIT_EMPRESA,
+                  id: result.SalidaTransaccion.Transaccion[0].ID[0],
+                };
+                const idTransaccion =
+                  result.SalidaTransaccion.Transaccion[0].ID[0];
+                var intento = 1;
+                let intervalId = setInterval(function () {
+                  const transaccion = SoapInvoiceTransaction(transacObj);
+                  transaccion
+                    .then((resp) => {
+                      console.log(
+                        "Respuesta de la transaccion",
+                        resp.response.data.SalidaTransaccionBoliviaResponse[0]
+                          .SalidaTransaccionBoliviaResult[0]
+                      );
+                      const invocieResponse =
+                        resp.response.data.SalidaTransaccionBoliviaResponse[0]
+                          .SalidaTransaccionBoliviaResult[0]
+                          .TransaccionSalidaUnificada[0];
+                      if (invocieResponse.CUF[0].length > 10) {
+                        setAlertSec("Generando Factura");
+                        const resCuf = invocieResponse.CUF[0];
+                        console.log("Rescuf:", resCuf);
+                        const resCufd = invocieResponse.CUFD[0];
+                        const aut = invocieResponse.Autorizacion[0];
+                        const fe = invocieResponse.FECHAEMISION[0];
+                        const numFac = invocieResponse.NumeroFactura[0];
+                        console.log("guardando factura ", intento);
+                        const saved = saveInvoice(
+                          resCuf,
+                          resCufd,
+                          aut,
+                          fe,
+                          numFac,
+                          idTransaccion,
+                          ofp,
+                          giftCard,
+                          aPagar
+                        );
+                        saved.then((res) => {
+                          setCuf(resCuf);
+                          console.log("Se renderizo la factura?", isFactura);
+                          setIsAlertSec(false);
+                        });
+                        clearInterval(intervalId);
+                      } else {
+                        intento += 1;
+                        setAlertSec("Generando Codigo Único de Facturación");
+                        console.log("Testeando cuf", invocieResponse.CUF);
+                      }
+                    })
+                    .catch((error) => {
+                      console.log("Esto paso", error);
+                    });
+                }, 5000);
+              });
+            })
+            .catch((err) => console.log("Esto paso", err));
         });
+      })
+      .catch((err) => {
+        console.log("Error al obtener el id", err);
       });
-    });
-  }
-  function downloadAndRedirect() {
-    invoiceRef.current.click();
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
   }
   function updateClient() {
     setCliente({
@@ -186,6 +381,114 @@ export default function PaymentModal({
       razonSocial: razonSocial,
     });
     setIsModified(true);
+  }
+  function saveInvoice(
+    cuf,
+    cufd,
+    autorizacion,
+    fechaEmision,
+    nro,
+    idTransaccion,
+    ofp,
+    giftCard,
+    aPagar
+  ) {
+    return new Promise((resolve, reject) => {
+      setAlertSec("Guardando Venta");
+      const invoiceBody = {
+        idCliente: totales.idCliente,
+        nroFactura: nro,
+        idSucursal: 0,
+        nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
+        fechaHora: dateString(),
+        nitCliente: cliente.nit,
+        razonSocial: cliente.razonSocial,
+        tipoPago: tipoPago,
+        pagado: cancelado,
+        cambio: cambio,
+        nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
+        cuf: cuf,
+        importeBase: parseFloat(cancelado - cambio).toFixed(2),
+        debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
+        desembolsada: 0,
+        autorizacion: autorizacion,
+        cufd: cufd,
+        fechaEmision: fechaEmision,
+        nroTransaccion: idTransaccion,
+        idOtroPago: ofp,
+        vale: giftCard,
+        aPagar: aPagar,
+        puntoDeVenta: 0,
+      };
+      setInvoice(invoiceBody);
+      const newInvoice = createInvoice(invoiceBody);
+      newInvoice
+        .then((res) => {
+          console.log("Respuesta de creacion de la factura", res);
+          const newId = res.data.idCreado;
+          const created = saveSale(newId);
+          created
+            .then((res) => {
+              resolve(true);
+            })
+            .catch((error) => {
+              reject(false);
+            });
+        })
+        .catch((error) => {
+          console.log("Error en la creacion de la factura", error);
+        });
+      console.log("Cancelado:", cancelado);
+      console.log("Cambio", cambio);
+      //setIsSaleModal(!isSaleModal);
+    });
+  }
+  function saveSale(createdId) {
+    return new Promise((resolve, reject) => {
+      setFechaHora(dateString());
+      const objVenta = {
+        pedido: {
+          idUsuarioCrea: totales.idUsuarioCrea,
+          idCliente: totales.idCliente,
+          fechaCrea: dateString(),
+          fechaActualizacion: dateString(),
+          montoTotal: totales.montoTotal,
+          descCalculado: totales.descuentoCalculado,
+          descuento: totales.descuento,
+          montoFacturar: totales.montoFacturar,
+          idPedido: totales.idPedido,
+          idFactura: createdId,
+        },
+        productos: selectedProducts,
+      };
+      const ventaCreada = createSale(objVenta);
+      ventaCreada
+        .then((res) => {
+          const updatedStock = updateStock({
+            accion: "take",
+            idAlmacen: totales.idAlmacen,
+            productos: selectedProducts,
+          });
+          updatedStock.then((us) => {
+            const fecha = dateString();
+            const updated = updateInvoicedOrder(totales.idPedido, fecha);
+            updated.then((res) => {
+              setAlertSec("Gracias por su compra!");
+              resolve(true);
+              setIsAlertSec(true);
+              setTimeout(() => {
+                setIsAlertSec(false);
+              }, 1000);
+            });
+          });
+        })
+        .catch((err) => {
+          console.log("Error al crear la venta", err);
+          const deletedInvoice = deleteInvoice(createdId);
+          reject(false);
+          console.log("Venta y factura borradas", deletedInvoice);
+        });
+    });
   }
 
   return (
@@ -207,9 +510,7 @@ export default function PaymentModal({
             <div>
               <ReactToPrint
                 trigger={() => (
-                  <button ref={invoiceRef} hidden>
-                    Print this out!
-                  </button>
+                  <button ref={invoiceRef}>Print this out!</button>
                 )}
                 content={() => componentRef.current}
                 onAfterPrint={() => window.location.reload()}
@@ -220,24 +521,7 @@ export default function PaymentModal({
                   branchInfo={branchInfo}
                   selectedProducts={selectedProducts}
                   cuf={cuf}
-                  invoice={{
-                    nroFactura: invoiceNumber,
-                    idSucursal: branchInfo.idImpuestos,
-                    nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
-                    fechaHora: fechaHora,
-                    nitCliente: cliente.nit,
-                    razonSocial: cliente.razonSocial,
-                    tipoPago: tipoPago,
-                    pagado: cancelado,
-                    cambio: cambio,
-                    nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
-                    cuf: cuf,
-                    importeBase: parseFloat(cancelado - cambio).toFixed(2),
-                    debitoFiscal: parseFloat(
-                      (cancelado - cambio) * 0.13
-                    ).toFixed(2),
-                    desembolsada: desembolsada,
-                  }}
+                  invoice={invoice}
                   paymentData={{
                     tipoPago: stringPago,
                     cancelado: cancelado,
@@ -322,9 +606,14 @@ export default function PaymentModal({
                   <option>Seleccione tipo de pago</option>
                   <option value="1">Efectivo</option>
                   <option value="2">Tarjeta</option>
-                  <option value="3">Transferencia</option>
-                  <option value="4">Qr</option>
-                  <option value="5">A crédito</option>
+                  <option value="3">Cheque</option>
+                  <option value="4">Vales</option>
+                  <option value="5">Otros</option>
+                  <option value="6">Pago Posterior</option>
+                  <option value="7">Transferencia</option>
+                  <option value="8">Deposito en cuenta</option>
+                  <option value="9">Transferencia Swift</option>
+                  <option value="10">Efectivo - Tarjeta</option>
                 </Form.Select>
               </Form>
             </div>
@@ -338,9 +627,7 @@ export default function PaymentModal({
                     <Form.Control
                       value={cancelado}
                       type="number"
-                      onChange={(e) =>
-                        setCancelado(parseFloat(e.target.value).toFixed)
-                      }
+                      onChange={(e) => setCancelado(e.target.value)}
                     />
                   </Form>
                 </div>
@@ -380,9 +667,33 @@ export default function PaymentModal({
               </div>
             </div>
           ) : null}
+          {tipoPago == 5 ? (
+            <div>
+              <div className="modalRows">
+                <div className="modalLabel"> Otro Tipo de pago:</div>
+                <div className="modalData">
+                  <Form>
+                    <Form.Select
+                      onChange={(e) => setOfp(e.target.value)}
+                      value={ofp}
+                    >
+                      <option>Seleccione Otro Tipo </option>
+                      {otherPayments.map((op, index) => {
+                        return (
+                          <option value={op.idOtroPago} key={index}>
+                            {op.otroPago}
+                          </option>
+                        );
+                      })}
+                    </Form.Select>
+                  </Form>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="warning" onClick={() => validateFormOfPayment()}>
+          <Button variant="warning" onClick={(e) => validateFormOfPayment(e)}>
             Facturar
           </Button>
           <Button

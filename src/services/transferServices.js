@@ -53,4 +53,25 @@ const updateTransfer = (body) => {
   });
 };
 
-export { createTransfer, transferList, transferProducts, updateTransfer };
+const printedTrasnfer = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/imprimir?id=${id}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+export {
+  createTransfer,
+  transferList,
+  transferProducts,
+  updateTransfer,
+  printedTrasnfer,
+};

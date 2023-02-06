@@ -243,7 +243,6 @@ export default function SaleModal({
   }
   async function invoiceProcess() {
     setAlertSec("Generando información de última factura");
-    console.log("Branch info", branchInfo);
     setIsAlertSec(true);
     const lastIdObj = {
       nit: invoice.nitEmpresa,
@@ -255,7 +254,7 @@ export default function SaleModal({
       .then((res) => {
         console.log("ULTIMO NUMERO COMPROBANTE", res.response.data);
         setInvoiceId(res);
-        setInvoiceId(res);
+
         setAlertSec("Generando Codigo Único de Facturación");
         const xmlRes = structureXml(
           selectedProducts,

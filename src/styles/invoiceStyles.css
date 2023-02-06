@@ -6,6 +6,20 @@
   margin: 1mm;
   padding-left: 25px;
   font-size: small;
+  background-color: white;
+}
+.invoicePageStart {
+  justify-content: center;
+  width: 70mm;
+  text-align: start;
+  padding-top: 10mm;
+  margin: 1mm;
+  padding-left: 25px;
+  font-size: small;
+  background-color: white;
+}
+.invoiceStart {
+  text-align: start;
 }
 .simpleSeparator {
   padding: 1.5mm;
@@ -61,4 +75,35 @@
 .cufWidth {
   max-width: 75mm;
   text-align: center;
+}
+.noteTable {
+  text-align: start;
+}
+
+.tickBox {
+  top: 0;
+  border: 1px solid black;
+
+  border-left: 1px solid black;
+  width: 15px;
+  height: 15px;
+}
+
+.signatureLine {
+  border-top: 1px solid black;
+
+  margin-bottom: 1rem;
+}
+.ready {
+  margin-bottom: 4rem;
+}
+
+.centerContainer {
+  justify-content: center;
+  align-items: center;
+}
+.invoiceProduct {
+  font-stretch: extra-condensed;
+  line-height: 1;
+  font-size: smaller;
 }

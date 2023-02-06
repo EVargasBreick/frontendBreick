@@ -95,9 +95,13 @@ export default function FormInvoiceOrder() {
             cantProducto: dt.cantidadProducto,
             total: dt.totalProd,
             descuentoProd: dt.descuentoProducto,
+            codInterno: dt.codInterno,
+            codigoUnidad: dt.codigoUnidad,
+            precioDeFabrica: dt.precioDeFabrica,
           };
           saleProducts.push(saleObj);
         });
+        console.log("Productos", saleProducts);
         setSelectedProducts(saleProducts);
         const tot = os.data.response.data[0][0];
         var totis = {
@@ -110,6 +114,7 @@ export default function FormInvoiceOrder() {
           descuentoCalculado: tot.descuentoCalculado,
           montoFacturar: tot.montoTotal,
           idPedido: tot.idPedido[0],
+          idAlmacen: tot.idAlmacen,
         };
         setIdAlmacen(tot.idAlmacen);
         setTotales(totis);

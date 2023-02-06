@@ -73,7 +73,7 @@ export default function FormManageOrders() {
     setSelectedOrder(stringParts[0]);
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
-      console.log("error", res);
+      console.log("TESTEANDO DETALLES", res);
       const fechaDesc = res.data.data[0][0].fechaCrea
         .substring(0, 10)
         .split("/");

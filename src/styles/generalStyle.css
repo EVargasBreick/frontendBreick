@@ -240,3 +240,15 @@
   overflow-y: auto;
   border-radius: 3%;
 }
+.fullBody {
+  height: 70vh;
+  width: 100%;
+}
+.bigText {
+  font-size: xx-large;
+  text-align: center;
+  padding-top: 20%;
+  padding-bottom: 20%;
+  margin: 3rem;
+  border: 3px solid #5cb8b2;
+}

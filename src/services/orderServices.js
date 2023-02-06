@@ -38,6 +38,7 @@ const getOrderList = (id) => {
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista?id=${id}`
       )
       .then((response) => {
+        console.log("Que onda", response);
         resolve(response);
       })
       .catch((error) => {
@@ -46,11 +47,11 @@ const getOrderList = (id) => {
   });
 };
 
-const getUserOrderList = (id) => {
+const getUserOrderList = (id, condition) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista/usuario?id=${id}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista/usuario?id=${id}&condition=${condition}`
       )
       .then((response) => {
         resolve(response);
@@ -308,6 +309,66 @@ const updateInvoicedOrder = (id, fecha) => {
   });
 };
 
+const ordersToPrint = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/imprimir`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const printedOrder = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/imprimir?id=${id}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const ordersToReady = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/alistar`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const updateReady = (id, listo, tipo) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/${tipo}/alistar?id=${id}&listo=${listo}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   createOrder,
   getOrderStatus,
@@ -329,4 +390,8 @@ export {
   orderToInvoiceList,
   orderDetailsInvoice,
   updateInvoicedOrder,
+  ordersToPrint,
+  printedOrder,
+  ordersToReady,
+  updateReady,
 };

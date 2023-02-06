@@ -34,6 +34,9 @@ import UpdateStock from "./Components/updateStock";
 import NewPack from "./Components/newPack";
 import AsignPack from "./Components/asignPack";
 import EndOfDayReport from "./Components/endOfDayReport";
+import OrderReception from "./Components/orderReception";
+import RouteTransfer from "./Components/routeTransfer";
+import OrdersToReady from "./Components/ordersToReady";
 
 function App() {
   return (
@@ -271,6 +274,30 @@ function App() {
               element={
                 <RequireAuth>
                   <EndOfDayReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/almacenes/recepcionar-pedidos"
+              element={
+                <RequireAuth>
+                  <OrderReception />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/traspasoMovil"
+              element={
+                <RequireAuth>
+                  <RouteTransfer />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/alistarPedidos"
+              element={
+                <RequireAuth>
+                  <OrdersToReady />
                 </RequireAuth>
               }
             />

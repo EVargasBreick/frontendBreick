@@ -183,3 +183,20 @@
 .wrappedButton {
   margin: 2rem;
 }
+
+.simpleTableContainer {
+  margin-top: 2rem;
+  width: 100%;
+  display: block;
+  overflow-y: auto;
+  overflow-x: auto;
+  height: 70vh;
+}
+
+.simpleTable {
+  width: 100%;
+}
+
+.columnButton {
+  width: 10%;
+}
