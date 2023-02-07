@@ -37,6 +37,7 @@ import EndOfDayReport from "./Components/endOfDayReport";
 import OrderReception from "./Components/orderReception";
 import RouteTransfer from "./Components/routeTransfer";
 import OrdersToReady from "./Components/ordersToReady";
+import RejectedOrders from "./Components/rejectedOrders";
 
 function App() {
   return (
@@ -298,6 +299,14 @@ function App() {
               element={
                 <RequireAuth>
                   <OrdersToReady />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/rechazados"
+              element={
+                <RequireAuth>
+                  <RejectedOrders />
                 </RequireAuth>
               }
             />

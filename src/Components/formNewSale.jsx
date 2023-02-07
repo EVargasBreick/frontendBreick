@@ -681,6 +681,8 @@ export default function FormNewSale() {
             otherPayments={otherPayments}
             giftCard={giftCard}
             setGiftCard={setGiftCard}
+            userStore={userStore}
+            userId={usuarioAct}
           />
         </div>
       ) : null}

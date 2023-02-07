@@ -7,6 +7,8 @@
   padding-left: 25px;
   font-size: small;
   background-color: white;
+  font-stretch: extra-condensed;
+  line-height: 1;
 }
 .invoicePageStart {
   justify-content: center;

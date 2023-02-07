@@ -35,4 +35,21 @@ const getRejected = () => {
   });
 };
 
-export { logRejected, getRejected };
+const reviseRejected = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/rechazados?id=${id}`
+      )
+      .then((response) => {
+        console.log("Respuesta", response.status);
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+export { logRejected, getRejected, reviseRejected };

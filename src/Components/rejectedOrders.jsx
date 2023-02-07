@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 
 import FormOrdersToReady from "./formOrdersToReady";
 import FormRejectedOrders from "./formRejectedOrders";
-export default function OrdersToReady() {
+export default function RejectedOrders() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");

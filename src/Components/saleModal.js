@@ -10,6 +10,7 @@ import { getInvoiceNumber, structureXml } from "../services/mockedServices";
 import { SoapInvoice } from "../Xml/soapInvoice";
 import xml2js from "xml2js";
 import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
+import { dateString } from "../services/dateServices";
 
 export default function SaleModal({
   datos,
@@ -42,6 +43,8 @@ export default function SaleModal({
   userName,
   pointOfSale,
   otherPayments,
+  userStore,
+  userId,
 }) {
   const numberARef = useRef();
   const numberBRef = useRef();
@@ -59,6 +62,7 @@ export default function SaleModal({
   const [ofp, setOfp] = useState(0);
   const [giftCard, setGiftCard] = useState(0);
   const [aPagar, setAPagar] = useState(0);
+  const [motivo, setMotivo] = useState("");
   useEffect(() => {
     if (cuf.length > 0) {
       console.log("Correr esto cuando exista cuf");
@@ -188,6 +192,12 @@ export default function SaleModal({
         setOfp(0);
         setCambio(0);
         break;
+      case "11":
+        setStringPago("Baja");
+        setCancelado(0);
+        setOfp(0);
+        setCambio(0);
+        break;
     }
   }
   function validateFormOfPayment(e) {
@@ -235,6 +245,21 @@ export default function SaleModal({
             tipoPago == 9
           ) {
             invoiceProcess();
+          }
+          if (tipoPago == 11) {
+            const objStock = {
+              accion: "take",
+              idAlmacen: userStore,
+              productos: selectedProducts,
+            };
+            const objBaja = {
+              motivo: motivo,
+              fechaBaja: dateString(),
+              idUsuario: userId,
+              idAlmacen: userStore,
+              productos: selectedProducts,
+            };
+            console.log("Objeto baja", objBaja);
           }
         }
       }
@@ -458,6 +483,7 @@ export default function SaleModal({
                   <option value="8">Deposito en cuenta</option>
                   <option value="9">Transferencia Swift</option>
                   <option value="10">Efectivo - Tarjeta</option>
+                  <option value="11">Baja</option>
                 </Form.Select>
               </Form>
             </div>

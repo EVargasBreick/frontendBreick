@@ -260,6 +260,10 @@ export default function SidebarAdmin() {
               <MenuItem onClick={() => redirectOnClick("/verTraspaso")}>
                 <Image src={newOrder} className="icon"></Image>Ver Traspasos
               </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/rechazados")}>
+                <Image src={Cross} className="icon"></Image>Ver Ped/Trasp
+                Rechazados
+              </MenuItem>
             </SubMenu>
             <SubMenu
               onClick={() => {
@@ -558,12 +562,16 @@ export default function SidebarAdmin() {
               open={toggledRut}
               icon={<Image src={Truck} className="compIcon"></Image>}
             >
-              <MenuItem onClick={() => redirectOnClick("/regPedido")}>
+              {/*<MenuItem onClick={() => redirectOnClick("/regPedido")}>
                 <Image src={Log} className="icon"></Image>Registro de Pedido
               </MenuItem>
               <MenuItem>
                 <Image src={Invoice} className="icon"></Image>Emision de
                 Facturas
+            </MenuItem>*/}
+              <MenuItem onClick={() => redirectOnClick("/ventaAgencia")}>
+                <Image src={Invoice} className="icon"></Image>
+                Ventas Ruta
               </MenuItem>
               <MenuItem onClick={() => redirectOnClick("/traspasoMovil")}>
                 {" "}

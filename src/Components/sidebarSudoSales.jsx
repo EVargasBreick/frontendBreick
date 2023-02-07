@@ -186,6 +186,7 @@ export default function SidebarSudoSales() {
               open={toggledVent}
               icon={<Image src={Flag} className="compIcon"></Image>}
             >
+              <div>Clientes</div>
               <MenuItem onClick={() => redirectOnClick("/regCliente")}>
                 <Image src={Client} className="icon"></Image>Gestion de Clientes
               </MenuItem>
@@ -193,6 +194,7 @@ export default function SidebarSudoSales() {
                 <Image src={newClient} className="icon"></Image>Modificacion de
                 Clientes
               </MenuItem>
+              <div>Pedidos</div>
               <MenuItem onClick={() => redirectOnClick("/regPedido")}>
                 <Image src={newOrder} className="icon"></Image>Registro de
                 Pedido
@@ -201,6 +203,15 @@ export default function SidebarSudoSales() {
                 <Image src={leftArrow} className="icon"></Image>
                 Modificar/Cancelar Pedido
               </MenuItem>
+              <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
+                <Image src={Invoice} className="icon"></Image>Facturar Pedidos
+              </MenuItem>
+              <MenuItem>
+                {" "}
+                <Image src={cancelInvoice} className="icon"></Image>Anular
+                Facturas
+              </MenuItem>
+              <div>Productos</div>
               <MenuItem onClick={() => redirectOnClick("/traspaso")}>
                 {" "}
                 <Image src={ReturnWare} className="icon inverted"></Image>
@@ -216,14 +227,7 @@ export default function SidebarSudoSales() {
                 <Image src={Star} className="icon inverted"></Image>
                 Asignar/Retirar Packs
               </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
-                <Image src={Invoice} className="icon"></Image>Facturar Pedidos
-              </MenuItem>
-              <MenuItem>
-                {" "}
-                <Image src={cancelInvoice} className="icon"></Image>Anular
-                Facturas
-              </MenuItem>
+              <div>En Desarrollo ...</div>
               <MenuItem>
                 <Image src={cancelSample} className="icon"></Image> Anular
                 Muestras
@@ -243,15 +247,6 @@ export default function SidebarSudoSales() {
               <MenuItem>
                 <Image src={ReturnWare} className="icon"></Image>Devolucion
                 Pedido Almacen
-              </MenuItem>
-              <MenuItem>
-                <Image src={Truck} className="icon"></Image>Registrar Viaje
-              </MenuItem>
-              <MenuItem>
-                <Image src={Cross} className="icon"></Image>Cerrar Viaje
-              </MenuItem>
-              <MenuItem>
-                <Image src={Load} className="icon"></Image>Conocimiento de Carga
               </MenuItem>
             </SubMenu>
             <SubMenu

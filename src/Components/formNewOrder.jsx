@@ -469,13 +469,10 @@ export default function FormNewOrder() {
                 console.log("Resposta del pedido", res.data.data.idCreado);
                 const idPedidoCreado = res.data.data.idCreado;
                 const codPedido = getOrderList(res.data.data.idCreado);
-                codPedido.then((res) => {
-                  console.log(
-                    "Codigo del pedido creado:",
-                    res.data.data[0][0].codigoPedido
-                  );
+                codPedido.then((resp) => {
+                  console.log("Codigo del pedido creado:", res);
                   const emailBody = {
-                    codigoPedido: res.data.data[0][0].codigoPedido,
+                    codigoPedido: res.data.data.idCreado,
                     correoUsuario: userEmail,
                     fecha: dateString(),
                   };

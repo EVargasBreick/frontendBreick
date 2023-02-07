@@ -200,3 +200,22 @@
 .columnButton {
   width: 10%;
 }
+
+.tableHeaderAlt {
+  position: sticky;
+  top: 0;
+  background-color: #493065;
+  color: white;
+
+  text-align: start;
+}
+
+.tableHeaderYellow {
+  background-color: #6a4593;
+  color: rgb(255, 255, 255);
+}
+
+.tableRowSimple {
+  background-color: rgb(224, 222, 222);
+  color: #492f67;
+}

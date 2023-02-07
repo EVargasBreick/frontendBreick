@@ -73,7 +73,7 @@ export default function FormModifyOrders() {
   const [filtered, setFiltered] = useState("");
   const [auxAva, setAuxAva] = useState([]);
   const [auxProducts, setAuxProducts] = useState([]);
-  const [faltantes, setFaltantes] = useState();
+  const [faltantes, setFaltantes] = useState([]);
   const [flagDiscount, setFlagDiscount] = useState(false);
   const [fechaPedido, setFechaPedido] = useState("");
   const meses = [
@@ -274,6 +274,7 @@ export default function FormModifyOrders() {
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
     setSelectedOrder(stringParts[0]);
+    console.log("String parts", stringParts);
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
       setSelectedProds([]);
@@ -522,6 +523,8 @@ export default function FormModifyOrders() {
         montoTotal: totalFacturar,
         descuento: descuento,
         descCalculado: totalDesc,
+        listo: 0,
+        impreso: 0,
       };
       var countProdsChanged = 0;
       selectedProds.map((sp) => {

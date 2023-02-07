@@ -9,135 +9,147 @@ import { rePrintTransferOrder } from "../services/printServices";
 import ReactToPrint from "react-to-print";
 import Cookies from "js-cookie";
 import { dateString } from "../services/dateServices";
-import { logRejected } from "../services/rejectedServices";
+import {
+  getRejected,
+  logRejected,
+  reviseRejected,
+} from "../services/rejectedServices";
 export default function FormRejectedOrders() {
   const [orderList, setOrderList] = useState([]);
-  const [auxOrderList, setAuxOrderList] = useState([]);
-  const [filtered, setFiltered] = useState("");
-  const [idToPrint, setIdToPrint] = useState("");
-  const [isPrint, setIsPrint] = useState(false);
-  const [isRejected, setIsRejected] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-  const [productList, setProductList] = useState([]);
-  const [motivo, setMotivo] = useState("");
-  const [userId, setUserId] = useState("");
-  const [rejectedOrder, setRejectedOrder] = useState({});
-  const [readyOrder, setReadyOrder] = useState({});
-  const [motiveError, setMotiveError] = useState("");
-  const componentRef = useRef();
-  const buttonRef = useRef();
+  const [isDetails, setIsDetails] = useState(false);
+  const [orderDetails, setOrderDetails] = useState({});
+  const [isReviewed, setIsReviewed] = useState(false);
   useEffect(() => {
-    const UsuarioAct = Cookies.get("userAuth");
-    if (UsuarioAct) {
-      setUserId(JSON.parse(UsuarioAct).idUsuario);
-    }
-    const orders = ordersToReady();
+    const orders = getRejected();
     orders.then((res) => {
       console.log("Pedidos listos", res.data.data);
       setOrderList(res.data.data[0]);
-      setAuxOrderList(res.data.data[0]);
     });
   }, []);
-  useEffect(() => {
-    if (isPrint) {
-      buttonRef.current.click();
-    }
-  }, [isPrint]);
-  useEffect(() => {
-    if (motivo.length > 0) {
-      setMotiveError("");
-    }
-  }, [motivo]);
 
-  function filterOrders(value) {
-    setFiltered(value);
-    const newList = auxOrderList.filter((dt) =>
-      dt.nroOrden.toLowerCase().includes(value.toLowerCase())
-    );
-    setOrderList([...newList]);
-  }
-  function rePrint(ol) {
-    setIdToPrint(ol.nroOrden);
-    const details = rePrintTransferOrder(ol.idOrden, ol.tipo);
+  function viewDetails(ol) {
+    const details = rePrintTransferOrder(ol.intId, ol.tipo);
     details.then((dt) => {
-      const list = [
-        {
-          fechaSolicitud: ol.fechaCrea,
-          id: ol.nroOrden,
-          usuario: ol.usuario,
-          productos: dt.data.data[0],
-          rePrint: true,
-        },
-      ];
-      console.log("Detalles a imprimir", list);
-      setProductList(list);
-      setIsPrint(true);
-    });
-  }
-  function afterPrint() {
-    setIsPrint(false);
-  }
-
-  function rejectOrder() {
-    if (motivo.length > 0) {
-      const ol = rejectedOrder;
-      const body = {
-        motivo: motivo,
-        idOrden: ol.nroOrden,
-        idUsuario: userId,
-        fechaRegistro: dateString(),
-        tipo: ol.tipo,
-        intId: ol.idOrden,
+      const details = {
+        detalles: ol,
+        productos: dt.data.data[0],
       };
-      console.log("Body body", body);
-      const logged = logRejected(body);
-      logged
-        .then((lg) => {
-          const changed = updateReady(
-            ol.idOrden,
-            2,
-            ol.tipo == "P" ? "pedidos" : "traspaso"
-          );
-          changed
-            .then((ch) => {
-              console.log("Todo bieeen");
-              window.location.reload();
-            })
-            .catch((err) => {
-              console.log("Error al cambiar estado", err);
-            });
-        })
-        .catch((err) => {
-          console.log("Error al loggear", err);
-        });
-    } else {
-      console.log("aa");
-      setMotiveError("Por favor, proporcione un motivo para el rechazo");
-    }
-  }
-
-  function updateReadyOrder() {
-    const ol = readyOrder;
-    const changed = updateReady(
-      ol.idOrden,
-      1,
-      ol.tipo == "P" ? "pedidos" : "traspaso"
-    );
-    changed.then((res) => {
-      window.location.reload();
+      setOrderDetails(details);
+      setIsDetails(true);
+      console.log("Detalles:", details);
     });
+  }
+  function revisedRejected() {
+    const id = orderDetails.detalles.idLogRechazo;
+    const revised = reviseRejected(id);
+    revised
+      .then((res) => {
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log("Error al marcar como revisado", err);
+      });
   }
 
   return (
     <div>
+      {isDetails ? (
+        <Modal size="xl" show={isDetails}>
+          <Modal.Header className="modalHeaderAlt">
+            Detalles del Pedido Rechazado
+          </Modal.Header>
+          <Modal.Body>
+            <div>
+              <Table>
+                <tbody>
+                  <tr className="tableHeaderAlt">
+                    <th colSpan={3}>Datos del Pedido</th>
+                  </tr>
+                  <tr className="tableHeaderYellow">
+                    <th>Id del pedido/traspaso</th>
+                    <th>Usuario solicitante</th>
+                    <th>Fecha Solicitud</th>
+                  </tr>
+                  <tr className="tableRowSimple">
+                    <td>{orderDetails.detalles.idOrden}</td>
+                    <td>{orderDetails.productos[0].usuario}</td>
+                    <td>{orderDetails.productos[0].fechaCrea}</td>
+                  </tr>
+                  <tr className="tableHeaderAlt">
+                    <th colSpan={3}>Detalles de productos</th>
+                  </tr>
+                  <tr className="tableHeaderYellow">
+                    <th>Codigo Interno</th>
+                    <th>Nombre Producto</th>
+                    <th>Cantidad</th>
+                  </tr>
+                  {orderDetails.productos.map((pr, index) => {
+                    return (
+                      <tr key={index} className="tableRowSimple">
+                        <td>{pr.codInterno}</td>
+                        <td>{pr.nombreProducto}</td>
+                        <td>{pr.cantidadProducto}</td>
+                      </tr>
+                    );
+                  })}
+                  <tr className="tableHeaderAlt">
+                    <th colSpan={3}>Detalles del rechazo</th>
+                  </tr>
+                  <tr className="tableHeaderYellow">
+                    <th>Usuario que rechazó</th>
+                    <th colSpan={2}>Fecha y hora del rechazo</th>
+                  </tr>
+                  <tr className="tableRowSimple">
+                    <td>{orderDetails.detalles.usuarioRechazo}</td>
+                    <td colSpan={2}>{orderDetails.detalles.fechaRegistro}</td>
+                  </tr>
+                  <tr className="tableHeaderYellow">
+                    <th colSpan={3}>Motivo del rechazo</th>
+                  </tr>
+                  <tr className="tableRowSimple">
+                    <td colSpan={3}>{orderDetails.detalles.motivo}</td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="modalHeaderAlt">
+            <Button onClick={() => setIsReviewed(true)} variant="success">
+              Revisado
+            </Button>
+            <Button
+              onClick={() => setIsDetails(false)}
+              variant="warning"
+              className="yellow"
+            >
+              Cerrar
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      ) : null}
+      <Modal show={isReviewed}>
+        <Modal.Header className="modalHeaderAlt">Alerta</Modal.Header>
+        <Modal.Body>
+          Verifique que se notificó al creador del Pedido antes de marcar como
+          revisado.
+        </Modal.Body>
+        <Modal.Footer className="modalHeaderAlt">
+          <Button variant="success" onClick={() => revisedRejected()}>
+            Confirmar
+          </Button>
+          <Button variant="warning" onClick={() => setIsReviewed(false)}>
+            Volver
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <div className="formLabel">PEDIDOS Y TRASPASOS RECHAZADOS</div>
       <div className="simpleTableContainer">
         <Table className="simpleTable">
           <thead>
             <tr className="tableHeader">
               <th>Id Orden</th>
-              <th>Usuario</th>
-              <th>Fecha Creacion</th>
+              <th>Usuario que rechazó</th>
+              <th>Fecha de rechazo</th>
               <th>Ver</th>
             </tr>
           </thead>
@@ -145,11 +157,13 @@ export default function FormRejectedOrders() {
             {orderList.map((ol, index) => {
               return (
                 <tr key={index} className="tableRow">
-                  <td>{ol.nroOrden}</td>
-                  <td>{ol.usuario}</td>
-                  <td>{ol.fechaCrea}</td>
+                  <td>{ol.idOrden}</td>
+                  <td>{ol.usuarioRechazo}</td>
+                  <td>{ol.fechaRegistro}</td>
                   <td className="columnButton">
-                    <Button variant="warning">Ver detalles</Button>
+                    <Button variant="warning" onClick={() => viewDetails(ol)}>
+                      Ver detalles
+                    </Button>
                   </td>
                 </tr>
               );
@@ -157,27 +171,6 @@ export default function FormRejectedOrders() {
           </tbody>
         </Table>
       </div>
-      {isPrint ? (
-        <div>
-          <div hidden>
-            <OrderNote productList={productList} ref={componentRef} />
-          </div>
-          <ReactToPrint
-            trigger={() => (
-              <Button
-                variant="warning"
-                className="yellowLarge"
-                ref={buttonRef}
-                hidden
-              >
-                Imprimir ordenes
-              </Button>
-            )}
-            content={() => componentRef.current}
-            onAfterPrint={() => afterPrint()}
-          />
-        </div>
-      ) : null}
     </div>
   );
 }
