@@ -1,14 +1,14 @@
 import React from "react";
 import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
-//import { convertToText } from "../services/numberServices";
+import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
 export const InvoiceComponentAlt = React.forwardRef(
   (
     { branchInfo, selectedProducts, cuf, invoice, paymentData, totalsData },
     ref
   ) => {
-    //const convertido = convertToText(totalsData?.totalDescontado);
+    const convertido = convertToText(totalsData?.totalDescontado);
     const splittedDate = dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
@@ -27,20 +27,24 @@ export const InvoiceComponentAlt = React.forwardRef(
         <div> {`Sucursal No ${branchInfo?.nro}`}</div>
         <div className="simpleSeparator"></div>
         <div>FACTURA</div>
-        <div className="textWithLine">ORIGINAL</div>
         <div className="simpleSeparator"></div>
+        <div>ORIGINAL</div>
+        <div className="simpleSeparator"></div>
+        <div className="textWithLine"></div>
         <div>{`NIT ${invoice?.nitEmpresa}`}</div>
         <div>{`FACTURA Nº ${invoice?.nroFactura}`}</div>
-        <div className="cufWidth">{`CUF: `}</div>
+        <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
         <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>
         <div className="simpleSeparator"></div>
-        <div>{`ELABORACIÓN DE OTROS PRODUCTOS ALIMENTICIOS (TOSTADO, TORRADO, MOLIENDA DE CAFÉ, ELAB. DE TÉ, MATES, MIEL ARTIFICIAL, CHOCOLATES, ETC.)`}</div>
+        <div>{`Elaboración de otros productos alimenticios (Tostado, torrado, molienda de cafe, elab. De Té, mates, miel artificial, chocolates. etc.)`}</div>
+        <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>
         <div className="simpleSeparator"></div>
         <div className="leftText">{`Fecha:  ${date}   Hora:  ${time}`}</div>
         <div className="leftText">{`Señor(es):  ${invoice?.razonSocial}`}</div>
         <div className="leftText">{`NIT/CI: ${invoice?.nitCliente}`}</div>
+        <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>
         <div>
           <table>
@@ -54,7 +58,7 @@ export const InvoiceComponentAlt = React.forwardRef(
               </tr>
             </thead>
             <tbody>
-              {selectedProducts?.map((producto, index) => {
+              {selectedProducts.map((producto, index) => {
                 return (
                   <tr key={index}>
                     <td className="xsmallProductLeft">
@@ -77,6 +81,7 @@ export const InvoiceComponentAlt = React.forwardRef(
             </tbody>
           </table>
         </div>
+        <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>
         <div>
           <table className="tablaTotales">
@@ -103,7 +108,9 @@ export const InvoiceComponentAlt = React.forwardRef(
           </table>
         </div>
         <div className="simpleSeparator"></div>
-        <div className="leftText">{`Son:  CON /100`}</div>
+        <div className="leftText">{`Son: ${convertido?.texto.toUpperCase()} CON ${
+          convertido.resto
+        }/100`}</div>
         <div className="leftText">{`Bolivianos`}</div>
         <div className="simpleSeparator"></div>
         <div>
@@ -116,7 +123,11 @@ export const InvoiceComponentAlt = React.forwardRef(
                 ).toFixed(2)}`}</td>
               </tr>
               <tr>
-                <td className="totals">Cambio</td>
+                <td className="totals">
+                  {paymentData?.cambio == "Efectivo-tarjeta"
+                    ? `Tarjeta `
+                    : `Cambio `}
+                </td>
                 <td className="totalsData">{`${parseFloat(
                   paymentData?.cambio
                 ).toFixed(2)}`}</td>
@@ -143,9 +154,10 @@ export const InvoiceComponentAlt = React.forwardRef(
                 "|" +
                 invoice?.nitCliente
             )}
+            size={150}
           />
         </div>
-        <div>{`"ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAIS. EL USO ILICITO DE ESTA SERA SANCIONADO DE ACUERDO A LA LEY"`}</div>
+        <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
         <div className="simpleSeparator"></div>
         <div>
           {" "}
@@ -168,3 +180,5 @@ export const InvoiceComponentAlt = React.forwardRef(
     );
   }
 );
+
+/*  */

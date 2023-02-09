@@ -29,7 +29,7 @@ import {
 import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 
-export default function FormNewSale() {
+export default function FormRouteSale() {
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
   const [clientes, setClientes] = useState([]);
@@ -81,12 +81,13 @@ export default function FormNewSale() {
   const [pointOfSale, setPointOfsale] = useState("");
   const [isPoint, setIsPoint] = useState(false);
   const [otherPayments, setOtherPayments] = useState([]);
+  const [giftCard, setGiftCard] = useState(0);
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 700 ? false : true
   );
-  const [giftCard, setGiftCard] = useState(0);
   const searchRef = useRef(null);
   const productRef = useRef(null);
+
   const quantref = useRef(null);
   useEffect(() => {
     searchRef.current.focus();
@@ -166,6 +167,7 @@ export default function FormNewSale() {
       }, 60000);*/
     }
   }, []);
+
   useEffect(() => {
     function handleResize() {
       if (window.innerWidth < 700) {
@@ -180,6 +182,7 @@ export default function FormNewSale() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
   useEffect(() => {
     if (isQuantity) {
       quantref.current.focus();
@@ -595,9 +598,10 @@ export default function FormNewSale() {
     Cookies.set("pdv", id, { expires: 0.5 });
     setIsPoint(true);
   }
+
   return (
     <div>
-      <div className="formLabel">VENTAS AGENCIA</div>
+      <div className="formLabel">VENTAS RUTA</div>
       <Modal show={!isPoint}>
         <Modal.Header className="modalHeader">Seleccion de Caja</Modal.Header>
         <Modal.Body>
@@ -698,7 +702,7 @@ export default function FormNewSale() {
             setGiftCard={setGiftCard}
             userStore={userStore}
             userId={usuarioAct}
-            saleType="store"
+            saleType="route"
           />
         </div>
       ) : null}

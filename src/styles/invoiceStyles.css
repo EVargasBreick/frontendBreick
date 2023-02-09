@@ -9,6 +9,7 @@
   background-color: white;
   font-stretch: extra-condensed;
   line-height: 1;
+  color: black;
 }
 .invoicePageStart {
   justify-content: center;
@@ -108,4 +109,26 @@
   font-stretch: extra-condensed;
   line-height: 1;
   font-size: smaller;
+}
+
+.rowSeparator {
+  text-align: start;
+  border: solid;
+  border-color: rgb(178, 177, 177);
+  border-left-width: 0mm;
+  border-right-width: 0mm;
+  border-top-width: 0.1mm;
+  border-bottom-width: 0.1mm;
+  padding: 1mm;
+}
+
+.rowSeparatorAlt {
+  text-align: center;
+  border: solid;
+  border-color: rgb(178, 177, 177);
+  border-left-width: 0mm;
+  border-right-width: 0mm;
+  border-top-width: 0.1mm;
+  border-bottom-width: 0.1mm;
+  padding: 1mm;
 }

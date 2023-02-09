@@ -11,7 +11,12 @@ import { SoapInvoice } from "../Xml/soapInvoice";
 import xml2js from "xml2js";
 import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
 import { dateString } from "../services/dateServices";
-
+import { registerDrop } from "../services/dropServices";
+import { updateStock } from "../services/orderServices";
+import { DropComponent } from "./dropComponent";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 export default function SaleModal({
   datos,
   show,
@@ -45,6 +50,7 @@ export default function SaleModal({
   otherPayments,
   userStore,
   userId,
+  saleType,
 }) {
   const numberARef = useRef();
   const numberBRef = useRef();
@@ -63,6 +69,18 @@ export default function SaleModal({
   const [giftCard, setGiftCard] = useState(0);
   const [aPagar, setAPagar] = useState(0);
   const [motivo, setMotivo] = useState("");
+  const [isDrop, setIsDrop] = useState(false);
+  const [dropId, setDropId] = useState(0);
+  const [isSaved, setIsSaved] = useState(false);
+  const dropRef = useRef();
+  const dropButtonRef = useRef();
+  const invButtonRef = useRef();
+  function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+  }
+  const isMobile = isMobileDevice();
   useEffect(() => {
     if (cuf.length > 0) {
       console.log("Correr esto cuando exista cuf");
@@ -73,15 +91,35 @@ export default function SaleModal({
   }, [cuf]);
   useEffect(() => {
     if (isFactura) {
-      console.log("Esto deberia correr una vez que existe el cuf");
-      invoiceRef.current.click();
+      if (invoiceRef.current) {
+        invoiceRef.current.click();
+        console.log("No Se deberia clickear");
+      } else {
+        console.log("Se deberia clickear");
+        invButtonRef.current.click();
+      }
     }
-  }, [isFactura]);
+    if (isDrop) {
+      if (invoiceRef.current) {
+        invoiceRef.current.click();
+        console.log("No Se deberia clickear");
+      } else {
+        console.log("Se deberia clickear");
+        dropButtonRef.current.click();
+      }
+    }
+  }, [isFactura, isDrop]);
   useEffect(() => {
     setCambio(
       Math.abs((cancelado - (datos.totalDescontado - giftCard)).toFixed(2))
     );
   }, [cancelado]);
+
+  useEffect(() => {
+    if (isSaved) {
+      window.location.reload();
+    }
+  }, [isSaved]);
 
   useEffect(() => {
     const canceled = (datos.totalDescontado - giftCard).toFixed(2);
@@ -194,6 +232,7 @@ export default function SaleModal({
         break;
       case "11":
         setStringPago("Baja");
+        setDescuento(0);
         setCancelado(0);
         setOfp(0);
         setCambio(0);
@@ -247,6 +286,8 @@ export default function SaleModal({
             invoiceProcess();
           }
           if (tipoPago == 11) {
+            setAlertSec("Guardando baja");
+            setIsAlertSec(true);
             const objStock = {
               accion: "take",
               idAlmacen: userStore,
@@ -260,6 +301,25 @@ export default function SaleModal({
               productos: selectedProducts,
             };
             console.log("Objeto baja", objBaja);
+            const bajaRegistrada = registerDrop(objBaja);
+            bajaRegistrada
+              .then((res) => {
+                console.log("Se registro la baja correctamente", res.data);
+                setDropId(res.data.id);
+                const updatedStock = updateStock(objStock);
+                updatedStock
+                  .then((res) => {
+                    setIsAlertSec(false);
+                    console.log("Stock actualizado correctamente", res);
+                    setIsDrop(true);
+                  })
+                  .catch((err) => {
+                    console.log("Error al updatear stock", err);
+                  });
+              })
+              .catch((err) => {
+                console.log("error al registrar la baja", err);
+              });
           }
         }
       }
@@ -278,7 +338,7 @@ export default function SaleModal({
     newId
       .then((res) => {
         console.log("ULTIMO NUMERO COMPROBANTE", res.response.data);
-        setInvoiceId(res);
+        setInvoiceId(res.response.data + 1);
 
         setAlertSec("Generando Codigo Único de Facturación");
         const xmlRes = structureXml(
@@ -383,6 +443,38 @@ export default function SaleModal({
     setIsInvoice(false);
     setIsSaleModal(false);
   }
+  const handleDownloadPdfInv = async () => {
+    const element = componentRef.current;
+    console.log("component ref", element);
+    const canvas = await html2canvas(element);
+    const data = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: [100, 1500],
+    });
+    const imgProperties = pdf.getImageProperties(data);
+    const pdfWidth = 75;
+    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`factura-${invoiceId}.pdf`);
+    setIsSaved(true);
+  };
+
+  const handleDownloadPdfDrop = async () => {
+    const element = dropRef.current;
+    const canvas = await html2canvas(element);
+    const data = canvas.toDataURL("image/png");
+    const pdf = new jsPDF();
+    const imgProperties = pdf.getImageProperties(data);
+    const pdfWidth = 70;
+    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+
+    console.log("Largo de la imagen", pdfHeight);
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("nota_entrega.pdf");
+  };
+
   return (
     <div>
       <Modal show={isAlertSec}>
@@ -398,19 +490,52 @@ export default function SaleModal({
           <Modal.Title>{`Facturacion`}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {isFactura ? (
+          {!isMobile ? (
+            isFactura ? (
+              <div>
+                <ReactToPrint
+                  trigger={() => (
+                    <button ref={invoiceRef} hidden>
+                      Print this out!
+                    </button>
+                  )}
+                  content={() => componentRef.current}
+                  onAfterPrint={() => window.location.reload()}
+                />
+                <Button hidden>
+                  <InvoiceComponent
+                    ref={componentRef}
+                    branchInfo={branchInfo}
+                    selectedProducts={selectedProducts}
+                    cuf={cuf}
+                    invoice={invoice}
+                    paymentData={{
+                      tipoPago: stringPago,
+                      cancelado: cancelado,
+                      cambio: cambio,
+                      fechaHora: fechaHora,
+                    }}
+                    totalsData={{
+                      total: total,
+                      descuentoCalculado: descuentoCalculado,
+                      totalDescontado: totalDescontado,
+                    }}
+                  />
+                </Button>
+              </div>
+            ) : null
+          ) : isFactura ? (
             <div>
-              <ReactToPrint
-                trigger={() => (
-                  <button ref={invoiceRef} hidden>
-                    Print this out!
-                  </button>
-                )}
-                content={() => componentRef.current}
-                onAfterPrint={() => window.location.reload()}
-              />
-              <Button hidden>
-                <InvoiceComponent
+              <button
+                hidden
+                type="button"
+                onClick={handleDownloadPdfInv}
+                ref={invButtonRef}
+              >
+                Download as PDF
+              </button>
+              <div>
+                <InvoiceComponentAlt
                   ref={componentRef}
                   branchInfo={branchInfo}
                   selectedProducts={selectedProducts}
@@ -428,11 +553,60 @@ export default function SaleModal({
                     totalDescontado: totalDescontado,
                   }}
                 />
-              </Button>
+              </div>
             </div>
           ) : null}
         </Modal.Body>
       </Modal>
+      {!isMobile ? (
+        isDrop ? (
+          <div>
+            <ReactToPrint
+              trigger={() => (
+                <button ref={invoiceRef} hidden>
+                  Print this out!
+                </button>
+              )}
+              content={() => dropRef.current}
+              onAfterPrint={() => window.location.reload()}
+            />
+            <Button>
+              <DropComponent
+                ref={dropRef}
+                branchInfo={branchInfo}
+                selectedProducts={selectedProducts}
+                cliente={{
+                  nit: invoice.nitCliente,
+                  razonSocial: invoice.razonSocial,
+                }}
+                dropId={dropId}
+              />
+            </Button>
+          </div>
+        ) : null
+      ) : isDrop ? (
+        <div>
+          <button
+            hidden
+            type="button"
+            onClick={handleDownloadPdfDrop}
+            ref={dropButtonRef}
+          >
+            Download as PDF
+          </button>
+          <DropComponent
+            ref={dropRef}
+            branchInfo={branchInfo}
+            selectedProducts={selectedProducts}
+            cliente={{
+              nit: invoice.nitCliente,
+              razonSocial: invoice.razonSocial,
+            }}
+            dropId={dropId}
+          />
+        </div>
+      ) : null}
+
       <Modal show={isSaleModal} size="lg">
         <Modal.Header className="modalHeader">
           <Modal.Title>Facturar</Modal.Title>
@@ -678,6 +852,24 @@ export default function SaleModal({
                   </div>
                 </div>
               ) : null}
+            </div>
+          ) : null}
+          {tipoPago == 11 ? (
+            <div className="modalRows">
+              <div className="modalLabel"> Motivo de la Baja:</div>
+              <div className="modalData">
+                {
+                  <Form className="cardLayout">
+                    <Form.Select onChange={(e) => setMotivo(e.target.value)}>
+                      <option>Seleccione Motivo</option>
+                      <option value="socio">Socio</option>
+                      <option value="vale">Vale</option>
+                      <option value="promo">Promoción</option>
+                      <option value="muestra">Muestra</option>
+                    </Form.Select>
+                  </Form>
+                }
+              </div>
             </div>
           ) : null}
         </Modal.Body>

@@ -38,6 +38,7 @@ export default function FormManageOrders() {
   const [nit, setNit] = useState("");
   const pdfRef = useRef();
   const [descCalculado, setDescCalculado] = useState("");
+  const [notas, setNotas] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -107,6 +108,7 @@ export default function FormManageOrders() {
       setFacturado(res.data.data[0][0].montoTotal);
       setDescCalculado(res.data.data[0][0].descuentoCalculado);
       setNit(res.data.data[0][0].nit);
+      setNotas(res.data.data[0][0].notas);
       const prodList = getOrderProdList(stringParts[0]);
       prodList.then((res) => {
         console.log("Lista de productos", res.data.data);
@@ -308,6 +310,10 @@ export default function FormManageOrders() {
               </Table>
             </div>
           ) : null}
+        </div>
+        <div className="secondHalf">
+          <div className="formLabel">NOTAS DEL PEDIDO</div>
+          <Form.Control value={notas} disabled as="textarea" rows={3} />
         </div>
       </div>
       <div className="secondHalf">

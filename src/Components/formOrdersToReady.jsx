@@ -10,6 +10,8 @@ import ReactToPrint from "react-to-print";
 import Cookies from "js-cookie";
 import { dateString } from "../services/dateServices";
 import { logRejected } from "../services/rejectedServices";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 export default function FormOrdersToReady() {
   const [orderList, setOrderList] = useState([]);
   const [auxOrderList, setAuxOrderList] = useState([]);
@@ -40,7 +42,7 @@ export default function FormOrdersToReady() {
   }, []);
   useEffect(() => {
     if (isPrint) {
-      buttonRef.current.click();
+      //buttonRef.current.click();
     }
   }, [isPrint]);
   useEffect(() => {
@@ -74,6 +76,21 @@ export default function FormOrdersToReady() {
       setIsPrint(true);
     });
   }
+
+  const handleDownloadPdf = async () => {
+    const element = componentRef.current;
+    const canvas = await html2canvas(element);
+    const data = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF();
+    const imgProperties = pdf.getImageProperties(data);
+    const pdfWidth = 75;
+    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    console.log("Largo de la imagen", pdfHeight);
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("print.pdf");
+  };
+
   function afterPrint() {
     setIsPrint(false);
   }
@@ -259,7 +276,19 @@ export default function FormOrdersToReady() {
       </div>
       {isPrint ? (
         <div>
-          <div hidden>
+          <OrderNote productList={productList} ref={componentRef} />
+          <button type="button" onClick={handleDownloadPdf}>
+            Download as PDF
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/*
+
+<div hidden>
             <OrderNote productList={productList} ref={componentRef} />
           </div>
           <ReactToPrint
@@ -276,8 +305,5 @@ export default function FormOrdersToReady() {
             content={() => componentRef.current}
             onAfterPrint={() => afterPrint()}
           />
-        </div>
-      ) : null}
-    </div>
-  );
-}
+
+*/

@@ -21,9 +21,10 @@
     text-align: center;
     color: white;
     background-color: #6a4593;
-    width: 90vw;
-    min-width: 90%;
+    width: 75vw;
+    min-width: 85%;
     padding: 1%;
+    overflow-x: auto;
   }
   .formDisplayWhite {
     text-align: center;
@@ -262,7 +263,7 @@
 .comments {
   padding-top: 3%;
   padding-bottom: 2%;
-  width: 50%;
+  width: 80%;
 }
 
 .percent {
@@ -273,7 +274,7 @@
 .selectorHalf {
   background-color: #5cb8b2;
   color: white;
-  width: 50%;
+  width: 80%;
   border-color: white;
 }
 

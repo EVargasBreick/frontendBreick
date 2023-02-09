@@ -569,7 +569,7 @@ export default function SidebarAdmin() {
                 <Image src={Invoice} className="icon"></Image>Emision de
                 Facturas
             </MenuItem>*/}
-              <MenuItem onClick={() => redirectOnClick("/ventaAgencia")}>
+              <MenuItem onClick={() => redirectOnClick("/ventas/ruta")}>
                 <Image src={Invoice} className="icon"></Image>
                 Ventas Ruta
               </MenuItem>

@@ -11,6 +11,7 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
             <div className="simpleSeparator"></div>
             <div>NOTA DE ORDEN</div>
             {pl.rePrint ? <div>REIMPRESION</div> : null}
+            <div className="simpleSeparator"></div>
             <div className="textWithLine"></div>
             <div className="simpleSeparator"></div>
             <div className="invoiceStart">
@@ -19,6 +20,7 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
               <div>{`Id Pedido: ${pl.id}`}</div>
               <div>{`Usuario solicitante: ${pl.usuario}`}</div>
             </div>
+            <div className="simpleSeparator"></div>
             <div className="textWithLine"></div>
             <div className="simpleSeparator"></div>
             <div>Productos</div>

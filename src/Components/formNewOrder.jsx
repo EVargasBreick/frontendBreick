@@ -86,6 +86,9 @@ export default function FormNewOrder() {
   const [faltantes, setFaltantes] = useState([]);
   const [flagDiscount, setFlagDiscount] = useState(false);
   const [userName, setUserName] = useState("");
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < 700 ? false : true
+  );
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -127,6 +130,22 @@ export default function FormNewOrder() {
       }, 300000);*/
     }
   }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 700) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    }
+    handleResize(); // set the initial state on mount
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   useEffect(() => {
     if (flagDiscount) {
       processDiscounts();
@@ -978,13 +997,16 @@ export default function FormNewOrder() {
           <Form.Group>
             <div className="comments">
               <Form.Control
-                type="text"
+                as="textarea"
+                rows={4}
                 onChange={(e) => {
                   setObservaciones(e.target.value);
                 }}
                 value={observaciones}
                 placeholder="Notas adicionales"
+                maxLength="250"
               ></Form.Control>
+              <div>{`${250 - observaciones.length} caracteres restantes`}</div>
             </div>
           </Form.Group>
           <Form.Group>
@@ -1006,20 +1028,24 @@ export default function FormNewOrder() {
               <Table>
                 <thead>
                   <tr className="tableHeader">
-                    <th className="tableColumnSmall"></th>
-                    <th className="tableColumnSmall">Codigo Producto</th>
-                    <th className="tableColumn">Producto</th>
-                    <th className="tableColumnSmall">Precio Unidad</th>
-                    <th className="tableColumnSmall">Cantidad</th>
-                    <th className="tableColumnSmall">Total</th>
-                    <th className="tableColumnSmall">Cantidad Disponible</th>
+                    <th className="smallTableColumn"></th>
+                    <th className="smallTableColumn">Codigo</th>
+                    <th className="smallTableColumn">Nombre</th>
+                    <th className="smallTableColumn">Precio Unidad /Kg</th>
+                    <th className="smallTableColumn">{`${
+                      isMobile ? "Cant" : "Cantidad"
+                    } /Peso (Gr)`}</th>
+                    <th className="smallTableColumn">Total</th>
+                    <th className="smallTableColumn">
+                      {isMobile ? "Cant Disp" : "Cantidad Disponible"}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...selectedProds].map((sp, index) => {
                     return (
                       <tr className="tableRow" key={index}>
-                        <td className="tableColumnSmall">
+                        <td className="smallTableColumn">
                           <div>
                             <Button
                               onClick={() =>
@@ -1028,16 +1054,18 @@ export default function FormNewOrder() {
                               variant="warning"
                               className="tableButtonAlt"
                             >
-                              Quitar
+                              {isMobile ? "X" : "Quitar"}
                             </Button>
                           </div>
                         </td>
-                        <td className="tableColumnSmall">{sp.codInterno}</td>
-                        <td className="tableColumn">{sp.nombreProducto}</td>
-                        <td className="tableColumnSmall">
+                        <td className="smallTableColumn">{sp.codInterno}</td>
+                        <td className="smallTableColumn">
+                          {sp.nombreProducto}
+                        </td>
+                        <td className="smallTableColumn">
                           {sp.precioDeFabrica + " Bs."}
                         </td>
-                        <td className="tableColumnSmall">
+                        <td className="smallTableColumn">
                           <Form.Control
                             type="number"
                             min="0"
@@ -1048,31 +1076,25 @@ export default function FormNewOrder() {
                             }
                           />
                         </td>
-                        <td className="tableColumnSmall">
+                        <td className="smallTableColumn">
                           {sp.totalProd?.toFixed(2)}
                         </td>
-                        <td className="tableColumnSmall">{sp.cant_Actual}</td>
+                        <td className="smallTableColumn">{sp.cant_Actual}</td>
                       </tr>
                     );
                   })}
                 </tbody>
                 <tfoot>
                   <tr className="tableHeader">
-                    <th className="tableColumnSmall"></th>
-                    <th className="tableColumnSmall"></th>
-                    <th className="tableColumn"></th>
+                    <th className="smallTableColumn"></th>
+                    <th className="smallTableColumn"></th>
+                    <th className="smallTableColumn"></th>
 
-                    <th className="tableColumnSmall"></th>
+                    <th className="smallTableColumn"></th>
 
-                    <th className="tableColumnSmall">{"Total: "}</th>
-                    <th className="tableColumnSmall">
-                      {`${selectedProds
-                        .reduce((accumulator, object) => {
-                          return accumulator + object.totalProd;
-                        }, 0)
-                        .toFixed(2)}`}
-                    </th>
-                    <th className="tableColumnSmall"></th>
+                    <th className="smallTableColumn">{"Total: "}</th>
+                    <th className="smallTableColumn"></th>
+                    <th className="smallTableColumn"></th>
                   </tr>
                 </tfoot>
               </Table>
@@ -1101,3 +1123,11 @@ export default function FormNewOrder() {
     </div>
   );
 }
+
+/**
+
+
+
+
+
+ */
