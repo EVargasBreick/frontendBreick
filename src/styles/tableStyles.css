@@ -85,6 +85,9 @@
 }
 .tableButtonAlt {
   color: white;
+  font-size: small;
+  background-color: rgb(183, 4, 4);
+  outline-color: red;
 }
 .tableInput {
   width: 100%;
@@ -226,14 +229,28 @@
     padding-top: 3%;
     overflow-x: auto;
     max-width: 700px;
-    min-width: 500px;
+    min-width: 320px;
   }
   .smallTableColumn {
-    max-width: 30px;
-    font-size: smaller;
+    max-width: 25px;
+    font-size: x-small;
   }
   .smallTableColumnalt {
-    max-width: 20px;
-    font-size: smaller;
+    max-width: 10px;
+    font-size: x-small;
   }
+  .smallInput {
+    font-size: x-small;
+  }
+  .tableButtonAlt {
+    color: white;
+    font-size: x-small;
+    background-color: rgb(183, 4, 4);
+    outline-color: red;
+  }
+}
+
+.selectMargin {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }

@@ -39,6 +39,7 @@ import RouteTransfer from "./Components/routeTransfer";
 import OrdersToReady from "./Components/ordersToReady";
 import RejectedOrders from "./Components/rejectedOrders";
 import RouteSale from "./Components/routeSale";
+import EditTransfer from "./Components/editTransfer";
 
 function App() {
   return (
@@ -316,6 +317,14 @@ function App() {
               element={
                 <RequireAuth>
                   <RouteSale />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/traspasos/editar"
+              element={
+                <RequireAuth>
+                  <EditTransfer />
                 </RequireAuth>
               }
             />

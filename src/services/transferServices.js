@@ -68,10 +68,66 @@ const printedTrasnfer = (id) => {
   });
 };
 
+function updateChangedTransfer(body) {
+  return new Promise((resolve) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+}
+
+function addProductToTransfer(body) {
+  return new Promise((resolve) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+}
+
+function deleteProductFromTransfer(body) {
+  return new Promise((resolve) => {
+    axios
+      .delete(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+}
+
+function updateProductTransfer(body) {
+  return new Promise((resolve) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+}
+
 export {
   createTransfer,
   transferList,
   transferProducts,
   updateTransfer,
   printedTrasnfer,
+  updateChangedTransfer,
+  addProductToTransfer,
+  deleteProductFromTransfer,
+  updateProductTransfer,
 };

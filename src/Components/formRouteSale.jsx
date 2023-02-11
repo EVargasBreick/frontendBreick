@@ -857,9 +857,16 @@ export default function FormRouteSale() {
               <Table>
                 <thead>
                   <tr className="tableHeader">
-                    <th className="smallTableColumn"></th>
-                    <th className="smallTableColumn">Codigo</th>
-                    <th className="smallTableColumn">Producto</th>
+                    <th className="smallTableColumnalt"></th>
+                    {isMobile ? (
+                      <th className="smallTableColumn">Producto</th>
+                    ) : (
+                      <th className="smallTableColumn">Codigo</th>
+                    )}
+                    {!isMobile ? (
+                      <th className="smallTableColumn">Producto</th>
+                    ) : null}
+
                     <th className="smallTableColumn">Precio Unidad /Kg</th>
                     <th className="smallTableColumn">{`${
                       isMobile ? "Cant" : "Cantidad"
@@ -874,11 +881,11 @@ export default function FormRouteSale() {
                   {[...selectedProducts].map((sp, index) => {
                     return (
                       <tr className="tableRow" key={index}>
-                        <td className="smallTableColumn">
+                        <td className="smallTableColumnalt">
                           <div>
                             <Button
                               onSubmit={(e) => e.preventDefault()}
-                              variant="warning"
+                              variant="danger"
                               className="tableButtonAlt"
                               onClick={() => deleteProduct(index)}
                             >
@@ -886,13 +893,21 @@ export default function FormRouteSale() {
                             </Button>
                           </div>
                         </td>
-                        <td className="smallTableColumn">{sp.codInterno}</td>
-                        <td className="smallTableColumn">
-                          {sp.nombreProducto}
-                        </td>
+                        {isMobile ? (
+                          <td className="smallTableColumn">{`${sp.codInterno} ${sp.nombreProducto}`}</td>
+                        ) : (
+                          <td className="smallTableColumn">{`${sp.codInterno}`}</td>
+                        )}
+                        {!isMobile ? (
+                          <td className="smallTableColumn">
+                            {sp.nombreProducto}
+                          </td>
+                        ) : null}
+
                         <td className="smallTableColumn">{`${sp.precioDeFabrica} Bs.`}</td>
                         <td className="smallTableColumn">
                           <Form.Control
+                            className="smallInput"
                             type="number"
                             min="0"
                             placeholder="0"
@@ -916,8 +931,10 @@ export default function FormRouteSale() {
                 </tbody>
                 <tfoot>
                   <tr className="tableHeader">
-                    <th></th>
-                    <th></th>
+                    {!isMobile ? (
+                      <th className="smallTableColumnalt"></th>
+                    ) : null}
+                    <th className="smallTableColumnalt"></th>
                     <th></th>
                     <th className="smallTableColumn">{"Total: "}</th>
                     <th className="smallTableColumn">
