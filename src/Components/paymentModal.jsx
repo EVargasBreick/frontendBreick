@@ -63,12 +63,9 @@ export default function PaymentModal({
     const otrosPagos = otherPaymentsList();
     otrosPagos
       .then((op) => {
-        console.log("Otros pagos", op.data.data[0]);
         setOtherPayments(op.data.data[0]);
       })
-      .catch((err) => {
-        console.log("Otros pagos?", err);
-      });
+      .catch((err) => {});
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserName(JSON.parse(UsuarioAct).usuario);
@@ -84,19 +81,17 @@ export default function PaymentModal({
         ciudad: sucur.ciudad,
         nro: sucur.idImpuestos,
       };
-      console.log("Informacion de la sucursal", branchData);
+
       setBranchInfo(branchData);
     });
   }, []);
   useEffect(() => {
     if (cuf.length > 0) {
-      console.log("Correr esto cuando exista cuf");
       setIsFactura(true);
     }
   }, [cuf]);
   useEffect(() => {
     if (isFactura) {
-      console.log("Esto deberia correr una vez que existe el cuf");
       invoiceRef.current.click();
     }
   }, [isFactura]);
@@ -333,12 +328,12 @@ export default function PaymentModal({
                       if (invocieResponse.CUF[0].length > 10) {
                         setAlertSec("Generando Factura");
                         const resCuf = invocieResponse.CUF[0];
-                        console.log("Rescuf:", resCuf);
+
                         const resCufd = invocieResponse.CUFD[0];
                         const aut = invocieResponse.Autorizacion[0];
                         const fe = invocieResponse.FECHAEMISION[0];
                         const numFac = invocieResponse.NumeroFactura[0];
-                        console.log("guardando factura ", intento);
+
                         const saved = saveInvoice(
                           resCuf,
                           resCufd,
@@ -352,14 +347,13 @@ export default function PaymentModal({
                         );
                         saved.then((res) => {
                           setCuf(resCuf);
-                          console.log("Se renderizo la factura?", isFactura);
+
                           setIsAlertSec(false);
                         });
                         clearInterval(intervalId);
                       } else {
                         intento += 1;
                         setAlertSec("Generando Codigo Único de Facturación");
-                        console.log("Testeando cuf", invocieResponse.CUF);
                       }
                     })
                     .catch((error) => {
@@ -424,7 +418,6 @@ export default function PaymentModal({
       const newInvoice = createInvoice(invoiceBody);
       newInvoice
         .then((res) => {
-          console.log("Respuesta de creacion de la factura", res);
           const newId = res.data.idCreado;
           const created = saveSale(newId);
           created
@@ -438,8 +431,7 @@ export default function PaymentModal({
         .catch((error) => {
           console.log("Error en la creacion de la factura", error);
         });
-      console.log("Cancelado:", cancelado);
-      console.log("Cambio", cambio);
+
       //setIsSaleModal(!isSaleModal);
     });
   }
@@ -486,7 +478,6 @@ export default function PaymentModal({
           console.log("Error al crear la venta", err);
           const deletedInvoice = deleteInvoice(createdId);
           reject(false);
-          console.log("Venta y factura borradas", deletedInvoice);
         });
     });
   }

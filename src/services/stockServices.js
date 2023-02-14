@@ -16,7 +16,6 @@ const getLogStockProduct = (idProducto, fecha) => {
 };
 
 const getLogStockStore = (idAgencia, fecha) => {
-  console.log("Datos ingresados", idAgencia, fecha);
   return new Promise((resolve, reject) => {
     axios
       .get(

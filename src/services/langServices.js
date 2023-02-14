@@ -7,7 +7,6 @@ const getLanguajes = () => {
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/language`
       )
       .then((response) => {
-        console.log("Lenguajes encontrados", response.status);
         if (response.status === 200) {
           resolve(response);
         } else {

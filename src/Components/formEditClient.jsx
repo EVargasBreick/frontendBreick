@@ -124,13 +124,11 @@ export default function FormEditClient(props) {
     });
     getCliente();
     getContacts();
-    console.log("id usuario a editar", props.id);
   }, []);
 
   function getContacts() {
     const contact = getContact(props.id);
     contact.then((res) => {
-      console.log("Contactos del cliente", res.data.data[0]);
       setNombreca(
         res.data.data[0][0] !== undefined ? res.data.data[0][0].nombre : ""
       );
@@ -174,12 +172,11 @@ export default function FormEditClient(props) {
   function getCliente() {
     const cliente = getFullClient(props.id);
     cliente.then((res) => {
-      console.log("Cliente a editar", res.data.data[0][0]);
       const data = res.data.data[0][0];
       const direcciones = res.data.data[0][0].direccion.split("|");
       const codPostales = res.data.data[0][0].codPostal.split("|");
       const telefonos = res.data.data[0][0].telefono.split("|");
-      console.log("Razon social", data.razonSocial);
+
       setRazonSocial(data.razonSocial);
       setNit(data.nit);
       setCorreo(data.correo);
@@ -228,7 +225,7 @@ export default function FormEditClient(props) {
             phoneRes
               .then((res) => {
                 setpTested(true);
-                console.log(res);
+
                 const addressRes = verifyClientAdress(dira, isAdress);
                 addressRes
                   .then((res) => {
@@ -277,7 +274,6 @@ export default function FormEditClient(props) {
                           idContactc
                         );
                         contactosObject.then((contactObject) => {
-                          console.log("Objeto contacto", contactObject);
                           setisLoading(true);
                           const newClient = updateClient(client, props.id);
                           newClient
@@ -297,7 +293,6 @@ export default function FormEditClient(props) {
                                       navigate("/principal");
                                       setisLoading(false);
                                     }, 3000);
-                                    console.log(contact);
                                   })
                                   .catch((err) => {
                                     console.log("Error en la creacion", err);
@@ -346,8 +341,6 @@ export default function FormEditClient(props) {
                 setAlert(err);
                 setIsAlert(true);
               });
-
-            console.log("Correo provisto", res);
           })
           .catch((error) => {
             setcTested(true);

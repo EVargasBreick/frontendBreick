@@ -32,7 +32,6 @@ export default function FormNewTransfer() {
     }
     const stores = getStores();
     stores.then((store) => {
-      console.log("Almacenes", store.data[0]);
       setAlmacen(store.data[0]);
     });
   }, []);
@@ -43,19 +42,16 @@ export default function FormNewTransfer() {
   function prepareStoreId(id, action) {
     const idSub = id.split(" ");
     if (action === "origen") {
-      console.log("Origen", idSub[0]);
       setSelectedProducts([]);
       setIdOrigen(idSub[0]);
       if (idSub[1]) {
         const prods = getProductsWithStock(idSub[0], "all");
         prods.then((product) => {
-          console.log("Productos encontrados", product.data[0]);
           setProductos(product.data[0]);
         });
       } else {
         const prods = getProductsWithStock(id, "all");
         prods.then((product) => {
-          console.log("Productos encontrados", product.data);
           setProductos(product.data[0]);
         });
         setIdOrigen(id + "");
@@ -71,10 +67,9 @@ export default function FormNewTransfer() {
   function addProductToList(product) {
     const produc = JSON.parse(product);
     var aux = false;
-    console.log("Producto seleccionado:", produc);
+
     selectedProducts.map((sp) => {
       if (sp.codInterno === produc.codInterno) {
-        console.log("Producto repetido");
         setAlert("El producto ya se encuentra seleccionado");
         setIsAlert(true);
         aux = true;
@@ -116,12 +111,12 @@ export default function FormNewTransfer() {
     const zeroValidated = validateZero();
     zeroValidated
       .then((validated) => {
-        console.log("Validado correctamente", validated);
         const transferObj = {
           idOrigen: idOrigen,
           idDestino: idDestino,
           idUsuario: userId,
           productos: selectedProducts,
+          transito: 0,
         };
         const reservedProducts = updateStock({
           accion: "take",
@@ -131,7 +126,7 @@ export default function FormNewTransfer() {
         reservedProducts
           .then((res) => {
             setAlertSec("Creando traspaso");
-            console.log(res);
+
             const newTransfer = createTransfer(transferObj);
             newTransfer
               .then((nt) => {
@@ -161,7 +156,6 @@ export default function FormNewTransfer() {
           "La cantidad de un producto seleccionado se encuentra en cero"
         );
         setIsAlert(true);
-        console.log("Algun producto seleccionado se encuentra en cero", error);
       });
   }
   function validateZero() {

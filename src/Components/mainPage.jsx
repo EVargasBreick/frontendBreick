@@ -34,7 +34,6 @@ export default function MainPage() {
     const user = Cookies.get("userAuth");
 
     if (user) {
-      console.log("Rol del usuario:", JSON.parse(Cookies.get("userAuth")).rol);
       if (JSON.parse(Cookies.get("userAuth")).rol == 2) {
         navigate("/ventaAgencia");
       }
@@ -43,9 +42,9 @@ export default function MainPage() {
 
     stats.then((response) => {
       setEstados(response.data.data);
-      console.log("Pedidos aprobados:", response.data.data);
+
       const pendientes = response.data.data[0].find((pd) => pd.estado == 0);
-      console.log("Pendientes:", pendientes);
+
       const cantPen = pendientes != undefined ? pendientes.conteo : 0;
       setPendientes(cantPen);
       const aprobados = response.data.data[0].find((pd) => pd.estado == 1);
@@ -71,12 +70,10 @@ export default function MainPage() {
     });
     const nClientes = numberOfClients();
     nClientes.then((number) => {
-      console.log("Numero de clientes:", number.data.data[0][0]);
       setNumClientes(number.data.data[0][0].NumeroClientes);
     });
     const nProducts = numberOfProducts();
     nProducts.then((number) => {
-      console.log("Numero de productos:", number.data.data[0][0]);
       setNumProds(number.data.data[0][0].NumeroProductos);
     });
   }, []);

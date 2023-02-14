@@ -22,7 +22,6 @@ export default function FormRejectedOrders() {
   useEffect(() => {
     const orders = getRejected();
     orders.then((res) => {
-      console.log("Pedidos listos", res.data.data);
       setOrderList(res.data.data[0]);
     });
   }, []);
@@ -36,7 +35,6 @@ export default function FormRejectedOrders() {
       };
       setOrderDetails(details);
       setIsDetails(true);
-      console.log("Detalles:", details);
     });
   }
   function revisedRejected() {

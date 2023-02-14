@@ -35,7 +35,6 @@ export default function FormInvoiceOrder() {
     const list = orderToInvoiceList();
     list
       .then((res) => {
-        console.log("lista", res);
         setOrderList(res.data.data.data[0]);
         setAuxOrderList(res.data.data.data[0]);
       })
@@ -86,7 +85,7 @@ export default function FormInvoiceOrder() {
     orderDetails
       .then((os) => {
         const details = os.data.response.data[0];
-        console.log("Detalles del pedido", os.data.response.data[0]);
+
         var saleProducts = [];
         details.map((dt) => {
           const saleObj = {
@@ -101,7 +100,7 @@ export default function FormInvoiceOrder() {
           };
           saleProducts.push(saleObj);
         });
-        console.log("Productos", saleProducts);
+
         setSelectedProducts(saleProducts);
         const tot = os.data.response.data[0][0];
         var totis = {

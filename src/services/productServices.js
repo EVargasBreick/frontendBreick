@@ -83,7 +83,6 @@ const updateForMissing = (selectedProds, faltantes) => {
   var sinDesc = [];
   var especiales = [];
   selectedProds.map((prod) => {
-    console.log("Producto que llego hasta aca", prod);
     const foundProd = faltantes.find((ft) => ft.idProducto == prod.idProducto);
     let auxObj;
     var isZero = false;
@@ -158,7 +157,6 @@ const updateForMissing = (selectedProds, faltantes) => {
 const updateForMissingSample = (selectedProds, faltantes) => {
   var modifiedProds = [];
   selectedProds.map((prod) => {
-    console.log("Producto que llego hasta aca", prod);
     const foundProd = faltantes.find((ft) => ft.idProducto == prod.idProducto);
     let auxObj;
     var isZero = false;

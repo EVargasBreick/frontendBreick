@@ -83,28 +83,22 @@ export default function SaleModal({
   const isMobile = isMobileDevice();
   useEffect(() => {
     if (cuf.length > 0) {
-      console.log("Correr esto cuando exista cuf");
       setIsFactura(true);
       setInvoceMod(true);
     }
-    console.log("Point of sale in the modal", pointOfSale);
   }, [cuf]);
   useEffect(() => {
     if (isFactura) {
       if (invoiceRef.current) {
         invoiceRef.current.click();
-        console.log("No Se deberia clickear");
       } else {
-        console.log("Se deberia clickear");
         invButtonRef.current.click();
       }
     }
     if (isDrop) {
       if (invoiceRef.current) {
         invoiceRef.current.click();
-        console.log("No Se deberia clickear");
       } else {
-        console.log("Se deberia clickear");
         dropButtonRef.current.click();
       }
     }
@@ -300,17 +294,16 @@ export default function SaleModal({
               idAlmacen: userStore,
               productos: selectedProducts,
             };
-            console.log("Objeto baja", objBaja);
+
             const bajaRegistrada = registerDrop(objBaja);
             bajaRegistrada
               .then((res) => {
-                console.log("Se registro la baja correctamente", res.data);
                 setDropId(res.data.id);
                 const updatedStock = updateStock(objStock);
                 updatedStock
                   .then((res) => {
                     setIsAlertSec(false);
-                    console.log("Stock actualizado correctamente", res);
+
                     setIsDrop(true);
                   })
                   .catch((err) => {
@@ -337,7 +330,6 @@ export default function SaleModal({
     const newId = getInvoiceNumber(lastIdObj);
     newId
       .then((res) => {
-        console.log("ULTIMO NUMERO COMPROBANTE", res.response.data);
         setInvoiceId(res.response.data + 1);
 
         setAlertSec("Generando Codigo Único de Facturación");
@@ -396,12 +388,12 @@ export default function SaleModal({
                       if (invocieResponse.CUF[0].length > 10) {
                         setAlertSec("Generando Factura");
                         const resCuf = invocieResponse.CUF[0];
-                        console.log("Rescuf:", resCuf);
+
                         const resCufd = invocieResponse.CUFD[0];
                         const aut = invocieResponse.Autorizacion[0];
                         const fe = invocieResponse.FECHAEMISION[0];
                         const numFac = invocieResponse.NumeroFactura[0];
-                        console.log("guardando factura ", intento);
+
                         const saved = saveInvoice(
                           resCuf,
                           resCufd,
@@ -415,14 +407,13 @@ export default function SaleModal({
                         );
                         saved.then((res) => {
                           setCuf(resCuf);
-                          console.log("Se renderizo la factura?", isFactura);
+
                           setIsAlertSec(false);
                         });
                         clearInterval(intervalId);
                       } else {
                         intento += 1;
                         setAlertSec("Generando Codigo Único de Facturación");
-                        console.log("Testeando cuf", invocieResponse.CUF);
                       }
                     })
                     .catch((error) => {
@@ -445,7 +436,7 @@ export default function SaleModal({
   }
   const handleDownloadPdfInv = async () => {
     const element = componentRef.current;
-    console.log("component ref", element);
+
     const canvas = await html2canvas(element);
     const data = canvas.toDataURL("image/png");
     const pdf = new jsPDF({
@@ -469,8 +460,6 @@ export default function SaleModal({
     const imgProperties = pdf.getImageProperties(data);
     const pdfWidth = 70;
     const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
-
-    console.log("Largo de la imagen", pdfHeight);
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.save("nota_entrega.pdf");
   };

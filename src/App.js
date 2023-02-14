@@ -40,6 +40,8 @@ import OrdersToReady from "./Components/ordersToReady";
 import RejectedOrders from "./Components/rejectedOrders";
 import RouteSale from "./Components/routeSale";
 import EditTransfer from "./Components/editTransfer";
+import StoreRefill from "./Components/storeRefill";
+import TransferReception from "./Components/transferReception";
 
 function App() {
   return (
@@ -325,6 +327,22 @@ function App() {
               element={
                 <RequireAuth>
                   <EditTransfer />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/traspaso/recargar"
+              element={
+                <RequireAuth>
+                  <StoreRefill />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/traspaso/recepcion"
+              element={
+                <RequireAuth>
+                  <TransferReception />
                 </RequireAuth>
               }
             />

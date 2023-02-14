@@ -2,16 +2,13 @@ import { convertJsonToXml, generateInvoiceJson } from "../Xml/invoiceFormat";
 import { SoapLastId } from "../Xml/soapLastId";
 
 function getInvoiceNumber(body) {
-  console.log("Body recibido", body);
   return new Promise((resolve, reject) => {
     const lastId = SoapLastId(body);
     lastId
       .then((res) => {
-        console.log("Respuesta exitosa del id", res);
         resolve(res);
       })
       .catch((err) => {
-        console.log("Error obteniendo el ultimo id", err);
         reject(err);
       });
   });
@@ -34,7 +31,7 @@ function structureXml(
   const current = new Date();
   const formatted = current.toISOString();
   const parts = formatted.split("Z");
-  console.log("Codigo punto de venta en el xml", puntoDeVenta);
+
   return new Promise((resolve, reject) => {
     const dataObj = {
       nitEmisor: invoice.nitEmpresa,

@@ -91,7 +91,6 @@ export default function FormSimpleRegisterClient(props) {
     }
   };
   useEffect(() => {
-    console.log("Userrr", Cookies.get("userAuth"));
     if (Cookies.get("userAuth")) {
       setIdUsuarioActual(JSON.parse(Cookies.get("userAuth")).idUsuario);
     }
@@ -102,7 +101,6 @@ export default function FormSimpleRegisterClient(props) {
     });
     const langu = getLanguajes();
     langu.then((l) => {
-      console.log("Lenguajes", l.data[0]);
       setLang(l.data[0]);
     });
     const zon = getZonas();
@@ -137,7 +135,7 @@ export default function FormSimpleRegisterClient(props) {
             phoneRes
               .then((res) => {
                 setpTested(true);
-                console.log(res);
+
                 const addressRes = verifyClientAdress(dira, isAdress);
                 addressRes
                   .then((res) => {
@@ -183,16 +181,12 @@ export default function FormSimpleRegisterClient(props) {
                           telefcc
                         );
                         contactosObject.then((contactObject) => {
-                          console.log("Objeto contacto", contactObject);
                           setisLoading(true);
                           const newClient = createClient(client);
                           newClient
                             .then((res) => {
                               const newId = res.data.createdId;
-                              console.log(
-                                "Id recien creado",
-                                res.data.createdId
-                              );
+
                               contactObject.map((contact) => {
                                 const newContact = createContact(
                                   contact,
@@ -214,8 +208,6 @@ export default function FormSimpleRegisterClient(props) {
                                         setisLoading(false);
                                       }, 3000);
                                     }
-
-                                    console.log(contact);
                                   })
                                   .catch((err) => {
                                     console.log("Error en la creacion", err);
@@ -234,10 +226,7 @@ export default function FormSimpleRegisterClient(props) {
                                 );
                                 const errorDisplay =
                                   "La combinación de Nit y Zona ya se encuentran registrada en la base de datos";
-                                console.log(
-                                  "Error desde el front",
-                                  errorDisplay
-                                );
+
                                 setAlert(errorDisplay);
                               }
 
@@ -267,8 +256,6 @@ export default function FormSimpleRegisterClient(props) {
                 setAlert(err);
                 setIsAlert(true);
               });
-
-            console.log("Correo provisto", res);
           })
           .catch((error) => {
             setcTested(true);

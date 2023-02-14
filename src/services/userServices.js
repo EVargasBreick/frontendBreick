@@ -17,21 +17,6 @@ const controlUserInput = (
   agencia
 ) => {
   return new Promise((resolve, reject) => {
-    console.log(
-      "Objecto",
-      nombre,
-      apPaterno,
-      apMaterno,
-      correo,
-      usuario,
-      password,
-      vpassword,
-      ci,
-      acceso,
-      idioma,
-      categoria,
-      agencia
-    );
     if (
       !nombre ||
       !correo ||
@@ -110,7 +95,7 @@ const structureUser = (
     idDepto: departamento,
     tipoUsuario: tipoUsuario,
   };
-  console.log("Objeto nuevo usuarii", userObject);
+
   return new Promise((resolve, reject) => {
     resolve(userObject);
   });

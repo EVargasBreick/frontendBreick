@@ -30,7 +30,7 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
                   <th>Cod Interno</th>
                   <th>Producto</th>
                   <th>Cant</th>
-                  <th>Listo</th>
+                  <th>Listo F/R/A*</th>
                 </tr>
               </thead>
               <tbody>
@@ -40,7 +40,9 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
                       <td className="invoiceProduct">{pr.codInterno}</td>
                       <td className="invoiceProduct">{pr.nombreProducto}</td>
                       <td className="invoiceProduct">{pr.cantidadProducto}</td>
-                      <td>
+                      <td style={{ display: "flex", flexDirection: "row" }}>
+                        <div className="tickBox"></div>
+                        <div className="tickBox"></div>
                         <div className="tickBox"></div>
                       </td>
                     </tr>
@@ -65,10 +67,19 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
               <div className="ready">Pedido Listo</div>
             </div>
             <div className="centerContainer">
-              <div className="signatureLine">Firma</div>
+              <div className="signatureLine">Firma Almacen</div>
+            </div>
+            <div className="centerContainer">
+              <div className="signatureLine">Firma Ruta</div>
+            </div>
+            <div className="centerContainer">
+              <div className="signatureLine">Firma Recepción</div>
             </div>
             <div className="simpleSeparator"></div>
             <div className="simpleSeparator">---------------</div>
+            <div className="invoiceStart">
+              <div>{`* Fábrica / Ruta / Agencia`}</div>
+            </div>
           </div>
         );
       })}

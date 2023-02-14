@@ -12,7 +12,6 @@ export default function FormEditProducts() {
   useEffect(() => {
     const allProducts = getProducts("");
     allProducts.then((fetchedProducts) => {
-      console.log("Productos ", fetchedProducts.data.data[0]);
       setprodList(fetchedProducts.data.data[0]);
     });
   }, []);

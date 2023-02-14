@@ -5,8 +5,6 @@ import BreickSimple from "../assets/BreickSimple.png";
 
 // Create Document Component
 export const OrderPDF = ({ detalle, productos, codigo }) => {
-  console.log("Detalle:", detalle);
-  console.log("Productos en PDF", productos);
   return (
     <Document>
       <Page

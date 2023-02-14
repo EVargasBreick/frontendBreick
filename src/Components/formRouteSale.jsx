@@ -92,8 +92,7 @@ export default function FormRouteSale() {
   useEffect(() => {
     searchRef.current.focus();
     const spplited = dateString().split(" ");
-    console.log("Fecha y hora", spplited[1].substring(0, 5));
-    console.log("Convertidooo", convertToText(2898.5).texto);
+
     const newly = Cookies.get("nit");
     if (newly) {
       setSearch(newly);
@@ -103,13 +102,12 @@ export default function FormRouteSale() {
 
     if (UsuarioAct) {
       const PuntoDeVenta = Cookies.get("pdv");
-      console.log("Usuario actual", UsuarioAct);
+
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setUserName(JSON.parse(UsuarioAct).usuario);
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((res) => {
-        console.log("Puntos de venta", res.data.data[0]);
         setPointList(res.data.data[0]);
       });
       if (PuntoDeVenta) {
@@ -124,7 +122,6 @@ export default function FormRouteSale() {
       const otrosPagos = otherPaymentsList();
       otrosPagos
         .then((op) => {
-          console.log("Otros pagos", op.data.data[0]);
           setOtherPayments(op.data.data[0]);
         })
         .catch((err) => {
@@ -140,12 +137,11 @@ export default function FormRouteSale() {
       });
       const suc = getBranches();
       suc.then((resp) => {
-        console.log("Sucursales", resp.data[0]);
         const sucursales = resp.data[0];
         const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
-        console.log("Almacen", alm);
+
         const sucur = sucursales.find((sc) => alm == sc.idAgencia);
-        console.log("Sucursal", sucur);
+
         setSucursal(sucur);
         const branchData = {
           nombre: sucur.nombre,
@@ -198,8 +194,6 @@ export default function FormRouteSale() {
     found.then((res) => {
       setIsClient(true);
       if (res.data.data[0][0]) {
-        console.log("Cliente(s) encontrados:", res.data.data);
-
         if (res.data.data[0].length == 1) {
           filterSelectedOnlyClient(res.data.data[0]);
         } else {
@@ -224,7 +218,6 @@ export default function FormRouteSale() {
         dt.codigoBarras.toString().includes(value.toString())
     );
     if (newList.length == 1) {
-      console.log("Solo uno, proceder");
     }
     setAvailable([...newList]);
   }
@@ -238,7 +231,7 @@ export default function FormRouteSale() {
     setIsSelected(true);
     setIdSelectedClient(searchObject.idCliente);
     setTipoDoc(searchObject.tipoDocumento);
-    console.log("Cliente seleccionado: ", searchObject);
+
     productRef.current.focus();
   }
   function filterSelectedOnlyClient(cliente) {
@@ -248,7 +241,7 @@ export default function FormRouteSale() {
     setIsSelected(true);
     setIdSelectedClient(client.idCliente);
     setTipoDoc(client.tipoDocumento);
-    console.log("Cliente seleccionado: ", client);
+
     productRef.current.focus();
   }
 
@@ -256,10 +249,9 @@ export default function FormRouteSale() {
     if (action == "manual") {
       const produc = JSON.parse(product);
       var aux = false;
-      console.log("Producto seleccionado:", produc);
+
       selectedProducts.map((sp) => {
         if (sp.codInterno === produc.codInterno) {
-          console.log("Producto repetido");
           setIsQuantity(false);
           setAlert("El producto ya se encuentra seleccionado");
           setIsAlert(true);
@@ -297,14 +289,13 @@ export default function FormRouteSale() {
           pr.codInterno == filtered ||
           pr.nombreProducto.toLowerCase().includes(filtered.toLowerCase())
       );
-      console.log("AAAAA", selected);
+
       if (selected != undefined) {
-        console.log("Aca solo se entra si se encuentra producto");
         var aux = false;
         selectedProducts.map((sp) => {
           if (sp.codInterno === selected.codInterno) {
             const indexSelected = selectedProducts.indexOf(sp);
-            console.log("Index test", indexSelected, sp.cantProducto, sp);
+
             const added = parseInt(sp.cantProducto) + 1;
             changeQuantities(indexSelected, added, sp, true);
             aux = true;
@@ -333,7 +324,6 @@ export default function FormRouteSale() {
           setAuxSelectedProducts([...auxSelectedProducts, productObj]);
         }
 
-        console.log("Selected:", selected);
         setFiltered("");
         setIsQuantity(true);
       } else {
@@ -344,10 +334,10 @@ export default function FormRouteSale() {
   }
   function changeQuantitiesModal(e) {
     e.preventDefault();
-    console.log("cantidad capturada en el modal", modalQuantity);
+
     const index = selectedProducts.length - 1;
     const selectedProd = selectedProducts[index];
-    console.log("Index en el arraaaay", selectedProd);
+
     changeQuantities(index, modalQuantity, selectedProd, false);
     setIsQuantity(false);
     setModalQuantity("");
@@ -370,11 +360,10 @@ export default function FormRouteSale() {
   }
   function addWithScanner(e) {
     e.preventDefault();
-    console.log("Leido por scanner", e.target.value);
+
     addProductToList("scanner");
   }
   function changeQuantities(index, cantidad, prod, isScanner) {
-    console.log("Scanner?", isScanner);
     const arrCant = !isScanner ? cantidad.split(".") : cantidad;
     const isThree =
       cantidad === ""
@@ -481,8 +470,6 @@ export default function FormRouteSale() {
             productos: selectedProducts,
           });
           updatedStock.then((us) => {
-            console.log("Stock actualizado", us);
-            console.log("Venta creada", res);
             setAlertSec("Gracias por su compra!");
             resolve(true);
             setIsAlertSec(true);
@@ -541,7 +528,6 @@ export default function FormRouteSale() {
       const newInvoice = createInvoice(invoiceBody);
       newInvoice
         .then((res) => {
-          console.log("Respuesta de creacion de la factura", res);
           const newId = res.data.idCreado;
           const created = saveSale(newId);
           created
@@ -555,20 +541,18 @@ export default function FormRouteSale() {
         .catch((error) => {
           console.log("Error en la creacion de la factura", error);
         });
-      console.log("Cancelado:", cancelado);
-      console.log("Cambio", cambio);
+
       setIsSaleModal(!isSaleModal);
     });
   }
   function handleDiscount() {
     const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
-    console.log("Flag bug 2");
+
     newDiscount.then((nd) => {
       setDescuento(nd);
-      console.log("Flag bug 3");
+
       const discountedProds = saleDiscount(selectedProducts, nd);
       discountedProds.then((res) => {
-        console.log("Flag bug 4");
         setSelectedProducts(res);
         handleModal();
       });
@@ -576,9 +560,8 @@ export default function FormRouteSale() {
   }
 
   function validateQuantities() {
-    console.log("Id selected client", idSelectedClient, selectedClient);
     const validated = verifyQuantities(selectedProducts);
-    console.log("Flag bug 1");
+
     validated
       .then(() => {
         handleDiscount();
@@ -593,7 +576,6 @@ export default function FormRouteSale() {
     setIsCreate(true);
   }
   function handleSalePoint(id) {
-    console.log("Id punto de venta", id);
     setPointOfsale(id);
     Cookies.set("pdv", id, { expires: 0.5 });
     setIsPoint(true);

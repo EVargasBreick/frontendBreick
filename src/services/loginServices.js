@@ -11,7 +11,6 @@ const loginRequest = (username, password) => {
         }/login/?usuario=${username}&password=${password}&date='${dateString()}'`
       )
       .then((response) => {
-        console.log("Respuesta", response.status);
         if (response.status === 200) {
           resolve(response);
         } else {

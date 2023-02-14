@@ -77,7 +77,6 @@ function saveInvoice(
     const newInvoice = createInvoice(invoiceBody);
     newInvoice
       .then((res) => {
-        console.log("Respuesta de creacion de la factura", res);
         const newId = res.data.idCreado;
         const created = saveSaleFromOrder(
           newId,
@@ -102,8 +101,6 @@ function saveInvoice(
       .catch((error) => {
         console.log("Error en la creacion de la factura", error);
       });
-    console.log("Cancelado:", cancelado);
-    console.log("Cambio", cambio);
   });
 }
 
@@ -119,7 +116,6 @@ function saveSaleFromOrder(
   products,
   fechaHora
 ) {
-  console.log("Creando venta");
   return new Promise((resolve, reject) => {
     const objVenta = {
       pedido: {
@@ -139,10 +135,8 @@ function saveSaleFromOrder(
     const ventaCreada = createSale(objVenta);
     ventaCreada
       .then((res) => {
-        console.log("Venta creada", res);
         const updated = updateInvoicedOrder(idPedido, dateString());
         updated.then((upd) => {
-          console.log("Estado del pedido actualizado", upd);
           resolve(true);
         });
       })
@@ -150,7 +144,6 @@ function saveSaleFromOrder(
         console.log("Error al crear la venta", err);
         const deletedInvoice = deleteInvoice(createdId);
         reject(false);
-        console.log("Venta y factura borradas", deletedInvoice);
       });
   });
 }

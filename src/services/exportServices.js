@@ -1,7 +1,5 @@
 import * as XLSX from "xlsx";
 function ExportToExcel(objProductos, objPedido, codigo, tipo) {
-  console.log("Array de prods", objProductos);
-  console.log("Detalle", objPedido);
   return new Promise((resolve) => {
     var ws_data = objPedido;
     var ws = XLSX.utils.json_to_sheet(ws_data);
@@ -45,11 +43,9 @@ function ExportPastReport(objReporte, nombre, fecha) {
 }
 
 function ExportGeneralSalesReport(objReporte, totales, search, sorted) {
-  console.log("Objeto pal reporte", totales);
   const filtro = search.length > 0 ? `-${search}` : "";
   const sortd = sorted.length > 0 ? `-por ${sorted}` : "";
-  console.log("Search", filtro);
-  console.log("Sorted", sortd);
+
   return new Promise((resolve) => {
     var ws_data = objReporte;
     var ws = XLSX.utils.json_to_sheet(ws_data);

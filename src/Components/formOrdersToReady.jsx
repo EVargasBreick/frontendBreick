@@ -35,14 +35,13 @@ export default function FormOrdersToReady() {
     }
     const orders = ordersToReady();
     orders.then((res) => {
-      console.log("Pedidos listos", res.data.data);
       setOrderList(res.data.data[0]);
       setAuxOrderList(res.data.data[0]);
     });
   }, []);
   useEffect(() => {
     if (isPrint) {
-      //buttonRef.current.click();
+      buttonRef.current.click();
     }
   }, [isPrint]);
   useEffect(() => {
@@ -71,7 +70,7 @@ export default function FormOrdersToReady() {
           rePrint: true,
         },
       ];
-      console.log("Detalles a imprimir", list);
+
       setProductList(list);
       setIsPrint(true);
     });
@@ -86,7 +85,7 @@ export default function FormOrdersToReady() {
     const imgProperties = pdf.getImageProperties(data);
     const pdfWidth = 75;
     const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
-    console.log("Largo de la imagen", pdfHeight);
+
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.save("print.pdf");
   };
@@ -106,7 +105,7 @@ export default function FormOrdersToReady() {
         tipo: ol.tipo,
         intId: ol.idOrden,
       };
-      console.log("Body body", body);
+
       const logged = logRejected(body);
       logged
         .then((lg) => {
@@ -117,7 +116,6 @@ export default function FormOrdersToReady() {
           );
           changed
             .then((ch) => {
-              console.log("Todo bieeen");
               window.location.reload();
             })
             .catch((err) => {
@@ -128,7 +126,6 @@ export default function FormOrdersToReady() {
           console.log("Error al loggear", err);
         });
     } else {
-      console.log("aa");
       setMotiveError("Por favor, proporcione un motivo para el rechazo");
     }
   }
@@ -276,10 +273,23 @@ export default function FormOrdersToReady() {
       </div>
       {isPrint ? (
         <div>
-          <OrderNote productList={productList} ref={componentRef} />
-          <button type="button" onClick={handleDownloadPdf}>
-            Download as PDF
-          </button>
+          <div hidden>
+            <OrderNote productList={productList} ref={componentRef} />
+          </div>
+          <ReactToPrint
+            trigger={() => (
+              <Button
+                variant="warning"
+                className="yellowLarge"
+                ref={buttonRef}
+                hidden
+              >
+                Imprimir ordenes
+              </Button>
+            )}
+            content={() => componentRef.current}
+            onAfterPrint={() => afterPrint()}
+          />
         </div>
       ) : null}
     </div>

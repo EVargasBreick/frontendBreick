@@ -33,7 +33,6 @@ export default function FormNewPack() {
         return accumulator + object.cantidadProducto * object.precioDeFabrica;
       }, 0);
       setTotalPack(tot);
-      console.log("Total cambiando", tot);
     }
   }, [selectedProducts]);
 
@@ -78,7 +77,6 @@ export default function FormNewPack() {
     const packSaved = registerPack(objSave);
     packSaved
       .then((ps) => {
-        console.log("Pack del id", ps);
         saveProduct(ps);
       })
       .catch((err) => {
@@ -87,7 +85,7 @@ export default function FormNewPack() {
   }
   function saveProduct(data) {
     const packId = data.data.id;
-    console.log("Se va a guardar el producto");
+
     const objProd = {
       codInterno: 0,
       nombreProducto: nombrePack,

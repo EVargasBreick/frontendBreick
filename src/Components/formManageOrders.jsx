@@ -56,11 +56,9 @@ export default function FormManageOrders() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Hora actual", new Date());
     const listaPedidos = getOrderList("");
     listaPedidos.then((res) => {
       setPedidosList(res.data.data[0]);
-      console.log("Lista de pedidos", res.data.data[0]);
     });
   }, []);
   const handleClose = () => {
@@ -74,7 +72,6 @@ export default function FormManageOrders() {
     setSelectedOrder(stringParts[0]);
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
-      console.log("TESTEANDO DETALLES", res);
       const fechaDesc = res.data.data[0][0].fechaCrea
         .substring(0, 10)
         .split("/");
@@ -82,7 +79,7 @@ export default function FormManageOrders() {
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
       );
-      console.log("Pedido Seleccionado:", res);
+
       const prodHeaderObj = {
         vendedor: res.data.data[0][0].nombreVendedor,
         cliente: res.data.data[0][0].razonSocial,
@@ -111,7 +108,6 @@ export default function FormManageOrders() {
       setNotas(res.data.data[0][0].notas);
       const prodList = getOrderProdList(stringParts[0]);
       prodList.then((res) => {
-        console.log("Lista de productos", res.data.data);
         res.data.data[0].map((pr) => {
           const pTable = {
             producto: pr.nombreProducto,

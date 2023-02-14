@@ -41,10 +41,9 @@ export default function BodySalesReport() {
   }
   function generateReport() {
     setIsReportLoading(true);
-    console.log("Sooort", sort);
+
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
-      console.log("Desde", fromDate, "Hasta", toDate);
       const reportData = getGeneralSalesReport(
         formatted.from,
         formatted.to,
@@ -54,12 +53,10 @@ export default function BodySalesReport() {
         .then((response) => {
           setReportTable(response.data.data[0]);
           setAuxReportTable(response.data.data[0]);
-          console.log(response.data.data[0]);
+
           setIsReportLoading(false);
         })
-        .catch((error) => {
-          console.log(error);
-        });
+        .catch((error) => {});
     }
   }
 
@@ -102,7 +99,6 @@ export default function BodySalesReport() {
     setSort(value);
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
-      console.log("Desde", fromDate, "Hasta", toDate);
       const reportData = getGeneralSalesReport(
         formatted.from,
         formatted.to,
@@ -112,12 +108,10 @@ export default function BodySalesReport() {
         .then((response) => {
           setReportTable(response.data.data[0]);
           setAuxReportTable(response.data.data[0]);
-          console.log(response.data.data[0]);
+
           setIsReportLoading(false);
         })
-        .catch((error) => {
-          console.log(error);
-        });
+        .catch((error) => {});
     }
   }
   function countElements(array, condition) {
@@ -248,10 +242,7 @@ export default function BodySalesReport() {
       searchBox,
       sort
     );
-    exported.then((res) => {
-      console.log("Exportado a excel");
-    });
-    console.log("A ver que pex", totales);
+    exported.then((res) => {});
   }
   function formattedCuf(cuf) {
     const splitted = cuf.match(/.{25}/g);

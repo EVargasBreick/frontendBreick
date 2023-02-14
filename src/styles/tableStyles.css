@@ -32,11 +32,17 @@
 .tableFoot {
   position: sticky;
   bottom: 0;
-
   background-color: #5cb8b2;
   color: white;
   width: 100%;
   border-color: #6a4593;
+}
+
+.tableFootAlt {
+  background-color: #5cb8b2;
+  color: white;
+  border-color: #6a4593;
+  border-width: 2px;
 }
 
 .tableRow {
@@ -253,4 +259,8 @@
 .selectMargin {
   margin-top: 2rem;
   margin-bottom: 2rem;
+}
+.tableScroll {
+  max-height: 70vh;
+  overflow-y: auto;
 }

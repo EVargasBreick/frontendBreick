@@ -12,7 +12,6 @@ export default function UpdateClient() {
   const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
-    console.log("Props pasados", location);
     if (location.state == null) {
       navigate("/principal");
     }

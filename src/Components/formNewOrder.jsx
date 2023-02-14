@@ -92,7 +92,6 @@ export default function FormNewOrder() {
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
-      console.log("Usuario actual", UsuarioAct);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setUserName(
@@ -110,13 +109,11 @@ export default function FormNewOrder() {
       disponibles.then((fetchedAvailable) => {
         setAvailable(fetchedAvailable.data.data[0]);
         setAuxProducts(fetchedAvailable.data.data[0]);
-        console.log("Disponibles", fetchedAvailable.data.data[0]);
       });
       const dl = productsDiscount(
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
       dl.then((res) => {
-        console.log("Descuentos para el usuario", res.data.data[0]);
         setDiscountList(res.data.data[0]);
       });
       /*const interval = setInterval(() => {
@@ -124,7 +121,7 @@ export default function FormNewOrder() {
           JSON.parse(Cookies.get("userAuth")).idUsuario
         );
         disponibles.then((fetchedAvailable) => {
-          console.log("Stock automaticamente actualizado");
+          
           setAvailable(fetchedAvailable.data.data[0]);
         });
       }, 300000);*/
@@ -159,9 +156,8 @@ export default function FormNewOrder() {
     found.then((res) => {
       setIsClient(true);
       if (res.data.data[0][0]) {
-        console.log("Cliente(s) encontrados:", res.data.data);
         setClientes(res.data.data[0]);
-        console.log("Clientes encontrados:", res.data.data[0]);
+
         setisLoading(false);
       } else {
         setIsClient(false);
@@ -177,13 +173,10 @@ export default function FormNewOrder() {
     array.push(searchObject);
     setClientes(array);
     setIsSelected(true);
-    console.log("Cliente seleccionado: ", searchObject);
   }
 
   function selectProduct(product) {
     const parsed = JSON.parse(product);
-    console.log("Tipo de pedido seleccionado", parsed.tipoProducto);
-
     var aux = false;
     const prodObj = {
       cantPrevia: 0,
@@ -203,38 +196,31 @@ export default function FormNewOrder() {
     };
     selectedProds.map((sp) => {
       if (sp.codInterno === JSON.parse(product).codInterno) {
-        console.log("Producto repetido");
         aux = true;
       }
     });
     if (!aux) {
       switch (parsed.tipoProducto) {
         case 1:
-          console.log("Producto tradicional");
           setTradicionales([...tradicionales, prodObj]);
           break;
         case 2:
-          console.log("Producto de pascua");
           setPascua([...pascua, prodObj]);
           break;
         case 3:
-          console.log("Producto de navidad");
           setNavidad([...navidad, prodObj]);
           break;
         case 4:
-          console.log("Producto de halloween");
           setHalloween([...halloween, prodObj]);
           break;
         case 5:
-          console.log("Producto sin Descuento");
           setSinDesc([...sinDesc, prodObj]);
           break;
         case 6:
-          console.log("Producto especial");
           setEspeciales([...especiales, prodObj]);
           break;
       }
-      console.log("Producto seleccionado", prodObj);
+
       setSelectedProds([...selectedProds, prodObj]);
     }
     setIsProduct(true);
@@ -250,7 +236,6 @@ export default function FormNewOrder() {
     setSelectedProds(auxArray);
     switch (prod.tipoProducto) {
       case 1:
-        console.log("Alterando tradicional");
         const tindex = tradicionales.findIndex((td) => td.idProducto == cod);
         const taux = [...tradicionales];
         taux.splice(tindex, 1);
@@ -296,7 +281,6 @@ export default function FormNewOrder() {
       cantidad = cantidades;
     }
 
-    console.log("Unidad de medida", prod.unidadDeMedida);
     let auxObj = {
       cant_Actual: prod.cant_Actual,
       cantPrevia: prod.cantPrevia,
@@ -319,7 +303,6 @@ export default function FormNewOrder() {
 
     switch (prod.tipoProducto) {
       case 1:
-        console.log("Alterando tradicional");
         const tindex = tradicionales.findIndex(
           (td) => td.idProducto == prod.idProducto
         );
@@ -360,12 +343,10 @@ export default function FormNewOrder() {
         setSinDesc(saux);
         break;
       case 6:
-        console.log("Array especiales", especiales);
-        console.log("Id Producto", prod.idProducto);
         const espIndex = especiales.findIndex(
           (ep) => ep.codInterno == prod.codInterno
         );
-        console.log("Index de especiales", espIndex);
+
         const eaux = [...especiales];
         eaux[espIndex] = auxObj;
         setEspeciales(eaux);
@@ -383,7 +364,6 @@ export default function FormNewOrder() {
     }
   }
   function structureOrder(availables) {
-    console.log("Se corrio la funcion de validar campos");
     return new Promise((resolve) => {
       var error = false;
       if (selectedClient === "") {
@@ -406,18 +386,16 @@ export default function FormNewOrder() {
 
   async function validateAvailability() {
     setDiscModal(false);
-    console.log("Se corrio la funcion de validacion y espera");
+
     setIsAlertSec(true);
     setAlertSec("Validando Pedido");
     setTimeout(() => {
       const validateAva = availabilityInterval();
       validateAva.then((res) => {
-        console.log("Esperaste:", res);
         const disponibles = availableProducts(
           JSON.parse(Cookies.get("userAuth")).idUsuario
         );
         disponibles.then((fetchedAvailable) => {
-          console.log("Disponibilidad verificada");
           const avaSetted = async () => {
             const setted = asyncSetAva(fetchedAvailable.data.data[0]);
             setted.then((res) => {
@@ -439,14 +417,13 @@ export default function FormNewOrder() {
   };
 
   function saveOrder(availables) {
-    console.log("Productos selecionaods", selectedProds);
     const validatedOrder = structureOrder(availables);
     validatedOrder.then((res) => {
       setisLoading(true);
       const tot = selectedProds.reduce((accumulator, object) => {
         return accumulator + object.totalProd;
       }, 0);
-      console.log("Respuesta del validador", res);
+
       if (!res) {
         setAlertSec("Creando pedido ...");
         setIsAlertSec(true);
@@ -471,7 +448,7 @@ export default function FormNewOrder() {
           },
           productos: selectedProds,
         };
-        console.log("Objeto siendo enviado al pedido", objPedido);
+
         setPedidoFinal(ped);
         const stockObject = {
           accion: "take",
@@ -481,15 +458,12 @@ export default function FormNewOrder() {
         const updatedStock = updateStock(stockObject);
         updatedStock
           .then((updatedRes) => {
-            console.log("Stock updateado", updatedRes);
             const newOrder = createOrder(objPedido);
             newOrder
               .then((res) => {
-                console.log("Resposta del pedido", res.data.data.idCreado);
                 const idPedidoCreado = res.data.data.idCreado;
                 const codPedido = getOrderList(res.data.data.idCreado);
                 codPedido.then((resp) => {
-                  console.log("Codigo del pedido creado:", res);
                   const emailBody = {
                     codigoPedido: res.data.data.idCreado,
                     correoUsuario: userEmail,
@@ -499,7 +473,7 @@ export default function FormNewOrder() {
                   emailSent
                     .then((response) => {
                       setIsAlertSec(false);
-                      console.log("Respuesta de la creacion", response);
+
                       setAlert("Pedido Creado correctamente");
                       setIsAlert(true);
                       if (faltantes.length > 0) {
@@ -567,7 +541,6 @@ export default function FormNewOrder() {
   function saveSampleAndTransfer() {
     const arrayInZero = setTotalProductsToZero(selectedProds);
     arrayInZero.then((zero) => {
-      console.log("Productos en cero", zero.modificados);
       const validatedOrder = structureOrder();
       validatedOrder.then((res) => {
         setisLoading(true);
@@ -590,7 +563,7 @@ export default function FormNewOrder() {
             },
             productos: zero.modificados,
           };
-          console.log("Objeto siendo enviado al pedido", objPedido);
+
           const stockObject = {
             accion: "take",
             idAlmacen: userStore,
@@ -599,18 +572,12 @@ export default function FormNewOrder() {
           const updatedStock = updateStock(stockObject);
           updatedStock
             .then((updatedRes) => {
-              console.log("Stock updateado", updatedRes);
               const newOrder = createOrder(objPedido);
               newOrder
                 .then((res) => {
-                  console.log("Resposta del pedido", res.data.data.idCreado);
                   const idPedidoCreado = res.data.data.idCreado;
                   const codPedido = getOrderList(res.data.data.idCreado);
                   codPedido.then((res) => {
-                    console.log(
-                      "Codigo del pedido creado:",
-                      res.data.data[0][0].codigoPedido
-                    );
                     const emailBody = {
                       codigoPedido: res.data.data[0][0].codigoPedido,
                       correoUsuario: userEmail,
@@ -620,7 +587,7 @@ export default function FormNewOrder() {
                     emailSent
                       .then((response) => {
                         setIsAlertSec(false);
-                        console.log("Respuesta de la creacion", response);
+
                         setAlert("Pedido Creado correctamente");
                         setIsAlert(true);
                         if (faltantes.length > 0) {
@@ -692,7 +659,6 @@ export default function FormNewOrder() {
           processDiscounts();
         } else {
           saveSampleAndTransfer();
-          console.log("El pedido es muestra o transfer");
         }
       } else {
         setAlert("Seleccione al menos un producto por favor");
@@ -778,7 +744,6 @@ export default function FormNewOrder() {
         hallObj
       );
       newArr.then((result) => {
-        console.log("Array Alterado", result);
         setSelectedProds(result);
       });
     }
@@ -801,7 +766,7 @@ export default function FormNewOrder() {
     e.preventDefault();
     const finded = selectedProds.find((sp) => sp.codigoBarras === filtered);
     const product = available.find((sp) => sp.codigoBarras === filtered);
-    console.log("Finded", finded);
+
     if (finded === undefined) {
       selectProduct(JSON.stringify(product));
       setFiltered("");
@@ -809,13 +774,10 @@ export default function FormNewOrder() {
       const index = selectedProds.findIndex(
         (sp) => sp.codigoBarras == filtered
       );
-      console.log("Index encontrao", index);
-      console.log("Cantidad previa", selectedProds[index].cantProducto);
+
       changeQuantitys(index, selectedProds[index].cantProducto + 1, product);
       setFiltered("");
     }
-
-    console.log("Leido por scanner", filtered);
   }
   return (
     <div>

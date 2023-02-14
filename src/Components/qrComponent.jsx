@@ -2,7 +2,6 @@ import React from "react";
 
 import { QRCodeCanvas } from "qrcode.react";
 export default function QrComponent({ datos, size }) {
-  console.log("Datos para el qr", datos);
   return (
     <QRCodeCanvas
       id="invoiceQr"

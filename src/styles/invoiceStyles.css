@@ -86,15 +86,15 @@
 .tickBox {
   top: 0;
   border: 1px solid black;
-
   border-left: 1px solid black;
-  width: 15px;
+  width: 20px;
   height: 15px;
+  margin: 5px;
 }
 
 .signatureLine {
   border-top: 1px solid black;
-
+  padding-bottom: 35px;
   margin-bottom: 1rem;
 }
 .ready {

@@ -2,10 +2,9 @@ import React from "react";
 import { Table } from "react-bootstrap";
 
 export default function SpecialsTable({ especiales, totales, isEsp }) {
-  console.log("Trad object pasado", isEsp);
   const isEspe =
     totales.descCalculadoEspeciales?.toFixed(2) > 0 || isEsp ? true : false;
-  console.log("Is especial", isEspe);
+
   return (
     <div>
       {isEspe ? (

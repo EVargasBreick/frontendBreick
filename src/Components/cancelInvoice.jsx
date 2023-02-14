@@ -17,10 +17,8 @@ export default function CancelInvoice() {
         JSON.parse(Cookies.get("userAuth")).rol != 8 ||
         JSON.parse(Cookies.get("userAuth")).rol != 10
       ) {
-        console.log("Todo bien");
       } else {
         navigate("/principal");
-        console.log("Error");
       }
     }
   }, []);

@@ -87,7 +87,6 @@ export default function FormRegisterClient(props) {
     }
   };
   useEffect(() => {
-    console.log("Userrr", Cookies.get("userAuth"));
     if (Cookies.get("userAuth")) {
       setIdUsuarioActual(JSON.parse(Cookies.get("userAuth")).idUsuario);
     }
@@ -98,7 +97,6 @@ export default function FormRegisterClient(props) {
     });
     const langu = getLanguajes();
     langu.then((l) => {
-      console.log("Lenguajes", l.data[0]);
       setLang(l.data[0]);
     });
     const zon = getZonas();
@@ -133,7 +131,7 @@ export default function FormRegisterClient(props) {
             phoneRes
               .then((res) => {
                 setpTested(true);
-                console.log(res);
+
                 const addressRes = verifyClientAdress(dira, isAdress);
                 addressRes
                   .then((res) => {
@@ -179,16 +177,12 @@ export default function FormRegisterClient(props) {
                           telefcc
                         );
                         contactosObject.then((contactObject) => {
-                          console.log("Objeto contacto", contactObject);
                           setisLoading(true);
                           const newClient = createClient(client);
                           newClient
                             .then((res) => {
                               const newId = res.data.createdId;
-                              console.log(
-                                "Id recien creado",
-                                res.data.createdId
-                              );
+
                               contactObject.map((contact) => {
                                 const newContact = createContact(
                                   contact,
@@ -210,8 +204,6 @@ export default function FormRegisterClient(props) {
                                         setisLoading(false);
                                       }, 3000);
                                     }
-
-                                    console.log(contact);
                                   })
                                   .catch((err) => {
                                     console.log("Error en la creacion", err);
@@ -263,8 +255,6 @@ export default function FormRegisterClient(props) {
                 setAlert(err);
                 setIsAlert(true);
               });
-
-            console.log("Correo provisto", res);
           })
           .catch((error) => {
             setcTested(true);

@@ -40,8 +40,7 @@ export default function FormManageTransfer() {
   useEffect(() => {
     const tList = transferList("p");
     tList.then((tl) => {
-      console.log("Transfer list", tl.data.response.data[0]);
-      setList(tl.data.response.data[0]);
+      setList(tl.data[0]);
     });
   }, []);
   const handleClose = () => {
@@ -51,7 +50,6 @@ export default function FormManageTransfer() {
   };
   function setTransfer(tl) {
     return new Promise((resolve) => {
-      console.log("Setteando transferencia");
       setIsLoading(true);
       setProductos([]);
       setNombreOrigen(tl.nombreOrigen);
@@ -62,10 +60,9 @@ export default function FormManageTransfer() {
       setIdOrigen(tl.idOrigen);
       setIdDestino(tl.idDestino);
       setIdTraspaso(tl.idTraspaso);
-      console.log("Id Traspaso", tl.idTraspaso);
+
       const productList = transferProducts(tl.idTraspaso);
       productList.then((pl) => {
-        console.log("Lista de productos", pl.data.response.data[0]);
         setProductos(pl.data.response.data[0]);
         setIsLoading(false);
       });
@@ -75,14 +72,14 @@ export default function FormManageTransfer() {
 
   async function viewTransfer(tl) {
     await setTransfer(tl);
-    console.log("Setteado");
+
     setIsFormModal(true);
   }
 
   async function viewNotSettedTransfer(tl, action) {
     setAction(action);
     await setTransfer(tl);
-    console.log("Setteado");
+
     setVfModal(
       action == "cancel" ? "Confirma cancelación?" : "Confirma aprobación?"
     );
@@ -98,14 +95,12 @@ export default function FormManageTransfer() {
       idTraspaso: idTraspaso,
     });
     canceledTransfer.then((res) => {
-      console.log("Traspaso canfelado", res);
       const returnToStock = updateStock({
         accion: "add",
         idAlmacen: idOrigen,
         productos: productos,
       });
       returnToStock.then((returned) => {
-        console.log("Stock retornado", returned);
         setIsFormModal(false);
         setAlertSec("Traspaso cancelado correctamente");
         setIsAlertSec(true);
@@ -124,21 +119,12 @@ export default function FormManageTransfer() {
       idTraspaso: idTraspaso,
     });
     appTransfer.then((res) => {
-      console.log("Traspaso aprobado", res);
-      const returnToStock = updateStock({
-        accion: "add",
-        idAlmacen: idDestino,
-        productos: productos,
-      });
-      returnToStock.then((returned) => {
-        console.log("Stock aumentado", returned);
-        setIsFormModal(false);
-        setAlertSec("Traspaso aprobado correctamente");
-        setIsAlertSec(true);
-        setTimeout(() => {
-          window.location.reload(false);
-        }, 1000);
-      });
+      setIsFormModal(false);
+      setAlertSec("Traspaso aprobado correctamente");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload(false);
+      }, 1000);
     });
   }
   return (

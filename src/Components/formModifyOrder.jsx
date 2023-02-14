@@ -114,21 +114,19 @@ export default function FormModifyOrders() {
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
-      console.log("Usuario actual", UsuarioAct.correo);
+
       const listaPedidos = getUserOrderList(
         JSON.parse(Cookies.get("userAuth")).idUsuario,
         "and estado=0"
       );
       listaPedidos.then((res) => {
         setPedidosList(res.data.data[0]);
-        console.log("Lista de pedidos", res.data.data[0]);
       });
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
     }
 
     const dl = productsDiscount(JSON.parse(Cookies.get("userAuth")).idUsuario);
     dl.then((res) => {
-      console.log("Descuentos para el usuario", res.data.data[0]);
       setDiscountList(res.data.data[0]);
     });
     const disponibles = availableProducts(
@@ -167,34 +165,27 @@ export default function FormModifyOrders() {
     };
     selectedProds.map((sp) => {
       if (sp.codInterno === JSON.parse(product).codInterno) {
-        console.log("Producto repetido");
         aux = true;
       }
     });
     if (!aux) {
       switch (parsed.tipoProducto) {
         case 1:
-          console.log("Producto tradicional");
           setTradicionales([...tradicionales, prodObj]);
           break;
         case 2:
-          console.log("Producto de pascua");
           setPascua([...pascua, prodObj]);
           break;
         case 3:
-          console.log("Producto de navidad");
           setNavidad([...navidad, prodObj]);
           break;
         case 4:
-          console.log("Producto de halloween");
           setHalloween([...halloween, prodObj]);
           break;
         case 5:
-          console.log("Producto sin Descuento");
           setSinDesc([...sinDesc, prodObj]);
           break;
         case 6:
-          console.log("Producto especial");
           setEspeciales([...especiales, prodObj]);
           break;
       }
@@ -208,7 +199,6 @@ export default function FormModifyOrders() {
     setIsLoading(false);
   };
   function deleteProduct(index, cod, prod) {
-    console.log("Producto:", prod);
     const auxArray = [...selectedProds];
     auxArray.splice(index, 1);
     setSelectedProds(auxArray);
@@ -218,7 +208,7 @@ export default function FormModifyOrders() {
     switch (prod.tipoProducto) {
       case 1:
         const tindex = tradicionales.findIndex((td) => td.idProducto == cod);
-        console.log("Index a alterar", tindex);
+
         const taux = [...tradicionales];
         taux.splice(tindex, 1);
         setTradicionales(taux);
@@ -226,35 +216,35 @@ export default function FormModifyOrders() {
       case 2:
         const pindex = pascua.findIndex((ps) => ps.idProducto == cod);
         const paux = [...pascua];
-        console.log("Index a alterar", pindex);
+
         paux.splice(pindex, 1);
         setPascua(paux);
         break;
       case 3:
         const nindex = navidad.findIndex((nv) => nv.idProducto == cod);
         const naux = [...navidad];
-        console.log("Index a alterar", nindex);
+
         naux.splice(nindex, 1);
         setNavidad(naux);
         break;
       case 4:
         const hindex = halloween.findIndex((hl) => hl.idProducto == cod);
         const haux = [...halloween];
-        console.log("Index a alterar", hindex);
+
         haux.splice(hindex, 1);
         setHalloween(haux);
         break;
       case 5:
         const sindex = sinDesc.findIndex((sd) => sd.idProducto == cod);
         const saux = [...sinDesc];
-        console.log("Index a alterar", sindex);
+
         saux.splice(sindex, 1);
         setSinDesc(saux);
         break;
       case 6:
         const eindex = especiales.findIndex((ep) => ep.idProducto == cod);
         const eaux = [...especiales];
-        console.log("Index a alterar", eindex);
+
         eaux.splice(eindex, 1);
         setEspeciales(eaux);
         break;
@@ -274,11 +264,11 @@ export default function FormModifyOrders() {
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
     setSelectedOrder(stringParts[0]);
-    console.log("String parts", stringParts);
+
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
       setSelectedProds([]);
-      console.log("Detalles de la orden", res.data.data[0][0]);
+
       setAuxOrder(res.data.data[0][0]);
       setFechaPedido(res.data.data[0][0].fechaCrea);
       const fechaDesc = res.data.data[0][0].fechaCrea
@@ -287,7 +277,7 @@ export default function FormModifyOrders() {
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
       );
-      console.log("Pedido Seleccionado:", res);
+
       setIdPedido(res.data.data[0][0].idPedido);
       const prodHeaderObj = {
         vendedor: res.data.data[0][0].nombreVendedor,
@@ -318,7 +308,6 @@ export default function FormModifyOrders() {
       const prodList = getOrderProdList(stringParts[0]);
 
       prodList.then((res) => {
-        console.log("Lista de productos", res.data.data[0]);
         res.data.data[0].map((prod) => {
           const objProd = {
             cantProducto: prod.cantidadProducto,
@@ -336,8 +325,6 @@ export default function FormModifyOrders() {
         var sinArray = [];
         var espArray = [];
         res.data.data[0].map((parsed, index) => {
-          console.log("Index de producto", index);
-          console.log("Nombre producto", parsed.precioDescuentoFijo);
           const prodObj = {
             cantPrevia: parsed.cantidadProducto,
             cantProducto: parsed.cantidadProducto,
@@ -358,27 +345,21 @@ export default function FormModifyOrders() {
           setSelectedProds((selectedProds) => [...selectedProds, prodObj]);
           switch (parsed.tipoProducto) {
             case 1:
-              console.log("Producto tradicional agregado");
               tradArray.push(prodObj);
               break;
             case 2:
-              console.log("Producto de pascua agregado");
               pasArray.push(prodObj);
               break;
             case 3:
-              console.log("Producto de navidad agregado");
               navArray.push(prodObj);
               break;
             case 4:
-              console.log("Producto de halloween agregado");
               hallArray.push(prodObj);
               break;
             case 5:
-              console.log("Producto sin Descuento agregado");
               sinArray.push(prodObj);
               break;
             case 6:
-              console.log("Producto especial agregado");
               espArray.push(prodObj);
               break;
           }
@@ -426,7 +407,6 @@ export default function FormModifyOrders() {
     setSelectedProds(auxSelected);
     switch (prod.tipoProducto) {
       case 1:
-        console.log("Alterando tradicional");
         const tindex = tradicionales.findIndex(
           (td) => td.idProducto == prod.idProducto
         );
@@ -483,8 +463,7 @@ export default function FormModifyOrders() {
     } else {
       setAlertSec("Cancelando pedido y actualizando kardex");
       setIsAlertSec(true);
-      console.log("Id del pedido a cancelar", idPedido);
-      console.log("Productos a borrar", auxSelectedProds);
+
       const objProdsDelete = {
         accion: "add",
         idAlmacen: userStore,
@@ -492,7 +471,6 @@ export default function FormModifyOrders() {
       };
       const reStocked = updateStock(objProdsDelete);
       reStocked.then((rs) => {
-        console.log("Id del pedido a cancelar", idPedido);
         const canceled = cancelOrder(idPedido);
         canceled.then((cld) => {
           setAlertSec("Pedido cancelado y kardex actualizado, redirigiendo...");
@@ -573,7 +551,6 @@ export default function FormModifyOrders() {
         descuento === prevDisc &&
         auxSelectedProds.length === selectedProds.length
       ) {
-        console.log("No se han detectado cambios en el pedido ");
         setAlert("No se han detectado cambios en el pedido ");
         setIsAlert(true);
       } else {
@@ -587,7 +564,6 @@ export default function FormModifyOrders() {
         const updatedStock = updateStock(toUpdateTakes);
         updatedStock
           .then((res) => {
-            console.log("Stock Updateado para sacar productos");
             const toUpdateAdds = {
               accion: "add",
               idAlmacen: userStore,
@@ -596,15 +572,12 @@ export default function FormModifyOrders() {
             const updatedStockThen = updateStock(toUpdateAdds);
             updatedStockThen
               .then((res) => {
-                console.log("Stock Updateado para reponer productos");
                 const toAddProducts = {
                   idPedido: idPedido,
                   productos: objProductsAdded,
                 };
                 const addedProds = addProductToOrder(toAddProducts);
                 addedProds.then((added) => {
-                  console.log("Productos agregados a pedido");
-                  console.log(added);
                   const toUpdateProducts = {
                     idPedido: idPedido,
                     productos: objProductsUpdated,
@@ -616,7 +589,6 @@ export default function FormModifyOrders() {
                     };
                     const deletedProds = deleteProductOrder(objDeletedProds);
                     deletedProds.then((res) => {
-                      console.log("Productos borrados del array");
                       const updOrder = updateDbOrder(objUpdateOrder);
                       updOrder
                         .then((upo) => {
@@ -653,7 +625,6 @@ export default function FormModifyOrders() {
                 });
               })
               .catch((error) => {});
-            console.log(res);
           })
           .catch((error) => {
             setFaltantes(error.response.data.faltantes);
@@ -697,7 +668,7 @@ export default function FormModifyOrders() {
         sinDesc,
         descuento
       );
-      console.log("Testeando resposta", objDesc);
+
       setDescSimple(objDesc);
       setTotalDesc(objDesc.descCalculado + objDesc.descCalculadoEspeciales);
       setTotalPrevio(objDesc.totalDescontables + objDesc.totalEspecial);
@@ -718,10 +689,7 @@ export default function FormModifyOrders() {
       const pasObj = easterDiscounts(pascua, discountList);
       const navObj = christmassDiscounts(navidad, discountList);
       const hallObj = halloweenDiscounts(halloween, discountList);
-      console.log("Objeto tradicionales", tradObj);
-      console.log("Objeto pascua", pasObj);
-      console.log("Objeto navidad", navObj);
-      console.log("Objeto Hall", hallObj);
+
       setTradObject(tradObj);
       setPasObject(pasObj);
       setNavObject(navObj);
@@ -791,7 +759,7 @@ export default function FormModifyOrders() {
     e.preventDefault();
     const finded = selectedProds.find((sp) => sp.codigoBarras === filtered);
     const product = available.find((sp) => sp.codigoBarras === filtered);
-    console.log("Finded", finded);
+
     if (finded === undefined) {
       selectProduct(JSON.stringify(product));
       setFiltered("");
@@ -800,8 +768,6 @@ export default function FormModifyOrders() {
       setIsAlert(true);
       setFiltered("");
     }
-
-    console.log("Leido por scanner", filtered);
   }
 
   return (

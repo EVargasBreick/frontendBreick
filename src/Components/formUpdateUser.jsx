@@ -48,12 +48,10 @@ export default function FormUpdateUser() {
     });
     const lang = getLanguajes();
     lang.then((l) => {
-      console.log("Lenguajes", l);
       setLang(l.data[0]);
     });
     const rol = getRoles();
     rol.then((r) => {
-      console.log("Roles", r);
       setRoles(r.data[0]);
     });
     const deptos = getDepartamentos();
@@ -77,11 +75,9 @@ export default function FormUpdateUser() {
       agencia
     );
     verifyInput.then((res) => {
-      console.log("Respuesta verificacion inputs:", res);
       if (res) {
         const verifyPassword = verifySamePassword(password, vPassword);
-        console.log(password);
-        console.log(vPassword);
+
         verifyPassword
           .then((res) => {
             const object = structureUser(
@@ -133,7 +129,6 @@ export default function FormUpdateUser() {
           navigate("/principal");
           setisLoading(false);
         }, 3000);
-        console.log("Usuario creado", res);
       })
       .catch((error) => {
         const errorMessage = error.response.data.message;
@@ -273,7 +268,6 @@ export default function FormUpdateUser() {
               value={agencia}
               onChange={(e) => {
                 prepareStoreId(e.target.value);
-                console.log("Seleccionado:", agencia);
               }}
             >
               <option>Seleccione Agencia</option>

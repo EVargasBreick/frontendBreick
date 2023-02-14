@@ -45,7 +45,6 @@ export default function FormNewProduct() {
     const tipos = productTypes();
     tipos
       .then((tipos) => {
-        console.log("Tipos", tipos.data.data[0]);
         setTypeList(tipos.data.data[0]);
       })
       .catch((err) => {
@@ -54,18 +53,14 @@ export default function FormNewProduct() {
     const origenes = productOrigin();
     origenes
       .then((origen) => {
-        console.log("Origenes", origen.data.data[0]);
         setOriginList(origen.data.data[0]);
       })
-      .catch((err) => {
-        console.log("Error al cargar los origenes", err);
-      });
+      .catch((err) => {});
   }, []);
   function saveProduct() {
     const validated = validateCodes();
     validated
       .then((res) => {
-        console.log("Se va a guardar el producto");
         const objProd = {
           codInterno: codInterno,
           nombreProducto: nombre,
@@ -95,7 +90,6 @@ export default function FormNewProduct() {
               fechaHora: dateString(),
             });
             inicializado.then((response) => {
-              console.log("Producto agregado correctamente", res, response);
               setAlertSec("Producto agregado correctamente");
               setIsAlertSec(true);
               setTimeout(() => {

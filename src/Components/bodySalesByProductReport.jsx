@@ -36,10 +36,9 @@ export default function BodySalesByProductReport() {
   function generateReport() {
     setSearchBox("");
     setIsReportLoading(true);
-    console.log("Sooort", sort);
+
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
-      console.log("Desde", fromDate, "Hasta", toDate);
       const reportData = getProductSalesReport(
         formatted.from,
         formatted.to,
@@ -49,12 +48,10 @@ export default function BodySalesByProductReport() {
         .then((response) => {
           setReportTable(response.data.data[0]);
           setAuxReportTable(response.data.data[0]);
-          console.log(response.data.data[0]);
+
           setIsReportLoading(false);
         })
-        .catch((error) => {
-          console.log(error);
-        });
+        .catch((error) => {});
     }
   }
 
@@ -91,7 +88,6 @@ export default function BodySalesByProductReport() {
     setSort(value);
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
-      console.log("Desde", fromDate, "Hasta", toDate);
       const reportData = getProductSalesReport(
         formatted.from,
         formatted.to,
@@ -101,15 +97,13 @@ export default function BodySalesByProductReport() {
         .then((response) => {
           setReportTable(response.data.data[0]);
           setAuxReportTable(response.data.data[0]);
-          console.log(response.data.data[0]);
+
           setIsReportLoading(false);
           if (searchBox != "") {
             searchItem(searchBox);
           }
         })
-        .catch((error) => {
-          console.log(error);
-        });
+        .catch((error) => {});
     }
   }
   async function setExcelData() {
@@ -170,10 +164,7 @@ export default function BodySalesByProductReport() {
       searchBox,
       sort
     );
-    exported.then((res) => {
-      console.log("Exportado a excel");
-    });
-    console.log("A ver que pex", totales);
+    exported.then((res) => {});
   }
   return (
     <div>

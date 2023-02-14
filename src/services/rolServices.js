@@ -7,7 +7,6 @@ const getRoles = () => {
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/roles`
       )
       .then((response) => {
-        console.log("Respuesta", response.status);
         if (response.status === 200) {
           resolve(response);
         } else {

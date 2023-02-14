@@ -42,7 +42,6 @@ export default function BodyEodReport() {
     setHora(dateString().split(" ").pop());
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
-      console.log("Usuario actual", JSON.parse(UsuarioAct));
       setUserName(JSON.parse(UsuarioAct).usuario);
       const PuntoDeVenta = Cookies.get("pdv");
       const suc = getBranches();
@@ -58,18 +57,17 @@ export default function BodyEodReport() {
         );
         storeNameList.then((sn) => {
           const list = sn.data.data[0];
-          console.log("Tercer test", list);
+
           const nameSetter = list.find(
             (li) => li.nroPuntoDeVenta == PuntoDeVenta
           );
-          console.log("Name seter", nameSetter);
+
           setStoreData(nameSetter);
         });
       });
     }
   }, []);
   function generateReport() {
-    console.log("Punto de venta", idSucursal);
     const report = getEndOfDayReport({
       idSucursal: idSucursal,
       idPuntoDeVenta: puntoDeVenta,
@@ -77,7 +75,7 @@ export default function BodyEodReport() {
 
     report.then((rp) => {
       const data = rp.data.data[0];
-      console.log("Data", data);
+
       const efectivo = data.find((dt) => dt.tipoPago == 1);
       const tarjeta = data.find((dt) => dt.tipoPago == 2);
       const cheque = data.find((dt) => dt.tipoPago == 3);
@@ -113,15 +111,14 @@ export default function BodyEodReport() {
       transfer ? setTransfer(transfer.totalPagado) : setTransfer(0);
       deposito ? setDeposito(deposito.totalPagado) : setDeposito(0);
       swift ? setSwift(swift.totalPagado) : setSwift(0);
-      console.log("Otros", otros);
-      console.log("Total efectivo", totalEfectivo);
+
       const details = firstAndLastReport({
         idSucursal: idSucursal,
         idPuntoDeVenta: puntoDeVenta,
       });
       details.then((dt) => {
         const det = dt.data.data[0][0];
-        console.log("Detallesss", det);
+
         setNumberInv(det.CantidadFacturas);
         setFirstInv(det.PrimeraFactura);
         setLastInv(det.UltimaFactura);

@@ -29,12 +29,11 @@ export default function FormCancelInvoice() {
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
-      console.log(JSON.parse(UsuarioAct).idAlmacen);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       const facturas = getStoreInvoices(JSON.parse(UsuarioAct).idAlmacen);
       facturas.then((fc) => {
         setAllFacts(fc.data.data[0]);
-        console.log("Facturas de la agencia", fc.data.data[0]);
+
         let uniqueArray = fc.data.data[0].reduce((acc, curr) => {
           if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
             acc.push(curr);
@@ -66,7 +65,7 @@ export default function FormCancelInvoice() {
       motivoAnulacion: motivo,
       nit: parseInt(process.env.REACT_APP_NIT_EMPRESA),
     };
-    console.log(cancelObj);
+
     const canceled = CancelInvoice(cancelObj);
     canceled
       .then((cld) => {
@@ -74,7 +73,6 @@ export default function FormCancelInvoice() {
           cld.response.data.AnularComprobanteResponse[0]
             .AnularComprobanteResult[0];
         if (mensaje.includes("Anulación confirmada del comprobante")) {
-          console.log("Factura anulada", cld);
           const products = allFacts.filter(
             (af) => af.idFactura == invoice.idFactura
           );
@@ -84,7 +82,6 @@ export default function FormCancelInvoice() {
             productos: products,
           });
           returnToStock.then((returned) => {
-            console.log("Stock retornado", returned);
             const anulada = cancelInvoiceUpdate(invoice.idFactura);
             anulada
               .then((an) => {

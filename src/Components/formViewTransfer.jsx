@@ -45,7 +45,6 @@ export default function FormViewTransfer() {
   useEffect(() => {
     const tList = transferList("todo");
     tList.then((tl) => {
-      console.log("Transfer list", tl.data.response.data[0]);
       setList(tl.data.response.data[0]);
     });
   }, []);
@@ -56,7 +55,6 @@ export default function FormViewTransfer() {
   };
   function setTransfer(tl) {
     return new Promise((resolve) => {
-      console.log("Setteando transferencia");
       setIsLoading(true);
       setProductos([]);
       setDetalleTraspaso(tl);
@@ -82,10 +80,9 @@ export default function FormViewTransfer() {
           : "Cancelado",
       };
       setDetalleExcel(detalleExcel);
-      console.log("Id Traspaso", tl.idTraspaso);
+
       const productList = transferProducts(tl.idTraspaso);
       productList.then((pl) => {
-        console.log("Lista de productos", pl.data.response.data[0]);
         setProductos(pl.data.response.data[0]);
         setIsLoading(false);
       });
@@ -95,13 +92,10 @@ export default function FormViewTransfer() {
 
   async function viewTransfer(tl) {
     await setTransfer(tl);
-    console.log("Setteado");
+
     setIsFormModal(true);
   }
-  function handlePdf() {
-    console.log("Detalle del traspaso seleccionado", detalleTraspaso);
-    console.log("Detalle de productoos", productos);
-  }
+  function handlePdf() {}
   return (
     <div>
       <div className="formLabel">VER TRASPASOS </div>

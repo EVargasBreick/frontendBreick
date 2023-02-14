@@ -1,52 +1,14 @@
-import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
+import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 import React from "react";
 import { useState, useEffect } from "react";
 import "../styles/sidebarStyle.scss";
 import "../styles/sidebar.css";
-import File1 from "../assets/file2b.png";
-import NewFile from "../assets/newFile.png";
 import Image from "react-bootstrap/Image";
-import Prod from "../assets/prod.png";
-import Barcode from "../assets/barcode1.png";
-import Flag from "../assets/flag1.png";
-import Map from "../assets/Map.png";
-import Report from "../assets/report.png";
-import Qr from "../assets/qricon2.png";
-import Gears from "../assets/gears.png";
-import Truck from "../assets/truck2.png";
 import Breick from "../assets/Breick-logo.png";
-import Check from "../assets/check.png";
-import leftArrow from "../assets/leftArrow.png";
-import Client from "../assets/client.png";
-import newClient from "../assets/newClient.png";
-import newOrder from "../assets/newOrder.png";
-import Invoice from "../assets/invoice.png";
-import cancelInvoice from "../assets/cancelInvoice.png";
-import cancelSample from "../assets/cancelSample.png";
-import Printer from "../assets/printer.png";
-import appBooking from "../assets/approveBook.png";
-import ReturnWare from "../assets/returnWare.png";
-import Cross from "../assets/cross.png";
-import Load from "../assets/load.png";
-import Log from "../assets/log2.png";
-import Ticket from "../assets/ticket.png";
-import Campaign from "../assets/campaign.png";
-import Star from "../assets/star.png";
-import hStar from "../assets/hStar.png";
-import Book from "../assets/book.png";
-import Lines from "../assets/lines.png";
-import Chocolate from "../assets/chocolate.png";
-import Bill from "../assets/bill.png";
-import Gift from "../assets/Gift.png";
-import Salesman from "../assets/salesman.png";
-import EQR from "../assets/EQR.png";
-import LoginIcon from "../assets/login.png";
-import Screen from "../assets/screen.png";
-import News from "../assets/news.png";
-import Hand from "../assets/hand.png";
 import { useNavigate } from "react-router-dom";
 import "../styles/generalStyle.css";
+import Agencias from "./Sidebars/agencias";
 export default function SidebarStoreSales() {
   const [toggled, setToggled] = useState(false);
   const [toggledProd, setToggledProd] = useState(false);
@@ -178,62 +140,11 @@ export default function SidebarStoreSales() {
             BREICK
           </MenuItem>
           <Menu iconShape="square">
-            <SubMenu
-              title="Modulo Agencias"
-              onClick={() => {
-                toggleSub(4);
-              }}
-              open={toggledAg}
-              icon={<Image src={Map} className="compIcon"></Image>}
-            >
-              <MenuItem onClick={() => redirectOnClick("/ventaAgencia")}>
-                <Image src={Invoice} className="icon"></Image>
-                Ventas Agencia
-              </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/facturas/anular")}>
-                {" "}
-                <Image src={cancelInvoice} className="icon"></Image>Anular
-                Facturas
-              </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/stock/actualizar")}>
-                <Image src={ReturnWare} className="icon inverted"></Image>
-                Actualizar Stock
-              </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/traspaso")}>
-                <Image src={ReturnWare} className="icon inverted"></Image>
-                Traspaso productos
-              </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/verTraspaso")}>
-                <Image src={newOrder} className="icon"></Image>Ver Traspasos
-              </MenuItem>
-              <MenuItem
-                onClick={() => redirectOnClick("/reportes/ventas/cierre")}
-              >
-                <Image src={Book} className="icon"></Image>Reporte cierre diario
-              </MenuItem>
-              <MenuItem
-                onClick={() => redirectOnClick("/reportes/ventas/general")}
-              >
-                <Image src={Book} className="icon"></Image>Reporte libro de
-                ventas
-              </MenuItem>
-              <MenuItem
-                onClick={() => redirectOnClick("/reportes/ventas/productos")}
-              >
-                <Image src={Book} className="icon"></Image>Reporte libro de
-                ventas por producto
-              </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/reportes/log/kardex")}>
-                <Image src={Lines} className="icon"></Image>
-                Reporte Kardex Pasado
-              </MenuItem>
-              <MenuItem
-                onClick={() => redirectOnClick("/reportes/actual/kardex")}
-              >
-                <Image src={Chocolate} className="icon"></Image>Reporte Kardex
-                Actual
-              </MenuItem>
-            </SubMenu>
+            <Agencias
+              toggleSub={toggleSub}
+              redirectOnClick={redirectOnClick}
+              toggledAg={toggledAg}
+            />
           </Menu>
         </Menu>
       </ProSidebar>

@@ -30,13 +30,11 @@ export default function FormAsignPack() {
   useEffect(() => {
     const ag = getOnlyStores();
     ag.then((age) => {
-      console.log("Agencias cargadas", age.data[0]);
       setAgencias(age.data[0]);
     });
     const packList = getPacks();
     packList
       .then((res) => {
-        console.log("Pcks", res.data.data[0]);
         setAllPacks(res.data.data[0]);
         let uniqueArray = res.data.data[0].reduce((acc, curr) => {
           if (!acc.find((obj) => obj.nombrePack === curr.nombrePack)) {
@@ -44,12 +42,10 @@ export default function FormAsignPack() {
           }
           return acc;
         }, []);
-        console.log("UNIQUE", uniqueArray);
+
         setPacks(uniqueArray);
       })
-      .catch((err) => {
-        console.log("Error al cargar", err);
-      });
+      .catch((err) => {});
   }, []);
 
   const handleClose = () => {
@@ -61,7 +57,6 @@ export default function FormAsignPack() {
     setSelectedStoreId(value);
     const stock = getCurrentStockStore(value);
     stock.then((st) => {
-      console.log("Probando", st.data[0]);
       setProductStock(st.data[0]);
       setIsAgency(true);
     });
@@ -69,9 +64,9 @@ export default function FormAsignPack() {
   function selectPack(value) {
     setIsPack(true);
     setSelectedPackId(value);
-    console.log(value);
+
     const prodList = allPacks.filter((pk) => pk.idPack[0] == value);
-    console.log("Pack seleccionado", prodList);
+
     setProductList(prodList);
   }
   function asignPack() {
@@ -90,11 +85,10 @@ export default function FormAsignPack() {
     };
     const updatedForTake = updateStock(objProdsTake);
     updatedForTake.then((resp) => {
-      console.log("Store id", selectedStoreId);
       const found = productList.find(
         (pl) => (pl.idPack[0] = selectedPackId)
       ).idPackProd;
-      console.log("FOUNDDDD", found);
+
       const objProdsAdd = {
         accion: "add",
         idAlmacen: selectedStoreId,
@@ -107,7 +101,6 @@ export default function FormAsignPack() {
       };
       const updatedForAdd = updateStock(objProdsAdd);
       updatedForAdd.then((res) => {
-        console.log("Respuesta de supuestamente agregar", res);
         setAlertSec("Pack asignado correctamente");
         setIsAlertSec(true);
         setTimeout(() => {

@@ -14,12 +14,9 @@ export default function RouteTransfer() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      console.log("Rol del usuario:", JSON.parse(Cookies.get("userAuth")).rol);
       if (JSON.parse(Cookies.get("userAuth")).rol == 3) {
         navigate("/principal");
-        console.log("Error");
       } else {
-        console.log("Todo bien");
       }
     }
   }, []);

@@ -480,3 +480,30 @@ td {
 .halfForm {
   width: 50%;
 }
+
+.checkBoxInput {
+  background-color: white;
+  width: 40px;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  color: currentColor;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.15em solid currentColor;
+
+  transform: scale(1.5);
+}
+
+.checkBoxInput:checked {
+  background-color: #5cb8b2;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  border-color: #5cb8b2;
+  transform: scale(1.5);
+}
+
+.checkBoxContainer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8%;
+}

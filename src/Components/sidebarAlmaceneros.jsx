@@ -48,6 +48,7 @@ import Hand from "../assets/hand.png";
 import Goku from "../assets/goku.png";
 import { useNavigate } from "react-router-dom";
 import "../styles/generalStyle.css";
+import Almacenes from "./Sidebars/almacenes";
 export default function SidebarAlmaceneros() {
   const [toggled, setToggled] = useState(false);
   const [toggledProd, setToggledProd] = useState(false);
@@ -218,26 +219,11 @@ export default function SidebarAlmaceneros() {
             BREICK
           </MenuItem>
           <Menu iconShape="square">
-            <SubMenu
-              onClick={() => {
-                toggleSub(2);
-              }}
-              open={toggledAlm}
-              title="Modulo Almacenes"
-              icon={<Image src={Load} className="compIcon"></Image>}
-            >
-              <MenuItem
-                onClick={() =>
-                  redirectOnClick("/almacenes/recepcionar-pedidos")
-                }
-              >
-                <Image src={leftArrow} className="icon"></Image>Pedidos
-                Entrantes
-              </MenuItem>
-              <MenuItem onClick={() => redirectOnClick("/alistarPedidos")}>
-                <Image src={appBooking} className="icon"></Image>Alistar Pedidos
-              </MenuItem>
-            </SubMenu>
+            <Almacenes
+              toggleSub={toggleSub}
+              redirectOnClick={redirectOnClick}
+              toggledAlm={toggledAlm}
+            />
           </Menu>
         </Menu>
       </ProSidebar>

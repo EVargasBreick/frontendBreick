@@ -38,7 +38,6 @@ const getOrderList = (id) => {
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista?id=${id}`
       )
       .then((response) => {
-        console.log("Que onda", response);
         resolve(response);
       })
       .catch((error) => {
@@ -247,7 +246,6 @@ const updateDbOrder = (body) => {
 };
 
 const deleteProductOrder = (body) => {
-  console.log("Enviando body de remover productos", body);
   return new Promise((resolve, reject) => {
     axios
       .put(
@@ -294,7 +292,6 @@ const orderDetailsInvoice = (id) => {
 };
 
 const updateInvoicedOrder = (id, fecha) => {
-  console.log("SE CORRIO ESTOOO");
   return new Promise((resolve, reject) => {
     axios
       .put(

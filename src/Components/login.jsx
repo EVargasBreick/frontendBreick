@@ -54,7 +54,7 @@ export default function Login() {
       const loginState = loginRequest(username, password);
       loginState.then((userDataFetchd) => {
         setisLoading(false);
-        console.log("Respuesta del fetch", userDataFetchd.data.message);
+
         if (userDataFetchd.data.message === "Usuario encontrado") {
           setuserData(JSON.stringify(userDataFetchd.data.data[0][0]));
           Cookies.set(
@@ -62,10 +62,7 @@ export default function Login() {
             JSON.stringify(userDataFetchd.data.data[0][0]),
             { expires: 0.5 }
           );
-          console.log(
-            "Hora entrada",
-            userDataFetchd.data.data[0][0].horaEntrada + ":00"
-          );
+
           if (
             Date.parse("01/01/2000 " + horaFinal) <
               Date.parse(
@@ -80,9 +77,7 @@ export default function Login() {
                   ":00"
               )
           ) {
-            console.log("Entrando fuera de hora");
           } else {
-            console.log("Entrando en hora");
           }
 
           navigate("/principal");

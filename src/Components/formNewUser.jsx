@@ -48,12 +48,10 @@ export default function FormNewUser() {
     });
     const lang = getLanguajes();
     lang.then((l) => {
-      console.log("Lenguajes", l);
       setLang(l.data[0]);
     });
     const rol = getRoles();
     rol.then((r) => {
-      console.log("Roles", r);
       setRoles(r.data[0]);
     });
     const deptos = getDepartamentos();
@@ -77,11 +75,9 @@ export default function FormNewUser() {
       agencia
     );
     verifyInput.then((res) => {
-      console.log("Respuesta verificacion inputs:", res);
       if (res) {
         const verifyPassword = verifySamePassword(password, vPassword);
-        console.log(password);
-        console.log(vPassword);
+
         verifyPassword
           .then((res) => {
             const object = structureUser(
@@ -132,7 +128,6 @@ export default function FormNewUser() {
           navigate("/principal");
           setisLoading(false);
         }, 3000);
-        console.log("Usuario creado", res);
       })
       .catch((error) => {
         const errorMessage = error.response.data.message;
@@ -162,8 +157,7 @@ export default function FormNewUser() {
   }
   function userType() {
     const corpArray = ["1", "2", "5", "6", "7", "8", "9", "10"];
-    console.log("Categoria:", categoria);
-    console.log("Es categoria 1?", corpArray.includes(categoria));
+
     const tipoUsuario = corpArray.includes(categoria)
       ? 1
       : categoria == 4
@@ -171,7 +165,6 @@ export default function FormNewUser() {
       : dpto == 1
       ? 2
       : 3;
-    console.log("Tipo usuario:", tipoUsuario);
   }
   return (
     <div>
@@ -337,7 +330,6 @@ export default function FormNewUser() {
               value={agencia}
               onChange={(e) => {
                 prepareStoreId(e.target.value);
-                console.log("Seleccionado:", agencia);
               }}
             >
               <option>Seleccione Agencia</option>

@@ -33,7 +33,6 @@ export default function FormUpdateStock() {
     }
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
-      console.log("Productos ", fetchedProducts.data.data[0]);
       setprodList(fetchedProducts.data.data[0]);
       setAuxProd(fetchedProducts.data.data[0]);
     });
@@ -57,7 +56,6 @@ export default function FormUpdateStock() {
     setprodList(auxSelected);
   }
   function validateQuantities() {
-    console.log("Se llega hasta aca");
     setIsToConfirm(true);
     var newProdList = [];
     const auxList = prodList;
@@ -88,7 +86,7 @@ export default function FormUpdateStock() {
     wb.SheetNames.map((sheet) => {
       const workSheet = wb.Sheets[sheet];
       const jsonData = XLSX.utils.sheet_to_json(workSheet);
-      console.log("Json", jsonData);
+
       setJsonExcel(jsonData);
       setJsonTable(jsonData);
     });
@@ -135,7 +133,6 @@ export default function FormUpdateStock() {
     });
     updated
       .then((res) => {
-        console.log("Updateado el stock", res);
         setAlertSec(false);
         setAlert("Stock actualizado");
         setIsAlert(true);

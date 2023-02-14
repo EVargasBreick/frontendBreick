@@ -19,6 +19,13 @@
   color: #6a4593;
 }
 .pSidebar {
-  background-color: #6a4593;
+  background-color: #2e0062;
   margin: 0;
+}
+
+.subMenuText {
+  line-break: auto;
+  display: block;
+  overflow-wrap: break-word;
+  font-size: small;
 }

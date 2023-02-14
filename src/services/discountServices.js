@@ -37,7 +37,6 @@ function traditionalDiscounts(
       totalEspecial <
     1000
   ) {
-    console.log("Sin descuento");
     return {
       total: totalTradicional,
       descuento: 0,
@@ -56,7 +55,7 @@ function traditionalDiscounts(
         totalTradicional * parseFloat(1 - tradA / 100).toFixed(2) +
         totalSinDesc +
         totalEspecial;
-      console.log(`Descuento ${tradA}% Total a facturar`, totalDescontado);
+
       return {
         total: totalTradicional,
         descuento: tradA,
@@ -77,7 +76,7 @@ function traditionalDiscounts(
           totalTradicional * parseFloat(1 - tradB / 100).toFixed(2) +
           totalSinDesc +
           totalEspecial;
-        console.log(`Descuento ${tradB}% Total a facturar`, totalDescontado);
+
         return {
           total: totalTradicional,
           descuento: tradB,
@@ -98,7 +97,7 @@ function traditionalDiscounts(
             totalTradicional * parseFloat(1 - tradC / 100).toFixed(2) +
             totalSinDesc +
             totalEspecial;
-          console.log(`Descuento ${tradC}% Total a facturar`, totalDescontado);
+
           return {
             total: totalTradicional,
             descuento: tradC,
@@ -115,15 +114,11 @@ function traditionalDiscounts(
               totalEspecialDesc <
             20000
           ) {
-            console.log("Descuentos especiales", totalEspecialDesc);
             const totalDescontado =
               totalTradicional * parseFloat(1 - tradD / 100).toFixed(2) +
               totalSinDesc +
               totalEspecial;
-            console.log(
-              `Descuento ${tradD}% Total a facturar`,
-              totalDescontado
-            );
+
             return {
               total: totalTradicional,
               descuento: tradD,
@@ -138,10 +133,7 @@ function traditionalDiscounts(
               totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
               totalSinDesc +
               totalEspecialDesc;
-            console.log(
-              `Descuento ${tradE}% Total a facturar`,
-              totalDescontado
-            );
+
             return {
               total: totalTradicional,
               descuento: tradE,
@@ -171,7 +163,6 @@ function easterDiscounts(pascua, discountList) {
     return accumulator + object.totalProd;
   }, 0);
   if (totalPascua * parseFloat(1 - pasA / 100).toFixed(2) < 1000) {
-    console.log("Sin descuento");
     return {
       total: totalPascua,
       descuento: 0,
@@ -182,7 +173,7 @@ function easterDiscounts(pascua, discountList) {
     if (totalPascua * parseFloat(1 - pasB / 100).toFixed(2) < 3000) {
       const totalDescontado =
         totalPascua * parseFloat(1 - pasA / 100).toFixed(2);
-      console.log(`Descuento ${pasA}% Total a facturar`, totalDescontado);
+
       return {
         total: totalPascua,
         descuento: pasA,
@@ -193,7 +184,7 @@ function easterDiscounts(pascua, discountList) {
       if (totalPascua * parseFloat(1 - pasC / 100).toFixed(2) < 5000) {
         const totalDescontado =
           totalPascua * parseFloat(1 - pasB / 100).toFixed(2);
-        console.log(`Descuento ${pasB}% Total a facturar`, totalDescontado);
+
         return {
           total: totalPascua,
           descuento: pasB,
@@ -204,7 +195,7 @@ function easterDiscounts(pascua, discountList) {
         if (totalPascua * parseFloat(1 - pasD / 100).toFixed(2) < 10000) {
           const totalDescontado =
             totalPascua * parseFloat(1 - pasC / 100).toFixed(2);
-          console.log(`Descuento ${pasC}% Total a facturar`, totalDescontado);
+
           return {
             total: totalPascua,
             descuento: pasC,
@@ -215,7 +206,7 @@ function easterDiscounts(pascua, discountList) {
           if (totalPascua * parseFloat(1 - pasE / 100).toFixed(2) < 20000) {
             const totalDescontado =
               totalPascua * parseFloat(1 - pasD / 100).toFixed(2);
-            console.log(`Descuento ${pasD}% Total a facturar`, totalDescontado);
+
             return {
               total: totalPascua,
               descuento: pasD,
@@ -228,10 +219,7 @@ function easterDiscounts(pascua, discountList) {
             if (totalPascua * parseFloat(1 - pasF / 100).toFixed(2) < 50000) {
               const totalDescontado =
                 totalPascua * parseFloat(1 - pasE / 100).toFixed(2);
-              console.log(
-                `Descuento ${pasE}% Total a facturar`,
-                totalDescontado
-              );
+
               return {
                 total: totalPascua,
                 descuento: pasE,
@@ -247,10 +235,7 @@ function easterDiscounts(pascua, discountList) {
               ) {
                 const totalDescontado =
                   totalPascua * parseFloat(1 - pasF / 100).toFixed(2);
-                console.log(
-                  `Descuento ${pasF}% Total a facturar`,
-                  totalDescontado
-                );
+
                 return {
                   total: totalPascua,
                   descuento: pasF,
@@ -266,10 +251,7 @@ function easterDiscounts(pascua, discountList) {
                 ) {
                   const totalDescontado =
                     totalPascua * parseFloat(1 - pasG / 100).toFixed(2);
-                  console.log(
-                    `Descuento ${pasG}% Total a facturar`,
-                    totalDescontado
-                  );
+
                   return {
                     total: totalPascua,
                     descuento: pasG,
@@ -281,10 +263,7 @@ function easterDiscounts(pascua, discountList) {
                 } else {
                   const totalDescontado =
                     totalPascua * parseFloat(1 - pasH / 100).toFixed(2);
-                  console.log(
-                    `Descuento ${pasH}% Total a facturar`,
-                    totalDescontado
-                  );
+
                   return {
                     total: totalPascua,
                     descuento: pasH,
@@ -313,7 +292,6 @@ function christmassDiscounts(navidad, discountList) {
     return accumulator + object.totalProd;
   }, 0);
   if (totalNavidad * parseFloat(1 - crisA / 100).toFixed(2) < 1000) {
-    console.log("Sin descuento");
     return {
       total: totalNavidad,
       descuento: 0,
@@ -324,7 +302,7 @@ function christmassDiscounts(navidad, discountList) {
     if (totalNavidad * parseFloat(1 - crisB / 100).toFixed(2) < 3000) {
       const totalDescontado =
         totalNavidad * parseFloat(1 - crisA / 100).toFixed(2);
-      console.log(`Descuento ${crisA}% Total a facturar`, totalDescontado);
+
       return {
         total: totalNavidad,
         descuento: crisA,
@@ -335,7 +313,7 @@ function christmassDiscounts(navidad, discountList) {
       if (totalNavidad * parseFloat(1 - crisC / 100).toFixed(2) < 5000) {
         const totalDescontado =
           totalNavidad * parseFloat(1 - crisB / 100).toFixed(2);
-        console.log(`Descuento ${crisB}% Total a facturar`, totalDescontado);
+
         return {
           total: totalNavidad,
           descuento: crisB,
@@ -346,7 +324,7 @@ function christmassDiscounts(navidad, discountList) {
         if (totalNavidad * parseFloat(1 - crisD / 100).toFixed(2) < 10000) {
           const totalDescontado =
             totalNavidad * parseFloat(1 - crisC / 100).toFixed(2);
-          console.log(`Descuento ${crisC}% Total a facturar`, totalDescontado);
+
           return {
             total: totalNavidad,
             descuento: crisC,
@@ -359,10 +337,7 @@ function christmassDiscounts(navidad, discountList) {
           if (totalNavidad * parseFloat(1 - crisE / 100).toFixed(2) < 20000) {
             const totalDescontado =
               totalNavidad * parseFloat(1 - crisD / 100).toFixed(2);
-            console.log(
-              `Descuento ${crisD}% Total a facturar`,
-              totalDescontado
-            );
+
             return {
               total: totalNavidad,
               descuento: crisD,
@@ -374,10 +349,7 @@ function christmassDiscounts(navidad, discountList) {
           } else {
             const totalDescontado =
               totalNavidad * parseFloat(1 - crisE / 100).toFixed(2);
-            console.log(
-              `Descuento ${crisE}% Total a facturar`,
-              totalDescontado
-            );
+
             return {
               total: totalNavidad,
               descuento: crisE,
@@ -403,7 +375,6 @@ function halloweenDiscounts(halloween, discountList) {
     return accumulator + object.totalProd;
   }, 0);
   if (totalHalloween * parseFloat(1 - hallA / 100).toFixed(2) < 1000) {
-    console.log("Sin descuento");
     return {
       total: totalHalloween,
       descuento: 0,
@@ -414,7 +385,7 @@ function halloweenDiscounts(halloween, discountList) {
     if (totalHalloween * parseFloat(1 - hallB / 100).toFixed(2) < 3000) {
       const totalDescontado =
         totalHalloween * parseFloat(1 - hallA / 100).toFixed(2);
-      console.log(`Descuento ${hallA}% Total a facturar`, totalDescontado);
+
       return {
         total: totalHalloween,
         descuento: hallA,
@@ -425,7 +396,7 @@ function halloweenDiscounts(halloween, discountList) {
       if (totalHalloween * parseFloat(1 - hallC / 100).toFixed(2) < 5000) {
         const totalDescontado =
           totalHalloween * parseFloat(1 - hallB / 100).toFixed(2);
-        console.log(`Descuento ${hallB}% Total a facturar`, totalDescontado);
+
         return {
           total: totalHalloween,
           descuento: hallB,
@@ -438,7 +409,7 @@ function halloweenDiscounts(halloween, discountList) {
         if (totalHalloween * parseFloat(1 - hallD / 100).toFixed(2) < 10000) {
           const totalDescontado =
             totalHalloween * parseFloat(1 - hallC / 100).toFixed(2);
-          console.log(`Descuento ${hallC}% Total a facturar`, totalDescontado);
+
           return {
             total: totalHalloween,
             descuento: hallC,
@@ -451,10 +422,7 @@ function halloweenDiscounts(halloween, discountList) {
           if (totalHalloween * parseFloat(1 - hallE / 100).toFixed(2) < 20000) {
             const totalDescontado =
               totalHalloween * parseFloat(1 - hallD / 100).toFixed(2);
-            console.log(
-              `Descuento ${hallD}% Total a facturar`,
-              totalDescontado
-            );
+
             return {
               total: totalHalloween,
               descuento: hallD,
@@ -466,10 +434,7 @@ function halloweenDiscounts(halloween, discountList) {
           } else {
             const totalDescontado =
               totalHalloween * parseFloat(1 - hallE / 100).toFixed(2);
-            console.log(
-              `Descuento ${hallE}% Total a facturar`,
-              totalDescontado
-            );
+
             return {
               total: totalHalloween,
               descuento: hallE,
@@ -517,7 +482,7 @@ function manualAutomaticDiscount(
   const totalDescontado =
     (totalTradicional + totalPascua + totalNavidad + totalHalloween) *
     (1 - descuento / 100);
-  console.log("totaaaala flag flag", especiales);
+
   if (totalDescontado + totalSinDesc + totalEspecialDesc > 20000) {
     return {
       totalDescontables:
@@ -755,7 +720,6 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
 }
 
 function addProductDiscSimple(selectedProds, descSimple) {
-  console.log("Descuento a aplicar", descSimple.descuento);
   var auxProdObj = [];
   return new Promise((resolve) => {
     selectedProds.map((sp) => {
@@ -834,8 +798,7 @@ function verifyAutomaticDiscount(selectedProducts, descuento) {
       const totTradicional = tradicionales.reduce((accumulator, object) => {
         return accumulator + object.total;
       }, 0);
-      console.log("Especiales", totEspeciales);
-      console.log("Trads", totTradicional * 0.93);
+
       if (totTradicional * 0.93 + totEspeciales > 1000) {
         resolve(7);
       } else {

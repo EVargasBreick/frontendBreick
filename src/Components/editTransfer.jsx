@@ -13,12 +13,9 @@ export default function EditTransfer() {
     const user = Cookies.get("userAuth");
 
     if (user) {
-      console.log("Rol del usuario:", JSON.parse(Cookies.get("userAuth")).rol);
       if (JSON.parse(Cookies.get("userAuth")).rol > 0) {
-        console.log("Todo bien");
       } else {
         navigate("/principal");
-        console.log("Error");
       }
     }
   }, []);

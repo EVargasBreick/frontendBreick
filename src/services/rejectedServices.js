@@ -8,7 +8,6 @@ const logRejected = (body) => {
         body
       )
       .then((response) => {
-        console.log("Respuesta", response.status);
         if (response.status === 200) {
           resolve(response);
         } else {
@@ -25,7 +24,6 @@ const getRejected = () => {
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/rechazados`
       )
       .then((response) => {
-        console.log("Respuesta", response.status);
         if (response.status === 200) {
           resolve(response);
         } else {
@@ -42,7 +40,6 @@ const reviseRejected = (id) => {
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/rechazados?id=${id}`
       )
       .then((response) => {
-        console.log("Respuesta", response.status);
         if (response.status === 200) {
           resolve(response);
         } else {

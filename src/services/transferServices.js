@@ -98,8 +98,9 @@ function deleteProductFromTransfer(body) {
   return new Promise((resolve) => {
     axios
       .delete(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos`,
-        body
+        `${process.env.REACT_APP_ENDPOINT_URL}${
+          process.env.REACT_APP_ENDPOINT_PORT
+        }/traspaso/productos?body=${JSON.stringify(body)}`
       )
       .then((response) => {
         resolve(response);
@@ -120,6 +121,30 @@ function updateProductTransfer(body) {
   });
 }
 
+const transitTransfer = (id) => {
+  return new Promise((resolve) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/transito?storeId=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
+const acceptTransferById = (id) => {
+  return new Promise((resolve) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/transito?id=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
 export {
   createTransfer,
   transferList,
@@ -130,4 +155,6 @@ export {
   addProductToTransfer,
   deleteProductFromTransfer,
   updateProductTransfer,
+  transitTransfer,
+  acceptTransferById,
 };

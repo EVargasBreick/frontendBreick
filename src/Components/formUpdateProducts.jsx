@@ -26,7 +26,6 @@ export default function FormUpdateProducts() {
   useEffect(() => {
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
-      console.log("Productos ", fetchedProducts.data.data[0]);
       setprodList(fetchedProducts.data.data[0]);
     });
   }, []);
@@ -36,10 +35,9 @@ export default function FormUpdateProducts() {
   function addProductToList(product) {
     const produc = JSON.parse(product);
     var aux = false;
-    console.log("Producto seleccionado:", produc);
+
     selectedProducts.map((sp) => {
       if (sp.codInterno == produc.codInterno) {
-        console.log("Producto repetido");
         setAlert("El producto ya se encuentra seleccionado");
         setIsAlert(true);
         aux = true;
@@ -78,7 +76,7 @@ export default function FormUpdateProducts() {
   async function handleExcel(fileInput) {
     setSelectedProducts([]);
     const fileObj = fileInput.target.files[0];
-    console.log("Archivo", fileObj.name);
+
     setUpFile(fileObj);
     if (!checkFileExtension(fileObj.name)) {
       setAlert("Tipo de archivo inválido");
@@ -94,7 +92,7 @@ export default function FormUpdateProducts() {
     wb.SheetNames.map((sheet) => {
       const workSheet = wb.Sheets[sheet];
       const jsonData = XLSX.utils.sheet_to_json(workSheet);
-      console.log("Json", jsonData);
+
       setJsonExcel(jsonData);
       setJsonTable(jsonData);
     });
@@ -117,7 +115,6 @@ export default function FormUpdateProducts() {
             .idProducto,
         };
         setSelectedProducts((selectedProducts) => [...selectedProducts, obj]);
-        console.log("Objeto para la tabla", obj);
       }
     });
   }

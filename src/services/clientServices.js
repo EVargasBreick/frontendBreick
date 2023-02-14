@@ -66,13 +66,6 @@ const verifyOblFields = (
   telefono
 ) => {
   return new Promise((resolve, reject) => {
-    console.log("Razon social:", razonSocial);
-    console.log("Nit:", nit);
-    console.log("Zona:", zona);
-    console.log("Idioma:", idioma);
-    console.log("Tipo Precio:", tipoPrecio);
-    console.log("Frecuencia:", frecuencia);
-    console.log("Id vendedor", vendedor);
     if (razonSocial && nit && zona) {
       resolve("Campos obligatorios llenos");
     } else {
@@ -141,9 +134,6 @@ const structureContacts = (
   correocc,
   telefcc
 ) => {
-  console.log("Nombres:", nombreca, nombrecb, nombrecc);
-  console.log("Correos:", correoca, correocb, correocc);
-  console.log("telefonos:", telefca, telefcb, telefcc);
   var contactoArray = [];
   var contactoa = {
     nombre: nombreca,
@@ -182,9 +172,6 @@ const structureEditContacts = (
   idcb,
   idcc
 ) => {
-  console.log("Nombres:", nombreca, nombrecb, nombrecc);
-  console.log("Correos:", correoca, correocb, correocc);
-  console.log("telefonos:", telefca, telefcb, telefcc);
   var contactoArray = [];
   var contactoa = {
     idContacto: idca,
@@ -246,12 +233,6 @@ const updateClient = (clientObject, id) => {
 
 const createContact = (contacto, idCliente) => {
   return new Promise((resolve, reject) => {
-    console.log(
-      "Datos ya en el endpoint:",
-      contacto.nombre,
-      contacto.correo,
-      contacto.telefono
-    );
     if (contacto.nombre && contacto.telefono) {
       axios
         .post(
@@ -277,12 +258,6 @@ const createContact = (contacto, idCliente) => {
 
 const updateContact = (contacto, idCliente) => {
   return new Promise((resolve, reject) => {
-    console.log(
-      "Datos ya en el endpoint:",
-      contacto.nombre,
-      contacto.correo,
-      contacto.telefono
-    );
     if (!contacto.idContacto) {
       if (contacto.nombre && contacto.telefono) {
         axios
@@ -336,7 +311,6 @@ const getClient = (search) => {
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client/rs?search=${search}`
       )
       .then((response) => {
-        console.log("Clienteeeees:", response.data);
         resolve(response);
       })
       .catch((error) => {

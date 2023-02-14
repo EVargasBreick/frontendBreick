@@ -16,6 +16,7 @@ import "../styles/generalStyle.css";
 import { Button, Form, Table } from "react-bootstrap";
 import { getProductsWithStock } from "../services/productServices";
 import { dateString } from "../services/dateServices";
+import LoadingModal from "./Modals/loadingModal";
 export default function FormEditTransfer() {
   const [userId, setUserId] = useState("");
   const [tList, setTList] = useState([]);
@@ -25,6 +26,8 @@ export default function FormEditTransfer() {
   const [deletedProducts, setDeletedProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [stockList, setStockList] = useState([]);
+  const [isAlertSec, setIsAlertSec] = useState(false);
+  const [alertSec, setAlertSec] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -36,27 +39,26 @@ export default function FormEditTransfer() {
         const userList = list.filter(
           (ls) => ls.idUsuario == idUsuario && ls.listo != 1
         );
-        console.log("Lista de traspasos", userList);
+
         setTList(userList);
       });
     }
   }, []);
   function selectTransfer(id) {
-    const details = transferProducts(id);
+    setAlertSec("Cargando traspaso");
+    setIsAlertSec(true);
+
     const storeId = tList.find((tl) => (tl.idTraspaso = id)).idOrigen;
     const prods = getProductsWithStock(storeId, "all");
     prods.then((pr) => {
-      console.log("Stock", pr.data[0]);
       setStockList(pr.data[0]);
-    });
-    details.then((res) => {
-      console.log(
-        "Productos del traspaso seleccionado",
-        res.data.response.data[0]
-      );
-      setSelectedTransfer(tList.find((tl) => tl.idTraspaso == id));
-      setTransferProductList(res.data.response.data[0]);
-      setSelectedProducts(res.data.response.data[0]);
+      const details = transferProducts(id);
+      details.then((res) => {
+        setSelectedTransfer(tList.find((tl) => tl.idTraspaso == id));
+        setTransferProductList(res.data.response.data[0]);
+        setSelectedProducts(res.data.response.data[0]);
+        setIsAlertSec(false);
+      });
     });
   }
   function changeQuantities(index, cantidad) {
@@ -76,7 +78,7 @@ export default function FormEditTransfer() {
       }
       return obj;
     });
-    console.log("Updated array", updatedArray);
+
     setSelectedProducts(updatedArray);
   }
   function addProductToList(pr) {
@@ -131,17 +133,28 @@ export default function FormEditTransfer() {
   };
 
   function sortProducts() {
-    if (
-      JSON.stringify(transferProductList) === JSON.stringify(selectedProducts)
-    ) {
-      console.log("No se detectaron cambios en el traspaso");
+    if (verifyQuantities()) {
+      setAlertSec("Alguno de los productos tiene cantidad 0");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        setIsAlertSec(false);
+      }, 2000);
     } else {
-      const added = compareArrays(selectedProducts, addedProducts);
-      console.log("Productos agregados", added);
-      const deleted = compareArrays(transferProductList, deletedProducts);
-      console.log("Productos borrados", deleted);
-      const remaining = compareArrays(selectedProducts, transferProductList);
-      console.log("Productos que se mantienen", remaining);
+      setAlertSec("Actualizando traspaso");
+      setIsAlertSec(true);
+      if (
+        JSON.stringify(transferProductList) === JSON.stringify(selectedProducts)
+      ) {
+        console.log("No se detectaron cambios en el traspaso");
+      } else {
+        const added = compareArrays(selectedProducts, addedProducts);
+
+        const deleted = compareArrays(transferProductList, deletedProducts);
+
+        const remaining = compareArrays(selectedProducts, transferProductList);
+
+        saveTransfer(added, deleted, remaining);
+      }
     }
   }
 
@@ -151,34 +164,50 @@ export default function FormEditTransfer() {
       productos: added,
     });
     add.then((response) => {
-      console.log("Respuesta del agregado de productos", response);
       const deld = deleteProductFromTransfer({
         idTraspaso: selectedTransfer.idTraspaso,
         productos: deleted,
       });
-      deld.then((res) => {
-        console.log("Respuesta de borrado de productos", res);
-        const rem = updateProductTransfer({
-          idTraspaso: selectedTransfer.idTraspaso,
-          productos: remaining,
-        });
-        rem.then((resp) => {
-          console.log("Productos actualizados", resp);
-          const updateBody = {
-            fechaActualizacion: dateString(),
+      deld
+        .then((res) => {
+          const rem = updateProductTransfer({
             idTraspaso: selectedTransfer.idTraspaso,
-          };
-          const updated = updateChangedTransfer(updateBody);
-          updated.then((up) => {
-            console.log("Pedido actualizado correctamente");
+            productos: remaining,
           });
+          rem.then((resp) => {
+            const updateBody = {
+              fechaActualizacion: dateString(),
+              idTraspaso: selectedTransfer.idTraspaso,
+            };
+            const updated = updateChangedTransfer(updateBody);
+            updated.then((up) => {
+              setAlertSec("Traspaso actualizado");
+              setTimeout(() => {
+                setIsAlertSec(false);
+                window.location.reload();
+              }, 2500);
+            });
+          });
+        })
+        .catch((err) => {
+          console.log("Error al borrar", err);
         });
-      });
     });
+  }
+
+  function verifyQuantities() {
+    const verified = selectedProducts.map((sp) => {
+      if (sp.cantProducto < 1) {
+        return false;
+      }
+      return true;
+    });
+    return verified.includes(false);
   }
 
   return (
     <div>
+      <LoadingModal isAlertSec={isAlertSec} alertSec={alertSec} />
       <div className="formLabel">EDITAR TUS TRASPASOS</div>
       <div>
         <div>Lista de traspasos</div>
@@ -199,94 +228,99 @@ export default function FormEditTransfer() {
       {selectedTransfer.idTraspaso && stockList.length > 0 ? (
         <div>
           <div className="formLabel">Detalles traspaso</div>
-          <Table>
-            <thead>
-              <tr className="tableHeader">
-                <th colSpan={3}>Origen</th>
-                <th colSpan={2}>Destino</th>
-              </tr>
-              <tr className="tableRow">
-                <td colSpan={3}>{selectedTransfer.nombreOrigen}</td>
-                <td colSpan={2}>{selectedTransfer.nombreDestino}</td>
-              </tr>
-              <tr className="tableHeader">
-                <th colSpan={3}>Usuario Solicitante</th>
-                <th colSpan={2}>Fecha creación traspaso</th>
-              </tr>
-              <tr className="tableRow">
-                <td colSpan={3}>{selectedTransfer.nombreCompleto}</td>
-                <td colSpan={2}>{selectedTransfer.fechaCrea}</td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="tableHeader">
-                <th colSpan={5}>Productos</th>
-              </tr>
-              <tr className="tableHeader">
-                <th colSpan={1}></th>
-                <th colSpan={3}>
-                  <Form.Select
-                    onChange={(e) => addProductToList(e.target.value)}
-                  >
-                    <option>Agregar Productos</option>
-                    {stockList.map((sl, index) => {
-                      return (
-                        <option key={index} value={JSON.stringify(sl)}>
-                          {sl.nombreProducto}
-                        </option>
-                      );
-                    })}
-                  </Form.Select>
-                </th>
-                <th colSpan={1}></th>
-              </tr>
-              <tr className="tableHeader">
-                <th></th>
-                <th>Codigo</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Disponible</th>
-              </tr>
-              {selectedProducts.map((sp, index) => {
-                return (
-                  <tr className="tableRow" key={index}>
-                    <td>
-                      <Button
-                        variant="danger"
-                        onClick={() => deleteProduct(index, sp)}
-                      >
-                        x
-                      </Button>
-                    </td>
-                    <td>{sp.codInterno}</td>
-                    <td>{sp.nombreProducto}</td>
-                    <td>
-                      <Form.Control
-                        type="number"
-                        value={sp.cantProducto}
-                        onChange={(e) =>
-                          changeQuantities(index, e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      {parseInt(
-                        stockList.find((sl) => sl.idProducto == sp.idProducto)
-                          ?.cant_Actual
-                      ) + sp.cantidadProducto}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>
-                  <Button onClick={() => sortProducts()}>Actualizar</Button>
-                </td>
-              </tr>
-            </tfoot>
-          </Table>
+          <div>
+            <Table>
+              <thead>
+                <tr className="tableHeader">
+                  <th colSpan={3}>Origen</th>
+                  <th colSpan={2}>Destino</th>
+                </tr>
+                <tr className="tableRow">
+                  <td colSpan={3}>{selectedTransfer.nombreOrigen}</td>
+                  <td colSpan={2}>{selectedTransfer.nombreDestino}</td>
+                </tr>
+                <tr className="tableHeader">
+                  <th colSpan={3}>Usuario Solicitante</th>
+                  <th colSpan={2}>Fecha creación traspaso</th>
+                </tr>
+                <tr className="tableRow">
+                  <td colSpan={3}>{selectedTransfer.nombreCompleto}</td>
+                  <td colSpan={2}>{selectedTransfer.fechaCrea}</td>
+                </tr>
+                <tr className="tableHeader">
+                  <th colSpan={5}>Productos</th>
+                </tr>
+                <tr className="tableHeader">
+                  <th colSpan={1}></th>
+                  <th colSpan={3}>
+                    <Form.Select
+                      onChange={(e) => addProductToList(e.target.value)}
+                    >
+                      <option>Agregar Productos</option>
+                      {stockList.map((sl, index) => {
+                        return (
+                          <option key={index} value={JSON.stringify(sl)}>
+                            {sl.nombreProducto}
+                          </option>
+                        );
+                      })}
+                    </Form.Select>
+                  </th>
+                  <th colSpan={1}></th>
+                </tr>
+                <tr className="tableHeader">
+                  <th></th>
+                  <th>Codigo</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Disponible</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {selectedProducts.map((sp, index) => {
+                  return (
+                    <tr className="tableRow" key={index}>
+                      <td>
+                        <Button
+                          variant="danger"
+                          onClick={() => deleteProduct(index, sp)}
+                        >
+                          x
+                        </Button>
+                      </td>
+                      <td>{sp.codInterno}</td>
+                      <td>{sp.nombreProducto}</td>
+                      <td>
+                        <Form.Control
+                          type="number"
+                          value={sp.cantProducto}
+                          onChange={(e) =>
+                            changeQuantities(index, e.target.value)
+                          }
+                          min={0}
+                        />
+                      </td>
+                      <td>
+                        {parseInt(
+                          stockList.find((sl) => sl.idProducto == sp.idProducto)
+                            ?.cant_Actual
+                        ) + sp.cantidadProducto}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+
+              <tfoot>
+                <tr className="tableFootAlt">
+                  <td colSpan={5}>
+                    <Button onClick={() => sortProducts()}>Actualizar</Button>
+                  </td>
+                </tr>
+              </tfoot>
+            </Table>
+          </div>
         </div>
       ) : (
         <div>Seleccione un traspaso</div>

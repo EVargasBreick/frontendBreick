@@ -12,15 +12,12 @@ export default function RouteSale() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      console.log("Rol del usuario:", JSON.parse(Cookies.get("userAuth")).rol);
       if (
         JSON.parse(Cookies.get("userAuth")).rol == 1 ||
         JSON.parse(Cookies.get("userAuth")).rol == 11
       ) {
-        console.log("Todo bien");
       } else {
         navigate("/principal");
-        console.log("Error");
       }
     }
   }, []);

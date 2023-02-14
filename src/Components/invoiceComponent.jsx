@@ -165,6 +165,7 @@ export const InvoiceComponent = React.forwardRef(
                   "|" +
                   invoice?.nitCliente
               )}
+              size={100}
             />
           </div>
           <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>

@@ -31,7 +31,6 @@ export default function FormSearchClient() {
     const found = getClient(search);
     found
       .then((res) => {
-        console.log("Cliente(s) encontrados:", res.data.data);
         setClientes(res.data.data[0]);
         setisLoading(false);
       })
