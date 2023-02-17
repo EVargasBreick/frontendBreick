@@ -35,8 +35,9 @@ export default function FormInvoiceOrder() {
     const list = orderToInvoiceList();
     list
       .then((res) => {
-        setOrderList(res.data.data.data[0]);
-        setAuxOrderList(res.data.data.data[0]);
+        console.log("Res", res);
+        setOrderList(res.data.data);
+        setAuxOrderList(res.data.data);
       })
       .catch((err) => {
         console.log("Error al cargar los pedidos", err);
@@ -84,7 +85,8 @@ export default function FormInvoiceOrder() {
     const orderDetails = orderDetailsInvoice(id);
     orderDetails
       .then((os) => {
-        const details = os.data.response.data[0];
+        console.log("detallitos", os);
+        const details = os.data.response;
 
         var saleProducts = [];
         details.map((dt) => {
@@ -102,7 +104,8 @@ export default function FormInvoiceOrder() {
         });
 
         setSelectedProducts(saleProducts);
-        const tot = os.data.response.data[0][0];
+        const tot = os.data.response[0];
+        console.log("Totales", tot);
         var totis = {
           idUsuarioCrea: tot.idUsuarioCrea,
           idCliente: tot.idCliente,
@@ -112,7 +115,7 @@ export default function FormInvoiceOrder() {
           descuento: tot.descuento,
           descuentoCalculado: tot.descuentoCalculado,
           montoFacturar: tot.montoTotal,
-          idPedido: tot.idPedido[0],
+          idPedido: tot.idPedido,
           idAlmacen: tot.idAlmacen,
         };
         setIdAlmacen(tot.idAlmacen);

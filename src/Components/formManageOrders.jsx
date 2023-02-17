@@ -58,7 +58,8 @@ export default function FormManageOrders() {
   useEffect(() => {
     const listaPedidos = getOrderList("");
     listaPedidos.then((res) => {
-      setPedidosList(res.data.data[0]);
+      console.log("Lista pedidos", res.data.data);
+      setPedidosList(res.data.data);
     });
   }, []);
   const handleClose = () => {
@@ -72,24 +73,22 @@ export default function FormManageOrders() {
     setSelectedOrder(stringParts[0]);
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
-      const fechaDesc = res.data.data[0][0].fechaCrea
-        .substring(0, 10)
-        .split("/");
+      console.log("Order details", res);
+      const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
 
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
       );
 
       const prodHeaderObj = {
-        vendedor: res.data.data[0][0].nombreVendedor,
-        cliente: res.data.data[0][0].razonSocial,
-        nit: res.data.data[0][0].nit,
-        zona: res.data.data[0][0].zona,
-        montoTotal: res.data.data[0][0].montoFacturar?.toFixed(2),
-        descuento: res.data.data[0][0].descuento,
-        "descuento calculado":
-          res.data.data[0][0].descuentoCalculado?.toFixed(2),
-        facturado: res.data.data[0][0].montoTotal?.toFixed(2),
+        vendedor: res.data.data[0].nombreVendedor,
+        cliente: res.data.data[0].razonSocial,
+        nit: res.data.data[0].nit,
+        zona: res.data.data[0].zona,
+        montoTotal: res.data.data[0].montoFacturar?.toFixed(2),
+        descuento: res.data.data[0].descuento,
+        "descuento calculado": res.data.data[0].descuentoCalculado?.toFixed(2),
+        facturado: res.data.data[0].montoTotal?.toFixed(2),
         fechaCrea:
           fechaDesc[0] +
           " de " +
@@ -97,18 +96,18 @@ export default function FormManageOrders() {
           " de " +
           fechaDesc[2],
       };
-      setVendedor(res.data.data[0][0].nombreVendedor);
-      setCliente(res.data.data[0][0].razonSocial);
-      setZona(res.data.data[0][0].zona);
-      setTotal(res.data.data[0][0].montoFacturar);
-      setDescuento(res.data.data[0][0].descuento);
-      setFacturado(res.data.data[0][0].montoTotal);
-      setDescCalculado(res.data.data[0][0].descuentoCalculado);
-      setNit(res.data.data[0][0].nit);
-      setNotas(res.data.data[0][0].notas);
+      setVendedor(res.data.data[0].nombreVendedor);
+      setCliente(res.data.data[0].razonSocial);
+      setZona(res.data.data[0].zona);
+      setTotal(res.data.data[0].montoFacturar);
+      setDescuento(res.data.data[0].descuento);
+      setFacturado(res.data.data[0].montoTotal);
+      setDescCalculado(res.data.data[0].descuentoCalculado);
+      setNit(res.data.data[0].nit);
+      setNotas(res.data.data[0].notas);
       const prodList = getOrderProdList(stringParts[0]);
       prodList.then((res) => {
-        res.data.data[0].map((pr) => {
+        res.data.data.map((pr) => {
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,
@@ -118,7 +117,7 @@ export default function FormManageOrders() {
           };
           setProductTable((productTable) => [...productTable, pTable]);
         });
-        setProductList(res.data.data[0]);
+        setProductList(res.data.data);
         const auxDetail = [...productDetail];
         setProductDetail([...auxDetail, prodHeaderObj]);
         setIsLoading(false);

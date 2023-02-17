@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Modal, Button, Form, Image } from "react-bootstrap";
-import { getBranches } from "../services/storeServices";
+import { getBranches, getBranchesPs } from "../services/storeServices";
 import loading2 from "../assets/loading2.gif";
 import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
@@ -63,16 +63,16 @@ export default function PaymentModal({
     const otrosPagos = otherPaymentsList();
     otrosPagos
       .then((op) => {
-        setOtherPayments(op.data.data[0]);
+        setOtherPayments(op.data);
       })
       .catch((err) => {});
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserName(JSON.parse(UsuarioAct).usuario);
     }
-    const suc = getBranches();
+    const suc = getBranchesPs();
     suc.then((resp) => {
-      const sucursales = resp.data[0];
+      const sucursales = resp.data;
       const sucur = sucursales.find((sc) => idAlmacen == sc.idAgencia);
       const branchData = {
         nombre: sucur.nombre,

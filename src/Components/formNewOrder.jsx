@@ -153,11 +153,11 @@ export default function FormNewOrder() {
     setClientes([]);
     setisLoading(true);
     const found = getClient(search);
+
     found.then((res) => {
       setIsClient(true);
-      if (res.data.data[0][0]) {
-        setClientes(res.data.data[0]);
-
+      if (res.data.data) {
+        setClientes(res.data.data);
         setisLoading(false);
       } else {
         setIsClient(false);
@@ -461,6 +461,7 @@ export default function FormNewOrder() {
             const newOrder = createOrder(objPedido);
             newOrder
               .then((res) => {
+                console.log("respuesta de creacion del pedido", res);
                 const idPedidoCreado = res.data.data.idCreado;
                 const codPedido = getOrderList(res.data.data.idCreado);
                 codPedido.then((resp) => {

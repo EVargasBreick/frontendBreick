@@ -35,8 +35,9 @@ export default function FormOrdersToReady() {
     }
     const orders = ordersToReady();
     orders.then((res) => {
-      setOrderList(res.data.data[0]);
-      setAuxOrderList(res.data.data[0]);
+      console.log("Res", res);
+      setOrderList(res.data);
+      setAuxOrderList(res.data);
     });
   }, []);
   useEffect(() => {
@@ -61,12 +62,13 @@ export default function FormOrdersToReady() {
     setIdToPrint(ol.nroOrden);
     const details = rePrintTransferOrder(ol.idOrden, ol.tipo);
     details.then((dt) => {
+      console.log("Detalles", dt);
       const list = [
         {
           fechaSolicitud: ol.fechaCrea,
           id: ol.nroOrden,
           usuario: ol.usuario,
-          productos: dt.data.data[0],
+          productos: dt.data,
           rePrint: true,
         },
       ];

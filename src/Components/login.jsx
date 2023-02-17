@@ -54,27 +54,21 @@ export default function Login() {
       const loginState = loginRequest(username, password);
       loginState.then((userDataFetchd) => {
         setisLoading(false);
-
+        console.log("User encontrado", userDataFetchd);
         if (userDataFetchd.data.message === "Usuario encontrado") {
-          setuserData(JSON.stringify(userDataFetchd.data.data[0][0]));
-          Cookies.set(
-            "userAuth",
-            JSON.stringify(userDataFetchd.data.data[0][0]),
-            { expires: 0.5 }
-          );
+          setuserData(JSON.stringify(userDataFetchd.data.data[0]));
+          Cookies.set("userAuth", JSON.stringify(userDataFetchd.data.data[0]), {
+            expires: 0.5,
+          });
 
           if (
             Date.parse("01/01/2000 " + horaFinal) <
               Date.parse(
-                "01/01/2000 " +
-                  userDataFetchd.data.data[0][0].horaEntrada +
-                  ":00"
+                "01/01/2000 " + userDataFetchd.data.data[0].horaEntrada + ":00"
               ) ||
             Date.parse("01/01/2000 " + horaFinal) >
               Date.parse(
-                "01/01/2000 " +
-                  userDataFetchd.data.data[0][0].horaSalida +
-                  ":00"
+                "01/01/2000 " + userDataFetchd.data.data[0].horaSalida + ":00"
               )
           ) {
           } else {

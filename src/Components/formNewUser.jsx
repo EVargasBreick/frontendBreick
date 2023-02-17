@@ -48,15 +48,16 @@ export default function FormNewUser() {
     });
     const lang = getLanguajes();
     lang.then((l) => {
-      setLang(l.data[0]);
+      console.log("Lenguajes", l);
+      setLang(l.data);
     });
     const rol = getRoles();
     rol.then((r) => {
-      setRoles(r.data[0]);
+      setRoles(r.data);
     });
     const deptos = getDepartamentos();
     deptos.then((dp) => {
-      setDepartamentos(dp.data[0]);
+      setDepartamentos(dp.data);
     });
   }, []);
   function userVerification() {

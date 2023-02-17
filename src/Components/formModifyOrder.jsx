@@ -114,13 +114,13 @@ export default function FormModifyOrders() {
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
-
       const listaPedidos = getUserOrderList(
         JSON.parse(Cookies.get("userAuth")).idUsuario,
-        "and estado=0"
+        "and estado='0'"
       );
       listaPedidos.then((res) => {
-        setPedidosList(res.data.data[0]);
+        console.log("Lista de pedidos", res);
+        setPedidosList(res.data.data);
       });
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
     }
@@ -269,23 +269,21 @@ export default function FormModifyOrders() {
     order.then((res) => {
       setSelectedProds([]);
 
-      setAuxOrder(res.data.data[0][0]);
-      setFechaPedido(res.data.data[0][0].fechaCrea);
-      const fechaDesc = res.data.data[0][0].fechaCrea
-        .substring(0, 10)
-        .split("/");
+      setAuxOrder(res.data.data[0]);
+      setFechaPedido(res.data.data[0].fechaCrea);
+      const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
       );
 
-      setIdPedido(res.data.data[0][0].idPedido);
+      setIdPedido(res.data.data[0].idPedido);
       const prodHeaderObj = {
-        vendedor: res.data.data[0][0].nombreVendedor,
-        cliente: res.data.data[0][0].razonSocial,
-        zona: res.data.data[0][0].zona,
-        montoTotal: res.data.data[0][0].montoFacturar,
-        descuento: res.data.data[0][0].descuento,
-        facturado: res.data.data[0][0].montoTotal,
+        vendedor: res.data.data[0].nombreVendedor,
+        cliente: res.data.data[0].razonSocial,
+        zona: res.data.data[0].zona,
+        montoTotal: res.data.data[0].montoFacturar,
+        descuento: res.data.data[0].descuento,
+        facturado: res.data.data[0].montoTotal,
         fechaCrea:
           fechaDesc[2] +
           " de " +
@@ -293,22 +291,22 @@ export default function FormModifyOrders() {
           " de " +
           fechaDesc[0],
       };
-      setVendedor(res.data.data[0][0].nombreVendedor);
-      setCliente(res.data.data[0][0].razonSocial);
-      setZona(res.data.data[0][0].zona);
-      setTotal(res.data.data[0][0].montoFacturar);
-      setDescuento(res.data.data[0][0].descuento);
-      setPrevDisc(res.data.data[0][0].descuento);
-      setFacturado(res.data.data[0][0].montoTotal);
-      setTotalPrevio(res.data.data[0][0].montoFacturar);
-      setTotalDesc(res.data.data[0][0].descuentoCalculado);
-      setTotalFacturar(res.data.data[0][0].montoTotal);
-      setUsuarioCrea(res.data.data[0][0].idUsuarioCrea);
-      setCodigoPedido(res.data.data[0][0].codigoPedido);
+      setVendedor(res.data.data[0].nombreVendedor);
+      setCliente(res.data.data[0].razonSocial);
+      setZona(res.data.data[0].zona);
+      setTotal(res.data.data[0].montoFacturar);
+      setDescuento(res.data.data[0].descuento);
+      setPrevDisc(res.data.data[0].descuento);
+      setFacturado(res.data.data[0].montoTotal);
+      setTotalPrevio(res.data.data[0].montoFacturar);
+      setTotalDesc(res.data.data[0].descuentoCalculado);
+      setTotalFacturar(res.data.data[0].montoTotal);
+      setUsuarioCrea(res.data.data[0].idUsuarioCrea);
+      setCodigoPedido(res.data.data[0].codigoPedido);
       const prodList = getOrderProdList(stringParts[0]);
 
       prodList.then((res) => {
-        res.data.data[0].map((prod) => {
+        res.data.data.map((prod) => {
           const objProd = {
             cantProducto: prod.cantidadProducto,
             idProducto: prod.idProducto,
@@ -324,7 +322,7 @@ export default function FormModifyOrders() {
         var hallArray = [];
         var sinArray = [];
         var espArray = [];
-        res.data.data[0].map((parsed, index) => {
+        res.data.data.map((parsed, index) => {
           const prodObj = {
             cantPrevia: parsed.cantidadProducto,
             cantProducto: parsed.cantidadProducto,

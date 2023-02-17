@@ -28,9 +28,10 @@ export default function FormOrderReception() {
     console.log("Verificando...");
     const toPrint = ordersToPrint();
     toPrint.then((resp) => {
-      const flt = resp.data.data[0];
-      setFullList(resp.data.data[0]);
-      let uniqueArray = resp.data.data[0].reduce((acc, curr) => {
+      console.log("Orders to print", resp);
+      const flt = resp.data;
+      setFullList(resp.data);
+      let uniqueArray = resp.data.reduce((acc, curr) => {
         if (!acc.find((obj) => obj.idOrden === curr.idOrden)) {
           acc.push(curr);
         }

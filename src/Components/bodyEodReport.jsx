@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Button, Table } from "react-bootstrap";
-import { getBranches, getSalePointsAndStores } from "../services/storeServices";
+import {
+  getBranches,
+  getSalePointsAndStores,
+  getBranchesPs,
+} from "../services/storeServices";
 import Cookies from "js-cookie";
 import { dateString } from "../services/dateServices";
 import "../styles/formLayouts.css";
@@ -44,12 +48,11 @@ export default function BodyEodReport() {
     if (UsuarioAct) {
       setUserName(JSON.parse(UsuarioAct).usuario);
       const PuntoDeVenta = Cookies.get("pdv");
-      const suc = getBranches();
-      suc.then((resp) => {
-        const sucursales = resp.data[0];
-        const sucur = sucursales.find(
-          (sc) => sc.idAgencia == JSON.parse(UsuarioAct).idAlmacen
-        );
+      const sucps = getBranchesPs();
+      const idAlmacen = JSON.parse(UsuarioAct).idAlmacen;
+      sucps.then((res) => {
+        const sucur = res.data.find((sc) => sc.idAgencia == idAlmacen);
+        console.log("SUCUR", sucur);
         setIdSucursal(sucur.idImpuestos);
         setPuntoDeVenta(PuntoDeVenta);
         const storeNameList = getSalePointsAndStores(
@@ -57,11 +60,11 @@ export default function BodyEodReport() {
         );
         storeNameList.then((sn) => {
           const list = sn.data.data[0];
-
+          console.log("List", sn.data.data[0]);
           const nameSetter = list.find(
             (li) => li.nroPuntoDeVenta == PuntoDeVenta
           );
-
+          console.log("Name setter", nameSetter);
           setStoreData(nameSetter);
         });
       });
@@ -133,7 +136,7 @@ export default function BodyEodReport() {
         <div className="formLabel">REPORTE CIERRE DIARIO DE VENTAS</div>
       </div>
       <div>
-        {storeData.nombre ? (
+        {storeData?.nombre ? (
           <Table>
             <thead>
               <tr className="tableHeader">

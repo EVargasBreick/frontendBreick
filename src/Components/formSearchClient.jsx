@@ -19,11 +19,11 @@ export default function FormSearchClient() {
   useEffect(() => {
     const zon = getZonas();
     zon.then((z) => {
-      setgZonas(z.data[0]);
+      setgZonas(z.data);
     });
     const dia = getDias();
     dia.then((d) => {
-      setArrayDias(d.data[0]);
+      setArrayDias(d.data);
     });
   }, []);
   function searchClient() {
@@ -31,7 +31,7 @@ export default function FormSearchClient() {
     const found = getClient(search);
     found
       .then((res) => {
-        setClientes(res.data.data[0]);
+        setClientes(res.data.data);
         setisLoading(false);
       })
       .catch((err) => {

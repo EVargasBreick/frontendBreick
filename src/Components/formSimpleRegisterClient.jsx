@@ -101,15 +101,15 @@ export default function FormSimpleRegisterClient(props) {
     });
     const langu = getLanguajes();
     langu.then((l) => {
-      setLang(l.data[0]);
+      setLang(l.data);
     });
     const zon = getZonas();
     zon.then((z) => {
-      setgZonas(z.data[0]);
+      setgZonas(z.data);
     });
     const dias = getDias();
     dias.then((dia) => {
-      setDiasArray(dia.data[0]);
+      setDiasArray(dia.data);
     });
   }, []);
 

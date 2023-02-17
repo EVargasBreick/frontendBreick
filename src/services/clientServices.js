@@ -132,7 +132,10 @@ const structureContacts = (
   telefcb,
   nombrecc,
   correocc,
-  telefcc
+  telefcc,
+  idca,
+  idcb,
+  idcc
 ) => {
   var contactoArray = [];
   var contactoa = {
@@ -215,6 +218,22 @@ const createClient = (clientObject) => {
   });
 };
 
+const createClientPos = (clientObject) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/clientpos`,
+        clientObject
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 const updateClient = (clientObject, id) => {
   return new Promise((resolve, reject) => {
     axios
@@ -257,9 +276,11 @@ const createContact = (contacto, idCliente) => {
 };
 
 const updateContact = (contacto, idCliente) => {
+  console.log("Contacto", contacto);
   return new Promise((resolve, reject) => {
     if (!contacto.idContacto) {
       if (contacto.nombre && contacto.telefono) {
+        console.log("Creando contacto");
         axios
           .post(
             `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/contact`,
@@ -281,6 +302,7 @@ const updateContact = (contacto, idCliente) => {
       }
     } else {
       if (contacto.nombre && contacto.telefono) {
+        console.log("Updateando contacto");
         axios
           .put(
             `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/contact?id=${contacto.idContacto}`,
@@ -396,4 +418,5 @@ export {
   updateClient,
   updateContact,
   numberOfClients,
+  createClientPos,
 };

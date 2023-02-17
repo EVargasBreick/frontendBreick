@@ -15,7 +15,11 @@ import { convertToText } from "../services/numberServices";
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
 import { createSale, verifyQuantities } from "../services/saleServices";
-import { getBranches, getSalePoints } from "../services/storeServices";
+import {
+  getBranches,
+  getBranchesPs,
+  getSalePoints,
+} from "../services/storeServices";
 import {
   createInvoice,
   deleteInvoice,
@@ -122,7 +126,7 @@ export default function FormRouteSale() {
       const otrosPagos = otherPaymentsList();
       otrosPagos
         .then((op) => {
-          setOtherPayments(op.data.data[0]);
+          setOtherPayments(op.data);
         })
         .catch((err) => {
           console.log("Otros pagos?", err);
@@ -135,9 +139,9 @@ export default function FormRouteSale() {
         setAvailable(fetchedAvailable.data[0]);
         setAuxProducts(fetchedAvailable.data[0]);
       });
-      const suc = getBranches();
+      const suc = getBranchesPs();
       suc.then((resp) => {
-        const sucursales = resp.data[0];
+        const sucursales = resp.data;
         const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
 
         const sucur = sucursales.find((sc) => alm == sc.idAgencia);
@@ -193,11 +197,11 @@ export default function FormRouteSale() {
     const found = getClient(search);
     found.then((res) => {
       setIsClient(true);
-      if (res.data.data[0][0]) {
-        if (res.data.data[0].length == 1) {
-          filterSelectedOnlyClient(res.data.data[0]);
+      if (res.data.data) {
+        if (res.data.data.length == 1) {
+          filterSelectedOnlyClient(res.data.data);
         } else {
-          setClientes(res.data.data[0]);
+          setClientes(res.data.data);
         }
         setisLoading(false);
       } else {

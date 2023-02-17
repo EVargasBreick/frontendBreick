@@ -78,7 +78,7 @@ export default function FormEditClient(props) {
   const [idContacta, setIdContacta] = useState("");
   const [idContactb, setIdContactb] = useState("");
   const [idContactc, setIdContactc] = useState("");
-  const [tipoDoc, setTipoDoc] = useState("");
+  const [tipoDoc, setTipoDoc] = useState("1");
   const navigate = useNavigate();
   const [idUsuarioActual, setIdUsuarioActual] = useState();
   const handleClose = () => {
@@ -112,14 +112,15 @@ export default function FormEditClient(props) {
     });
     const langu = getLanguajes();
     langu.then((l) => {
-      setLang(l.data[0]);
+      setLang(l.data);
       const zon = getZonas();
       zon.then((z) => {
-        setgZonas(z.data[0]);
+        setgZonas(z.data);
       });
       const dias = getDias();
       dias.then((dia) => {
-        setDiasArray(dia.data[0]);
+        console.log("Dias", dia.data);
+        setDiasArray(dia.data);
       });
     });
     getCliente();
@@ -127,43 +128,46 @@ export default function FormEditClient(props) {
   }, []);
 
   function getContacts() {
+    console.log("Props", props.id);
     const contact = getContact(props.id);
     contact.then((res) => {
+      console.log("Data de los contactos", res.data.data);
       setNombreca(
-        res.data.data[0][0] !== undefined ? res.data.data[0][0].nombre : ""
+        res.data.data[0] !== undefined ? res.data.data[0].nombre : ""
       );
       setNombrecb(
-        res.data.data[0][1] !== undefined ? res.data.data[0][1].nombre : ""
+        res.data.data[1] !== undefined ? res.data.data[1].nombre : ""
       );
       setNombrecc(
-        res.data.data[0][2] !== undefined ? res.data.data[0][2].nombre : ""
+        res.data.data[2] !== undefined ? res.data.data[2].nombre : ""
       );
       setCorreoca(
-        res.data.data[0][0] !== undefined ? res.data.data[0][0].correo : ""
+        res.data.data[0] !== undefined ? res.data.data[0].correo : ""
       );
       setCorreocb(
-        res.data.data[0][1] !== undefined ? res.data.data[0][1].correo : ""
+        res.data.data[1] !== undefined ? res.data.data[1].correo : ""
       );
       setCorreocc(
-        res.data.data[0][2] !== undefined ? res.data.data[0][2].correo : ""
+        res.data.data[2] !== undefined ? res.data.data[2].correo : ""
       );
       setTelefca(
-        res.data.data[0][0] !== undefined ? res.data.data[0][0].telefono : ""
+        res.data.data[0] !== undefined ? res.data.data[0].telefono : ""
       );
       setTelefcb(
-        res.data.data[0][1] !== undefined ? res.data.data[0][1].telefono : ""
+        res.data.data[1] !== undefined ? res.data.data[1].telefono : ""
       );
       setTelefcc(
-        res.data.data[0][2] !== undefined ? res.data.data[0][2].telefono : ""
+        res.data.data[2] !== undefined ? res.data.data[2].telefono : ""
       );
       setIdContacta(
-        res.data.data[0][0] !== undefined ? res.data.data[0][0].idContacto : ""
+        res.data.data[0] !== undefined ? res.data.data[0].idContactoCliente : ""
       );
+
       setIdContactb(
-        res.data.data[0][1] !== undefined ? res.data.data[0][1].idContacto : ""
+        res.data.data[1] !== undefined ? res.data.data[1].idContactoCliente : ""
       );
       setIdContactc(
-        res.data.data[0][2] !== undefined ? res.data.data[0][2].idContacto : ""
+        res.data.data[2] !== undefined ? res.data.data[2].idContactoCliente : ""
       );
       setisLoading(false);
     });
@@ -172,10 +176,11 @@ export default function FormEditClient(props) {
   function getCliente() {
     const cliente = getFullClient(props.id);
     cliente.then((res) => {
-      const data = res.data.data[0][0];
-      const direcciones = res.data.data[0][0].direccion.split("|");
-      const codPostales = res.data.data[0][0].codPostal.split("|");
-      const telefonos = res.data.data[0][0].telefono.split("|");
+      console.log("Data del cliente: ", res.data);
+      const data = res.data.data[0];
+      const direcciones = res.data.data[0]?.direccion.split("|");
+      const codPostales = res.data.data[0]?.codPostal.split("|");
+      const telefonos = res.data.data[0]?.telefono.split("|");
 
       setRazonSocial(data.razonSocial);
       setNit(data.nit);

@@ -32,9 +32,10 @@ export default function FormCancelInvoice() {
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       const facturas = getStoreInvoices(JSON.parse(UsuarioAct).idAlmacen);
       facturas.then((fc) => {
-        setAllFacts(fc.data.data[0]);
+        console.log("Lista de facturas", fc.data);
+        setAllFacts(fc.data);
 
-        let uniqueArray = fc.data.data[0].reduce((acc, curr) => {
+        let uniqueArray = fc.data.reduce((acc, curr) => {
           if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
             acc.push(curr);
           }

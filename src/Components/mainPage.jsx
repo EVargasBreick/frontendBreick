@@ -41,19 +41,20 @@ export default function MainPage() {
     const stats = getOrderStatus();
 
     stats.then((response) => {
+      console.log("estados", response);
       setEstados(response.data.data);
 
-      const pendientes = response.data.data[0].find((pd) => pd.estado == 0);
+      const pendientes = response.data.data.find((pd) => pd.estado == 0);
 
       const cantPen = pendientes != undefined ? pendientes.conteo : 0;
       setPendientes(cantPen);
-      const aprobados = response.data.data[0].find((pd) => pd.estado == 1);
+      const aprobados = response.data.data.find((pd) => pd.estado == 1);
       const cantAp = aprobados != undefined ? aprobados.conteo : 0;
       setAprobados(cantAp);
     });
     const types = getOrderType();
     types.then((type) => {
-      const typeArray = type.data.data[0];
+      const typeArray = type.data.data;
       if (typeArray) {
         typeArray.map((t) => {
           if (t.tipo === "normal") {
@@ -70,7 +71,8 @@ export default function MainPage() {
     });
     const nClientes = numberOfClients();
     nClientes.then((number) => {
-      setNumClientes(number.data.data[0][0].NumeroClientes);
+      console.log("Numero clientes", number);
+      setNumClientes(number.data.data[0].numeroclientes);
     });
     const nProducts = numberOfProducts();
     nProducts.then((number) => {

@@ -36,6 +36,18 @@ const getBranches = () => {
   });
 };
 
+const getBranchesPs = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/sucursalesps`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
 const getSalePoints = (idAgencia) => {
   return new Promise((resolve, reject) => {
     axios
@@ -66,4 +78,5 @@ export {
   getOnlyStores,
   getSalePoints,
   getSalePointsAndStores,
+  getBranchesPs,
 };

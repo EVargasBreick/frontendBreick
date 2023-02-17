@@ -11,6 +11,7 @@ import { userBasic } from "../services/userServices";
 import Cookies from "js-cookie";
 import {
   createClient,
+  createClientPos,
   createContact,
   structureClient,
   structureContacts,
@@ -97,15 +98,16 @@ export default function FormRegisterClient(props) {
     });
     const langu = getLanguajes();
     langu.then((l) => {
-      setLang(l.data[0]);
+      setLang(l.data);
     });
     const zon = getZonas();
     zon.then((z) => {
-      setgZonas(z.data[0]);
+      console.log("Zonas", z);
+      setgZonas(z.data);
     });
     const dias = getDias();
     dias.then((dia) => {
-      setDiasArray(dia.data[0]);
+      setDiasArray(dia.data);
     });
   }, []);
 
@@ -178,11 +180,11 @@ export default function FormRegisterClient(props) {
                         );
                         contactosObject.then((contactObject) => {
                           setisLoading(true);
-                          const newClient = createClient(client);
+                          const newClient = createClientPos(client);
                           newClient
                             .then((res) => {
+                              console.log("Mensaje de cliente creado", res);
                               const newId = res.data.createdId;
-
                               contactObject.map((contact) => {
                                 const newContact = createContact(
                                   contact,
