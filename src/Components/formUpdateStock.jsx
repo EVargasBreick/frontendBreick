@@ -33,8 +33,8 @@ export default function FormUpdateStock() {
     }
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
-      setprodList(fetchedProducts.data.data[0]);
-      setAuxProd(fetchedProducts.data.data[0]);
+      setprodList(fetchedProducts.data.data);
+      setAuxProd(fetchedProducts.data.data);
     });
   }, []);
   const checkFileExtension = (name) => {
@@ -61,9 +61,11 @@ export default function FormUpdateStock() {
     const auxList = prodList;
     auxList.map((prod) => {
       if (prod.cantProducto != undefined) {
+        console.log("Cantidad", prod.cantProducto);
         newProdList.push(prod);
       }
     });
+    setprodList(newProdList);
     setAlert(
       "Está seguro que quiere actualizar? esta acción SOBRESCRIBE el stock actual en esta agencia"
     );
@@ -122,6 +124,7 @@ export default function FormUpdateStock() {
   }
 
   function updateStock() {
+    console.log("Lista de productos a actualizar", prodList);
     setIsAlert(false);
     setAlertSec("Actualizando Stock");
     setAlertSec(true);

@@ -31,13 +31,13 @@ export default function FormStoreRefill() {
     }
     const stores = getStores();
     stores.then((store) => {
-      setAlmacen(store.data[0]);
+      setAlmacen(store.data);
     });
     setIdOrigen("AL001");
     setIdDestino(JSON.parse(Cookies.get("userAuth")).idAlmacen);
     const prods = getProductsWithStock("AL001", "all");
     prods.then((product) => {
-      setProductos(product.data[0]);
+      setProductos(product.data);
     });
   }, []);
   const handleClose = () => {
@@ -52,12 +52,12 @@ export default function FormStoreRefill() {
       if (idSub[1]) {
         const prods = getProductsWithStock(idSub[0], "all");
         prods.then((product) => {
-          setProductos(product.data[0]);
+          setProductos(product.data);
         });
       } else {
         const prods = getProductsWithStock(id, "all");
         prods.then((product) => {
-          setProductos(product.data[0]);
+          setProductos(product.data);
         });
         setIdOrigen(id + "");
       }

@@ -12,7 +12,7 @@ export default function FormEditProducts() {
   useEffect(() => {
     const allProducts = getProducts("");
     allProducts.then((fetchedProducts) => {
-      setprodList(fetchedProducts.data.data[0]);
+      setprodList(fetchedProducts.data.data);
     });
   }, []);
   return (

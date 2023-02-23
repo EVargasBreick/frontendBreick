@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Display from "./display";
-import Sidebar from "./sidebar";
 import CartLogo from "../assets/cartLogo.png";
 import CartPlus from "../assets/cartPlus.png";
 import Square from "../assets/square.png";
@@ -32,10 +31,12 @@ export default function MainPage() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-
     if (user) {
       if (JSON.parse(Cookies.get("userAuth")).rol == 2) {
         navigate("/ventaAgencia");
+      }
+      if (JSON.parse(Cookies.get("userAuth")).rol == 3) {
+        navigate("/regPedido");
       }
     }
     const stats = getOrderStatus();
@@ -76,7 +77,8 @@ export default function MainPage() {
     });
     const nProducts = numberOfProducts();
     nProducts.then((number) => {
-      setNumProds(number.data.data[0][0].NumeroProductos);
+      console.log("d", number);
+      setNumProds(number.data.data[0].NumeroProductos);
     });
   }, []);
 

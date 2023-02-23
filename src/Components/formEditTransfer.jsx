@@ -35,7 +35,8 @@ export default function FormEditTransfer() {
       const idUsuario = JSON.parse(UsuarioAct).idUsuario;
       const lista = transferList("todo");
       lista.then((res) => {
-        const list = res.data[0];
+        console.log("Lista", res);
+        const list = res.data;
         const userList = list.filter(
           (ls) => ls.idUsuario == idUsuario && ls.listo != 1
         );
@@ -51,12 +52,13 @@ export default function FormEditTransfer() {
     const storeId = tList.find((tl) => (tl.idTraspaso = id)).idOrigen;
     const prods = getProductsWithStock(storeId, "all");
     prods.then((pr) => {
-      setStockList(pr.data[0]);
+      setStockList(pr.data);
       const details = transferProducts(id);
       details.then((res) => {
+        console.log("Detalles traspaso", res);
         setSelectedTransfer(tList.find((tl) => tl.idTraspaso == id));
-        setTransferProductList(res.data.response.data[0]);
-        setSelectedProducts(res.data.response.data[0]);
+        setTransferProductList(res.data.response);
+        setSelectedProducts(res.data.response);
         setIsAlertSec(false);
       });
     });

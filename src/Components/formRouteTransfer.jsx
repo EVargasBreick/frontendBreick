@@ -32,13 +32,13 @@ export default function FormRouteTransfer() {
     }
     const stores = getStores();
     stores.then((store) => {
-      setAlmacen(store.data[0]);
+      setAlmacen(store.data);
     });
     setIdOrigen("AL001");
     setIdDestino(JSON.parse(Cookies.get("userAuth")).idAlmacen);
     const prods = getProductsWithStock("AL001", "all");
     prods.then((product) => {
-      setProductos(product.data[0]);
+      setProductos(product.data);
     });
   }, []);
   const handleClose = () => {

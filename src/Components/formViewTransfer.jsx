@@ -45,7 +45,7 @@ export default function FormViewTransfer() {
   useEffect(() => {
     const tList = transferList("todo");
     tList.then((tl) => {
-      setList(tl.data.response.data[0]);
+      setList(tl.data);
     });
   }, []);
   const handleClose = () => {
@@ -83,7 +83,7 @@ export default function FormViewTransfer() {
 
       const productList = transferProducts(tl.idTraspaso);
       productList.then((pl) => {
-        setProductos(pl.data.response.data[0]);
+        setProductos(pl.data.response);
         setIsLoading(false);
       });
       resolve(true);

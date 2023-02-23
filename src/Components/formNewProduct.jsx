@@ -37,7 +37,8 @@ export default function FormNewProduct() {
     const listaCodigos = getCodes();
     listaCodigos
       .then((lista) => {
-        setCodeList(lista.data.data[0]);
+        console.log("Lista", lista);
+        setCodeList(lista.data);
       })
       .catch((err) => {
         console.log("Error al cargar los codigos", err);
@@ -45,7 +46,8 @@ export default function FormNewProduct() {
     const tipos = productTypes();
     tipos
       .then((tipos) => {
-        setTypeList(tipos.data.data[0]);
+        setTypeList(tipos.data);
+        console.log("Tipos", tipos);
       })
       .catch((err) => {
         console.log("Error al cargar los tipos", err);
@@ -53,7 +55,7 @@ export default function FormNewProduct() {
     const origenes = productOrigin();
     origenes
       .then((origen) => {
-        setOriginList(origen.data.data[0]);
+        setOriginList(origen.data);
       })
       .catch((err) => {});
   }, []);

@@ -22,7 +22,7 @@ export default function FormRejectedOrders() {
   useEffect(() => {
     const orders = getRejected();
     orders.then((res) => {
-      setOrderList(res.data.data[0]);
+      setOrderList(res.data);
     });
   }, []);
 

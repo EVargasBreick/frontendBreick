@@ -72,7 +72,6 @@ export default function FormOrdersToReady() {
           rePrint: true,
         },
       ];
-
       setProductList(list);
       setIsPrint(true);
     });

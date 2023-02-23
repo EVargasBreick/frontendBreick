@@ -40,7 +40,7 @@ export default function FormManageTransfer() {
   useEffect(() => {
     const tList = transferList("p");
     tList.then((tl) => {
-      setList(tl.data[0]);
+      setList(tl.data);
     });
   }, []);
   const handleClose = () => {
@@ -63,7 +63,7 @@ export default function FormManageTransfer() {
 
       const productList = transferProducts(tl.idTraspaso);
       productList.then((pl) => {
-        setProductos(pl.data.response.data[0]);
+        setProductos(pl.data.response);
         setIsLoading(false);
       });
       resolve(true);

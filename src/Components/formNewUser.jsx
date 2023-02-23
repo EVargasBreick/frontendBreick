@@ -44,7 +44,7 @@ export default function FormNewUser() {
     }
     const stores = getStores();
     stores.then((store) => {
-      setAlmacen(store.data[0]);
+      setAlmacen(store.data);
     });
     const lang = getLanguajes();
     lang.then((l) => {

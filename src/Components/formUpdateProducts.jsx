@@ -26,7 +26,7 @@ export default function FormUpdateProducts() {
   useEffect(() => {
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
-      setprodList(fetchedProducts.data.data[0]);
+      setprodList(fetchedProducts.data.data);
     });
   }, []);
   const checkFileExtension = (name) => {

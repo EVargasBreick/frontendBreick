@@ -30,13 +30,15 @@ export default function FormAsignPack() {
   useEffect(() => {
     const ag = getOnlyStores();
     ag.then((age) => {
-      setAgencias(age.data[0]);
+      console.log("Age", age);
+      setAgencias(age.data);
     });
     const packList = getPacks();
     packList
       .then((res) => {
-        setAllPacks(res.data.data[0]);
-        let uniqueArray = res.data.data[0].reduce((acc, curr) => {
+        console.log("Packs", res);
+        setAllPacks(res.data);
+        let uniqueArray = res.data.reduce((acc, curr) => {
           if (!acc.find((obj) => obj.nombrePack === curr.nombrePack)) {
             acc.push(curr);
           }
@@ -57,15 +59,15 @@ export default function FormAsignPack() {
     setSelectedStoreId(value);
     const stock = getCurrentStockStore(value);
     stock.then((st) => {
-      setProductStock(st.data[0]);
+      setProductStock(st.data);
       setIsAgency(true);
     });
   }
   function selectPack(value) {
     setIsPack(true);
     setSelectedPackId(value);
-
-    const prodList = allPacks.filter((pk) => pk.idPack[0] == value);
+    console.log("Pack seleccionado", value);
+    const prodList = allPacks.filter((pk) => pk.idPack == value);
 
     setProductList(prodList);
   }
@@ -142,7 +144,7 @@ export default function FormAsignPack() {
           <option>Seleccione pack</option>
           {packs.map((pk, index) => {
             return (
-              <option key={index} value={pk.idPack[0]}>
+              <option key={index} value={pk.idPack}>
                 {pk.nombrePack}
               </option>
             );

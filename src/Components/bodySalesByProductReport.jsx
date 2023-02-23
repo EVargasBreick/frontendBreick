@@ -46,8 +46,8 @@ export default function BodySalesByProductReport() {
       );
       reportData
         .then((response) => {
-          setReportTable(response.data.data[0]);
-          setAuxReportTable(response.data.data[0]);
+          setReportTable(response.data);
+          setAuxReportTable(response.data);
 
           setIsReportLoading(false);
         })

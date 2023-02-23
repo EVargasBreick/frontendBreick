@@ -51,8 +51,9 @@ export default function BodySalesReport() {
       );
       reportData
         .then((response) => {
-          setReportTable(response.data.data[0]);
-          setAuxReportTable(response.data.data[0]);
+          console.log("Data", response);
+          setReportTable(response.data);
+          setAuxReportTable(response.data);
 
           setIsReportLoading(false);
         })

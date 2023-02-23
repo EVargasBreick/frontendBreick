@@ -53,11 +53,12 @@ export default function BodyCurrentKardex() {
     setSelectedDate(dia[2] + "/" + dia[1] + "/" + dia[3]);
     const productos = getProducts("all");
     productos.then((res) => {
-      setProductList(res.data.data[0]);
+      setProductList(res.data.data);
     });
     const agencias = getStores();
     agencias.then((res) => {
-      setStoreList(res.data[0]);
+      console.log("Stores", res);
+      setStoreList(res.data);
     });
   }, []);
 
@@ -244,8 +245,9 @@ export default function BodyCurrentKardex() {
         } else {
           const reportData = getCurrentStockStore(selectedStore);
           reportData.then((rd) => {
-            setDataTable(rd.data[0]);
-            setAuxDataTable(rd.data[0]);
+            console.log("AAAA", rd);
+            setDataTable(rd.data);
+            setAuxDataTable(rd.data);
             setIsAlertSec(false);
             setIsReported(true);
           });
@@ -260,9 +262,9 @@ export default function BodyCurrentKardex() {
         } else {
           const reportData = getCurrentStockProduct(selectedProduct);
           reportData.then((rd) => {
-            setDataTable(rd.data[0]);
+            setDataTable(rd.data);
             setIsReported(true);
-            setAuxDataTable(rd.data[0]);
+            setAuxDataTable(rd.data);
             setIsAlertSec(false);
           });
         }

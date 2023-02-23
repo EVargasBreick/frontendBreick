@@ -23,7 +23,8 @@ export default function FormNewPack() {
   useEffect(() => {
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
-      setProdList(fetchedProducts.data.data[0]);
+      console.log("Test", fetchedProducts);
+      setProdList(fetchedProducts.data.data);
     });
   }, []);
 
@@ -84,8 +85,8 @@ export default function FormNewPack() {
       });
   }
   function saveProduct(data) {
+    console.log("Pack registrado", data);
     const packId = data.data.id;
-
     const objProd = {
       codInterno: 0,
       nombreProducto: nombrePack,

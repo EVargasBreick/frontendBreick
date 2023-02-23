@@ -94,7 +94,7 @@ export default function FormRegisterClient(props) {
 
     const usuarios = userBasic();
     usuarios.then((usu) => {
-      setUsArray(usu.data[0]);
+      setUsArray(usu.data);
     });
     const langu = getLanguajes();
     langu.then((l) => {

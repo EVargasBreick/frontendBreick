@@ -108,7 +108,8 @@ export default function FormEditClient(props) {
     setisLoading(true);
     const usuarios = userBasic();
     usuarios.then((usu) => {
-      setUsArray(usu.data[0]);
+      console.log("Usuarios cargados", usu);
+      setUsArray(usu.data);
     });
     const langu = getLanguajes();
     langu.then((l) => {

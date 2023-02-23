@@ -48,11 +48,11 @@ export default function BodyLogKardex() {
   useEffect(() => {
     const productos = getProducts("all");
     productos.then((res) => {
-      setProductList(res.data.data[0]);
+      setProductList(res.data.data);
     });
     const agencias = getStores();
     agencias.then((res) => {
-      setStoreList(res.data[0]);
+      setStoreList(res.data);
     });
   }, []);
 
@@ -241,8 +241,9 @@ export default function BodyLogKardex() {
         } else {
           const reportData = getLogStockStore(selectedStore, selectedDate);
           reportData.then((rd) => {
-            setAuxDataTable(rd.data[0]);
-            setDataTable(rd.data[0]);
+            console.log("Reporte", rd);
+            setAuxDataTable(rd.data);
+            setDataTable(rd.data);
             setIsAlertSec(false);
             setIsReported(true);
           });
@@ -252,8 +253,9 @@ export default function BodyLogKardex() {
         } else {
           const reportData = getLogStockProduct(selectedProduct, selectedDate);
           reportData.then((rd) => {
-            setAuxDataTable(rd.data[0]);
-            setDataTable(rd.data[0]);
+            console.log("FLAAAAAg", rd);
+            setAuxDataTable(rd.data);
+            setDataTable(rd.data);
             setIsAlertSec(false);
             setIsReported(true);
           });

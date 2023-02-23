@@ -107,13 +107,15 @@ export default function FormNewOrder() {
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
       disponibles.then((fetchedAvailable) => {
-        setAvailable(fetchedAvailable.data.data[0]);
-        setAuxProducts(fetchedAvailable.data.data[0]);
+        console.log("Disponibles", fetchedAvailable);
+        setAvailable(fetchedAvailable.data.data);
+        setAuxProducts(fetchedAvailable.data.data);
       });
       const dl = productsDiscount(
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
       dl.then((res) => {
+        console.log("Descuentitos", res);
         setDiscountList(res.data.data[0]);
       });
       /*const interval = setInterval(() => {
@@ -397,7 +399,7 @@ export default function FormNewOrder() {
         );
         disponibles.then((fetchedAvailable) => {
           const avaSetted = async () => {
-            const setted = asyncSetAva(fetchedAvailable.data.data[0]);
+            const setted = asyncSetAva(fetchedAvailable.data.data);
             setted.then((res) => {
               setIsAlertSec(false);
               saveOrder(fetchedAvailable.data.data[0]);

@@ -32,7 +32,7 @@ export default function FormNewTransfer() {
     }
     const stores = getStores();
     stores.then((store) => {
-      setAlmacen(store.data[0]);
+      setAlmacen(store.data);
     });
   }, []);
   const handleClose = () => {
@@ -47,12 +47,12 @@ export default function FormNewTransfer() {
       if (idSub[1]) {
         const prods = getProductsWithStock(idSub[0], "all");
         prods.then((product) => {
-          setProductos(product.data[0]);
+          setProductos(product.data);
         });
       } else {
         const prods = getProductsWithStock(id, "all");
         prods.then((product) => {
-          setProductos(product.data[0]);
+          setProductos(product.data);
         });
         setIdOrigen(id + "");
       }

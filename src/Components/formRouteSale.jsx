@@ -112,7 +112,7 @@ export default function FormRouteSale() {
       setUserName(JSON.parse(UsuarioAct).usuario);
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((res) => {
-        setPointList(res.data.data[0]);
+        setPointList(res.data);
       });
       if (PuntoDeVenta) {
         setIsPoint(true);
@@ -136,8 +136,8 @@ export default function FormRouteSale() {
         "all"
       );
       disponibles.then((fetchedAvailable) => {
-        setAvailable(fetchedAvailable.data[0]);
-        setAuxProducts(fetchedAvailable.data[0]);
+        setAvailable(fetchedAvailable.data);
+        setAuxProducts(fetchedAvailable.data);
       });
       const suc = getBranchesPs();
       suc.then((resp) => {

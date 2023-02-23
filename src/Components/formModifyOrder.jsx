@@ -133,9 +133,9 @@ export default function FormModifyOrders() {
       JSON.parse(Cookies.get("userAuth")).idUsuario
     );
     disponibles.then((fetchedAvailable) => {
-      setAvailable(fetchedAvailable.data.data[0]);
-      setAuxProducts(fetchedAvailable.data.data[0]);
-      setAuxAva(fetchedAvailable.data.data[0]);
+      setAvailable(fetchedAvailable.data.data);
+      setAuxProducts(fetchedAvailable.data.data);
+      setAuxAva(fetchedAvailable.data.data);
     });
   }, []);
   useEffect(() => {

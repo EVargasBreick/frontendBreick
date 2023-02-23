@@ -111,7 +111,7 @@ export default function FormNewSale() {
       setUserName(JSON.parse(UsuarioAct).usuario);
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((res) => {
-        setPointList(res.data.data[0]);
+        setPointList(res.data);
       });
       if (PuntoDeVenta) {
         setIsPoint(true);
@@ -136,8 +136,9 @@ export default function FormNewSale() {
         "all"
       );
       disponibles.then((fetchedAvailable) => {
-        setAvailable(fetchedAvailable.data[0]);
-        setAuxProducts(fetchedAvailable.data[0]);
+        console.log("Fetched ", fetchedAvailable);
+        setAvailable(fetchedAvailable.data);
+        setAuxProducts(fetchedAvailable.data);
       });
       const suc = getBranchesPs();
       suc.then((resp) => {
@@ -192,8 +193,9 @@ export default function FormNewSale() {
     setisLoading(true);
     const found = getClient(search);
     found.then((res) => {
+      console.log("Data", res.data.data);
       setIsClient(true);
-      if (res.data.data) {
+      if (res.data.data.length > 0) {
         if (res.data.data.length == 1) {
           filterSelectedOnlyClient(res.data.data);
         } else {
@@ -341,6 +343,7 @@ export default function FormNewSale() {
     changeQuantities(index, modalQuantity, selectedProd, false);
     setIsQuantity(false);
     setModalQuantity("");
+    setAvailable(auxProducts);
     searchRef.current.focus();
   }
 

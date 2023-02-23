@@ -31,8 +31,9 @@ export default function FormTransferReception() {
       setUserId(JSON.parse(UsuarioAct).idUsuario);
       const pl = transitTransfer(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((response) => {
-        setFullTransfers(response.data.data[0]);
-        let uniqueArray = response.data.data[0].reduce((acc, curr) => {
+        console.log("En transito", response);
+        setFullTransfers(response.data);
+        let uniqueArray = response.data.reduce((acc, curr) => {
           if (!acc.find((obj) => obj.idTraspaso === curr.idTraspaso)) {
             acc.push(curr);
           }

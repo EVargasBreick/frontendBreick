@@ -59,8 +59,8 @@ export default function BodyEodReport() {
           JSON.parse(UsuarioAct).idAlmacen
         );
         storeNameList.then((sn) => {
-          const list = sn.data.data[0];
-          console.log("List", sn.data.data[0]);
+          console.log("Store names", sn);
+          const list = sn.data;
           const nameSetter = list.find(
             (li) => li.nroPuntoDeVenta == PuntoDeVenta
           );
@@ -77,7 +77,7 @@ export default function BodyEodReport() {
     });
 
     report.then((rp) => {
-      const data = rp.data.data[0];
+      const data = rp.data;
 
       const efectivo = data.find((dt) => dt.tipoPago == 1);
       const tarjeta = data.find((dt) => dt.tipoPago == 2);
@@ -120,7 +120,7 @@ export default function BodyEodReport() {
         idPuntoDeVenta: puntoDeVenta,
       });
       details.then((dt) => {
-        const det = dt.data.data[0][0];
+        const det = dt.data[0];
 
         setNumberInv(det.CantidadFacturas);
         setFirstInv(det.PrimeraFactura);
