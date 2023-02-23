@@ -66,10 +66,11 @@ export default function FormCancelInvoice() {
       motivoAnulacion: motivo,
       nit: parseInt(process.env.REACT_APP_NIT_EMPRESA),
     };
-
+    console.log("Anulando factura", cancelObj);
     const canceled = CancelInvoice(cancelObj);
     canceled
       .then((cld) => {
+        console.log("Cancelada", cld);
         const mensaje =
           cld.response.data.AnularComprobanteResponse[0]
             .AnularComprobanteResult[0];
@@ -77,11 +78,13 @@ export default function FormCancelInvoice() {
           const products = allFacts.filter(
             (af) => af.idFactura == invoice.idFactura
           );
+          console.log("Selected invoice", selectedInvoice);
           const returnToStock = updateStock({
             accion: "add",
             idAlmacen: selectedInvoice.idAlmacen,
             productos: products,
           });
+          console.log("Updateando stock", products);
           returnToStock.then((returned) => {
             const anulada = cancelInvoiceUpdate(invoice.idFactura);
             anulada

@@ -180,6 +180,7 @@ export const InvoiceComponent = React.forwardRef(
           <div>¡GRACIAS POR SU COMPRA!</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
+          <div>*No se aceptan cambios ni devoluciones*</div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
@@ -341,6 +342,7 @@ export const InvoiceComponent = React.forwardRef(
           <div>¡GRACIAS POR SU COMPRA!</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
+          <div>*No se aceptan cambios ni devoluciones*</div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>

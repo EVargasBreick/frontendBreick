@@ -29,9 +29,10 @@ export default function FormRejectedOrders() {
   function viewDetails(ol) {
     const details = rePrintTransferOrder(ol.intId, ol.tipo);
     details.then((dt) => {
+      console.log("Detalles", dt);
       const details = {
         detalles: ol,
-        productos: dt.data.data[0],
+        productos: dt.data,
       };
       setOrderDetails(details);
       setIsDetails(true);
