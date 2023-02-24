@@ -507,3 +507,13 @@ td {
   justify-content: center;
   padding-top: 8%;
 }
+
+.columnForm {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 10px;
+}
+
+.mediumForm {
+  width: 45%;
+}

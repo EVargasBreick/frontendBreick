@@ -12,7 +12,7 @@ import Book from "../../assets/book.png";
 import Lines from "../../assets/lines.png";
 import Chocolate from "../../assets/chocolate.png";
 import "../../styles/generalStyle.css";
-
+import Cross from "../../assets/cross.png";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
   return (
     <SubMenu
@@ -43,7 +43,9 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         <Image src={ReturnWare} className="icon inverted"></Image>
         Recepcion traspasos
       </MenuItem>
-
+      <MenuItem onClick={() => redirectOnClick("/productos/baja")}>
+        <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
       <MenuItem onClick={() => redirectOnClick("/reportes/ventas/cierre")}>
         <Image src={Book} className="icon"></Image>Reporte cierre diario
       </MenuItem>

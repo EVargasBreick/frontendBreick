@@ -72,6 +72,8 @@ export default function FormAsignPack() {
     setProductList(prodList);
   }
   function asignPack() {
+    setAlertSec("Asignando pack");
+    setIsAlertSec(true);
     const selectedProducts = [];
     productList.map((pl) => {
       const prodObj = {
@@ -88,7 +90,7 @@ export default function FormAsignPack() {
     const updatedForTake = updateStock(objProdsTake);
     updatedForTake.then((resp) => {
       const found = productList.find(
-        (pl) => (pl.idPack[0] = selectedPackId)
+        (pl) => (pl.idPack = selectedPackId)
       ).idPackProd;
 
       const objProdsAdd = {

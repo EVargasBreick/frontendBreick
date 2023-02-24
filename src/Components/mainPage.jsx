@@ -38,6 +38,9 @@ export default function MainPage() {
       if (JSON.parse(Cookies.get("userAuth")).rol == 3) {
         navigate("/regPedido");
       }
+      if (JSON.parse(Cookies.get("userAuth")).rol == 11) {
+        navigate("/almacenes/recepcionar-pedidos");
+      }
     }
     const stats = getOrderStatus();
 

@@ -42,6 +42,7 @@ import RouteSale from "./Components/routeSale";
 import EditTransfer from "./Components/editTransfer";
 import StoreRefill from "./Components/storeRefill";
 import TransferReception from "./Components/transferReception";
+import ProductDrop from "./Components/productDrop";
 
 function App() {
   return (
@@ -343,6 +344,14 @@ function App() {
               element={
                 <RequireAuth>
                   <TransferReception />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/productos/baja"
+              element={
+                <RequireAuth>
+                  <ProductDrop />
                 </RequireAuth>
               }
             />

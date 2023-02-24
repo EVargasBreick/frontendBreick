@@ -76,7 +76,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={Star} className="icon inverted"></Image>
         Asignar/Retirar Packs
       </MenuItem>
-      <div>En Desarrollo ...</div>
+      {/*<div>En Desarrollo ...</div>
       <MenuItem>
         <Image src={cancelSample} className="icon"></Image> Anular Muestras
       </MenuItem>
@@ -103,6 +103,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       <MenuItem>
         <Image src={Load} className="icon"></Image>Conocimiento de Carga
       </MenuItem>
+    */}
     </SubMenu>
   );
 }

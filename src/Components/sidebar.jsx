@@ -9,6 +9,7 @@ import SidebarRouteSales from "./sidebarRouteSales";
 import SidebarCeo from "./sidebarCeo";
 import SidebarSudoSales from "./sidebarSudoSales";
 import SidebarWarehousing from "./sidebarWarehousing";
+import SidebarAlmaceneros from "./sidebarAlmaceneros";
 export default function Sidebar() {
   const [rol, setRol] = useState(0);
   useEffect(() => {
@@ -37,5 +38,8 @@ export default function Sidebar() {
   }
   if (rol == 10) {
     return <SidebarWarehousing />;
+  }
+  if (rol == 11) {
+    return <SidebarAlmaceneros />;
   }
 }

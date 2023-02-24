@@ -12,7 +12,9 @@ import { dateString } from "../services/dateServices";
 import { logRejected } from "../services/rejectedServices";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import { useNavigate } from "react-router-dom";
 export default function FormOrdersToReady() {
+  const navigate = useNavigate();
   const [orderList, setOrderList] = useState([]);
   const [auxOrderList, setAuxOrderList] = useState([]);
   const [filtered, setFiltered] = useState("");
@@ -39,7 +41,14 @@ export default function FormOrdersToReady() {
       setOrderList(res.data);
       setAuxOrderList(res.data);
     });
+    const intervalId = setInterval(() => {
+      navigate("/almacenes/recepcionar-pedidos");
+    }, 30000);
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
+
   useEffect(() => {
     if (isPrint) {
       buttonRef.current.click();

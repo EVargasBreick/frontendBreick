@@ -317,7 +317,13 @@ export default function FormEditTransfer() {
               <tfoot>
                 <tr className="tableFootAlt">
                   <td colSpan={5}>
-                    <Button onClick={() => sortProducts()}>Actualizar</Button>
+                    <Button
+                      onClick={() => sortProducts()}
+                      variant="warning"
+                      className="yellowLarge"
+                    >
+                      Actualizar
+                    </Button>
                   </td>
                 </tr>
               </tfoot>

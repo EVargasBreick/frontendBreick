@@ -46,6 +46,9 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       <MenuItem onClick={() => redirectOnClick("/rechazados")}>
         <Image src={Cross} className="icon"></Image>Ver Ped/Trasp Rechazados
       </MenuItem>
+      <MenuItem onClick={() => redirectOnClick("/productos/baja")}>
+        <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
     </SubMenu>
   );
 }
