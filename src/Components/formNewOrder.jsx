@@ -116,7 +116,7 @@ export default function FormNewOrder() {
       );
       dl.then((res) => {
         console.log("Descuentitos", res);
-        setDiscountList(res.data.data[0]);
+        setDiscountList(res.data.data);
       });
       /*const interval = setInterval(() => {
         const disponibles = availableProducts(

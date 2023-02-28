@@ -3,6 +3,7 @@
 }
 .center {
   display: flex;
+  flex-direction: column;
   height: auto;
   width: 100%;
   justify-content: center;

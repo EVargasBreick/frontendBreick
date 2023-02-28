@@ -12,7 +12,11 @@ export default function NewPack() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol < 10) {
+      if (
+        JSON.parse(Cookies.get("userAuth")).rol != 9 ||
+        JSON.parse(Cookies.get("userAuth")).rol != 8 ||
+        JSON.parse(Cookies.get("userAuth")).rol != 1
+      ) {
       } else {
         navigate("/principal");
       }

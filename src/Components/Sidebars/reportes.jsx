@@ -35,16 +35,18 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         <Image src={Book} className="icon"></Image>Reporte libro de ventas por
         producto
       </MenuItem>
-      <MenuItem>
-        <Image src={Ticket} className="icon"></Image>Reporte facturados por
-        vendedor
-      </MenuItem>
+
       <MenuItem onClick={() => redirectOnClick("/reportes/log/kardex")}>
         <Image src={Lines} className="icon"></Image>
         Reporte Kardex Pasado
       </MenuItem>
       <MenuItem onClick={() => redirectOnClick("/reportes/actual/kardex")}>
         <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
+      </MenuItem>
+      {/*
+      <MenuItem>
+        <Image src={Ticket} className="icon"></Image>Reporte facturados por
+        vendedor
       </MenuItem>
       <MenuItem>
         <Image src={Bill} className="icon"></Image>Reporte ventas por vendedores
@@ -94,7 +96,7 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       </MenuItem>
       <MenuItem>
         <Image src={Bill} className="icon"></Image>Reporte de transferencias
-      </MenuItem>
+      </MenuItem>*/}
     </SubMenu>
   );
 }

@@ -1,16 +1,15 @@
 {
   "files": {
-    "main.css": "/static/css/main.291ef5ec.css",
-    "main.js": "/static/js/main.64635777.js",
+    "main.css": "/static/css/main.a4b3468c.css",
+    "main.js": "/static/js/main.655cb148.js",
     "static/js/703.031dab6f.chunk.js": "/static/js/703.031dab6f.chunk.js",
-    "static/js/513.54f245cb.chunk.js": "/static/js/513.54f245cb.chunk.js",
+    "static/js/513.9b4ab1eb.chunk.js": "/static/js/513.9b4ab1eb.chunk.js",
     "static/js/787.d5bc7536.chunk.js": "/static/js/787.d5bc7536.chunk.js",
     "static/media/loading2.gif": "/static/media/loading2.706124a2c0232f216d63.gif",
     "static/media/newOrder.png": "/static/media/newOrder.a2c405aa22a3b80e30cf.png",
     "static/media/hand.png": "/static/media/hand.098de681601758bc82b6.png",
     "static/media/BreickSimple.png": "/static/media/BreickSimple.b42d9a0c78ecb81e290f.png",
     "static/media/returnWare.png": "/static/media/returnWare.273d897df19b68b2ea69.png",
-    "static/media/screen.png": "/static/media/screen.e252760d887f345d4a33.png",
     "static/media/login.png": "/static/media/login.6daf1a42bdf485e88d0a.png",
     "static/media/ticket.png": "/static/media/ticket.0cfefb738f1bfc3d57f0.png",
     "static/media/Breick-logo.png": "/static/media/Breick-logo.8148fa04f32a6c65817a.png",
@@ -24,7 +23,6 @@
     "static/media/log2.png": "/static/media/log2.41bf500445efa7b6bc21.png",
     "static/media/invoice.png": "/static/media/invoice.f31db4b8124e7fc4d225.png",
     "static/media/cancelInvoice.png": "/static/media/cancelInvoice.f325bcb3eced532e0754.png",
-    "static/media/EQR.png": "/static/media/EQR.0803966a25cb6adf4374.png",
     "static/media/square.png": "/static/media/square.924c016663e58e0a3623.png",
     "static/media/giftMain.png": "/static/media/giftMain.be8289ba233f2b984226.png",
     "static/media/Gift.png": "/static/media/Gift.84290ec854398e651c32.png",
@@ -36,7 +34,6 @@
     "static/media/minus.png": "/static/media/minus.05d0111c6a0cd416f8f3.png",
     "static/media/load.png": "/static/media/load.ffd7dc67113c2dc3b9a1.png",
     "static/media/news.png": "/static/media/news.32d6befbd41a0b467e7f.png",
-    "static/media/campaign.png": "/static/media/campaign.3f1e1c97e42f5e2d217a.png",
     "static/media/flag1.png": "/static/media/flag1.ea7eb4d256ab13b09f73.png",
     "static/media/add.png": "/static/media/add.dfcf4fd6dee5d554cf99.png",
     "static/media/chocolate.png": "/static/media/chocolate.089294a4322a79651f0d.png",
@@ -51,14 +48,14 @@
     "static/media/cross.png": "/static/media/cross.4b145de06b1f59000ab8.png",
     "static/media/check.png": "/static/media/check.9aae5ce6ca9838b37e2a.png",
     "index.html": "/index.html",
-    "main.291ef5ec.css.map": "/static/css/main.291ef5ec.css.map",
-    "main.64635777.js.map": "/static/js/main.64635777.js.map",
+    "main.a4b3468c.css.map": "/static/css/main.a4b3468c.css.map",
+    "main.655cb148.js.map": "/static/js/main.655cb148.js.map",
     "703.031dab6f.chunk.js.map": "/static/js/703.031dab6f.chunk.js.map",
-    "513.54f245cb.chunk.js.map": "/static/js/513.54f245cb.chunk.js.map",
+    "513.9b4ab1eb.chunk.js.map": "/static/js/513.9b4ab1eb.chunk.js.map",
     "787.d5bc7536.chunk.js.map": "/static/js/787.d5bc7536.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.291ef5ec.css",
-    "static/js/main.64635777.js"
+    "static/css/main.a4b3468c.css",
+    "static/js/main.655cb148.js"
   ]
 }

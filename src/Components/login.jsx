@@ -28,7 +28,6 @@ export default function Login() {
       ? "0" + new Date().getMinutes()
       : new Date().getMinutes();
   const horaFinal = horaActual + ":" + minutoActual + ":00";
-  const [isOutHours, setIsOutHours] = useState(false);
   const { setIsAuth } = useContext(UserContext);
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
@@ -91,13 +90,17 @@ export default function Login() {
   return (
     <div className="appContainer">
       <div className="center">
-        <Alert
-          variant="danger"
-          show={isAlert}
-          style={{ backgroundColor: "#5cb8b2", color: "white" }}
-        >
-          {alert}
-        </Alert>
+        <div className="loginAlert">
+          {" "}
+          <Alert
+            variant="danger"
+            show={isAlert}
+            style={{ backgroundColor: "#5cb8b2", color: "white" }}
+          >
+            {alert}
+          </Alert>
+        </div>
+
         <div className="box">
           <Image src={BreickLogo} className="imageLogo"></Image>
           <Form className="loginForm">
