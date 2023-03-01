@@ -23,44 +23,77 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       open={toggledAg}
       icon={<Image src={Map} className="compIcon"></Image>}
     >
-      <MenuItem onClick={() => redirectOnClick("/ventaAgencia")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/ventaAgencia")}
+        className="menuItem"
+      >
         <Image src={Invoice} className="icon"></Image>
         Ventas Agencia
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/facturas/anular")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/facturas/anular")}
+        className="menuItem"
+      >
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/stock/actualizar")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/stock/actualizar")}
+        className="menuItem"
+      >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Actualizar Stock
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/traspaso")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspaso")}
+        className="menuItem"
+      >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso productos
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/traspaso/recepcion")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspaso/recepcion")}
+        className="menuItem"
+      >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Recepcion traspasos
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/productos/baja")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/productos/baja")}
+        className="menuItem"
+      >
         <Image src={Cross} className="icon"></Image>Baja Productos
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/reportes/ventas/cierre")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/cierre")}
+        className="menuItem"
+      >
         <Image src={Book} className="icon"></Image>Reporte cierre diario
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/reportes/ventas/general")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/general")}
+        className="menuItem"
+      >
         <Image src={Book} className="icon"></Image>Reporte libro de ventas
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/reportes/ventas/productos")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/productos")}
+        className="menuItem"
+      >
         <Image src={Book} className="icon"></Image>Reporte libro de ventas por
         producto
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/reportes/log/kardex")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/log/kardex")}
+        className="menuItem"
+      >
         <Image src={Lines} className="icon"></Image>
         Reporte Kardex Pasado
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/reportes/actual/kardex")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/actual/kardex")}
+        className="menuItem"
+      >
         <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
       </MenuItem>
     </SubMenu>

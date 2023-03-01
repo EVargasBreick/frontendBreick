@@ -21,23 +21,29 @@ export default function Parametros({ toggleSub, redirectOnClick, toggledPar }) {
       open={toggledPar}
       icon={<Image src={Gears} className="compIcon"></Image>}
     >
-      <MenuItem onClick={() => redirectOnClick("/nuevoUsuario")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/nuevoUsuario")}
+        className="menuItem"
+      >
         <Image src={LoginIcon} className="icon"></Image> Registro usuarios del
         sistema
       </MenuItem>
 
-      <MenuItem onClick={() => redirectOnClick("/editarUsuario")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/editarUsuario")}
+        className="menuItem"
+      >
         <Image src={Gears} className="icon"></Image>Modificar usuarios del
         sistema
       </MenuItem>
 
-      <MenuItem>
+      <MenuItem className="menuItem">
         <Image src={Truck} className="icon"></Image>Registro Vehiculo
       </MenuItem>
-      <MenuItem>
+      <MenuItem className="menuItem">
         <Image src={Map} className="icon"></Image>Registro Agencia
       </MenuItem>
-      <MenuItem>
+      <MenuItem className="menuItem">
         <Image src={News} className="icon"></Image>Registro Noticias
       </MenuItem>
     </SubMenu>

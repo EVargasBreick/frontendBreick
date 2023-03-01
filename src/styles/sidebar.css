@@ -29,3 +29,15 @@
   overflow-wrap: break-word;
   font-size: small;
 }
+
+.menuItem {
+  color: #6a4593;
+  background-color: white;
+}
+
+@media (max-width: 600px) {
+  .menuItem {
+    color: #6a4593;
+    background-color: white;
+  }
+}

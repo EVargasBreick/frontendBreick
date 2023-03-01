@@ -22,31 +22,55 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       title="Modulo Logistica"
       icon={<Image src={Barcode} className="compIcon"></Image>}
     >
-      <MenuItem onClick={() => redirectOnClick("/adminPedidos")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/adminPedidos")}
+        className="menuItem"
+      >
         <Image src={Check} className="icon"></Image>Aprobar Pedido
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/traspaso")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspaso")}
+        className="menuItem"
+      >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso entre agencias
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/traspaso/recargar")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspaso/recargar")}
+        className="menuItem"
+      >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso a agencias
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/adminTraspaso")}
+        className="menuItem"
+      >
         <Image src={Check} className="icon"></Image>Aprobar Traspasos
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/traspasos/editar")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspasos/editar")}
+        className="menuItem"
+      >
         <Image src={leftArrow} className="icon"></Image>
         Modificar Traspaso
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/verTraspaso")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/verTraspaso")}
+        className="menuItem"
+      >
         <Image src={newOrder} className="icon"></Image>Ver Traspasos
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/rechazados")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/rechazados")}
+        className="menuItem"
+      >
         <Image src={Cross} className="icon"></Image>Ver Ped/Trasp Rechazados
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/productos/baja")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/productos/baja")}
+        className="menuItem"
+      >
         <Image src={Cross} className="icon"></Image>Baja Productos
       </MenuItem>
     </SubMenu>

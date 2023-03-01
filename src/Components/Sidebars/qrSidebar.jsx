@@ -18,10 +18,10 @@ export default function QrSidebar({ toggleSub, toggledQr }) {
       open={toggledQr}
       icon={<Image src={Qr} className="compIcon"></Image>}
     >
-      <MenuItem>
+      <MenuItem className="menuItem">
         <Image src={EQR} className="icon"></Image>Encriptar QR
       </MenuItem>
-      <MenuItem>
+      <MenuItem className="menuItem">
         <Image src={Qr} className="icon"></Image>Decriptar QR
       </MenuItem>
     </SubMenu>

@@ -25,11 +25,17 @@ export default function Produccion({
       open={toggledProd}
       icon={<Image src={Prod} className="compIcon"></Image>}
     >
-      <MenuItem onClick={() => redirectOnClick("/nuevoProducto")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/nuevoProducto")}
+        className="menuItem"
+      >
         <Image src={File1} className="icon"></Image>
         Crear Producto
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/cargarProductos")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/cargarProductos")}
+        className="menuItem"
+      >
         <Image src={NewFile} className="icon"></Image>
         Cargar Prod a Almacen
       </MenuItem>

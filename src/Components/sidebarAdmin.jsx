@@ -158,7 +158,6 @@ export default function SidebarAdmin() {
       setToggledMan(false);
       setToggledAlm(false);
       setToggledProd(false);
-      setToggleLog(false);
       setToggledVent(false);
       setToggledAg(false);
       setToggledQr(false);
@@ -193,7 +192,7 @@ export default function SidebarAdmin() {
             <Logistica
               toggleSub={toggleSub}
               redirectOnClick={redirectOnClick}
-              toggledProd={toggledProd}
+              toggleLog={toggleLog}
             />
             <Almacenes
               toggleSub={toggleSub}

@@ -38,40 +38,64 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       open={toggledVent}
       icon={<Image src={Flag} className="compIcon"></Image>}
     >
-      <div>Clientes</div>
-      <MenuItem onClick={() => redirectOnClick("/regCliente")}>
+      <div className="menuItem">Clientes</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/regCliente")}
+        className="menuItem"
+      >
         <Image src={Client} className="icon"></Image>Gestion de Clientes
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/buscarCliente")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/buscarCliente")}
+        className="menuItem"
+      >
         <Image src={newClient} className="icon"></Image>Modificacion de Clientes
       </MenuItem>
-      <div>Pedidos</div>
-      <MenuItem onClick={() => redirectOnClick("/regPedido")}>
+      <div className="menuItem">Pedidos</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/regPedido")}
+        className="menuItem"
+      >
         <Image src={newOrder} className="icon"></Image>Registro de Pedido
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/modPedidos")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/modPedidos")}
+        className="menuItem"
+      >
         <Image src={leftArrow} className="icon"></Image>
         Modificar/Cancelar Pedido
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/pedidos/facturar")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/pedidos/facturar")}
+        className="menuItem"
+      >
         <Image src={Invoice} className="icon"></Image>Facturar Pedidos
       </MenuItem>
-      <MenuItem>
+      <MenuItem className="menuItem">
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
-      <div>Productos</div>
-      <MenuItem onClick={() => redirectOnClick("/traspaso")}>
+      <div className="menuItem">Productos</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspaso")}
+        className="menuItem"
+      >
         {" "}
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso productos
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/packs/registrar")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/packs/registrar")}
+        className="menuItem"
+      >
         {" "}
         <Image src={Star} className="icon inverted"></Image>
         Registrar Pack
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/packs/asignar")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/packs/asignar")}
+        className="menuItem"
+      >
         {" "}
         <Image src={Star} className="icon inverted"></Image>
         Asignar/Retirar Packs

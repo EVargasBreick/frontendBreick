@@ -18,6 +18,8 @@ import { numberOfProducts } from "../services/productServices";
 import Cookies from "js-cookie";
 import "../styles/generalStyle.css";
 import SidebarAdmin from "./sidebarAdmin";
+import { mainPageReport } from "../services/reportServices";
+import Sidebar from "./sidebar";
 export default function MainPage() {
   const [estados, setEstados] = useState([]);
   const [pendientes, setPendientes] = useState(-1);
@@ -27,7 +29,12 @@ export default function MainPage() {
   const [normal, setNormal] = useState(0);
   const [muestra, setMuestra] = useState(0);
   const [reserva, setReserva] = useState(0);
-
+  const [mainData, setMainData] = useState({
+    facturasAnuladas: -1,
+    muestrasAprobadas: -1,
+    pedidosFacturados: -1,
+    pedidosPorFacturar: -1,
+  });
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
@@ -83,6 +90,11 @@ export default function MainPage() {
       console.log("d", number);
       setNumProds(number.data.data[0].NumeroProductos);
     });
+    const mData = mainPageReport();
+    mData.then((res) => {
+      console.log("Main data", res);
+      setMainData(res.data[0]);
+    });
   }, []);
 
   const renderTooltip = (props) => (
@@ -99,7 +111,7 @@ export default function MainPage() {
       </div>
       <div className="form">
         <div className="sidebarDisplay">
-          <SidebarAdmin></SidebarAdmin>
+          <Sidebar />
         </div>
         <div className="formDisplayWhite mainOverflow">
           <div className="tittle">Inicio</div>
@@ -151,7 +163,13 @@ export default function MainPage() {
             <div className="dataCard">
               <div className="mainCard dPurple">
                 <div className="lgRow">
-                  <div className="nData">1</div>
+                  <div className="nData">
+                    {mainData.pedidosPorFacturar < 0 ? (
+                      <Image src={loading2} style={{ width: "25%" }} />
+                    ) : (
+                      mainData.pedidosPorFacturar
+                    )}
+                  </div>
                   <div>Pedidos por facturar</div>
                 </div>
                 <div className="smRow">
@@ -166,7 +184,13 @@ export default function MainPage() {
             <div className="dataCard ">
               <div className="mainCard mGreen">
                 <div className="lgRow">
-                  <div className="nData">1</div>
+                  <div className="nData">
+                    {mainData.pedidosFacturados < 0 ? (
+                      <Image src={loading2} style={{ width: "25%" }} />
+                    ) : (
+                      mainData.pedidosFacturados
+                    )}
+                  </div>
                   <div>Pedidos Facturados</div>
                 </div>
                 <div className="smRow">
@@ -220,7 +244,13 @@ export default function MainPage() {
             <div className="dataCard">
               <div className="mainCard mRed">
                 <div className="lgRow">
-                  <div className="nData">1</div>
+                  <div className="nData">
+                    {mainData.facturasAnuladas < 0 ? (
+                      <Image src={loading2} style={{ width: "25%" }} />
+                    ) : (
+                      mainData.facturasAnuladas
+                    )}
+                  </div>
                   <div>Facturas Anuladas</div>
                 </div>
                 <div className="smRow">
@@ -233,7 +263,13 @@ export default function MainPage() {
             <div className="dataCard">
               <div className="mainCard mBlue">
                 <div className="lgRow">
-                  <div className="nData">1</div>
+                  <div className="nData">
+                    {mainData.muestrasAprobadas < 0 ? (
+                      <Image src={loading2} style={{ width: "25%" }} />
+                    ) : (
+                      mainData.muestrasAprobadas
+                    )}
+                  </div>
                   <div>Muestras Aprobadas</div>
                 </div>
                 <div className="smRow">

@@ -20,6 +20,8 @@ export default function SidebarWarehousing() {
   const [toggledRep, setToggledRep] = useState(false);
   const [toggledPar, setToggledPar] = useState(false);
   const [toggledRut, setToggledRut] = useState(false);
+  const [toggledMan, setToggledMan] = useState(false);
+  const [toggleLog, setToggleLog] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   function redirectOnClick(path) {
@@ -49,6 +51,7 @@ export default function SidebarWarehousing() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggleLog(false);
     }
     if (selected === 2) {
       setToggledAlm(!toggledAlm);
@@ -59,6 +62,7 @@ export default function SidebarWarehousing() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggleLog(false);
     }
     if (selected === 3) {
       setToggledAlm(false);
@@ -69,6 +73,7 @@ export default function SidebarWarehousing() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggleLog(false);
     }
     if (selected === 4) {
       setToggledAlm(false);
@@ -79,6 +84,7 @@ export default function SidebarWarehousing() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggleLog(false);
     }
     if (selected === 5) {
       setToggledAlm(false);
@@ -89,6 +95,7 @@ export default function SidebarWarehousing() {
       setToggledRep(!toggledRep);
       setToggledPar(false);
       setToggledRut(false);
+      setToggleLog(false);
     }
     if (selected === 6) {
       setToggledAlm(false);
@@ -99,6 +106,7 @@ export default function SidebarWarehousing() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggleLog(false);
     }
     if (selected === 7) {
       setToggledAlm(false);
@@ -109,6 +117,7 @@ export default function SidebarWarehousing() {
       setToggledRep(false);
       setToggledPar(!toggledPar);
       setToggledRut(false);
+      setToggleLog(false);
     }
     if (selected === 8) {
       setToggledAlm(false);
@@ -118,7 +127,20 @@ export default function SidebarWarehousing() {
       setToggledQr(false);
       setToggledRep(false);
       setToggledPar(false);
+      setToggleLog(false);
       setToggledRut(!toggledRut);
+    }
+    if (selected === 10) {
+      setToggledMan(false);
+      setToggledAlm(false);
+      setToggledProd(false);
+      setToggledVent(false);
+      setToggledAg(false);
+      setToggledQr(false);
+      setToggledRep(false);
+      setToggledPar(false);
+      setToggledRut(false);
+      setToggleLog(!toggleLog);
     }
   }
   return (
@@ -146,7 +168,7 @@ export default function SidebarWarehousing() {
             <Logistica
               toggleSub={toggleSub}
               redirectOnClick={redirectOnClick}
-              toggledProd={toggledProd}
+              toggleLog={toggleLog}
             />
             <Reportes
               toggleSub={toggleSub}

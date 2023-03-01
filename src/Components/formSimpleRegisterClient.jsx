@@ -160,7 +160,7 @@ export default function FormSimpleRegisterClient(props) {
                       frecuencia,
                       idUsuarioActual,
                       notas,
-                      usuario,
+                      idUsuarioActual,
                       tipoDoc == undefined ? 1 : tipoDoc
                     );
                     clientObject.then((client) => {

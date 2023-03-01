@@ -28,19 +28,31 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       open={toggledRep}
       icon={<Image src={Report} className="compIcon"></Image>}
     >
-      <MenuItem onClick={() => redirectOnClick("/reportes/ventas/general")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/general")}
+        className="menuItem"
+      >
         <Image src={Book} className="icon"></Image>Reporte libro de ventas
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/reportes/ventas/productos")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/productos")}
+        className="menuItem"
+      >
         <Image src={Book} className="icon"></Image>Reporte libro de ventas por
         producto
       </MenuItem>
 
-      <MenuItem onClick={() => redirectOnClick("/reportes/log/kardex")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/log/kardex")}
+        className="menuItem"
+      >
         <Image src={Lines} className="icon"></Image>
         Reporte Kardex Pasado
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/reportes/actual/kardex")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/actual/kardex")}
+        className="menuItem"
+      >
         <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
       </MenuItem>
       {/*

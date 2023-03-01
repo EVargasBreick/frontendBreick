@@ -16,30 +16,40 @@ export default function Sidebar() {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setRol(JSON.parse(UsuarioAct).rol);
+      console.log("Rol:", JSON.parse(UsuarioAct).rol);
     }
   }, []);
   if (rol == 1) {
     return <SidebarAdmin />;
-  }
-  if (rol == 2) {
-    return <SidebarStoreSales />;
-  }
-  if (rol == 3 || rol == 5 || rol == 6) {
-    return <SidebarCorpSales />;
-  }
-  if (rol == 4) {
-    return <SidebarRouteSales />;
-  }
-  if (rol == 7) {
-    return <SidebarCeo />;
-  }
-  if (rol == 8 || rol == 9) {
-    return <SidebarSudoSales />;
-  }
-  if (rol == 10) {
-    return <SidebarWarehousing />;
-  }
-  if (rol == 11) {
-    return <SidebarAlmaceneros />;
+  } else {
+    if (rol == 2) {
+      return <SidebarStoreSales />;
+    } else {
+      if (rol == 3 || rol == 5 || rol == 6) {
+        return <SidebarCorpSales />;
+      } else {
+        if (rol == 4) {
+          return <SidebarRouteSales />;
+        } else {
+          if (rol == 7) {
+            return <SidebarCeo />;
+          } else {
+            if (rol == 8 || rol == 9) {
+              return <SidebarSudoSales />;
+            } else {
+              if (rol == 10) {
+                return <SidebarWarehousing />;
+              } else {
+                if (rol == 11) {
+                  return <SidebarAlmaceneros />;
+                } else {
+                  return null;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

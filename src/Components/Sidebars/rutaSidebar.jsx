@@ -30,22 +30,34 @@ export default function RutaSidebar({
           <Image src={Invoice} className="icon"></Image>Emision de
           Facturas
       </MenuItem>*/}
-      <MenuItem onClick={() => redirectOnClick("/ventas/ruta")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/ventas/ruta")}
+        className="menuItem"
+      >
         <Image src={Invoice} className="icon"></Image>
         Ventas Ruta
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/traspasoMovil")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspasoMovil")}
+        className="menuItem"
+      >
         {" "}
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso a ag. Movil
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/regCliente")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/regCliente")}
+        className="menuItem"
+      >
         <Image src={Client} className="icon"></Image>Gestion de clientes
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/buscarCliente")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/buscarCliente")}
+        className="menuItem"
+      >
         <Image src={Client} className="icon"></Image>Modificacion de clientes
       </MenuItem>
-      <MenuItem>
+      <MenuItem className="menuItem">
         <Image src={Book} className="icon"></Image>
         Reporte cierre de ventas
       </MenuItem>

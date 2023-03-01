@@ -40,6 +40,7 @@
   }
   .sidebarComponent.collapsed {
     width: 100%;
+    background-color: white;
   }
 }
 
@@ -54,6 +55,7 @@
 }
 .sidebarComponent {
   width: 100%;
+  background-color: white;
 }
 
 .formDisplayWhite {

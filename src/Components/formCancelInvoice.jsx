@@ -74,7 +74,12 @@ export default function FormCancelInvoice() {
         const mensaje =
           cld.response.data.AnularComprobanteResponse[0]
             .AnularComprobanteResult[0];
-        if (mensaje.includes("Anulación confirmada del comprobante")) {
+        if (
+          mensaje.includes(
+            "Anulación confirmada del comprobante" ||
+              mensaje.includes("se encuentra anulado")
+          )
+        ) {
           const products = allFacts.filter(
             (af) => af.idFactura == invoice.idFactura
           );

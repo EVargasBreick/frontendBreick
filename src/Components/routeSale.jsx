@@ -14,7 +14,7 @@ export default function RouteSale() {
     if (user) {
       if (
         JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 11
+        JSON.parse(Cookies.get("userAuth")).rol == 4
       ) {
       } else {
         navigate("/principal");

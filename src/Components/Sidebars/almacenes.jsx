@@ -21,10 +21,14 @@ export default function Almacenes({ toggleSub, redirectOnClick, toggledAlm }) {
     >
       <MenuItem
         onClick={() => redirectOnClick("/almacenes/recepcionar-pedidos")}
+        className="menuItem"
       >
         <Image src={leftArrow} className="icon"></Image>Pedidos Entrantes
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/alistarPedidos")}>
+      <MenuItem
+        onClick={() => redirectOnClick("/alistarPedidos")}
+        className="menuItem"
+      >
         <Image src={appBooking} className="icon"></Image>Alistar Pedidos
       </MenuItem>
     </SubMenu>
