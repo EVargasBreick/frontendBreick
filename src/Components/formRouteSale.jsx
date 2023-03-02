@@ -86,6 +86,7 @@ export default function FormRouteSale() {
   const [isPoint, setIsPoint] = useState(false);
   const [otherPayments, setOtherPayments] = useState([]);
   const [giftCard, setGiftCard] = useState(0);
+  const [userCity, setUserCity] = useState("");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 700 ? false : true
   );
@@ -106,13 +107,13 @@ export default function FormRouteSale() {
 
     if (UsuarioAct) {
       const PuntoDeVenta = Cookies.get("pdv");
-
+      setUserCity(JSON.parse(UsuarioAct).idDepto);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setUserName(JSON.parse(UsuarioAct).usuario);
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((res) => {
-        setPointList(res.data);
+        setPointList([{ nroPuntoDeVenta: 0 }]);
       });
       if (PuntoDeVenta) {
         setIsPoint(true);
@@ -143,9 +144,8 @@ export default function FormRouteSale() {
       suc.then((resp) => {
         const sucursales = resp.data;
         const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
-
-        const sucur = sucursales.find((sc) => alm == sc.idAgencia);
-
+        const sucur = sucursales.find((sc) => "AL001" == sc.idAgencia);
+        console.log("Sucursal", sucur);
         setSucursal(sucur);
         const branchData = {
           nombre: sucur.nombre,
@@ -338,10 +338,8 @@ export default function FormRouteSale() {
   }
   function changeQuantitiesModal(e) {
     e.preventDefault();
-
     const index = selectedProducts.length - 1;
     const selectedProd = selectedProducts[index];
-
     changeQuantities(index, modalQuantity, selectedProd, false);
     setIsQuantity(false);
     setModalQuantity("");
@@ -527,6 +525,7 @@ export default function FormRouteSale() {
         vale: giftCard,
         aPagar: aPagar,
         puntoDeVenta: pointOfSale,
+        idAgencia: userStore,
       };
       setInvoice(invoiceBody);
       const newInvoice = createInvoice(invoiceBody);

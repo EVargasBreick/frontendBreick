@@ -46,6 +46,13 @@ export default function RutaSidebar({
         Traspaso a ag. Movil
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/traspaso/recepcion")}
+        className="menuItem"
+      >
+        <Image src={ReturnWare} className="icon inverted"></Image>
+        Recepcion traspasos
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/regCliente")}
         className="menuItem"
       >
@@ -57,9 +64,12 @@ export default function RutaSidebar({
       >
         <Image src={Client} className="icon"></Image>Modificacion de clientes
       </MenuItem>
-      <MenuItem className="menuItem">
+      <MenuItem
+        className="menuItem"
+        onClick={() => redirectOnClick("/reportes/ventas/cierre")}
+      >
         <Image src={Book} className="icon"></Image>
-        Reporte cierre de ventas
+        Reporte cierre diario
       </MenuItem>
     </SubMenu>
   );

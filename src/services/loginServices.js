@@ -3,6 +3,12 @@ import axios from "axios";
 import { dateString } from "./dateServices";
 
 const loginRequest = (username, password) => {
+  console.log(
+    "Login request",
+    `${process.env.REACT_APP_ENDPOINT_URL}${
+      process.env.REACT_APP_ENDPOINT_PORT
+    }/login/?usuario=${username}&password=${password}&date='${dateString()}'`
+  );
   return new Promise((resolve, reject) => {
     axios
       .get(

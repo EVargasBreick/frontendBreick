@@ -59,6 +59,7 @@ export default function FormNewSale() {
     { nombreProducto: "Cargando..." },
   ]);
   const [isSaleModal, setIsSaleModal] = useState(true);
+
   const [tipoPago, setTipoPago] = useState(0);
   const [cambio, setCambio] = useState(0);
   const [cancelado, setCancelado] = useState(0);
@@ -89,6 +90,7 @@ export default function FormNewSale() {
     window.innerWidth < 700 ? false : true
   );
   const [giftCard, setGiftCard] = useState(0);
+  const [city, setCity] = useState("");
   const searchRef = useRef(null);
   const productRef = useRef(null);
   const quantref = useRef(null);
@@ -109,6 +111,7 @@ export default function FormNewSale() {
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setUserName(JSON.parse(UsuarioAct).usuario);
+      setCity(JSON.parse(UsuarioAct).idDepto);
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((res) => {
         setPointList(res.data);
@@ -525,6 +528,7 @@ export default function FormNewSale() {
         vale: giftCard,
         aPagar: aPagar,
         puntoDeVenta: pointOfSale,
+        idAgencia: userStore,
       };
       setInvoice(invoiceBody);
       const newInvoice = createInvoice(invoiceBody);
@@ -548,17 +552,19 @@ export default function FormNewSale() {
     });
   }
   function handleDiscount() {
-    const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
-
-    newDiscount.then((nd) => {
-      setDescuento(nd);
-
-      const discountedProds = saleDiscount(selectedProducts, nd);
-      discountedProds.then((res) => {
-        setSelectedProducts(res);
-        handleModal();
+    if (city == 1) {
+      const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
+      newDiscount.then((nd) => {
+        setDescuento(nd);
+        const discountedProds = saleDiscount(selectedProducts, nd);
+        discountedProds.then((res) => {
+          setSelectedProducts(res);
+          handleModal();
+        });
       });
-    });
+    } else {
+      handleModal();
+    }
   }
 
   function validateQuantities() {

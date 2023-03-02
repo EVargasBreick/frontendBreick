@@ -59,6 +59,7 @@ export default function PaymentModal({
   const [ofp, setOfp] = useState(0);
   const [otherPayments, setOtherPayments] = useState([]);
   const [invoice, setInvoice] = useState({});
+  const [userStore, setUserStore] = useState("");
   useEffect(() => {
     const otrosPagos = otherPaymentsList();
     otrosPagos
@@ -69,6 +70,7 @@ export default function PaymentModal({
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserName(JSON.parse(UsuarioAct).usuario);
+      setUserStore(JSON.parse(UsuarioAct).idAlmacen);
     }
     const suc = getBranchesPs();
     suc.then((resp) => {
@@ -413,6 +415,7 @@ export default function PaymentModal({
         vale: giftCard,
         aPagar: aPagar,
         puntoDeVenta: 0,
+        idAgencia: userStore,
       };
       setInvoice(invoiceBody);
       const newInvoice = createInvoice(invoiceBody);

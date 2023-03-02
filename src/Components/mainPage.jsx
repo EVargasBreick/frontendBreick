@@ -52,7 +52,6 @@ export default function MainPage() {
     const stats = getOrderStatus();
 
     stats.then((response) => {
-      console.log("estados", response);
       setEstados(response.data.data);
 
       const pendientes = response.data.data.find((pd) => pd.estado == 0);
@@ -82,17 +81,14 @@ export default function MainPage() {
     });
     const nClientes = numberOfClients();
     nClientes.then((number) => {
-      console.log("Numero clientes", number);
       setNumClientes(number.data.data[0].numeroclientes);
     });
     const nProducts = numberOfProducts();
     nProducts.then((number) => {
-      console.log("d", number);
       setNumProds(number.data.data[0].NumeroProductos);
     });
     const mData = mainPageReport();
     mData.then((res) => {
-      console.log("Main data", res);
       setMainData(res.data[0]);
     });
   }, []);

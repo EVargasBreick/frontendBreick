@@ -22,6 +22,7 @@ export default function BodyEodReport() {
   const [storeData, setStoreData] = useState({});
   const [isReporte, setIsReporte] = useState(false);
   const [isNota, setIsNota] = useState(false);
+  const [userStore, setUserStore] = useState("");
   //totales
   const [efectivo, setEfectivo] = useState(0);
   const [tarjeta, setTarjeta] = useState(0);
@@ -40,23 +41,31 @@ export default function BodyEodReport() {
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
   const [userName, setUserName] = useState("");
+  const [userRol, setUserRol] = useState("");
   const componentRef = useRef();
   useEffect(() => {
     setFecha(dateString().split(" ").shift());
     setHora(dateString().split(" ").pop());
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
+      const rol = JSON.parse(UsuarioAct).rol;
       setUserName(JSON.parse(UsuarioAct).usuario);
-      const PuntoDeVenta = Cookies.get("pdv");
+      setUserRol(JSON.parse(UsuarioAct).rol);
+      const PuntoDeVenta = rol == 4 ? 0 : Cookies.get("pdv");
       const sucps = getBranchesPs();
       const idAlmacen = JSON.parse(UsuarioAct).idAlmacen;
+
+      setUserStore(idAlmacen);
       sucps.then((res) => {
-        const sucur = res.data.find((sc) => sc.idAgencia == idAlmacen);
+        const sucur =
+          rol == 4
+            ? res.data.find((sc) => sc.idAgencia == "AL001")
+            : res.data.find((sc) => sc.idAgencia == idAlmacen);
         console.log("SUCUR", sucur);
         setIdSucursal(sucur.idImpuestos);
         setPuntoDeVenta(PuntoDeVenta);
         const storeNameList = getSalePointsAndStores(
-          JSON.parse(UsuarioAct).idAlmacen
+          rol == 4 ? "AL001" : JSON.parse(UsuarioAct).idAlmacen
         );
         storeNameList.then((sn) => {
           console.log("Store names", sn);
@@ -74,8 +83,9 @@ export default function BodyEodReport() {
     const report = getEndOfDayReport({
       idSucursal: idSucursal,
       idPuntoDeVenta: puntoDeVenta,
+      idAgencia: userStore,
+      ruta: userRol == 4 ? true : false,
     });
-
     report.then((rp) => {
       const data = rp.data;
 
@@ -118,6 +128,8 @@ export default function BodyEodReport() {
       const details = firstAndLastReport({
         idSucursal: idSucursal,
         idPuntoDeVenta: puntoDeVenta,
+        idAgencia: userStore,
+        ruta: userRol == 4 ? true : false,
       });
       details.then((dt) => {
         const det = dt.data[0];

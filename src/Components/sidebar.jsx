@@ -16,7 +16,6 @@ export default function Sidebar() {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setRol(JSON.parse(UsuarioAct).rol);
-      console.log("Rol:", JSON.parse(UsuarioAct).rol);
     }
   }, []);
   if (rol == 1) {
