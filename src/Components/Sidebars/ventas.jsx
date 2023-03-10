@@ -71,7 +71,10 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       >
         <Image src={Invoice} className="icon"></Image>Facturar Pedidos
       </MenuItem>
-      <MenuItem className="menuItem">
+      <MenuItem
+        className="menuItem"
+        onClick={() => redirectOnClick("/facturas/anular")}
+      >
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>

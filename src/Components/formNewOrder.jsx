@@ -107,7 +107,6 @@ export default function FormNewOrder() {
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
       disponibles.then((fetchedAvailable) => {
-        console.log("Disponibles", fetchedAvailable);
         setAvailable(fetchedAvailable.data.data);
         setAuxProducts(fetchedAvailable.data.data);
       });
@@ -115,7 +114,6 @@ export default function FormNewOrder() {
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
       dl.then((res) => {
-        console.log("Descuentitos", res);
         setDiscountList(res.data.data);
       });
       /*const interval = setInterval(() => {
@@ -675,7 +673,7 @@ export default function FormNewOrder() {
   }
 
   function processDiscounts() {
-    if (tipoUsuario == 1) {
+    if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
       const objDesc = manualAutomaticDiscount(
         tradicionales,
         pascua,
@@ -702,6 +700,7 @@ export default function FormNewOrder() {
         sinDesc,
         discountList
       );
+
       setIsSpecial(tradObj.especial);
       const pasObj = easterDiscounts(pascua, discountList);
       const navObj = christmassDiscounts(navidad, discountList);

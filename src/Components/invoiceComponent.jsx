@@ -231,6 +231,10 @@ export const InvoiceComponent = React.forwardRef(
               </thead>
               <tbody>
                 {selectedProducts.map((producto, index) => {
+                  const totalProducto =
+                    producto.total != undefined
+                      ? producto.total
+                      : producto.totalProd;
                   return (
                     <tr key={index}>
                       <td className="xsmallProductLeft">
@@ -244,7 +248,7 @@ export const InvoiceComponent = React.forwardRef(
                         {producto?.precioDeFabrica}
                       </td>
                       <td className="smallProductLeft">
-                        {parseFloat(producto.descuentoProd)?.toFixed(2)}
+                        {parseFloat(totalProducto)?.toFixed(2)}
                       </td>
                       <td className="ProductLeft">
                         {parseFloat(producto.total)?.toFixed(2)}

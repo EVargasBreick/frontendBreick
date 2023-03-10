@@ -32,17 +32,18 @@ export default function FormCancelInvoice() {
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       const facturas = getStoreInvoices(JSON.parse(UsuarioAct).idAlmacen);
       facturas.then((fc) => {
-        console.log("Lista de facturas", fc.data);
-        setAllFacts(fc.data);
-
-        let uniqueArray = fc.data.reduce((acc, curr) => {
-          if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
-            acc.push(curr);
-          }
-          return acc;
-        }, []);
-        setFacturas(uniqueArray);
-        setAuxFac(uniqueArray);
+        const filteredDates = filterDates(fc.data);
+        filteredDates.then((res) => {
+          setAllFacts(res);
+          let uniqueArray = res.reduce((acc, curr) => {
+            if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
+              acc.push(curr);
+            }
+            return acc;
+          }, []);
+          setFacturas(uniqueArray);
+          setAuxFac(uniqueArray);
+        });
       });
     }
   }, []);
@@ -108,6 +109,40 @@ export default function FormCancelInvoice() {
       .catch((err) => {
         console.log("Error al anular", err);
       });
+  }
+  function filterDates(array) {
+    const today = new Date();
+    const dia_actual = today.getDate();
+    const mes_actual = today.getMonth() + 1;
+    const anio_actual = today.getFullYear();
+    const filtered = [];
+
+    array.map((ar) => {
+      const fecha = ar.fechaHora.split(" ").shift();
+      const fechaParts = fecha.split("/");
+      const anio_fac = fechaParts[2];
+      const mes_fac = fechaParts[1];
+      if (anio_actual > anio_fac) {
+        if (mes_actual === 1) {
+          if (13 - mes_fac < 2) {
+            if (dia_actual < 11) {
+              filtered.push(ar);
+            }
+          }
+        }
+      } else {
+        if (mes_actual - mes_fac < 2) {
+          if (mes_actual == mes_fac) {
+            filtered.push(ar);
+          } else {
+            if (dia_actual < 11) {
+              filtered.push(ar);
+            }
+          }
+        }
+      }
+    });
+    return new Promise((resolve) => resolve(filtered));
   }
   return (
     <div>

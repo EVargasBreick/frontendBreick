@@ -14,6 +14,9 @@ function traditionalDiscounts(
   sinDesc,
   discountList
 ) {
+  console.log("Tradicionales", tradicionales);
+  console.log("Esp", especiales);
+  console.log("SD", sinDesc);
   const totalTradicional = tradicionales.reduce((accumulator, object) => {
     return accumulator + object.totalProd;
   }, 0);
@@ -38,7 +41,7 @@ function traditionalDiscounts(
     1000
   ) {
     return {
-      total: totalTradicional,
+      total: totalTradicional + totalEspecial + totalSinDesc,
       descuento: 0,
       descCalculado: 0,
       facturar: totalTradicional,
@@ -55,13 +58,12 @@ function traditionalDiscounts(
         totalTradicional * parseFloat(1 - tradA / 100).toFixed(2) +
         totalSinDesc +
         totalEspecial;
-
       return {
-        total: totalTradicional,
+        total: totalTradicional + totalEspecial + totalSinDesc,
         descuento: tradA,
-        descCalculado: parseFloat(totalTradicional - totalDescontado).toFixed(
-          2
-        ),
+        descCalculado: parseFloat(
+          totalTradicional + totalSinDesc + totalEspecial - totalDescontado
+        ).toFixed(2),
         facturar: totalDescontado.toFixed(2),
         especial: false,
       };
@@ -78,11 +80,11 @@ function traditionalDiscounts(
           totalEspecial;
 
         return {
-          total: totalTradicional,
+          total: totalTradicional + totalEspecial + totalSinDesc,
           descuento: tradB,
-          descCalculado: parseFloat(totalTradicional - totalDescontado).toFixed(
-            2
-          ),
+          descCalculado: parseFloat(
+            totalTradicional + totalSinDesc + totalEspecial - totalDescontado
+          ).toFixed(2),
           facturar: totalDescontado.toFixed(2),
           especial: false,
         };
@@ -99,10 +101,10 @@ function traditionalDiscounts(
             totalEspecial;
 
           return {
-            total: totalTradicional,
+            total: totalTradicional + totalEspecial + totalSinDesc,
             descuento: tradC,
             descCalculado: parseFloat(
-              totalTradicional - totalDescontado
+              totalTradicional + totalSinDesc + totalEspecial - totalDescontado
             ).toFixed(2),
             facturar: totalDescontado.toFixed(2),
             especial: false,
@@ -110,20 +112,27 @@ function traditionalDiscounts(
         } else {
           if (
             totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
-              totalSinDesc +
-              totalEspecialDesc <
+              totalEspecialDesc +
+              totalSinDesc <
             20000
           ) {
             const totalDescontado =
               totalTradicional * parseFloat(1 - tradD / 100).toFixed(2) +
               totalSinDesc +
               totalEspecial;
-
+            console.log(
+              "A ver que onda",
+              totalTradicional * parseFloat(1 - tradD / 100).toFixed(2)
+            );
+            console.log("Total descontado", totalSinDesc + totalEspecial);
             return {
-              total: totalTradicional,
+              total: totalTradicional + totalEspecial + totalSinDesc,
               descuento: tradD,
               descCalculado: parseFloat(
-                totalTradicional - totalDescontado
+                totalTradicional +
+                  totalSinDesc +
+                  totalEspecial -
+                  totalDescontado
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
               especial: false,
@@ -133,12 +142,20 @@ function traditionalDiscounts(
               totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
               totalSinDesc +
               totalEspecialDesc;
-
+            console.log(
+              "Total descontado",
+              totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
+                totalEspecialDesc +
+                totalSinDesc
+            );
             return {
-              total: totalTradicional,
+              total: totalTradicional + totalEspecial + totalSinDesc,
               descuento: tradE,
               descCalculado: parseFloat(
-                totalTradicional - totalDescontado
+                totalTradicional +
+                  totalEspecialDesc +
+                  totalSinDesc -
+                  totalDescontado
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
               especial: true,
@@ -159,6 +176,7 @@ function easterDiscounts(pascua, discountList) {
   const pasF = getDiscountPercentage(2, "F", discountList);
   const pasG = getDiscountPercentage(2, "G", discountList);
   const pasH = getDiscountPercentage(2, "H", discountList);
+  console.log("Pascua test", pascua);
   const totalPascua = pascua.reduce((accumulator, object) => {
     return accumulator + object.totalProd;
   }, 0);

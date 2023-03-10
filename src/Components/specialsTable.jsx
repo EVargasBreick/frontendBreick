@@ -22,9 +22,9 @@ export default function SpecialsTable({ especiales, totales, isEsp }) {
               </tr>
             </thead>
             <tbody>
-              {especiales.map((esp) => {
+              {especiales.map((esp, index) => {
                 return (
-                  <tr>
+                  <tr key={index}>
                     <td>{esp.nombreProducto}</td>
                     <td>{`${esp.precioDescuentoFijo.toFixed(2)} Bs.`}</td>
                     <td>{esp.cantProducto}</td>

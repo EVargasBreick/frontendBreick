@@ -6,7 +6,10 @@ import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
 import { getClient } from "../services/clientServices";
 import { useEffect } from "react";
-import { getProductsWithStock } from "../services/productServices";
+import {
+  getProductsWithStock,
+  productsDiscount,
+} from "../services/productServices";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
@@ -27,11 +30,18 @@ import {
 } from "../services/invoiceServices";
 
 import {
+  addProductDiscounts,
+  christmassDiscounts,
+  easterDiscounts,
+  halloweenDiscounts,
   saleDiscount,
+  traditionalDiscounts,
   verifyAutomaticDiscount,
 } from "../services/discountServices";
 import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
+import ComplexDiscountTable from "./complexDiscountTable";
+import SpecialsTable from "./specialsTable";
 
 export default function FormRouteSale() {
   const [isClient, setIsClient] = useState(false);
@@ -51,10 +61,13 @@ export default function FormRouteSale() {
   const [tipo, setTipo] = useState("normal");
   const [isDesc, setIsDesc] = useState(false);
   const [pedidoFinal, setPedidoFinal] = useState({});
+  const [discModal, setDiscModal] = useState(false);
   const [usuarioAct, setUsuarioAct] = useState("");
   const [selectedClient, setSelectedClient] = useState("");
   const [filtered, setFiltered] = useState("");
   const [willCreate, setWillCreate] = useState(false);
+  const [isSpecial, setIsSpecial] = useState(false);
+
   const [available, setAvailable] = useState([
     { nombreProducto: "Cargando..." },
   ]);
@@ -87,12 +100,23 @@ export default function FormRouteSale() {
   const [otherPayments, setOtherPayments] = useState([]);
   const [giftCard, setGiftCard] = useState(0);
   const [userCity, setUserCity] = useState("");
+  const [tradicionales, setTradicionales] = useState([]);
+  const [navidad, setNavidad] = useState([]);
+  const [pascua, setPascua] = useState([]);
+  const [halloween, setHalloween] = useState([]);
+  const [especiales, setEspeciales] = useState([]);
+  const [sinDesc, setSinDesc] = useState([]);
+  const [discountList, setDiscountList] = useState([]);
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 700 ? false : true
   );
   const searchRef = useRef(null);
   const productRef = useRef(null);
-
+  const [tradObject, setTradObject] = useState({});
+  const [pasObject, setPasObject] = useState({});
+  const [navObject, setNavObject] = useState({});
+  const [hallObject, setHallObject] = useState({});
+  const [descSimple, setDescSimple] = useState({});
   const quantref = useRef(null);
   useEffect(() => {
     searchRef.current.focus();
@@ -165,6 +189,12 @@ export default function FormRouteSale() {
           setAvailable(fetchedAvailable.data[0]);
         });
       }, 60000);*/
+      const dl = productsDiscount(
+        JSON.parse(Cookies.get("userAuth")).idUsuario
+      );
+      dl.then((res) => {
+        setDiscountList(res.data.data);
+      });
     }
   }, []);
 
@@ -276,10 +306,32 @@ export default function FormRouteSale() {
           precioDescuentoFijo: produc.precioDescuentoFijo,
           precioDeFabrica: produc.precioDeFabrica,
           descuentoProd: 0,
-          total: produc.precioDeFabrica,
+          totalProd: produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
         };
+        switch (produc.tipoProducto) {
+          case 1:
+            console.log("Tradicional agregado");
+            setTradicionales([...tradicionales, productObj]);
+            break;
+          case 2:
+            console.log("Pascua agregado");
+            setPascua([...pascua, productObj]);
+            break;
+          case 3:
+            setNavidad([...navidad, productObj]);
+            break;
+          case 4:
+            setHalloween([...halloween, productObj]);
+            break;
+          case 5:
+            setSinDesc([...sinDesc, productObj]);
+            break;
+          case 6:
+            setEspeciales([...especiales, productObj]);
+            break;
+        }
         setCurrentProd(productObj);
         setSelectedProducts([...selectedProducts, productObj]);
         setAuxSelectedProducts([...auxSelectedProducts, productObj]);
@@ -319,10 +371,30 @@ export default function FormRouteSale() {
             precioDeFabrica: selected.precioDeFabrica,
             precioDescuentoFijo: selected.precioDescuentoFijo,
             descuentoProd: 0,
-            total: selected.precioDeFabrica,
+            totalProd: selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
           };
+          switch (selected.tipoProducto) {
+            case 1:
+              setTradicionales([...tradicionales, productObj]);
+              break;
+            case 2:
+              setPascua([...pascua, productObj]);
+              break;
+            case 3:
+              setNavidad([...navidad, productObj]);
+              break;
+            case 4:
+              setHalloween([...halloween, productObj]);
+              break;
+            case 5:
+              setSinDesc([...sinDesc, productObj]);
+              break;
+            case 6:
+              setEspeciales([...especiales, productObj]);
+              break;
+          }
           setCurrentProd(productObj);
           setSelectedProducts([...selectedProducts, productObj]);
           setAuxSelectedProducts([...auxSelectedProducts, productObj]);
@@ -352,9 +424,56 @@ export default function FormRouteSale() {
     setisLoading(false);
     setIsCreate(false);
   };
-  function deleteProduct(index) {
+  function deleteProduct(index, cod, prod) {
+    console.log("Producto a borrar", prod, cod, index);
     const auxArray = [...selectedProducts];
     const auxAux = [...auxSelectedProducts];
+    console.log("Tipo producto", prod);
+    switch (prod.tipoProducto) {
+      case 1:
+        console.log("Borrando trad");
+        const tindex = tradicionales.findIndex((td) => td.idProducto == cod);
+        const taux = [...tradicionales];
+        taux.splice(tindex, 1);
+        setTradicionales(taux);
+        break;
+      case 2:
+        console.log("Borrando Pascua");
+        const pindex = pascua.findIndex((ps) => ps.idProducto == cod);
+        console.log("Index pascuero", pindex);
+        const paux = [...pascua];
+        paux.splice(pindex, 1);
+        setPascua(paux);
+        break;
+      case 3:
+        console.log("Borrando Navidad");
+        const nindex = navidad.findIndex((nv) => nv.idProducto == cod);
+        const naux = [...navidad];
+        naux.splice(nindex, 1);
+        setNavidad(naux);
+        break;
+      case 4:
+        console.log("Borrando Halloween");
+        const hindex = halloween.findIndex((hl) => hl.idProducto == cod);
+        const haux = [...halloween];
+        haux.splice(hindex, 1);
+        setHalloween(haux);
+        break;
+      case 5:
+        console.log("Borrando sin desc");
+        const sindex = sinDesc.findIndex((sd) => sd.idProducto == cod);
+        const saux = [...sinDesc];
+        saux.splice(sindex, 1);
+        setSinDesc(saux);
+        break;
+      case 6:
+        console.log("Borrando especial");
+        const eindex = especiales.findIndex((ep) => ep.idProducto == cod);
+        const eaux = [...especiales];
+        eaux.splice(eindex, 1);
+        setEspeciales(eaux);
+        break;
+    }
     auxArray.splice(index, 1);
     auxAux.splice(index, 1);
     setSelectedProducts(auxArray);
@@ -388,7 +507,8 @@ export default function FormRouteSale() {
       descuentoProd: total - total * (1 - descuento / 100),
       precioDeFabrica: prod.precioDeFabrica,
       precioDescuentoFijo: prod.precioDescuentoFijo,
-      total: total,
+      totalProd: total,
+      tipoProducto: prod.tipoProducto,
       descuentoProd: 0,
       unidadDeMedida: prod.unidadDeMedida,
     };
@@ -396,6 +516,57 @@ export default function FormRouteSale() {
     auxSelected[index] = auxObj;
     setSelectedProducts(auxSelected);
     setAuxSelectedProducts(auxSelected);
+    switch (prod.tipoProducto) {
+      case 1:
+        const tindex = tradicionales.findIndex(
+          (td) => td.idProducto == prod.idProducto
+        );
+        const taux = [...tradicionales];
+        taux[tindex] = auxObj;
+        console.log("Cantidad en pascua cambiando");
+        setTradicionales(taux);
+        break;
+      case 2:
+        const pindex = pascua.findIndex(
+          (ps) => ps.idProducto == prod.idProducto
+        );
+        const paux = [...pascua];
+        paux[pindex] = auxObj;
+        setPascua(paux);
+        break;
+      case 3:
+        const nindex = navidad.findIndex(
+          (nv) => nv.idProducto == prod.idProducto
+        );
+        const naux = [...navidad];
+        naux[nindex] = auxObj;
+        setNavidad(naux);
+        break;
+      case 4:
+        const hindex = halloween.findIndex(
+          (hl) => hl.idProducto == prod.idProducto
+        );
+        const haux = [...halloween];
+        haux[hindex] = auxObj;
+        setHalloween(haux);
+        break;
+      case 5:
+        const sindex = sinDesc.findIndex(
+          (sd) => sd.idProducto == prod.idProducto
+        );
+        const saux = [...sinDesc];
+        saux[sindex] = auxObj;
+        setSinDesc(saux);
+        break;
+      case 6:
+        const espIndex = especiales.findIndex(
+          (ep) => ep.codInterno == prod.codInterno
+        );
+        const eaux = [...especiales];
+        eaux[espIndex] = auxObj;
+        setEspeciales(eaux);
+        break;
+    }
   }
   function handleModal() {
     if (isSelected) {
@@ -417,17 +588,6 @@ export default function FormRouteSale() {
         desembolsada: 0,
       };
       setInvoice(invoiceBody);
-      const totPrev = parseFloat(
-        auxSelectedProducts.reduce((accumulator, object) => {
-          return accumulator + object.total;
-        }, 0)
-      ).toFixed(2);
-      const totDesc = selectedProducts.reduce((accumulator, object) => {
-        return accumulator + object.total;
-      }, 0);
-      setTotalPrevio(totPrev);
-      setTotalDesc(totPrev - totDesc);
-      setTotalFacturar(totDesc);
       setTimeout(() => {
         setIsInvoice(true);
         setIsSaleModal(true);
@@ -438,14 +598,6 @@ export default function FormRouteSale() {
     }
   }
   function saveSale(createdId) {
-    const totPrev = parseFloat(
-      auxSelectedProducts.reduce((accumulator, object) => {
-        return accumulator + object.total;
-      }, 0)
-    ).toFixed(2);
-    const totDesc = selectedProducts.reduce((accumulator, object) => {
-      return accumulator + object.total;
-    }, 0);
     return new Promise((resolve, reject) => {
       setFechaHora(dateString());
       const objVenta = {
@@ -454,10 +606,10 @@ export default function FormRouteSale() {
           idCliente: selectedClient,
           fechaCrea: dateString(),
           fechaActualizacion: dateString(),
-          montoTotal: parseFloat(totPrev).toFixed(2),
-          descCalculado: parseFloat(totPrev - totDesc).toFixed(2),
+          montoTotal: parseFloat(totalPrevio).toFixed(2),
+          descCalculado: parseFloat(totalPrevio - totalDesc).toFixed(2),
           descuento: descuento,
-          montoFacturar: parseFloat(totDesc).toFixed(2),
+          montoFacturar: parseFloat(totalDesc).toFixed(2),
           idPedido: "",
           idFactura: createdId,
         },
@@ -550,10 +702,8 @@ export default function FormRouteSale() {
   }
   function handleDiscount() {
     const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
-
     newDiscount.then((nd) => {
       setDescuento(nd);
-
       const discountedProds = saleDiscount(selectedProducts, nd);
       discountedProds.then((res) => {
         setSelectedProducts(res);
@@ -564,16 +714,16 @@ export default function FormRouteSale() {
 
   function validateQuantities() {
     const validated = verifyQuantities(selectedProducts);
-
     validated
       .then(() => {
-        handleDiscount();
+        processDiscounts();
       })
       .catch((err) => {
         setAlert(err);
         setIsAlert(true);
       });
   }
+
   function createNewClient(e) {
     e.preventDefault();
     setIsCreate(true);
@@ -584,6 +734,72 @@ export default function FormRouteSale() {
     setIsPoint(true);
   }
 
+  function processDiscounts() {
+    const tradObj = traditionalDiscounts(
+      tradicionales,
+      especiales,
+      sinDesc,
+      discountList
+    );
+    console.log("Trad obj", tradObj);
+    setIsSpecial(tradObj.especial);
+    const pasObj = easterDiscounts(pascua, discountList);
+    console.log("Pas obj", pasObj);
+    const navObj = christmassDiscounts(navidad, discountList);
+    console.log("Nav obj", navidad);
+    const hallObj = halloweenDiscounts(halloween, discountList);
+    setTradObject(tradObj);
+    setPasObject(pasObj);
+    setNavObject(navObj);
+    setHallObject(hallObj);
+    setTotalDesc(
+      (
+        parseFloat(pasObj.descCalculado) +
+        parseFloat(tradObj.descCalculado) +
+        parseFloat(navObj.descCalculado) +
+        parseFloat(hallObj.descCalculado)
+      ).toFixed(2)
+    );
+
+    setTotalPrevio(
+      (
+        parseFloat(tradObj.total) +
+        parseFloat(pasObj.total) +
+        parseFloat(navObj.total) +
+        parseFloat(hallObj.total)
+      ).toFixed(2)
+    );
+    setTotalFacturar(
+      (
+        parseFloat(tradObj.facturar) +
+        parseFloat(pasObj.facturar) +
+        parseFloat(navObj.facturar) +
+        parseFloat(hallObj.facturar)
+      ).toFixed(2)
+    );
+    const newArr = addProductDiscounts(
+      selectedProducts,
+      tradObj,
+      pasObj,
+      navObj,
+      hallObj
+    );
+    newArr.then((result) => {
+      setSelectedProducts(result);
+      setDiscModal(true);
+    });
+  }
+  function cancelDiscounts() {
+    setSelectedProducts(auxSelectedProducts);
+    setDiscModal(false);
+    setTradObject([]);
+    setPasObject([]);
+    setNavObject([]);
+    setHallObject([]);
+  }
+  function test() {
+    validateQuantities();
+  }
   return (
     <div>
       <div className="formLabel">VENTAS RUTA</div>
@@ -630,18 +846,45 @@ export default function FormRouteSale() {
           </Button>
         </Modal.Footer>
       </Modal>
+      <Modal show={discModal} size="xl">
+        <Modal.Header className="modalTitle">
+          <Modal.Title>{`Descuentos por monto`}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>
+            <ComplexDiscountTable
+              tradicionales={tradicionales}
+              pascua={pascua}
+              navidad={navidad}
+              halloween={halloween}
+              tradObject={tradObject}
+              pasObject={pasObject}
+              navObject={navObject}
+              hallObject={hallObject}
+            />
+            <SpecialsTable
+              especiales={especiales}
+              totales={descSimple}
+              isEsp={isSpecial}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="modalTitle">
+          <Button variant="success" onClick={() => handleModal()}>
+            Ir A Facturar
+          </Button>
+          <Button variant="danger" onClick={() => cancelDiscounts()}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
       {isInvoice ? (
         <div>
           <SaleModal
             datos={{
               total: totalPrevio,
               descuento,
-              totalDescontado: selectedProducts.reduce(
-                (accumulator, object) => {
-                  return accumulator + object.total;
-                },
-                0
-              ),
+              totalDescontado: totalFacturar,
               nit: clientes[0].nit,
               razonSocial: clientes[0].razonSocial,
             }}
@@ -667,17 +910,8 @@ export default function FormRouteSale() {
             selectedProducts={selectedProducts}
             invoice={invoice}
             total={totalPrevio}
-            descuentoCalculado={
-              auxSelectedProducts.reduce((accumulator, object) => {
-                return accumulator + object.total;
-              }, 0) -
-              selectedProducts.reduce((accumulator, object) => {
-                return accumulator + object.total;
-              }, 0)
-            }
-            totalDescontado={selectedProducts.reduce((accumulator, object) => {
-              return accumulator + object.total;
-            }, 0)}
+            descuentoCalculado={totalDesc}
+            totalDescontado={totalFacturar}
             fechaHora={fechaHora}
             tipoDocumento={tipoDoc}
             userName={userName}
@@ -872,7 +1106,9 @@ export default function FormRouteSale() {
                               onSubmit={(e) => e.preventDefault()}
                               variant="danger"
                               className="tableButtonAlt"
-                              onClick={() => deleteProduct(index)}
+                              onClick={() =>
+                                deleteProduct(index, sp.idProducto, sp)
+                              }
                             >
                               {isMobile ? "X" : "Quitar"}
                             </Button>
@@ -903,7 +1139,7 @@ export default function FormRouteSale() {
                           />
                         </td>
                         <td className="smallTableColumn">
-                          {sp.total.toFixed(2)}
+                          {sp.totalProd.toFixed(2)}
                         </td>
                         <td className="smallTableColumn">
                           {sp.unidadDeMedida == "Unidad"
@@ -925,7 +1161,7 @@ export default function FormRouteSale() {
                     <th className="smallTableColumn">
                       {`${selectedProducts
                         .reduce((accumulator, object) => {
-                          return accumulator + object.total;
+                          return accumulator + object.totalProd;
                         }, 0)
                         .toFixed(2)} Bs.`}
                     </th>
@@ -934,7 +1170,7 @@ export default function FormRouteSale() {
                     </th>
                     <th className="smallTableColumn">{`${(
                       (selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + object.total;
+                        return accumulator + object.totalProd;
                       }, 0) *
                         (100 - descuento)) /
                       100
@@ -963,7 +1199,7 @@ export default function FormRouteSale() {
                   <Button
                     variant="warning"
                     className="yellowLarge"
-                    onClick={() => validateQuantities()}
+                    onClick={() => test()}
                   >
                     Ir A Facturar
                   </Button>

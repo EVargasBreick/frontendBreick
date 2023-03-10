@@ -385,7 +385,7 @@ export default function SaleModal({
                         resp.response.data.SalidaTransaccionBoliviaResponse[0]
                           .SalidaTransaccionBoliviaResult[0]
                           .TransaccionSalidaUnificada[0];
-                      if (invocieResponse.CUF[0].length > 10) {
+                      if (invocieResponse?.CUF[0].length > 10) {
                         setAlertSec("Generando Factura");
                         const resCuf = invocieResponse.CUF[0];
 
@@ -617,9 +617,11 @@ export default function SaleModal({
           </div>
           <div className="modalRows">
             <div className="modalLabel"> Descuento:</div>
-            <div className="modalData">{`${parseFloat(datos.descuento).toFixed(
-              2
-            )} %`}</div>
+            <div className="modalData">
+              {descuentoCalculado > 0
+                ? descuentoCalculado
+                : `${parseFloat(datos.descuento).toFixed(2)} %`}
+            </div>
           </div>
           <div className="modalRows">
             <div className="modalLabel"> Total a pagar:</div>
