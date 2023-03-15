@@ -1,6 +1,7 @@
 import { MenuItem, SubMenu } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import "../../styles/sidebarStyle.scss";
 import "../../styles/sidebar.css";
 import Image from "react-bootstrap/Image";
@@ -14,6 +15,15 @@ import Chocolate from "../../assets/chocolate.png";
 import "../../styles/generalStyle.css";
 import Cross from "../../assets/cross.png";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
+  const [isInterior, setIsInterior] = useState(false);
+  useEffect(() => {
+    const UsuarioAct = Cookies.get("userAuth");
+    if (UsuarioAct) {
+      if (JSON.parse(UsuarioAct).idDepto != 1) {
+        setIsInterior(true);
+      }
+    }
+  }, []);
   return (
     <SubMenu
       title="Modulo Agencias"
@@ -37,6 +47,14 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
+      {isInterior ? (
+        <MenuItem
+          onClick={() => redirectOnClick("/pedidos/facturar")}
+          className="menuItem"
+        >
+          <Image src={Invoice} className="icon"></Image>Facturar Pedidos
+        </MenuItem>
+      ) : null}
       <MenuItem
         onClick={() => redirectOnClick("/stock/actualizar")}
         className="menuItem"

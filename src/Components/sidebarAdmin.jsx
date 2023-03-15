@@ -16,6 +16,7 @@ import Agencias from "./Sidebars/agencias";
 import Reportes from "./Sidebars/reportes";
 import Parametros from "./Sidebars/parametros";
 import RutaSidebar from "./Sidebars/rutaSidebar";
+import Interior from "./Sidebars/interior";
 export default function SidebarAdmin() {
   const [toggledProd, setToggledProd] = useState(false);
   const [toggledAlm, setToggledAlm] = useState(false);
@@ -27,6 +28,7 @@ export default function SidebarAdmin() {
   const [toggledRut, setToggledRut] = useState(false);
   const [toggledMan, setToggledMan] = useState(false);
   const [toggleLog, setToggleLog] = useState(false);
+  const [toggledInt, setToggledInt] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
 
@@ -58,6 +60,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 1) {
       setToggledMan(false);
@@ -69,6 +72,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 2) {
       setToggledMan(false);
@@ -81,6 +85,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 3) {
       setToggledMan(false);
@@ -93,6 +98,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 4) {
       setToggledMan(false);
@@ -105,6 +111,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 5) {
       setToggledMan(false);
@@ -117,6 +124,7 @@ export default function SidebarAdmin() {
       setToggledRep(!toggledRep);
       setToggledPar(false);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 6) {
       setToggledMan(false);
@@ -129,6 +137,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 7) {
       setToggledMan(false);
@@ -141,6 +150,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(!toggledPar);
       setToggledRut(false);
+      setToggledInt(false);
     }
     if (selected === 8) {
       setToggledMan(false);
@@ -153,6 +163,7 @@ export default function SidebarAdmin() {
       setToggledRep(false);
       setToggledPar(false);
       setToggledRut(!toggledRut);
+      setToggledInt(false);
     }
     if (selected === 10) {
       setToggledMan(false);
@@ -165,6 +176,20 @@ export default function SidebarAdmin() {
       setToggledPar(false);
       setToggledRut(false);
       setToggleLog(!toggleLog);
+      setToggledInt(false);
+    }
+    if (selected === 11) {
+      setToggledMan(false);
+      setToggledAlm(false);
+      setToggledProd(false);
+      setToggledVent(false);
+      setToggledAg(false);
+      setToggledQr(false);
+      setToggledRep(false);
+      setToggledPar(false);
+      setToggledRut(false);
+      setToggleLog(false);
+      setToggledInt(!toggledInt);
     }
   }
   return (

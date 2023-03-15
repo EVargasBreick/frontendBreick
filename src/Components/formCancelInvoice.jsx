@@ -59,6 +59,7 @@ export default function FormCancelInvoice() {
   function cancelInvoice(invoice) {
     setIsAlert(true);
     setAlert("Anulando Factura");
+    console.log("Datos factura", invoice);
     const cancelObj = {
       transaccionId: invoice.nroTransaccion,
       puntoDeVentaId: invoice.idImpuestos,

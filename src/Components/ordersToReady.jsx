@@ -15,8 +15,9 @@ export default function OrdersToReady() {
     if (user) {
       if (
         JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 11
+        JSON.parse(Cookies.get("userAuth")).rol == 11 ||
+        (JSON.parse(Cookies.get("userAuth")).rol == 10 &&
+          JSON.parse(Cookies.get("userAuth")).idDepto != 1)
       ) {
       } else {
         navigate("/principal");

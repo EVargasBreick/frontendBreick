@@ -13,9 +13,14 @@ export default function StoreRefill() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol == 3) {
+      if (
+        JSON.parse(Cookies.get("userAuth")).rol != 1 &&
+        JSON.parse(Cookies.get("userAuth")).rol != 10
+      ) {
+        console.log("No tiene", JSON.parse(Cookies.get("userAuth")).rol);
         navigate("/principal");
       } else {
+        console.log("tiene");
       }
     }
   }, []);

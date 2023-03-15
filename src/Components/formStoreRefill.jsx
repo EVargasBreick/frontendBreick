@@ -23,22 +23,34 @@ export default function FormStoreRefill() {
   const [idDestino, setIdDestino] = useState("");
   const [productos, setProductos] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [isInterior, setIsInterior] = useState(false);
   const [userId, setUserId] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
+      const parsed = JSON.parse(UsuarioAct);
       setUserId(JSON.parse(Cookies.get("userAuth")).idUsuario);
+      const stores = getStores();
+      stores.then((store) => {
+        setAlmacen(store.data);
+      });
+      if (parsed.idDepto == 1) {
+        setIdOrigen("AL001");
+        setIdDestino(JSON.parse(Cookies.get("userAuth")).idAlmacen);
+        const prods = getProductsWithStock("AL001", "all");
+        prods.then((product) => {
+          setProductos(product.data);
+        });
+      } else {
+        setIsInterior(true);
+        setIdOrigen(parsed.idAlmacen);
+        setIdDestino(JSON.parse(Cookies.get("userAuth")).idAlmacen);
+        const prods = getProductsWithStock(parsed.idAlmacen, "all");
+        prods.then((product) => {
+          setProductos(product.data);
+        });
+      }
     }
-    const stores = getStores();
-    stores.then((store) => {
-      setAlmacen(store.data);
-    });
-    setIdOrigen("AL001");
-    setIdDestino(JSON.parse(Cookies.get("userAuth")).idAlmacen);
-    const prods = getProductsWithStock("AL001", "all");
-    prods.then((product) => {
-      setProductos(product.data);
-    });
   }, []);
   const handleClose = () => {
     setIsAlert(false);
@@ -112,6 +124,7 @@ export default function FormStoreRefill() {
   }
   function registerTransfer() {
     setAlertSec("Validando Traspaso");
+    console.log("Is interior", isInterior);
     setIsAlertSec(true);
     const zeroValidated = validateZero();
     zeroValidated
@@ -122,6 +135,7 @@ export default function FormStoreRefill() {
           idUsuario: userId,
           productos: selectedProducts,
           movil: 1,
+          impreso: isInterior ? 1 : 0,
           transito: 0,
         };
         const reservedProducts = updateStock({
@@ -207,7 +221,7 @@ export default function FormStoreRefill() {
       <Form className="halfSelectors">
         <Form.Group className="mb-3 halfSelect" controlId="origin">
           <div className="formLabel">Origen</div>
-          <div>Almacen Central</div>
+          <div>Almacen</div>
         </Form.Group>
 
         <Form.Group className="mb-3 halfSelect" controlId="destiny">

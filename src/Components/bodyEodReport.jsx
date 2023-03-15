@@ -51,7 +51,9 @@ export default function BodyEodReport() {
       const rol = JSON.parse(UsuarioAct).rol;
       setUserName(JSON.parse(UsuarioAct).usuario);
       setUserRol(JSON.parse(UsuarioAct).rol);
-      const PuntoDeVenta = rol == 4 ? 0 : Cookies.get("pdv");
+      const pdv = Cookies.get("pdv");
+      const PuntoDeVenta = pdv != undefined ? pdv : 0;
+      console.log("Punto de venta", PuntoDeVenta);
       const sucps = getBranchesPs();
       const idAlmacen = JSON.parse(UsuarioAct).idAlmacen;
 

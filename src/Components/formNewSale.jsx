@@ -9,9 +9,6 @@ import { useEffect } from "react";
 import { getProductsWithStock } from "../services/productServices";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-
-import { convertToText } from "../services/numberServices";
-
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
 import { createSale, verifyQuantities } from "../services/saleServices";
@@ -89,6 +86,7 @@ export default function FormNewSale() {
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 700 ? false : true
   );
+  const [isMore, setIsMore] = useState(false);
   const [giftCard, setGiftCard] = useState(0);
   const [city, setCity] = useState("");
   const searchRef = useRef(null);
@@ -107,9 +105,12 @@ export default function FormNewSale() {
 
     if (UsuarioAct) {
       const PuntoDeVenta = Cookies.get("pdv");
-
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      console.log("Almacen", JSON.parse(UsuarioAct).idAlmacen);
+      if (JSON.parse(UsuarioAct).idAlmacen === "AG005") {
+        setIsMore(true);
+      }
       setUserName(JSON.parse(UsuarioAct).usuario);
       setCity(JSON.parse(UsuarioAct).idDepto);
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
@@ -251,6 +252,7 @@ export default function FormNewSale() {
   }
 
   function addProductToList(action, product) {
+    console.log("Producto seleccionado", JSON.parse(product));
     if (action == "manual") {
       const produc = JSON.parse(product);
       var aux = false;
@@ -275,7 +277,7 @@ export default function FormNewSale() {
           cant_Actual: produc.cant_Actual,
           cantidadRestante: produc.cant_Actual,
           precioDescuentoFijo: produc.precioDescuentoFijo,
-          precioDeFabrica: produc.precioDeFabrica,
+          precioDeFabrica: isMore ? produc.precioPDV : produc.precioDeFabrica,
           descuentoProd: 0,
           total: produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,

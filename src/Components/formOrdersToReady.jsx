@@ -28,14 +28,31 @@ export default function FormOrdersToReady() {
   const [rejectedOrder, setRejectedOrder] = useState({});
   const [readyOrder, setReadyOrder] = useState({});
   const [motiveError, setMotiveError] = useState("");
+  const [isInterior, setIsInterior] = useState(false);
   const componentRef = useRef();
   const buttonRef = useRef();
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserId(JSON.parse(UsuarioAct).idUsuario);
+      if (JSON.parse(UsuarioAct).idDepto != 1) {
+        setIsInterior(true);
+        const orders = ordersToReady(JSON.parse(UsuarioAct).idDepto, 1);
+        orders.then((res) => {
+          console.log("Res", res);
+          setOrderList(res.data);
+          setAuxOrderList(res.data);
+        });
+      } else {
+        const orders = ordersToReady(JSON.parse(UsuarioAct).idDepto, 0);
+        orders.then((res) => {
+          console.log("Res", res);
+          setOrderList(res.data);
+          setAuxOrderList(res.data);
+        });
+      }
     }
-    const orders = ordersToReady();
+    const orders = ordersToReady(JSON.parse(UsuarioAct).idDepto);
     orders.then((res) => {
       console.log("Res", res);
       setOrderList(res.data);
@@ -43,7 +60,7 @@ export default function FormOrdersToReady() {
     });
     const intervalId = setInterval(() => {
       navigate("/almacenes/recepcionar-pedidos");
-    }, 30000);
+    }, 120000);
     return () => {
       clearInterval(intervalId);
     };
@@ -145,7 +162,8 @@ export default function FormOrdersToReady() {
     const changed = updateReady(
       ol.idOrden,
       1,
-      ol.tipo == "P" ? "pedidos" : "traspaso"
+      ol.tipo == "P" ? "pedidos" : "traspaso",
+      isInterior ? 1 : 0
     );
     changed.then((res) => {
       window.location.reload();

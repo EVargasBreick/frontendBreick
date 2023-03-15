@@ -108,9 +108,13 @@ export default function FormModifyOrders() {
   const [discModalType, setDiscModalType] = useState(true);
   const [auxProds, setAuxProds] = useState([]);
   const [tipoUsuario, setTipoUsuario] = useState("");
+  const [isInterior, setIsInterior] = useState(false);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
+      if (JSON.parse(UsuarioAct).idDepto != 1) {
+        setIsInterior(true);
+      }
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
@@ -500,7 +504,7 @@ export default function FormModifyOrders() {
         descuento: descuento,
         descCalculado: totalDesc,
         listo: 0,
-        impreso: 0,
+        impreso: isInterior ? 1 : 0,
       };
       var countProdsChanged = 0;
       selectedProds.map((sp) => {

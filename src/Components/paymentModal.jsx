@@ -60,6 +60,7 @@ export default function PaymentModal({
   const [otherPayments, setOtherPayments] = useState([]);
   const [invoice, setInvoice] = useState({});
   const [userStore, setUserStore] = useState("");
+  const [pdv, setPdv] = useState("");
   useEffect(() => {
     const otrosPagos = otherPaymentsList();
     otrosPagos
@@ -71,6 +72,9 @@ export default function PaymentModal({
     if (UsuarioAct) {
       setUserName(JSON.parse(UsuarioAct).usuario);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      const pdve = Cookies.get("pdv");
+      const PuntoDeVentas = pdv != undefined ? pdve : 0;
+      setPdv(PuntoDeVentas);
     }
     const suc = getBranchesPs();
     suc.then((resp) => {
@@ -83,7 +87,7 @@ export default function PaymentModal({
         ciudad: sucur.ciudad,
         nro: sucur.idImpuestos,
       };
-
+      console.log("Branch data", branchData);
       setBranchInfo(branchData);
     });
   }, []);
@@ -250,7 +254,7 @@ export default function PaymentModal({
     const invoiceBody = {
       idCliente: totales.idCliente,
       nroFactura: 1,
-      idSucursal: 0,
+      idSucursal: branchInfo.nro,
       nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
       fechaHora: dateString(),
       nitCliente: cliente.nit,
@@ -394,7 +398,7 @@ export default function PaymentModal({
       const invoiceBody = {
         idCliente: totales.idCliente,
         nroFactura: nro,
-        idSucursal: 0,
+        idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
         nitCliente: cliente.nit,
@@ -414,7 +418,7 @@ export default function PaymentModal({
         idOtroPago: ofp,
         vale: giftCard,
         aPagar: aPagar,
-        puntoDeVenta: 0,
+        puntoDeVenta: pdv,
         idAgencia: userStore,
       };
       setInvoice(invoiceBody);

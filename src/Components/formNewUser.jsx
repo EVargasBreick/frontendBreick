@@ -28,6 +28,7 @@ export default function FormNewUser() {
   const [almacen, setAlmacen] = useState([{ Nombre: "cargando" }]);
   const [categoria, setCategoria] = useState("");
   const [agencia, setAgencia] = useState("");
+  const [agenciaAlt, setAgenciaAlt] = useState("");
   const [lang, setLang] = useState([]);
   const [roles, setRoles] = useState([]);
   const [alert, setAlert] = useState("");
@@ -149,6 +150,7 @@ export default function FormNewUser() {
       });
   }
   function prepareStoreId(id) {
+    setAgenciaAlt(id);
     const idSub = id.split(" ");
     if (idSub[1]) {
       setAgencia(idSub[0]);
@@ -328,7 +330,7 @@ export default function FormNewUser() {
           <Form.Group className="half" controlId="formBasicEmail">
             <Form.Label>Agencia</Form.Label>
             <Form.Select
-              value={agencia}
+              value={agenciaAlt}
               onChange={(e) => {
                 prepareStoreId(e.target.value);
               }}

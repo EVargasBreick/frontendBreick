@@ -86,6 +86,7 @@ export default function FormNewOrder() {
   const [faltantes, setFaltantes] = useState([]);
   const [flagDiscount, setFlagDiscount] = useState(false);
   const [userName, setUserName] = useState("");
+  const [isInterior, setIsInterior] = useState(false);
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 700 ? false : true
   );
@@ -94,6 +95,9 @@ export default function FormNewOrder() {
     if (UsuarioAct) {
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      if (JSON.parse(UsuarioAct).idDepto != 1) {
+        setIsInterior(true);
+      }
       setUserName(
         `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${
           JSON.parse(UsuarioAct).apPaterno
@@ -445,6 +449,7 @@ export default function FormNewOrder() {
             descuento: descuento,
             descCalculado: parseFloat(totalDesc).toFixed(2),
             notas: observaciones,
+            impreso: isInterior ? 1 : 0,
           },
           productos: selectedProds,
         };
@@ -561,10 +566,11 @@ export default function FormNewOrder() {
               descuento: 0,
               descCalculado: 0,
               notas: observaciones,
+              impreso: isInterior ? 1 : 0,
             },
             productos: zero.modificados,
           };
-
+          console.log("Objeto pedido", objPedido);
           const stockObject = {
             accion: "take",
             idAlmacen: userStore,
@@ -653,6 +659,7 @@ export default function FormNewOrder() {
   }
 
   function validateProductLen() {
+    console.log("Es interior", isInterior);
     if (selectedClient != "") {
       if (selectedProds.length > 0) {
         setAuxProds(selectedProds);

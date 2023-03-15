@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const createOrder = (orderObject) => {
+  console.log("CREANDO PEDIDO", orderObject);
   return new Promise((resolve, reject) => {
     axios
       .post(
@@ -261,11 +262,11 @@ const deleteProductOrder = (body) => {
   });
 };
 
-const orderToInvoiceList = () => {
+const orderToInvoiceList = (idDepto) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista/facturar`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista/facturar?idDepto=${idDepto}`
       )
       .then((res) => {
         resolve(res);
@@ -336,11 +337,11 @@ const printedOrder = (id) => {
   });
 };
 
-const ordersToReady = () => {
+const ordersToReady = (idDepto, interior) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/alistar`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/alistar?idDepto=${idDepto}&interior=${interior}`
       )
       .then((res) => {
         resolve(res);
@@ -351,11 +352,11 @@ const ordersToReady = () => {
   });
 };
 
-const updateReady = (id, listo, tipo) => {
+const updateReady = (id, listo, tipo, interior) => {
   return new Promise((resolve, reject) => {
     axios
       .put(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/${tipo}/alistar?id=${id}&listo=${listo}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/${tipo}/alistar?id=${id}&listo=${listo}&interior=${interior}`
       )
       .then((res) => {
         resolve(res);

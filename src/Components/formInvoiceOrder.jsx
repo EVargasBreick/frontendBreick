@@ -7,7 +7,7 @@ import {
   orderDetailsInvoice,
   orderToInvoiceList,
 } from "../services/orderServices";
-
+import Cookies from "js-cookie";
 import "../styles/generalStyle.css";
 import Pagination from "./pagination";
 import PaymentModal from "./paymentModal";
@@ -30,9 +30,13 @@ export default function FormInvoiceOrder() {
   const [cliente, setCliente] = useState({});
   const [isInvoice, setIsInvoice] = useState(false);
   const [idAlmacen, setIdAlmacen] = useState("");
+  const [userRol, setUserRol] = useState("");
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   useEffect(() => {
-    const list = orderToInvoiceList();
+    const UsuarioAct = Cookies.get("userAuth");
+    const user = JSON.parse(UsuarioAct);
+    const idDepto = user.rol == 2 ? user.idDepto : "";
+    const list = orderToInvoiceList(idDepto);
     list
       .then((res) => {
         console.log("Res", res);
@@ -87,7 +91,6 @@ export default function FormInvoiceOrder() {
       .then((os) => {
         console.log("detallitos", os);
         const details = os.data.response;
-
         var saleProducts = [];
         details.map((dt) => {
           const saleObj = {
