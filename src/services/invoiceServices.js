@@ -148,11 +148,11 @@ function saveSaleFromOrder(
   });
 }
 
-function getStoreInvoices(id) {
+function getStoreInvoices(id, pdv) {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/facturas/lista?idSucursal='${id}'`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/facturas/lista?idSucursal='${id}'&pdv=${pdv}`
       )
       .then((response) => {
         resolve(response);

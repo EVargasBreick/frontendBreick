@@ -34,7 +34,10 @@ export default function FormCancelInvoice() {
       const pdve = Cookies.get("pdv");
       const PuntoDeVentas = pdve != undefined ? pdve : 0;
       setPointOfSale(PuntoDeVentas);
-      const facturas = getStoreInvoices(JSON.parse(UsuarioAct).idAlmacen);
+      const facturas = getStoreInvoices(
+        JSON.parse(UsuarioAct).idAlmacen,
+        PuntoDeVentas
+      );
       facturas.then((fc) => {
         const filteredDates = filterDates(fc.data);
         filteredDates.then((res) => {
