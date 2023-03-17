@@ -43,6 +43,7 @@ import EditTransfer from "./Components/editTransfer";
 import StoreRefill from "./Components/storeRefill";
 import TransferReception from "./Components/transferReception";
 import ProductDrop from "./Components/productDrop";
+import RetirePack from "./Components/retirePack";
 
 function App() {
   return (
@@ -272,6 +273,14 @@ function App() {
               element={
                 <RequireAuth>
                   <AsignPack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packs/retirar"
+              element={
+                <RequireAuth>
+                  <RetirePack />
                 </RequireAuth>
               }
             />

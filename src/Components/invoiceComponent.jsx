@@ -16,6 +16,7 @@ export const InvoiceComponent = React.forwardRef(
     },
     ref
   ) => {
+    console.log("Productos seleccionados", selectedProducts);
     const convertido = convertToText(totalsData?.totalDescontado);
     const splittedDate = dateString().split(" ");
     const date = splittedDate[0];
@@ -252,10 +253,10 @@ export const InvoiceComponent = React.forwardRef(
                         {producto?.precioDeFabrica}
                       </td>
                       <td className="smallProductLeft">
-                        {parseFloat(totalProducto)?.toFixed(2)}
+                        {parseFloat(producto.descuentoProd)?.toFixed(2)}
                       </td>
                       <td className="ProductLeft">
-                        {parseFloat(producto.total)?.toFixed(2)}
+                        {parseFloat(totalProducto)?.toFixed(2)}
                       </td>
                     </tr>
                   );

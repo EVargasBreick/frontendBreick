@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Table } from "react-bootstrap";
 import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
@@ -9,35 +9,55 @@ export default function ComplexDiscountTable({
   pascua,
   navidad,
   halloween,
+  sinDesc,
   tradObject,
   pasObject,
   navObject,
   hallObject,
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    console.log("Tradicionales", tradicionales);
+    console.log("Sin descuento", sinDesc);
+    function handleResize() {
+      if (window.innerWidth < 700) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    }
+    handleResize(); // set the initial state on mount
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   return (
-    <Table bordered className="modalBody">
+    <Table className="modalBodyAlt">
       <thead className="tableModalHeader">
         <tr>
           <th></th>
           <th>Total</th>
-          <th>Descuento %</th>
-          <th>Descuento Calculado</th>
-          <th>Total a facturar</th>
+          <th>{isMobile ? `Des cuento %` : `Descuento %`}</th>
+          <th>{isMobile ? `Desc Calculado` : `Descuento Calculado`}</th>
+          <th>{isMobile ? `Facturar` : `Total Facturar`}</th>
         </tr>
       </thead>
       <tbody className="modalTable">
         <tr>
-          {tradicionales.length > 0 ? <td>Tradicionales</td> : null}
-          {tradicionales.length > 0 ? (
+          {tradicionales.length > 0 || sinDesc.length > 0 ? (
+            <td>Tradicionales</td>
+          ) : null}
+          {tradicionales.length > 0 || sinDesc.length > 0 ? (
             <td>{tradObject.total + " Bs."}</td>
           ) : null}
-          {tradicionales.length > 0 ? (
+          {tradicionales.length > 0 || sinDesc.length > 0 ? (
             <td>{`${tradObject.descuento} %`}</td>
           ) : null}
-          {tradicionales.length > 0 ? (
+          {tradicionales.length > 0 || sinDesc.length > 0 ? (
             <td>{tradObject.descCalculado + " Bs."}</td>
           ) : null}
-          {tradicionales.length > 0 ? (
+          {tradicionales.length > 0 || sinDesc.length > 0 ? (
             <td>{tradObject.facturar + " Bs."}</td>
           ) : null}
         </tr>

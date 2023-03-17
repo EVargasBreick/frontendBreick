@@ -73,7 +73,7 @@ export default function PaymentModal({
       setUserName(JSON.parse(UsuarioAct).usuario);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       const pdve = Cookies.get("pdv");
-      const PuntoDeVentas = pdv != undefined ? pdve : 0;
+      const PuntoDeVentas = pdve != undefined ? pdve : 0;
       setPdv(PuntoDeVentas);
     }
     const suc = getBranchesPs();
@@ -206,7 +206,11 @@ export default function PaymentModal({
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          if (cancelado == 0 || cancelado < totales.montoFacturar) {
+          if (
+            cancelado == 0 ||
+            !parseFloat(cancelado).toFixed(2) >=
+              parseFloat(totales.montoFacturar).toFixed(2)
+          ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
@@ -275,6 +279,7 @@ export default function PaymentModal({
       nit: process.env.REACT_APP_NIT_EMPRESA,
       puntoDeVentaId: branchInfo.nro,
       tipoComprobante: 1,
+      caja: pdv,
     };
     const newId = getInvoiceNumber(lastIdObj);
     newId
@@ -301,6 +306,7 @@ export default function PaymentModal({
             tipoComprobante: 1,
             formatoId: process.env.REACT_APP_FORMATO_ID,
             XML: lineal,
+            caja: pdv,
           };
           const comprobante = SoapInvoice(cufObj);
           comprobante
@@ -633,7 +639,9 @@ export default function PaymentModal({
               <div className="modalRows">
                 <div className="modalLabel"> Cambio:</div>
                 <div className="modalData">{`${
-                  cancelado - totales.montoFacturarF < 0
+                  parseFloat(cancelado).toFixed(2) -
+                    parseFloat(totales.montoFacturar).toFixed(2) <
+                  0
                     ? "Ingrese un monto igual o superior"
                     : `${(cancelado - totales.montoFacturar).toFixed(2)} Bs.`
                 } `}</div>

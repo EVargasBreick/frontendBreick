@@ -214,6 +214,8 @@ export default function InvoicePDF({
             <Text style={styles.tableHeaderM}>Sub Total</Text>
           </View>
           {selectedProducts.map((producto, index) => {
+            const totalProducto =
+              producto.total != undefined ? producto.total : producto.totalProd;
             return (
               <View style={styles.table} key={index}>
                 <Text style={styles.tableTextM}>{producto.cantProducto}</Text>
@@ -221,7 +223,7 @@ export default function InvoicePDF({
                 <Text style={styles.tableTextM}>
                   {producto.precioDeFabrica}
                 </Text>
-                <Text style={styles.tableTextM}>{producto.total}</Text>
+                <Text style={styles.tableTextM}>{totalProducto}</Text>
               </View>
             );
           })}

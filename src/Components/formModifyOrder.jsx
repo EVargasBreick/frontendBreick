@@ -804,6 +804,7 @@ export default function FormModifyOrders() {
             <div>
               <ComplexDiscountTable
                 tradicionales={tradicionales}
+                sinDesc={sinDesc}
                 pascua={pascua}
                 navidad={navidad}
                 halloween={halloween}

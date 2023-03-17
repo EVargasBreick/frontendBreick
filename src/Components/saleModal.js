@@ -241,7 +241,12 @@ export default function SaleModal({
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          if ((cancelado = 0 || cancelado < datos.totalDescontado)) {
+          console.log("Cancelado", cancelado, datos.totalDescontado);
+          if (
+            cancelado == 0 ||
+            !parseFloat(cancelado).toFixed(2) >=
+              parseFloat(datos.totalDescontado).toFixed(2)
+          ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
@@ -326,6 +331,7 @@ export default function SaleModal({
       nit: invoice.nitEmpresa,
       puntoDeVentaId: branchInfo.nro,
       tipoComprobante: 1,
+      caja: pointOfSale,
     };
     const newId = getInvoiceNumber(lastIdObj);
     newId
@@ -355,6 +361,7 @@ export default function SaleModal({
             tipoComprobante: 1,
             formatoId: process.env.REACT_APP_FORMATO_ID,
             XML: lineal,
+            caja: pointOfSale,
           };
           const comprobante = SoapInvoice(cufObj);
           comprobante
@@ -700,7 +707,7 @@ export default function SaleModal({
                 <div className="modalLabel"> Cambio:</div>
                 <div className="modalData">{`${
                   cancelado - datos.totalDescontado < 0
-                    ? "Ingrese un monto igual o superior"
+                    ? " Ingrese un monto igual o superior"
                     : `${(cancelado - datos.totalDescontado).toFixed(2)} Bs.`
                 } `}</div>
               </div>
@@ -833,8 +840,12 @@ export default function SaleModal({
                   <div className="modalRows">
                     <div className="modalLabel"> Cambio:</div>
                     <div className="modalData">{`${
-                      cancelado - (datos.totalDescontado - giftCard) < 0
-                        ? "Ingrese un monto igual o superior"
+                      parseFloat(cancelado).toFixed(2) -
+                        parseFloat(datos.totalDescontado - giftCard).toFixed(
+                          2
+                        ) <=
+                      0
+                        ? "Test"
                         : `${(
                             cancelado -
                             (datos.totalDescontado - giftCard)

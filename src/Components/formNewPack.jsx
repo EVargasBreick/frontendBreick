@@ -88,7 +88,7 @@ export default function FormNewPack() {
     console.log("Pack registrado", data);
     const packId = data.data.id;
     const objProd = {
-      codInterno: 0,
+      codInterno: parseInt(500000 + packId),
       nombreProducto: nombrePack,
       descProducto: nombrePack,
       gramajeProducto: 0,
@@ -101,7 +101,7 @@ export default function FormNewPack() {
       precioPDV: 0,
       cantDisplay: 0,
       aplicaDescuento: "No",
-      tipoProducto: 1,
+      tipoProducto: 5,
       precioDescuentoFijo: totalPack,
       actividadEconomica: 107900,
       codigoSin: 99100,

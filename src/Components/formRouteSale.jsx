@@ -607,9 +607,9 @@ export default function FormRouteSale() {
           fechaCrea: dateString(),
           fechaActualizacion: dateString(),
           montoTotal: parseFloat(totalPrevio).toFixed(2),
-          descCalculado: parseFloat(totalPrevio - totalDesc).toFixed(2),
+          descCalculado: parseFloat(totalDesc).toFixed(2),
           descuento: descuento,
-          montoFacturar: parseFloat(totalDesc).toFixed(2),
+          montoFacturar: parseFloat(totalFacturar).toFixed(2),
           idPedido: "",
           idFactura: createdId,
         },
@@ -857,6 +857,7 @@ export default function FormRouteSale() {
               pascua={pascua}
               navidad={navidad}
               halloween={halloween}
+              sinDesc={sinDesc}
               tradObject={tradObject}
               pasObject={pasObject}
               navObject={navObject}

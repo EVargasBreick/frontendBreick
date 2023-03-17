@@ -351,10 +351,26 @@
 .modalBody {
   background-color: #69459348;
 }
+.modalBodyAlt {
+  background-color: #69459348;
+}
+@media (max-width: 450px) {
+  .modalBodyAlt {
+    background-color: #d9d9d948;
+    max-width: 200px;
+  }
+  .modalTable {
+    font-size: small;
+  }
+  .tableModalHeader {
+    font-size: small;
+  }
+}
 .modalTable {
   background-color: white;
   color: #6a4593;
   text-align: center;
+  overflow-x: auto;
 }
 .tableModalHeader {
   background-color: #5cb8b2;

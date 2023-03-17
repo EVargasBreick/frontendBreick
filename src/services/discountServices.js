@@ -44,8 +44,8 @@ function traditionalDiscounts(
       total: totalTradicional + totalEspecial + totalSinDesc,
       descuento: 0,
       descCalculado: 0,
-      facturar: totalTradicional,
       especial: false,
+      facturar: totalTradicional + totalEspecial + totalSinDesc,
     };
   } else {
     if (

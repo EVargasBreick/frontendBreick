@@ -26,10 +26,14 @@ export default function FormCancelInvoice() {
   const [alert, setAlert] = useState("");
   const [auxFac, setAuxFac] = useState([]);
   const [filter, setFilter] = useState("");
+  const [pointOfSale, setPointOfSale] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      const pdve = Cookies.get("pdv");
+      const PuntoDeVentas = pdve != undefined ? pdve : 0;
+      setPointOfSale(PuntoDeVentas);
       const facturas = getStoreInvoices(JSON.parse(UsuarioAct).idAlmacen);
       facturas.then((fc) => {
         const filteredDates = filterDates(fc.data);
@@ -67,6 +71,7 @@ export default function FormCancelInvoice() {
       tipoComprobante: process.env.REACT_APP_COMPRAVENTA,
       motivoAnulacion: motivo,
       nit: parseInt(process.env.REACT_APP_NIT_EMPRESA),
+      caja: pointOfSale,
     };
     console.log("Anulando factura", cancelObj);
     const canceled = CancelInvoice(cancelObj);

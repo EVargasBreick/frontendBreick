@@ -25,7 +25,7 @@ import Cross from "../../assets/cross.png";
 import Load from "../../assets/load.png";
 
 import Star from "../../assets/star.png";
-
+import HStar from "../../assets/hStar.png";
 import "../../styles/generalStyle.css";
 
 export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
@@ -101,7 +101,15 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       >
         {" "}
         <Image src={Star} className="icon inverted"></Image>
-        Asignar/Retirar Packs
+        Asignar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packs/retirar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Retirar Packs
       </MenuItem>
       {/*<div>En Desarrollo ...</div>
       <MenuItem>
