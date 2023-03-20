@@ -481,7 +481,6 @@ export default function FormRouteSale() {
   }
   function addWithScanner(e) {
     e.preventDefault();
-
     addProductToList("scanner");
   }
   function changeQuantities(index, cantidad, prod, isScanner) {
@@ -492,7 +491,11 @@ export default function FormRouteSale() {
         : arrCant[1]?.length > process.env.REACT_APP_DECIMALES
         ? prod.cantProducto
         : cantidad;
-    const total = parseFloat(prod.precioDeFabrica) * parseFloat(isThree);
+    const total =
+      parseFloat(prod.precioDeFabrica) *
+      (prod.unidadDeMedida == "Unidad"
+        ? parseInt(isThree)
+        : parseFloat(isThree));
     let auxObj = {
       codInterno: prod.codInterno,
       cantProducto:

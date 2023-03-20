@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Form, Button, Table, Modal, Image } from "react-bootstrap";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
@@ -87,9 +87,15 @@ export default function FormNewOrder() {
   const [flagDiscount, setFlagDiscount] = useState(false);
   const [userName, setUserName] = useState("");
   const [isInterior, setIsInterior] = useState(false);
+  const [isQuantity, setIsQuantity] = useState(false);
+  const [modalQuantity, setModalQuantity] = useState("");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 700 ? false : true
   );
+  const [currentProd, setCurrentProd] = useState("");
+  const searchRef = useRef(null);
+  const quantref = useRef(null);
+  const prodTableRef = useRef(null);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -133,6 +139,12 @@ export default function FormNewOrder() {
   }, []);
 
   useEffect(() => {
+    if (isQuantity) {
+      quantref.current.focus();
+    }
+  }, [isQuantity]);
+
+  useEffect(() => {
     function handleResize() {
       if (window.innerWidth < 700) {
         setIsMobile(true);
@@ -152,7 +164,8 @@ export default function FormNewOrder() {
       processDiscounts();
     }
   }, [flagDiscount]);
-  function searchClient() {
+  function searchClient(e) {
+    e.preventDefault();
     setIsSelected(false);
     setClientes([]);
     setisLoading(true);
@@ -177,6 +190,7 @@ export default function FormNewOrder() {
     array.push(searchObject);
     setClientes(array);
     setIsSelected(true);
+    prodTableRef.current.scrollIntoView({ behavior: "smooth" });
   }
 
   function selectProduct(product) {
@@ -227,7 +241,9 @@ export default function FormNewOrder() {
 
       setSelectedProds([...selectedProds, prodObj]);
     }
+    setCurrentProd(prodObj);
     setIsProduct(true);
+    setIsQuantity(true);
   }
   const handleClose = () => {
     setIsAlert(false);
@@ -773,21 +789,31 @@ export default function FormNewOrder() {
   }
   function addWithScanner(e) {
     e.preventDefault();
-    const finded = selectedProds.find((sp) => sp.codigoBarras === filtered);
-    const product = available.find((sp) => sp.codigoBarras === filtered);
-
-    if (finded === undefined) {
-      selectProduct(JSON.stringify(product));
+    if (available.length == 1) {
+      setAvailable(auxProducts);
       setFiltered("");
+      selectProduct(JSON.stringify(available[0]));
     } else {
-      const index = selectedProds.findIndex(
-        (sp) => sp.codigoBarras == filtered
-      );
-
-      changeQuantitys(index, selectedProds[index].cantProducto + 1, product);
-      setFiltered("");
+      if (available.length == 0) {
+        setAlert("Producto no encontrado");
+        setIsAlert(true);
+        setAvailable(auxProducts);
+        setFiltered("");
+      }
     }
   }
+
+  function changeQuantitiesModal(e) {
+    e.preventDefault();
+    const index = selectedProds.length - 1;
+    const selectedProd = selectedProds[index];
+    changeQuantitys(index, modalQuantity, selectedProd, false);
+    setIsQuantity(false);
+    setModalQuantity("");
+    setAvailable(auxProducts);
+    searchRef.current.focus();
+  }
+
   return (
     <div>
       <div className="formLabel">REGISTRAR PEDIDOS</div>
@@ -809,6 +835,28 @@ export default function FormNewOrder() {
         <Modal.Body>
           <Image src={loading2} style={{ width: "5%" }} />
         </Modal.Body>
+      </Modal>
+      <Modal show={isQuantity}>
+        <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
+        <Modal.Body>
+          <div className="productModal">{currentProd.nombreProducto}</div>
+          <Form>
+            <Form.Control
+              type="number"
+              onChange={(e) => setModalQuantity(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === "Enter" ? changeQuantitiesModal(e) : null
+              }
+              ref={quantref}
+              value={modalQuantity}
+            />
+          </Form>
+        </Modal.Body>
+        <Modal.Footer className="modalFooter">
+          <Button variant="success" onClick={(e) => changeQuantitiesModal(e)}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
       </Modal>
       <Modal show={discModal} size="xl">
         <Modal.Header className="modalTitle">
@@ -862,6 +910,7 @@ export default function FormNewOrder() {
           aria-label="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => (e.key === "Enter" ? searchClient(e) : null)}
         />
         <Button
           variant="warning"
@@ -926,6 +975,7 @@ export default function FormNewOrder() {
             <Form.Select
               className="selectorColor"
               onChange={(e) => selectProduct(e.target.value)}
+              ref={searchRef}
             >
               <option>Seleccione producto</option>
 
@@ -953,33 +1003,9 @@ export default function FormNewOrder() {
           </Form.Group>
         </Form>
       </div>
-      <div className="formLabel">SELECCIONE TIPO PEDIDO</div>
+
       <div>
         <Form>
-          <Form.Group className="mb-3" controlId="order">
-            <Form.Select
-              className="selectorHalf"
-              onChange={(e) => handleType(e.target.value)}
-            >
-              <option value="normal">Normal</option>
-              <option value="muestra">Muestra</option>
-            </Form.Select>
-          </Form.Group>
-          <Form.Group>
-            <div className="comments">
-              <Form.Control
-                as="textarea"
-                rows={4}
-                onChange={(e) => {
-                  setObservaciones(e.target.value);
-                }}
-                value={observaciones}
-                placeholder="Notas adicionales"
-                maxLength="250"
-              ></Form.Control>
-              <div>{`${250 - observaciones.length} caracteres restantes`}</div>
-            </div>
-          </Form.Group>
           <Form.Group>
             <div className="formLabel">DESCUENTO (%)</div>
             <div className="percent">
@@ -1071,6 +1097,31 @@ export default function FormNewOrder() {
               </Table>
             </div>
           ) : null}
+          <div className="formLabel">SELECCIONE TIPO PEDIDO</div>
+          <Form.Group className="mb-3" controlId="order">
+            <Form.Select
+              className="selectorHalf"
+              onChange={(e) => handleType(e.target.value)}
+            >
+              <option value="normal">Normal</option>
+              <option value="muestra">Muestra</option>
+            </Form.Select>
+          </Form.Group>
+          <Form.Group>
+            <div className="comments">
+              <Form.Control
+                as="textarea"
+                rows={4}
+                onChange={(e) => {
+                  setObservaciones(e.target.value);
+                }}
+                value={observaciones}
+                placeholder="Notas adicionales"
+                maxLength="250"
+              ></Form.Control>
+              <div>{`${250 - observaciones.length} caracteres restantes`}</div>
+            </div>
+          </Form.Group>
           <Form.Group>
             <div className="formLabel">CONFIRMAR PRODUCTOS</div>
             <div className="percent">
@@ -1078,6 +1129,7 @@ export default function FormNewOrder() {
                 variant="warning"
                 className="yellowLarge"
                 onClick={() => validateProductLen()}
+                ref={prodTableRef}
               >
                 {isLoading ? (
                   <Image src={loading2} style={{ width: "5%" }} />

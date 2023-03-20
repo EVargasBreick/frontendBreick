@@ -379,7 +379,11 @@ export default function FormNewSale() {
         : arrCant[1]?.length > process.env.REACT_APP_DECIMALES
         ? prod.cantProducto
         : cantidad;
-    const total = parseFloat(prod.precioDeFabrica) * parseFloat(isThree);
+    const total =
+      parseFloat(prod.precioDeFabrica) *
+      (prod.unidadDeMedida == "Unidad"
+        ? parseInt(isThree)
+        : parseFloat(isThree));
     let auxObj = {
       codInterno: prod.codInterno,
       cantProducto:

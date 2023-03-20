@@ -33,6 +33,7 @@ export default function FormUpdateStock() {
     }
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
+      console.log("Allprod", fetchedProducts.data.data);
       setprodList(fetchedProducts.data.data);
       setAuxProd(fetchedProducts.data.data);
     });
@@ -88,34 +89,47 @@ export default function FormUpdateStock() {
     wb.SheetNames.map((sheet) => {
       const workSheet = wb.Sheets[sheet];
       const jsonData = XLSX.utils.sheet_to_json(workSheet);
-
       setJsonExcel(jsonData);
       setJsonTable(jsonData);
     });
   }
 
   function setJsonTable(jsonExcel) {
+    console.log("Json excel", jsonExcel);
     var newList = [];
     jsonExcel.map((je) => {
-      if (je.CODINTERNO === undefined || je.CANTIDAD === undefined) {
+      if (
+        (je.CODINTERNO === undefined || je.CANTIDAD === undefined) &&
+        (je.Codigo === undefined || je["Stock Final"] === undefined)
+      ) {
         setAlert("El formato de la tabla es inválido");
         setIsAlert(true);
         fileRef.current.value = "";
         setUpFile(null);
         setJsonExcel([]);
       } else {
-        const obj = {
-          codInterno: je.CODINTERNO,
-          nombreProducto: prodList.find((ap) => ap.codInterno === je.CODINTERNO)
-            .nombreProducto,
-          cantProducto: je.CANTIDAD,
-          idProducto: prodList.find((ap) => ap.codInterno === je.CODINTERNO)
-            .idProducto,
-        };
-        newList.push(obj);
+        if (
+          prodList.find(
+            (ap) => String(ap.codInterno) == String(je.CODINTERNO)
+          ) != undefined
+        ) {
+          const prodActual = prodList.find(
+            (ap) => ap.codInterno == je.CODINTERNO || ap.codInterno == je.Codigo
+          );
+          const cantidad =
+            je.CANTIDAD != undefined ? je.CANTIDAD : je["Stock Final"];
+          const obj = {
+            codInterno: je.CODINTERNO,
+            nombreProducto: prodActual.nombreProducto,
+            cantProducto: cantidad < 0 ? 0 : cantidad,
+            idProducto: prodActual.idProducto,
+          };
+          newList.push(obj);
+        }
       }
     });
     setprodList(newList);
+    console.log("Productos leidos", newList.length);
   }
 
   function EraseData() {
