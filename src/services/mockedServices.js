@@ -31,7 +31,7 @@ function structureXml(
   const current = new Date();
   const formatted = current.toISOString();
   const parts = formatted.split("Z");
-
+  console.log("Products in xml ", products);
   return new Promise((resolve, reject) => {
     const dataObj = {
       nitEmisor: invoice.nitEmpresa,

@@ -35,7 +35,7 @@ export default function FormInvoiceOrder() {
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     const user = JSON.parse(UsuarioAct);
-    const idDepto = user.rol == 2 ? user.idDepto : "";
+    const idDepto = user.idDepto;
     const list = orderToInvoiceList(idDepto);
     list
       .then((res) => {

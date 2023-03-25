@@ -1,4 +1,5 @@
 function getDiscountPercentage(tipoProd, rango, discountList) {
+  console.log("Discount list", discountList);
   return discountList
     .filter((dl) => dl.idTiposProducto == tipoProd)
     .find((fd) => fd.rango == rango) != undefined

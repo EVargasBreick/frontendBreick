@@ -15,8 +15,7 @@ import leftArrow from "../../assets/leftArrow.png";
 import Client from "../../assets/client.png";
 import newClient from "../../assets/newClient.png";
 import newOrder from "../../assets/newOrder.png";
-import Invoice from "../../assets/invoice.png";
-import cancelInvoice from "../../assets/cancelInvoice.png";
+
 import cancelSample from "../../assets/cancelSample.png";
 import Printer from "../../assets/printer.png";
 import appBooking from "../../assets/approveBook.png";
@@ -65,19 +64,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={leftArrow} className="icon"></Image>
         Modificar/Cancelar Pedido
       </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/pedidos/facturar")}
-        className="menuItem"
-      >
-        <Image src={Invoice} className="icon"></Image>Facturar Pedidos
-      </MenuItem>
-      <MenuItem
-        className="menuItem"
-        onClick={() => redirectOnClick("/facturas/anular")}
-      >
-        {" "}
-        <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
-      </MenuItem>
+
       <div className="menuItem">Productos</div>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso")}

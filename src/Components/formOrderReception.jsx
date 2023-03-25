@@ -49,7 +49,7 @@ export default function FormOrderReception() {
       const array = [];
       list.map((li) => {
         const detallesPedido = flt.filter((fl) => fl.idOrden == li);
-
+        console.log("Detalles pedido", detallesPedido);
         const element = {
           idNro: detallesPedido[0].idOrden,
           id: detallesPedido[0].nroOrden,
@@ -57,6 +57,7 @@ export default function FormOrderReception() {
           fechaSolicitud: detallesPedido[0].fechaCrea,
           usuario: detallesPedido[0].usuario,
           tipo: detallesPedido[0].tipo,
+          notas: detallesPedido[0].notas,
         };
         array.push(element);
       });

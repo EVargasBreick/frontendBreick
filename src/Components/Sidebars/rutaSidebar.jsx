@@ -39,21 +39,6 @@ export default function RutaSidebar({
         Ventas Ruta
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/facturas/anular")}
-        className="menuItem"
-      >
-        {" "}
-        <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
-      </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/traspasoMovil")}
-        className="menuItem"
-      >
-        {" "}
-        <Image src={ReturnWare} className="icon inverted"></Image>
-        Traspaso a ag. Movil
-      </MenuItem>
-      <MenuItem
         onClick={() => redirectOnClick("/traspaso/recepcion")}
         className="menuItem"
       >

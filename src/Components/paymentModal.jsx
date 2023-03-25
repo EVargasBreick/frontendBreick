@@ -73,6 +73,7 @@ export default function PaymentModal({
       setUserName(JSON.parse(UsuarioAct).usuario);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       const pdve = Cookies.get("pdv");
+      console.log("Punto de venta", pdve);
       const PuntoDeVentas = pdve != undefined ? pdve : 0;
       setPdv(PuntoDeVentas);
     }

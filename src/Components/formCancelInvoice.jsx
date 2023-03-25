@@ -14,6 +14,7 @@ import loading2 from "../assets/loading2.gif";
 
 import { CancelInvoice } from "../Xml/cancelInvoice";
 import { updateStock } from "../services/orderServices";
+import { getMobileSalePoints } from "../services/storeServices";
 
 export default function FormCancelInvoice() {
   const [userStore, setUserStore] = useState("");
@@ -31,29 +32,46 @@ export default function FormCancelInvoice() {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
-      const pdve = Cookies.get("pdv");
-      const PuntoDeVentas = pdve != undefined ? pdve : 0;
-      setPointOfSale(PuntoDeVentas);
-      const facturas = getStoreInvoices(
-        JSON.parse(UsuarioAct).idAlmacen,
-        PuntoDeVentas
+      const mobilepdvdata = getMobileSalePoints(
+        JSON.parse(UsuarioAct).idAlmacen
       );
-      facturas.then((fc) => {
-        const filteredDates = filterDates(fc.data);
-        filteredDates.then((res) => {
-          setAllFacts(res);
-          let uniqueArray = res.reduce((acc, curr) => {
-            if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
-              acc.push(curr);
-            }
-            return acc;
-          }, []);
-          setFacturas(uniqueArray);
-          setAuxFac(uniqueArray);
-        });
+      mobilepdvdata.then((res) => {
+        const datos = res.data[0];
+        if (datos == undefined) {
+          const pdve = Cookies.get("pdv");
+          const PuntoDeVentas = pdve != undefined ? pdve : 0;
+          setPointOfSale(PuntoDeVentas);
+          getInvoices(UsuarioAct, PuntoDeVentas);
+        } else {
+          setPointOfSale(datos.nroPuntoDeVenta);
+          Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+          getInvoices(UsuarioAct, datos.nroPuntoDeVenta);
+        }
       });
     }
   }, []);
+
+  function getInvoices(UsuarioAct, PuntoDeVentas) {
+    const facturas = getStoreInvoices(
+      JSON.parse(UsuarioAct).idAlmacen,
+      PuntoDeVentas
+    );
+    facturas.then((fc) => {
+      const filteredDates = filterDates(fc.data);
+      filteredDates.then((res) => {
+        setAllFacts(res);
+        let uniqueArray = res.reduce((acc, curr) => {
+          if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
+            acc.push(curr);
+          }
+          return acc;
+        }, []);
+        setFacturas(uniqueArray);
+        setAuxFac(uniqueArray);
+      });
+    });
+  }
+
   function formattedCuf(cuf) {
     const splitted = cuf.match(/.{25}/g);
     return splitted ? splitted.join(" ") : cuf;

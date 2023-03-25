@@ -100,7 +100,7 @@ export default function FormRouteTransfer() {
           idUsuario: userId,
           productos: selectedProducts,
           movil: 1,
-          transito: 1,
+          transito: 0,
         };
         const reservedProducts = updateStock({
           accion: "take",

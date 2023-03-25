@@ -36,7 +36,7 @@ const getEndOfDayReport = (params) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}&idAgencia='${params.idAgencia}'&ruta=${params.ruta}`
       )
       .then((response) => {
         if (response.status === 200) {

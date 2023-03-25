@@ -406,7 +406,6 @@ export default function FormNewOrder() {
 
   async function validateAvailability() {
     setDiscModal(false);
-
     setIsAlertSec(true);
     setAlertSec("Validando Pedido");
     setTimeout(() => {
@@ -490,12 +489,14 @@ export default function FormNewOrder() {
                     codigoPedido: res.data.data.idCreado,
                     correoUsuario: userEmail,
                     fecha: dateString(),
+                    email: [userEmail, "evargas@breick.com.bo"],
+                    tipo: "Pedido",
+                    header: "Pedido Creado",
                   };
                   const emailSent = sendOrderEmail(emailBody);
                   emailSent
                     .then((response) => {
                       setIsAlertSec(false);
-
                       setAlert("Pedido Creado correctamente");
                       setIsAlert(true);
                       if (faltantes.length > 0) {
@@ -600,17 +601,19 @@ export default function FormNewOrder() {
                 .then((res) => {
                   const idPedidoCreado = res.data.data.idCreado;
                   const codPedido = getOrderList(res.data.data.idCreado);
-                  codPedido.then((res) => {
+                  codPedido.then((resp) => {
                     const emailBody = {
-                      codigoPedido: res.data.data[0][0].codigoPedido,
+                      codigoPedido: res.data.data.idCreado,
                       correoUsuario: userEmail,
                       fecha: dateString(),
+                      email: ["evargas@breick.com.bo"],
+                      tipo: "pedido",
+                      header: "Pedido Creado",
                     };
                     const emailSent = sendOrderEmail(emailBody);
                     emailSent
                       .then((response) => {
                         setIsAlertSec(false);
-
                         setAlert("Pedido Creado correctamente");
                         setIsAlert(true);
                         if (faltantes.length > 0) {
@@ -915,7 +918,7 @@ export default function FormNewOrder() {
         <Button
           variant="warning"
           className="search"
-          onClick={() => searchClient()}
+          onClick={(e) => searchClient(e)}
         >
           {isLoading ? (
             <Image src={loading2} style={{ width: "5%" }} />

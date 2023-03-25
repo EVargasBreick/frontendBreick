@@ -95,6 +95,7 @@ export default function FormOrdersToReady() {
           id: ol.nroOrden,
           usuario: ol.usuario,
           productos: dt.data,
+          notas: dt.data[0].notas,
           rePrint: true,
         },
       ];

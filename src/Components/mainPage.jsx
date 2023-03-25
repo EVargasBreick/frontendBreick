@@ -20,6 +20,7 @@ import "../styles/generalStyle.css";
 import SidebarAdmin from "./sidebarAdmin";
 import { mainPageReport } from "../services/reportServices";
 import Sidebar from "./sidebar";
+import { getMobileSalePoints } from "../services/storeServices";
 export default function MainPage() {
   const [estados, setEstados] = useState([]);
   const [pendientes, setPendientes] = useState(-1);
@@ -38,6 +39,7 @@ export default function MainPage() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
+    console.log("Rol", JSON.parse(Cookies.get("userAuth")).rol);
     if (user) {
       if (JSON.parse(Cookies.get("userAuth")).rol == 2) {
         navigate("/ventaAgencia");
@@ -48,9 +50,15 @@ export default function MainPage() {
       if (JSON.parse(Cookies.get("userAuth")).rol == 11) {
         navigate("/almacenes/recepcionar-pedidos");
       }
+      const mobilepdvdata = getMobileSalePoints(JSON.parse(user).idAlmacen);
+      mobilepdvdata.then((res) => {
+        const datos = res.data[0];
+        if (datos != undefined) {
+          Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+        }
+      });
     }
     const stats = getOrderStatus();
-
     stats.then((response) => {
       setEstados(response.data.data);
 

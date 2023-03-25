@@ -21,6 +21,7 @@ import { createSale, verifyQuantities } from "../services/saleServices";
 import {
   getBranches,
   getBranchesPs,
+  getMobileSalePoints,
   getSalePoints,
 } from "../services/storeServices";
 import {
@@ -117,6 +118,7 @@ export default function FormRouteSale() {
   const [navObject, setNavObject] = useState({});
   const [hallObject, setHallObject] = useState({});
   const [descSimple, setDescSimple] = useState({});
+  const [mobilePdv, setMobilePdv] = useState({});
   const quantref = useRef(null);
   useEffect(() => {
     searchRef.current.focus();
@@ -130,21 +132,35 @@ export default function FormRouteSale() {
     const UsuarioAct = Cookies.get("userAuth");
 
     if (UsuarioAct) {
-      const PuntoDeVenta = Cookies.get("pdv");
       setUserCity(JSON.parse(UsuarioAct).idDepto);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      const PuntoDeVenta = Cookies.get("pdv");
+      if (PuntoDeVenta) {
+        setIsPoint(true);
+        setPointOfsale(PuntoDeVenta);
+      } else {
+        const mobilepdvdata = getMobileSalePoints(
+          JSON.parse(UsuarioAct).idAlmacen
+        );
+        mobilepdvdata.then((res) => {
+          const datos = res.data[0];
+          console.log("Datos del punto de venta", datos);
+          if (datos == undefined) {
+            setIsPoint(false);
+          } else {
+            setIsPoint(true);
+            setPointOfsale(datos.nroPuntoDeVenta);
+            Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+          }
+        });
+      }
+
       setUserName(JSON.parse(UsuarioAct).usuario);
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((res) => {
         setPointList([{ nroPuntoDeVenta: 0 }]);
       });
-      if (PuntoDeVenta) {
-        setIsPoint(true);
-        setPointOfsale(PuntoDeVenta);
-      } else {
-        setIsPoint(false);
-      }
     }
     if (Cookies.get("userAuth")) {
       setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
@@ -227,7 +243,7 @@ export default function FormRouteSale() {
     const found = getClient(search);
     found.then((res) => {
       setIsClient(true);
-      if (res.data.data) {
+      if (res.data.data.length > 0) {
         if (res.data.data.length == 1) {
           filterSelectedOnlyClient(res.data.data);
         } else {

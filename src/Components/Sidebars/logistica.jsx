@@ -9,6 +9,8 @@ import Check from "../../assets/check.png";
 import leftArrow from "../../assets/leftArrow.png";
 import newOrder from "../../assets/newOrder.png";
 import ReturnWare from "../../assets/returnWare.png";
+import Invoice from "../../assets/invoice.png";
+import cancelInvoice from "../../assets/cancelInvoice.png";
 import Cross from "../../assets/cross.png";
 import "../../styles/generalStyle.css";
 
@@ -29,6 +31,19 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={Check} className="icon"></Image>Aprobar Pedido
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/pedidos/facturar")}
+        className="menuItem"
+      >
+        <Image src={Invoice} className="icon"></Image>Facturar Pedidos
+      </MenuItem>
+      <MenuItem
+        className="menuItem"
+        onClick={() => redirectOnClick("/facturas/anular")}
+      >
+        {" "}
+        <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/traspaso")}
         className="menuItem"
       >
@@ -43,17 +58,14 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         Traspaso a agencias
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/adminTraspaso")}
-        className="menuItem"
-      >
-        <Image src={Check} className="icon"></Image>Aprobar Traspasos
-      </MenuItem>
-      <MenuItem
         onClick={() => redirectOnClick("/traspasos/editar")}
         className="menuItem"
       >
         <Image src={leftArrow} className="icon"></Image>
         Modificar Traspaso
+      </MenuItem>
+      <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}>
+        <Image src={Check} className="icon"></Image>Aprobar Traspasos
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/verTraspaso")}

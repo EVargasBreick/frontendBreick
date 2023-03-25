@@ -12,7 +12,8 @@ import Cookies from "js-cookie";
 import { getStores } from "../services/storeServices";
 import { getProductsWithStock } from "../services/productServices";
 import { createTransfer } from "../services/transferServices";
-import { updateStock } from "../services/orderServices";
+import { sendOrderEmail, updateStock } from "../services/orderServices";
+import { dateString } from "../services/dateServices";
 export default function FormNewTransfer() {
   const navigate = useNavigate();
   const [alert, setAlert] = useState("");
@@ -24,11 +25,13 @@ export default function FormNewTransfer() {
   const [idDestino, setIdDestino] = useState("");
   const [productos, setProductos] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [userEmail, setUserEmail] = useState("");
   const [userId, setUserId] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserId(JSON.parse(Cookies.get("userAuth")).idUsuario);
+      setUserEmail(JSON.parse(UsuarioAct).correo);
     }
     const stores = getStores();
     stores.then((store) => {
@@ -42,6 +45,7 @@ export default function FormNewTransfer() {
   function prepareStoreId(id, action) {
     const idSub = id.split(" ");
     if (action === "origen") {
+      console.log("id", id);
       setSelectedProducts([]);
       setIdOrigen(idSub[0]);
       if (idSub[1]) {
@@ -131,11 +135,28 @@ export default function FormNewTransfer() {
             newTransfer
               .then((nt) => {
                 setIsAlertSec(false);
-                setAlert("Traspaso creado correctamente");
-                setIsAlert(true);
-                setTimeout(() => {
-                  navigate("/principal");
-                }, 1500);
+                console.log("New Transfer", nt);
+                const emailBody = {
+                  codigoPedido: nt.data.data.idCreado,
+                  correoUsuario: userEmail,
+                  fecha: dateString(),
+                  email: ["eric.vargas.kubber@gmail.com", userEmail],
+                  tipo: "Traspaso",
+                  header: "Traspaso Creado",
+                };
+                const emailSent = sendOrderEmail(emailBody);
+                emailSent
+                  .then((response) => {
+                    setIsAlertSec(false);
+                    setAlert("Traspaso Creado correctamente");
+                    setIsAlert(true);
+                    setTimeout(() => {
+                      navigate("/principal");
+                    }, 1500);
+                  })
+                  .catch((error) => {
+                    console.log("Error al enviar el correo", error);
+                  });
               })
               .catch((error) => {
                 setIsAlertSec(false);

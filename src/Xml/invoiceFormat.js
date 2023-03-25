@@ -27,6 +27,7 @@ function generateInvoiceJson(data) {
         },
       },
     };
+    console.log("Producto ya modificado", prodObj);
     detalleArray.push(prodObj);
   });
 

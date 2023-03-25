@@ -12,7 +12,7 @@ export default function InvoiceOrders() {
     const user = Cookies.get("userAuth");
     if (user) {
       if (
-        JSON.parse(Cookies.get("userAuth")).rol < 10 ||
+        JSON.parse(Cookies.get("userAuth")).rol <= 10 ||
         (JSON.parse(Cookies.get("userAuth")).rol == 10 &&
           JSON.parse(Cookies.get("userAuth")).idDepto != 1)
       ) {

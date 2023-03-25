@@ -15,6 +15,7 @@ import { createSale, verifyQuantities } from "../services/saleServices";
 import {
   getBranches,
   getBranchesPs,
+  getMobileSalePoints,
   getSalePoints,
 } from "../services/storeServices";
 import {
@@ -104,9 +105,28 @@ export default function FormNewSale() {
     const UsuarioAct = Cookies.get("userAuth");
 
     if (UsuarioAct) {
-      const PuntoDeVenta = Cookies.get("pdv");
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      const PuntoDeVenta = Cookies.get("pdv");
+      if (PuntoDeVenta) {
+        setIsPoint(true);
+        setPointOfsale(PuntoDeVenta);
+      } else {
+        const mobilepdvdata = getMobileSalePoints(
+          JSON.parse(UsuarioAct).idAlmacen
+        );
+        mobilepdvdata.then((res) => {
+          const datos = res.data[0];
+          console.log("Datos del punto de venta", datos);
+          if (datos == undefined) {
+            setIsPoint(false);
+          } else {
+            setIsPoint(true);
+            setPointOfsale(datos.nroPuntoDeVenta);
+            Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+          }
+        });
+      }
       console.log("Almacen", JSON.parse(UsuarioAct).idAlmacen);
       if (JSON.parse(UsuarioAct).idAlmacen === "AG005") {
         setIsMore(true);
@@ -117,12 +137,6 @@ export default function FormNewSale() {
       pl.then((res) => {
         setPointList(res.data);
       });
-      if (PuntoDeVenta) {
-        setIsPoint(true);
-        setPointOfsale(PuntoDeVenta);
-      } else {
-        setIsPoint(false);
-      }
     }
     if (Cookies.get("userAuth")) {
       setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);

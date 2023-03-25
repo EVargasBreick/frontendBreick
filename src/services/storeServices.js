@@ -60,6 +60,18 @@ const getSalePoints = (idAgencia) => {
   });
 };
 
+const getMobileSalePoints = (idAgencia) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/agencias/mobiles/puntos?idAgencia=${idAgencia}`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
 const getSalePointsAndStores = (idAgencia) => {
   return new Promise((resolve, reject) => {
     axios
@@ -79,4 +91,5 @@ export {
   getSalePoints,
   getSalePointsAndStores,
   getBranchesPs,
+  getMobileSalePoints,
 };

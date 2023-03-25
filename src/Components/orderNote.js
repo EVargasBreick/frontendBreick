@@ -77,6 +77,14 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
             </div>
             <div className="simpleSeparator"></div>
             <div className="simpleSeparator">---------------</div>
+            {pl.notas != "" ? (
+              <div className="invoiceStart">
+                <div>Notas del Pedido/Traspaso:</div>
+                <div>{pl.notas}</div>
+              </div>
+            ) : null}
+            <div className="simpleSeparator"></div>
+            <div className="simpleSeparator">---------------</div>
             <div className="invoiceStart">
               <div>{`* Fábrica / Ruta / Agencia`}</div>
             </div>

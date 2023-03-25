@@ -3,7 +3,7 @@ import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
 import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
-export const InvoiceComponentAlt = React.forwardRef(
+export const InvoiceComponentCopy = React.forwardRef(
   (
     { branchInfo, selectedProducts, cuf, invoice, paymentData, totalsData },
     ref
@@ -29,7 +29,7 @@ export const InvoiceComponentAlt = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div>FACTURA</div>
           <div className="simpleSeparator"></div>
-          <div>ORIGINAL</div>
+          <div>COPIA</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
           <div>{`NIT ${invoice?.nitEmpresa}`}</div>

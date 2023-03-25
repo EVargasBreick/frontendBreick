@@ -60,6 +60,8 @@ export default function FormNewProduct() {
       .catch((err) => {});
   }, []);
   function saveProduct() {
+    setAlertSec("Agregando producto");
+    setIsAlertSec(true);
     const validated = validateCodes();
     validated
       .then((res) => {
@@ -99,7 +101,10 @@ export default function FormNewProduct() {
               }, 2000);
             });
           })
-          .catch((err) => console.log("Error al crear producto", err));
+          .catch((err) => {
+            console.log("Error al crear producto", err);
+            setIsAlertSec(false);
+          });
       })
       .catch((err) => {
         const mensajeError =
@@ -108,6 +113,7 @@ export default function FormNewProduct() {
             : err == "codInterno"
             ? "El codigo interno ya se encuentra registrado"
             : "El codigo de barras ya se encuentra registrado";
+        setIsAlertSec(false);
         setAlert(mensajeError);
         setIsAlert(true);
       });

@@ -131,7 +131,7 @@ export default function FormModifyOrders() {
 
     const dl = productsDiscount(JSON.parse(Cookies.get("userAuth")).idUsuario);
     dl.then((res) => {
-      setDiscountList(res.data.data[0]);
+      setDiscountList(res.data.data);
     });
     const disponibles = availableProducts(
       JSON.parse(Cookies.get("userAuth")).idUsuario

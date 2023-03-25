@@ -17,6 +17,7 @@ import { DropComponent } from "./dropComponent";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { InvoiceComponentAlt } from "./invoiceComponentAlt";
+import { InvoiceComponentCopy } from "./invoiceComponentCopy";
 export default function SaleModal({
   datos,
   show,
@@ -72,9 +73,12 @@ export default function SaleModal({
   const [isDrop, setIsDrop] = useState(false);
   const [dropId, setDropId] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
+  const [invoiceHeight, setInvoiceHeight] = useState("");
   const dropRef = useRef();
   const dropButtonRef = useRef();
   const invButtonRef = useRef();
+  const invoiceWrapRef = useRef(null);
+  const componentCopyRef = useRef(null);
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -87,6 +91,18 @@ export default function SaleModal({
       setInvoceMod(true);
     }
   }, [cuf]);
+  useEffect(() => {
+    if (isFactura && !isMobile) {
+      const node = invoiceWrapRef.current;
+      if (node) {
+        const { height } = node.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const mmHeight = height / ((dpr * 96) / 25.4);
+        console.log("Height in mm:", mmHeight);
+        setInvoiceHeight(mmHeight);
+      }
+    }
+  }, [isFactura]);
   useEffect(() => {
     if (isFactura) {
       if (invoiceRef.current) {
@@ -337,8 +353,10 @@ export default function SaleModal({
     newId
       .then((res) => {
         setInvoiceId(res.response.data + 1);
-
-        setAlertSec("Generando Codigo Único de Facturación");
+        setAlertSec(`Última factura: ${res.response.data}`);
+        setTimeout(() => {
+          setAlertSec("Generando Codigo Único de Facturación");
+        }, 1500);
         const xmlRes = structureXml(
           selectedProducts,
           branchInfo,
@@ -353,6 +371,7 @@ export default function SaleModal({
           pointOfSale,
           giftCard
         );
+        console.log("Productos seleccionados", selectedProducts);
         xmlRes.then((resp) => {
           const lineal = resp.replace(/ {4}|[\t\n\r]/gm, "");
           const cufObj = {
@@ -442,19 +461,37 @@ export default function SaleModal({
     setIsSaleModal(false);
   }
   const handleDownloadPdfInv = async () => {
+    console.log("Heigth in the function", invoiceHeight);
     const element = componentRef.current;
-
     const canvas = await html2canvas(element);
     const data = canvas.toDataURL("image/png");
+
+    const elementCopy = componentCopyRef.current;
+    const canvasCopy = await html2canvas(elementCopy);
+    const dataCopy = canvasCopy.toDataURL("image/png");
+
+    const node = invoiceWrapRef.current;
+    const { height } = node.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const mmHeight = height / ((dpr * 96) / 25.4);
+    console.log("Height in mm:", mmHeight);
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
-      format: [100, 1500],
+      format: [80, mmHeight / 2 + 20],
     });
+
     const imgProperties = pdf.getImageProperties(data);
+    const imgPropertiesCopy = pdf.getImageProperties(dataCopy);
+
     const pdfWidth = 75;
     const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    const pdfHeightCopy =
+      (imgPropertiesCopy.height * pdfWidth) / imgPropertiesCopy.width;
+
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.addPage();
+    pdf.addImage(dataCopy, "PNG", 0, 0, pdfWidth, pdfHeightCopy);
     pdf.save(`factura-${invoiceId}.pdf`);
     setIsSaved(true);
   };
@@ -530,9 +567,27 @@ export default function SaleModal({
               >
                 Download as PDF
               </button>
-              <div>
+              <div ref={invoiceWrapRef}>
                 <InvoiceComponentAlt
                   ref={componentRef}
+                  branchInfo={branchInfo}
+                  selectedProducts={selectedProducts}
+                  cuf={cuf}
+                  invoice={invoice}
+                  paymentData={{
+                    tipoPago: stringPago,
+                    cancelado: cancelado,
+                    cambio: cambio,
+                    fechaHora: fechaHora,
+                  }}
+                  totalsData={{
+                    total: total,
+                    descuentoCalculado: descuentoCalculado,
+                    totalDescontado: totalDescontado,
+                  }}
+                />
+                <InvoiceComponentCopy
+                  ref={componentCopyRef}
                   branchInfo={branchInfo}
                   selectedProducts={selectedProducts}
                   cuf={cuf}
