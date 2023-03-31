@@ -34,6 +34,14 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
       open={toggledInt}
       icon={<Image src={Map} className="compIcon"></Image>}
     >
+      <div className="menuItem">Agencias</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/ventaAgencia")}
+        className="menuItem"
+      >
+        <Image src={Invoice} className="icon"></Image>
+        Ventas Agencia
+      </MenuItem>
       <div className="menuItem">Almacenes</div>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso/recepcion")}
@@ -54,6 +62,13 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/stock/actualizar")}
+        className="menuItem"
+      >
+        <Image src={ReturnWare} className="icon inverted"></Image>
+        Actualizar Stock
       </MenuItem>
       <div className="menuItem">Clientes</div>
       <MenuItem

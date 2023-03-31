@@ -68,6 +68,16 @@ export const EndOfDayComponent = React.forwardRef(
                 <td className="totalsData">{`${totales.swift} Bs`}</td>
               </tr>
             </tbody>
+            <tfoot>
+              <tr>
+                <td className="totals">-----------</td>
+                <td className="totalsData">----------</td>
+              </tr>
+              <tr>
+                <td className="totals">Total</td>
+                <td className="totalsData">{`${totales.total} Bs`}</td>
+              </tr>
+            </tfoot>
           </table>
         </div>
         <div className="simpleSeparator"></div>

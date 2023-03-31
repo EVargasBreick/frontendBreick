@@ -81,30 +81,38 @@ export default function FormOrderReception() {
   }
   function updatePrinted() {
     //aca usas productList
+    console.log("Printeando");
     var validator = true;
     productList.map((pl) => {
+      console.log("Tipo pedido", pl.tipo);
       if (pl.tipo == "P") {
+        console.log("Printeando pedido con id", pl.idNro);
         const printed = printedOrder(pl.idNro);
         printed
           .then((res) => {
-            console.log(res);
+            console.log("Orden impresa", res);
           })
           .catch((err) => {
+            console.log("Error al imprimir", err);
             validator = false;
           });
       } else {
         const printed = printedTrasnfer(pl.idNro);
         printed
           .then((res) => {
+            console.log("Impreso");
             console.log(res);
           })
           .catch((err) => {
+            console.log("Error");
             validator = false;
           });
       }
     });
     if (validator) {
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } else {
       console.log("Error al actualizar");
     }

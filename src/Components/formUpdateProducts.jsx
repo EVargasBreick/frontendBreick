@@ -106,15 +106,23 @@ export default function FormUpdateProducts() {
         setUpFile(null);
         setJsonExcel([]);
       } else {
-        const obj = {
-          codInterno: je.CODINTERNO,
-          nombreProducto: prodList.find((ap) => ap.codInterno === je.CODINTERNO)
-            .nombreProducto,
-          cantProducto: je.CANTIDAD,
-          idProducto: prodList.find((ap) => ap.codInterno === je.CODINTERNO)
-            .idProducto,
-        };
-        setSelectedProducts((selectedProducts) => [...selectedProducts, obj]);
+        if (
+          prodList.find(
+            (ap) => String(ap.codInterno) == String(je.CODINTERNO)
+          ) != undefined
+        ) {
+          const finded = prodList.find(
+            (ap) => String(ap.codInterno) == String(je.CODINTERNO)
+          );
+          console.log("Finded", finded);
+          const obj = {
+            codInterno: je.CODINTERNO,
+            nombreProducto: finded.nombreProducto,
+            cantProducto: je.CANTIDAD,
+            idProducto: finded.idProducto,
+          };
+          setSelectedProducts((selectedProducts) => [...selectedProducts, obj]);
+        }
       }
     });
   }

@@ -215,7 +215,7 @@ export default function FormOrdersToReady() {
         <Modal.Body>
           <div>
             Está seguro que quiere marcar como listo? Esta acción no se puede
-            deshacer
+            deshacer {"Es interior" + isInterior}
           </div>
         </Modal.Body>
         <Modal.Footer className="modalHeader">

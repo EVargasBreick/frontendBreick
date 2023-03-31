@@ -6,6 +6,7 @@ import { getGeneralSalesReport } from "../services/reportServices";
 import "../styles/formLayouts.css";
 import loading2 from "../assets/loading2.gif";
 import { ExportGeneralSalesReport } from "../services/exportServices";
+import Cookies from "js-cookie";
 export default function BodySalesReport() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -23,17 +24,20 @@ export default function BodySalesReport() {
   const [byState, setByState] = useState("-1");
   const [sort, setSort] = useState("fecha");
   const [isReportLoading, setIsReportLoading] = useState(false);
-
+  const [userAct, setUserAct] = useState({});
   useEffect(() => {
     const cuf = `LAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDFLAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDFLAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDFLAHJSDFLJSHAGFSAHJBCLSJHGFALSGFSHDF`;
     const splitedCuf = cuf.match(/.{40}/g);
     setNewCuf(splitedCuf.join(" "));
+    const UsuarioAct = Cookies.get("userAuth");
+    setUserAct(JSON.parse(UsuarioAct));
   }, []);
   function formatDate() {
     const spplited = fromDate.split("-");
     const fromNewFormat = `${spplited[2]}/${spplited[1]}/${spplited[0]}`;
     const toSpplited = toDate.split("-");
     const toNewFormat = `${toSpplited[2]}/${toSpplited[1]}/${toSpplited[0]}`;
+
     return {
       from: fromNewFormat,
       to: toNewFormat,
@@ -41,13 +45,20 @@ export default function BodySalesReport() {
   }
   function generateReport() {
     setIsReportLoading(true);
-
+    const id =
+      userAct.rol == 1 ||
+      userAct.rol == 9 ||
+      userAct.rol == 10 ||
+      userAct.rol == 8
+        ? ""
+        : userAct.idAlmacen;
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       const reportData = getGeneralSalesReport(
         formatted.from,
         formatted.to,
-        sort
+        sort,
+        id
       );
       reportData
         .then((response) => {
@@ -403,7 +414,9 @@ export default function BodySalesReport() {
                       <td className="reportColumnSmall">
                         {(rt.montoTotal - rt.montoFacturar).toFixed(2)}
                       </td>
-                      <td className="reportColumnXSmall">{"0"}</td>
+                      <td className="reportColumnXSmall">
+                        {rt.vale.toFixed(2)}
+                      </td>
                       <td className="reportColumnSmall">
                         {rt.montoFacturar.toFixed(2)}
                       </td>

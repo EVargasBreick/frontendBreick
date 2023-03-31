@@ -1,6 +1,10 @@
 import axios from "axios";
 
 const SoapLastId = (body) => {
+  console.log(
+    "Punto de venta id",
+    (body.puntoDeVentaId * 10000 + parseInt(body.caja)).toFixed(0)
+  );
   return new Promise((resolve, reject) => {
     axios
       .post(

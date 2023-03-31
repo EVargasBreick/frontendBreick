@@ -68,6 +68,17 @@ export default function FormSimpleRegisterClient(props) {
   const razonSocialref = useRef();
   const navigate = useNavigate();
   const [idUsuarioActual, setIdUsuarioActual] = useState();
+  const zonasDefault = {
+    1: 189,
+    2: 190,
+    3: 191,
+    4: 192,
+    5: 193,
+    6: 194,
+    7: 195,
+    8: 196,
+    9: 197,
+  };
   useEffect(() => {
     razonSocialref.current.focus();
   }, []);
@@ -93,6 +104,8 @@ export default function FormSimpleRegisterClient(props) {
   useEffect(() => {
     if (Cookies.get("userAuth")) {
       setIdUsuarioActual(JSON.parse(Cookies.get("userAuth")).idUsuario);
+      const idCiudad = JSON.parse(Cookies.get("userAuth")).idDepto;
+      setZona(zonasDefault[idCiudad]);
     }
 
     const usuarios = userBasic();

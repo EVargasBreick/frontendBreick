@@ -5,6 +5,7 @@ import Pagination from "./pagination";
 import { getProductSalesReport } from "../services/reportServices";
 import "../styles/formLayouts.css";
 import loading2 from "../assets/loading2.gif";
+import Cookies from "js-cookie";
 import { ExportGeneralSalesReport } from "../services/exportServices";
 export default function BodySalesByProductReport() {
   const [fromDate, setFromDate] = useState("");
@@ -22,7 +23,11 @@ export default function BodySalesByProductReport() {
   const [byState, setByState] = useState("-1");
   const [sort, setSort] = useState("fecha");
   const [isReportLoading, setIsReportLoading] = useState(false);
-  useEffect(() => {}, []);
+  const [userAct, setUserAct] = useState({});
+  useEffect(() => {
+    const UsuarioAct = Cookies.get("userAuth");
+    setUserAct(JSON.parse(UsuarioAct));
+  }, []);
   function formatDate() {
     const spplited = fromDate.split("-");
     const fromNewFormat = `${spplited[2]}/${spplited[1]}/${spplited[0]}`;
@@ -36,13 +41,20 @@ export default function BodySalesByProductReport() {
   function generateReport() {
     setSearchBox("");
     setIsReportLoading(true);
-
+    const id =
+      userAct.rol == 1 ||
+      userAct.rol == 9 ||
+      userAct.rol == 10 ||
+      userAct.rol == 8
+        ? ""
+        : userAct.idAlmacen;
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       const reportData = getProductSalesReport(
         formatted.from,
         formatted.to,
-        sort
+        sort,
+        id
       );
       reportData
         .then((response) => {

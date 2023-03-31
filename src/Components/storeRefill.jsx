@@ -15,7 +15,8 @@ export default function StoreRefill() {
     if (user) {
       if (
         JSON.parse(Cookies.get("userAuth")).rol != 1 &&
-        JSON.parse(Cookies.get("userAuth")).rol != 10
+        JSON.parse(Cookies.get("userAuth")).rol != 10 &&
+        JSON.parse(Cookies.get("userAuth")).rol != 6
       ) {
         console.log("No tiene", JSON.parse(Cookies.get("userAuth")).rol);
         navigate("/principal");

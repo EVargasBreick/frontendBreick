@@ -28,12 +28,19 @@ export default function FormCancelInvoice() {
   const [auxFac, setAuxFac] = useState([]);
   const [filter, setFilter] = useState("");
   const [pointOfSale, setPointOfSale] = useState("");
+  const [isSudo, setIsSudo] = useState(false);
+  const [sucList, setSucList] = useState([]);
+  const [selectedSuc, setSelectedSuc] = useState("");
+  const [usuAct, setUsuact] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
+      setUsuact(UsuarioAct);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       const mobilepdvdata = getMobileSalePoints(
-        JSON.parse(UsuarioAct).idAlmacen
+        JSON.parse(UsuarioAct).idAlmacen == "AL001"
+          ? ""
+          : JSON.parse(UsuarioAct).idAlmacen
       );
       mobilepdvdata.then((res) => {
         const datos = res.data[0];
@@ -43,9 +50,11 @@ export default function FormCancelInvoice() {
           setPointOfSale(PuntoDeVentas);
           getInvoices(UsuarioAct, PuntoDeVentas);
         } else {
-          setPointOfSale(datos.nroPuntoDeVenta);
-          Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
-          getInvoices(UsuarioAct, datos.nroPuntoDeVenta);
+          //setPointOfSale(datos.nroPuntoDeVenta);
+          //Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+          //getInvoices(UsuarioAct, datos.nroPuntoDeVenta);
+          setSucList(res.data);
+          setIsSudo(true);
         }
       });
     }
@@ -103,10 +112,8 @@ export default function FormCancelInvoice() {
           cld.response.data.AnularComprobanteResponse[0]
             .AnularComprobanteResult[0];
         if (
-          mensaje.includes(
-            "Anulación confirmada del comprobante" ||
-              mensaje.includes("se encuentra anulado")
-          )
+          mensaje.includes("Anulación confirmada del comprobante") ||
+          mensaje.includes("se encuentra anulado")
         ) {
           const products = allFacts.filter(
             (af) => af.idFactura == invoice.idFactura
@@ -137,6 +144,17 @@ export default function FormCancelInvoice() {
         console.log("Error al anular", err);
       });
   }
+
+  function handleSuc(nroPuntoDeVenta) {
+    const selected = sucList.find(
+      (sl) => sl.nroPuntoDeVenta == nroPuntoDeVenta
+    ).idAgencia;
+    setSelectedSuc(selected);
+    setPointOfSale(nroPuntoDeVenta);
+    Cookies.set("pdv", nroPuntoDeVenta, { expires: 0.5 });
+    getInvoices(JSON.stringify({ idAlmacen: selected }), nroPuntoDeVenta);
+  }
+
   function filterDates(array) {
     const today = new Date();
     const dia_actual = today.getDate();
@@ -221,6 +239,25 @@ export default function FormCancelInvoice() {
               onChange={(e) => filterById(e.target.value)}
             />
           </Form.Group>
+          <div className="formLabel"></div>
+          {isSudo ? (
+            <Form.Group>
+              <Form.Label>Seleccionar Almacen/Agencia Movil</Form.Label>
+              <Form.Select
+                value={selectedSuc}
+                onChange={(e) => handleSuc(e.target.value)}
+              >
+                <option> -Seleccione sucursal- </option>
+                {sucList.map((sl, index) => {
+                  return (
+                    <option value={sl.nroPuntoDeVenta} key={index}>
+                      {sl.idAgencia}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+          ) : null}
         </Form>
       </div>
       <div className="formLabel">Facturas Agencia</div>

@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const getGeneralSalesReport = (desde, hasta, sort) => {
+const getGeneralSalesReport = (desde, hasta, sort, idAgencia) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/general?idate=${desde}&fdate=${hasta}&sort=${sort}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/general?idate=${desde}&fdate=${hasta}&sort=${sort}&idAgencia=${idAgencia}`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -16,11 +16,11 @@ const getGeneralSalesReport = (desde, hasta, sort) => {
   });
 };
 
-const getProductSalesReport = (desde, hasta, sort) => {
+const getProductSalesReport = (desde, hasta, sort, idAgencia) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/productos?idate=${desde}&fdate=${hasta}&sort=${sort}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/productos?idate=${desde}&fdate=${hasta}&sort=${sort}&idAgencia=${idAgencia}`
       )
       .then((response) => {
         if (response.status === 200) {

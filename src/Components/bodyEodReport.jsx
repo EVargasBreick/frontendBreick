@@ -257,6 +257,29 @@ export default function BodyEodReport() {
                 <td>{swift.toFixed(2)} Bs</td>
               </tr>
             </tbody>
+            <tfoot>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Total
+                </th>
+                <td>
+                  {(
+                    parseFloat(efectivo.toFixed(2)) +
+                    parseFloat(tarjeta.toFixed(2)) +
+                    parseFloat(qr.toFixed(2)) +
+                    parseFloat(transfer.toFixed(2)) +
+                    parseFloat(qhantuy.toFixed(2)) +
+                    parseFloat(cln.toFixed(2)) +
+                    parseFloat(vale.toFixed(2)) +
+                    parseFloat(posterior.toFixed(2)) +
+                    parseFloat(cheque.toFixed(2)) +
+                    parseFloat(deposito.toFixed(2)) +
+                    parseFloat(swift.toFixed(2))
+                  ).toFixed(2)}
+                  Bs
+                </td>
+              </tr>
+            </tfoot>
           </Table>
 
           {isNota ? (
@@ -291,6 +314,19 @@ export default function BodyEodReport() {
                     deposito: deposito.toFixed(2),
                     swift: swift.toFixed(2),
                     cheque: cheque.toFixed(2),
+                    total: (
+                      parseFloat(efectivo.toFixed(2)) +
+                      parseFloat(tarjeta.toFixed(2)) +
+                      parseFloat(qr.toFixed(2)) +
+                      parseFloat(transfer.toFixed(2)) +
+                      parseFloat(qhantuy.toFixed(2)) +
+                      parseFloat(cln.toFixed(2)) +
+                      parseFloat(vale.toFixed(2)) +
+                      parseFloat(posterior.toFixed(2)) +
+                      parseFloat(cheque.toFixed(2)) +
+                      parseFloat(deposito.toFixed(2)) +
+                      parseFloat(swift.toFixed(2))
+                    ).toFixed(2),
                   }}
                   usuario={userName}
                 />

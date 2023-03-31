@@ -90,6 +90,7 @@ export default function FormNewSale() {
   const [isMore, setIsMore] = useState(false);
   const [giftCard, setGiftCard] = useState(0);
   const [city, setCity] = useState("");
+  const [isRoaming, setIsRoaming] = useState(false);
   const searchRef = useRef(null);
   const productRef = useRef(null);
   const quantref = useRef(null);
@@ -107,6 +108,7 @@ export default function FormNewSale() {
     if (UsuarioAct) {
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      var data;
       const PuntoDeVenta = Cookies.get("pdv");
       if (PuntoDeVenta) {
         setIsPoint(true);
@@ -117,10 +119,12 @@ export default function FormNewSale() {
         );
         mobilepdvdata.then((res) => {
           const datos = res.data[0];
+          data = datos;
           console.log("Datos del punto de venta", datos);
           if (datos == undefined) {
             setIsPoint(false);
           } else {
+            setIsRoaming(true);
             setIsPoint(true);
             setPointOfsale(datos.nroPuntoDeVenta);
             Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
@@ -136,6 +140,25 @@ export default function FormNewSale() {
       const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
       pl.then((res) => {
         setPointList(res.data);
+      });
+      const suc = getBranchesPs();
+      suc.then((resp) => {
+        const sucursales = resp.data;
+        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+        console.log("Dataaa", data);
+        const sucur =
+          sucursales.find((sc) => alm == sc.idAgencia) == undefined
+            ? sucursales.find((sc) => "AL001" == sc.idAgencia)
+            : sucursales.find((sc) => alm == sc.idAgencia);
+        console.log("Sucur", sucur);
+        const branchData = {
+          nombre: sucur.nombre,
+          dir: sucur.direccion,
+          tel: sucur.telefono,
+          ciudad: sucur.ciudad,
+          nro: sucur.idImpuestos,
+        };
+        setBranchInfo(branchData);
       });
     }
     if (Cookies.get("userAuth")) {
@@ -158,30 +181,6 @@ export default function FormNewSale() {
         setAvailable(fetchedAvailable.data);
         setAuxProducts(fetchedAvailable.data);
       });
-      const suc = getBranchesPs();
-      suc.then((resp) => {
-        const sucursales = resp.data;
-        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
-        const sucur = sucursales.find((sc) => alm == sc.idAgencia);
-        setSucursal(sucur);
-        const branchData = {
-          nombre: sucur.nombre,
-          dir: sucur.direccion,
-          tel: sucur.telefono,
-          ciudad: sucur.ciudad,
-          nro: sucur.idImpuestos,
-        };
-        setBranchInfo(branchData);
-      });
-      /*const interval = setInterval(() => {
-        const disponibles = getProductsWithStock(
-          JSON.parse(Cookies.get("userAuth")).idAlmacen,
-          "all"
-        );
-        disponibles.then((fetchedAvailable) => {
-          setAvailable(fetchedAvailable.data[0]);
-        });
-      }, 60000);*/
     }
   }, []);
   useEffect(() => {
@@ -266,7 +265,6 @@ export default function FormNewSale() {
   }
 
   function addProductToList(action, product) {
-    console.log("Producto seleccionado", JSON.parse(product));
     if (action == "manual") {
       const produc = JSON.parse(product);
       var aux = false;
@@ -310,13 +308,12 @@ export default function FormNewSale() {
           pr.codInterno == filtered ||
           pr.nombreProducto.toLowerCase().includes(filtered.toLowerCase())
       );
-
+      console.log("Selected", selected);
       if (selected != undefined) {
         var aux = false;
         selectedProducts.map((sp) => {
           if (sp.codInterno === selected.codInterno) {
             const indexSelected = selectedProducts.indexOf(sp);
-
             const added = parseInt(sp.cantProducto) + 1;
             changeQuantities(indexSelected, added, sp, true);
             aux = true;
@@ -426,7 +423,7 @@ export default function FormNewSale() {
       const invoiceBody = {
         idCliente: idSelectedClient,
         nroFactura: 1,
-        idSucursal: sucursal.idImpuestos,
+        idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: fechaHora,
         nitCliente: clientes[0].nit,
@@ -527,7 +524,7 @@ export default function FormNewSale() {
       const invoiceBody = {
         idCliente: selectedClient,
         nroFactura: nro,
-        idSucursal: sucursal.idImpuestos,
+        idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
         nitCliente: clientes[0].nit,

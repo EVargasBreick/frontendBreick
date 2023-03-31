@@ -62,13 +62,13 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         <Image src={ReturnWare} className="icon inverted"></Image>
         Actualizar Stock
       </MenuItem>
-      <MenuItem
+      {/*<MenuItem
         onClick={() => redirectOnClick("/traspaso")}
         className="menuItem"
       >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso productos
-      </MenuItem>
+      </MenuItem>*/}
       <MenuItem
         onClick={() => redirectOnClick("/traspaso/recepcion")}
         className="menuItem"
@@ -101,7 +101,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         <Image src={Book} className="icon"></Image>Reporte libro de ventas por
         producto
       </MenuItem>
-      <MenuItem
+      {/*<MenuItem
         onClick={() => redirectOnClick("/reportes/log/kardex")}
         className="menuItem"
       >
@@ -113,7 +113,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         className="menuItem"
       >
         <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
-      </MenuItem>
+      </MenuItem>*/}
     </SubMenu>
   );
 }

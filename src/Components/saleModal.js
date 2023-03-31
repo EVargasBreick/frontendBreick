@@ -349,6 +349,7 @@ export default function SaleModal({
       tipoComprobante: 1,
       caja: pointOfSale,
     };
+    console.log("Last id obj", lastIdObj);
     const newId = getInvoiceNumber(lastIdObj);
     newId
       .then((res) => {
@@ -478,7 +479,7 @@ export default function SaleModal({
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
-      format: [80, mmHeight / 2 + 20],
+      format: [80, mmHeight * 1.5 + 20],
     });
 
     const imgProperties = pdf.getImageProperties(data);

@@ -33,7 +33,6 @@ export default function FormUpdateStock() {
     }
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
-      console.log("Allprod", fetchedProducts.data.data);
       setprodList(fetchedProducts.data.data);
       setAuxProd(fetchedProducts.data.data);
     });
@@ -110,16 +109,19 @@ export default function FormUpdateStock() {
       } else {
         if (
           prodList.find(
-            (ap) => String(ap.codInterno) == String(je.CODINTERNO)
+            (ap) =>
+              String(ap.codInterno) == String(je.CODINTERNO) ||
+              String(ap.codInterno) == String(je.Codigo)
           ) != undefined
         ) {
           const prodActual = prodList.find(
             (ap) => ap.codInterno == je.CODINTERNO || ap.codInterno == je.Codigo
           );
+
           const cantidad =
             je.CANTIDAD != undefined ? je.CANTIDAD : je["Stock Final"];
           const obj = {
-            codInterno: je.CODINTERNO,
+            codInterno: prodActual.codInterno,
             nombreProducto: prodActual.nombreProducto,
             cantProducto: cantidad < 0 ? 0 : cantidad,
             idProducto: prodActual.idProducto,
