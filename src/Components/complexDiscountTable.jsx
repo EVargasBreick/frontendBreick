@@ -45,26 +45,30 @@ export default function ComplexDiscountTable({
       </thead>
       <tbody className="modalTable">
         <tr>
-          {tradicionales.length > 0 || sinDesc.length > 0 ? (
+          {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
             <td>Tradicionales</td>
           ) : null}
-          {tradicionales.length > 0 || sinDesc.length > 0 ? (
-            <td>{tradObject.total + " Bs."}</td>
+          {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
+            <td>{parseFloat(tradObject?.total).toFixed(2) + " Bs."}</td>
           ) : null}
-          {tradicionales.length > 0 || sinDesc.length > 0 ? (
-            <td>{`${tradObject.descuento} %`}</td>
+          {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
+            <td>{`${parseFloat(tradObject.descuento).toFixed(2)} %`}</td>
           ) : null}
-          {tradicionales.length > 0 || sinDesc.length > 0 ? (
-            <td>{tradObject.descCalculado + " Bs."}</td>
+          {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
+            <td>{parseFloat(tradObject.descCalculado).toFixed(2) + " Bs."}</td>
           ) : null}
-          {tradicionales.length > 0 || sinDesc.length > 0 ? (
-            <td>{tradObject.facturar + " Bs."}</td>
+          {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
+            <td>{parseFloat(tradObject.facturar).toFixed(2) + " Bs."}</td>
           ) : null}
         </tr>
         <tr>
           {pascua.length > 0 ? <td>Pascua</td> : null}
-          {pascua.length > 0 ? <td>{pasObject.total + " Bs."}</td> : null}
-          {pascua.length > 0 ? <td>{`${pasObject.descuento} %`}</td> : null}
+          {pascua.length > 0 ? (
+            <td>{parseFloat(pasObject.total).toFixed(2) + " Bs."}</td>
+          ) : null}
+          {pascua.length > 0 ? (
+            <td>{`${parseFloat(pasObject.descuento).toFixed(2)} %`}</td>
+          ) : null}
           {pascua.length > 0 ? (
             <td>{pasObject.descCalculado + " Bs."}</td>
           ) : null}
@@ -72,7 +76,9 @@ export default function ComplexDiscountTable({
         </tr>
         <tr>
           {navidad.length > 0 ? <td>Navidad</td> : null}
-          {navidad.length > 0 ? <td>{navObject.total + " Bs."}</td> : null}
+          {navidad.length > 0 ? (
+            <td>{parseFloat(navObject.total).toFixed(2) + " Bs."}</td>
+          ) : null}
           {navidad.length > 0 ? <td>{`${navObject.descuento} %`}</td> : null}
           {navidad.length > 0 ? (
             <td>{navObject.descCalculado + " Bs."}</td>
@@ -82,7 +88,9 @@ export default function ComplexDiscountTable({
         </tr>
         <tr>
           {halloween.length > 0 ? <td>Halloween</td> : null}
-          {halloween.length > 0 ? <td>{hallObject.total + " Bs."}</td> : null}
+          {halloween.length > 0 ? (
+            <td>{parseFloat(hallObject.total).toFixed(2) + " Bs."}</td>
+          ) : null}
           {halloween.length > 0 ? <td>{`${hallObject.descuento} %`}</td> : null}
           {halloween.length > 0 ? (
             <td>{hallObject.descCalculado + " Bs."}</td>
@@ -96,11 +104,13 @@ export default function ComplexDiscountTable({
         <tr>
           <th>Totales</th>
           <td>
-            {tradObject.total +
-              pasObject.total +
-              navObject.total +
-              hallObject.total +
-              " Bs."}
+            {`${(
+              parseFloat(tradObject.total) +
+              parseFloat(pasObject.total) +
+              parseFloat(navObject.total) +
+              parseFloat(hallObject.total)
+            ).toFixed(2)}
+               Bs.`}
           </td>
           <td>{`-`}</td>
           <td>

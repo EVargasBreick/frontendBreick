@@ -17,7 +17,11 @@ import { convertToText } from "../services/numberServices";
 
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
-import { createSale, verifyQuantities } from "../services/saleServices";
+import {
+  createSale,
+  deleteSale,
+  verifyQuantities,
+} from "../services/saleServices";
 import {
   getBranches,
   getBranchesPs,
@@ -111,6 +115,8 @@ export default function FormRouteSale() {
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 700 ? false : true
   );
+  const [ofp, setOfp] = useState(0);
+  const [aPagar, setAPagar] = useState(0);
   const searchRef = useRef(null);
   const productRef = useRef(null);
   const [tradObject, setTradObject] = useState({});
@@ -120,6 +126,56 @@ export default function FormRouteSale() {
   const [descSimple, setDescSimple] = useState({});
   const [mobilePdv, setMobilePdv] = useState({});
   const quantref = useRef(null);
+  const saleModalRef = useRef();
+  const tabletasArray = [
+    "702000",
+    " 702001",
+    "702002",
+    "702003",
+    "702004",
+    "702005",
+    "702006",
+    "703003",
+    "706000",
+    "706001",
+    "706002",
+    "706003",
+    "706004",
+    "706005",
+    "706006",
+    "706007",
+    "706008",
+    "706011",
+    "706012",
+    "706013",
+    "706014",
+    "706015",
+    "706016",
+    "706017",
+    "706018",
+    "706019",
+    "706020",
+    "706027",
+    "706028",
+    "706029",
+    "706040",
+    "707001",
+    "707002",
+    "707003",
+    "707004",
+    "707005",
+    "707006",
+    "707007",
+    "707008",
+    "707009",
+    "707010",
+    "707011",
+    "707013",
+    "707014",
+    "707015",
+    "707016",
+    "707017",
+  ];
   useEffect(() => {
     searchRef.current.focus();
     const spplited = dateString().split(" ");
@@ -298,6 +354,7 @@ export default function FormRouteSale() {
   function addProductToList(action, product) {
     if (action == "manual") {
       const produc = JSON.parse(product);
+      const isTableta = tabletasArray.includes(produc.codInterno);
       var aux = false;
 
       selectedProducts.map((sp) => {
@@ -320,12 +377,15 @@ export default function FormRouteSale() {
           cant_Actual: produc.cant_Actual,
           cantidadRestante: produc.cant_Actual,
           precioDescuentoFijo: produc.precioDescuentoFijo,
-          precioDeFabrica: produc.precioDeFabrica,
+          precioDeFabrica: isTableta
+            ? produc.precioDeFabrica * 0.9
+            : produc.precioDeFabrica,
           descuentoProd: 0,
           totalProd: produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
         };
+        const tipo = isTableta ? 5 : produc.tipoProducto;
         switch (produc.tipoProducto) {
           case 1:
             console.log("Tradicional agregado");
@@ -363,11 +423,11 @@ export default function FormRouteSale() {
       );
 
       if (selected != undefined) {
+        const isTableta = tabletasArray.includes(selected.codInterno);
         var aux = false;
         selectedProducts.map((sp) => {
           if (sp.codInterno === selected.codInterno) {
             const indexSelected = selectedProducts.indexOf(sp);
-
             const added = parseInt(sp.cantProducto) + 1;
             changeQuantities(indexSelected, added, sp, true);
             aux = true;
@@ -384,13 +444,16 @@ export default function FormRouteSale() {
             idProducto: selected.idProducto,
             cant_Actual: selected.cant_Actual,
             cantidadRestante: selected.cant_Actual,
-            precioDeFabrica: selected.precioDeFabrica,
+            precioDeFabrica: isTableta
+              ? selected.precioDeFabrica * 0.9
+              : selected.precioDeFabrica,
             precioDescuentoFijo: selected.precioDescuentoFijo,
             descuentoProd: 0,
             totalProd: selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
           };
+          const tipo = isTableta ? 5 : selected.tipoProducto;
           switch (selected.tipoProducto) {
             case 1:
               setTradicionales([...tradicionales, productObj]);
@@ -431,6 +494,7 @@ export default function FormRouteSale() {
     changeQuantities(index, modalQuantity, selectedProd, false);
     setIsQuantity(false);
     setModalQuantity("");
+    setAvailable(auxProducts);
     searchRef.current.focus();
   }
 
@@ -505,13 +569,12 @@ export default function FormRouteSale() {
       cantidad === ""
         ? ""
         : arrCant[1]?.length > process.env.REACT_APP_DECIMALES
-        ? prod.cantProducto
+        ? parseFloat(cantidad).toFixed(2)
         : cantidad;
-    const total =
-      parseFloat(prod.precioDeFabrica) *
-      (prod.unidadDeMedida == "Unidad"
-        ? parseInt(isThree)
-        : parseFloat(isThree));
+    const total = parseFloat(
+      parseFloat(prod.precioDeFabrica).toFixed(2) *
+        (prod.unidadDeMedida == "Unidad" ? parseInt(isThree) : isThree)
+    ).toFixed(2);
     let auxObj = {
       codInterno: prod.codInterno,
       cantProducto:
@@ -617,6 +680,15 @@ export default function FormRouteSale() {
     }
   }
   function saveSale(createdId) {
+    const totPrev = parseFloat(
+      auxSelectedProducts.reduce((accumulator, object) => {
+        return accumulator + parseFloat(object.total).toFixed(2);
+      }, 0)
+    ).toFixed(2);
+    console.log("Tot prev 2", parseFloat(totPrev).toFixed(2));
+    const totDesc = selectedProducts.reduce((accumulator, object) => {
+      return accumulator + parseFloat(object.total).toFixed(2);
+    }, 0);
     return new Promise((resolve, reject) => {
       setFechaHora(dateString());
       const objVenta = {
@@ -628,7 +700,7 @@ export default function FormRouteSale() {
           montoTotal: parseFloat(totalPrevio).toFixed(2),
           descCalculado: parseFloat(totalDesc).toFixed(2),
           descuento: descuento,
-          montoFacturar: parseFloat(totalFacturar).toFixed(2),
+          montoFacturar: parseFloat(totalPrevio - totalDesc).toFixed(2),
           idPedido: "",
           idFactura: createdId,
         },
@@ -637,83 +709,104 @@ export default function FormRouteSale() {
       const ventaCreada = createSale(objVenta);
       ventaCreada
         .then((res) => {
-          const updatedStock = updateStock({
-            accion: "take",
-            idAlmacen: userStore,
-            productos: selectedProducts,
-          });
-          updatedStock.then((us) => {
-            setAlertSec("Gracias por su compra!");
-            resolve(true);
-            setIsAlertSec(true);
-            setTimeout(() => {
-              setIsAlertSec(false);
-            }, 1000);
-          });
+          const idVenta = res.data.idCreado;
+          setTimeout(() => {
+            const updatedStock = updateStock({
+              accion: "take",
+              idAlmacen: userStore,
+              productos: selectedProducts,
+            });
+            const objStock = {
+              accion: "add",
+              idAlmacen: userStore,
+              productos: selectedProducts,
+            };
+            updatedStock
+              .then((us) => {
+                saleModalRef.current.childFunction(
+                  createdId,
+                  idVenta,
+                  objStock
+                );
+                resolve(true);
+                setIsAlertSec(true);
+              })
+              .catch((err) => {
+                setAlert("Error al actualizar el stock", err);
+                const deletedInvoice = deleteInvoice(createdId);
+                deletedInvoice.then((rs) => {
+                  const deletedSale = deleteSale(idVenta);
+                  deletedSale.then((res) => {
+                    console.log("Borrados");
+                  });
+                });
+              });
+          }, 500);
         })
         .catch((err) => {
           console.log("Error al crear la venta", err);
           const deletedInvoice = deleteInvoice(createdId);
+          setAlert("Error al crear la factura, intente nuevamente");
           reject(false);
-          console.log("Venta y factura borradas", deletedInvoice);
         });
     });
   }
-  function saveInvoice(
-    cuf,
-    cufd,
-    autorizacion,
-    fechaEmision,
-    nro,
-    idTransaccion,
-    ofp,
-    giftCard,
-    aPagar
-  ) {
+  function saveInvoice() {
     return new Promise((resolve, reject) => {
-      setAlertSec("Guardando Venta");
+      setAlertSec("Registrando Venta");
+      setIsAlertSec(true);
       const invoiceBody = {
         idCliente: selectedClient,
-        nroFactura: nro,
-        idSucursal: sucursal.idImpuestos,
+        nroFactura: 0,
+        idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
         nitCliente: clientes[0].nit,
         razonSocial: clientes[0].razonSocial,
         tipoPago: tipoPago,
         pagado: cancelado,
-        cambio: cambio,
+        cambio: parseFloat(cambio).toFixed(2),
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
-        cuf: cuf,
-        importeBase: parseFloat(cancelado - cambio).toFixed(2),
-        debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
+        cuf: "",
+        importeBase: parseFloat(
+          parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)
+        ).toFixed(2),
+        debitoFiscal: parseFloat(
+          (parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)) *
+            0.13
+        ).toFixed(2),
         desembolsada: 0,
-        autorizacion: autorizacion,
-        cufd: cufd,
-        fechaEmision: fechaEmision,
-        nroTransaccion: idTransaccion,
+        autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
+        cufd: "",
+        fechaEmision: "",
+        nroTransaccion: 0,
         idOtroPago: ofp,
         vale: giftCard,
         aPagar: aPagar,
         puntoDeVenta: pointOfSale,
         idAgencia: userStore,
       };
+      console.log("INVOICE BODY", invoiceBody);
       setInvoice(invoiceBody);
+      console.log("Invoice body", invoiceBody);
       const newInvoice = createInvoice(invoiceBody);
       newInvoice
         .then((res) => {
-          const newId = res.data.idCreado;
-          const created = saveSale(newId);
-          created
-            .then((res) => {
-              resolve(true);
-            })
-            .catch((error) => {
-              reject(false);
-            });
+          setTimeout(() => {
+            const newId = res.data.idCreado;
+            const created = saveSale(newId);
+            created
+              .then((res) => {
+                resolve(true);
+              })
+              .catch((error) => {
+                reject(false);
+              });
+          }, 500);
         })
         .catch((error) => {
           console.log("Error en la creacion de la factura", error);
+          setAlert("Error al crear la factura, intente nuevamente");
         });
 
       setIsSaleModal(!isSaleModal);
@@ -901,6 +994,7 @@ export default function FormRouteSale() {
       {isInvoice ? (
         <div>
           <SaleModal
+            ref={saleModalRef}
             datos={{
               total: totalPrevio,
               descuento,
@@ -930,8 +1024,18 @@ export default function FormRouteSale() {
             selectedProducts={selectedProducts}
             invoice={invoice}
             total={totalPrevio}
-            descuentoCalculado={totalDesc}
-            totalDescontado={totalFacturar}
+            descuentoCalculado={
+              parseFloat(pasObject.descCalculado) +
+              parseFloat(tradObject.descCalculado) +
+              parseFloat(navObject.descCalculado) +
+              parseFloat(hallObject.descCalculado)
+            }
+            totalDescontado={
+              parseFloat(tradObject.facturar) +
+              parseFloat(pasObject.facturar) +
+              parseFloat(navObject.facturar) +
+              parseFloat(hallObject.facturar)
+            }
             fechaHora={fechaHora}
             tipoDocumento={tipoDoc}
             userName={userName}
@@ -941,7 +1045,15 @@ export default function FormRouteSale() {
             setGiftCard={setGiftCard}
             userStore={userStore}
             userId={usuarioAct}
-            saleType="route"
+            saleType="store"
+            setTotalFacturar={setTotalFacturar}
+            setTotalDesc={setTotalDesc}
+            setTotalPrevio={setTotalPrevio}
+            ofp={ofp}
+            setOfp={setOfp}
+            aPagar={aPagar}
+            setAPagar={setAPagar}
+            isRoute={true}
           />
         </div>
       ) : null}
@@ -1159,7 +1271,7 @@ export default function FormRouteSale() {
                           />
                         </td>
                         <td className="smallTableColumn">
-                          {sp.totalProd.toFixed(2)}
+                          {parseFloat(sp.totalProd).toFixed(2)}
                         </td>
                         <td className="smallTableColumn">
                           {sp.unidadDeMedida == "Unidad"
@@ -1181,7 +1293,7 @@ export default function FormRouteSale() {
                     <th className="smallTableColumn">
                       {`${selectedProducts
                         .reduce((accumulator, object) => {
-                          return accumulator + object.totalProd;
+                          return accumulator + parseFloat(object.totalProd);
                         }, 0)
                         .toFixed(2)} Bs.`}
                     </th>
@@ -1190,7 +1302,7 @@ export default function FormRouteSale() {
                     </th>
                     <th className="smallTableColumn">{`${(
                       (selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + object.totalProd;
+                        return accumulator + parseFloat(object.totalProd);
                       }, 0) *
                         (100 - descuento)) /
                       100

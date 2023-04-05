@@ -15,7 +15,8 @@ export default function NewSale() {
         JSON.parse(Cookies.get("userAuth")).rol == 2 ||
         JSON.parse(Cookies.get("userAuth")).rol == 1 ||
         JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 9
+        JSON.parse(Cookies.get("userAuth")).rol == 9 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 6
       ) {
       } else {
         navigate("/principal");

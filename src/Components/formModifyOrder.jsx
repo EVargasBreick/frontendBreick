@@ -344,6 +344,7 @@ export default function FormModifyOrders() {
             descuentoProd: 0,
             unidadDeMedida: parsed.unidadDeMedida,
           };
+          console.log("Datos del producto", prodObj);
           setSelectedProds((selectedProds) => [...selectedProds, prodObj]);
           switch (parsed.tipoProducto) {
             case 1:
@@ -385,7 +386,7 @@ export default function FormModifyOrders() {
     if (prod.unidadDeMedida == "unidad") {
       cantidad = cantidades != "" ? parseInt(cantidades) : 0;
     } else {
-      cantidad = cantidades;
+      cantidad = parseFloat(cantidades).toFixed(2);
     }
     let auxObj = {
       cantPrevia: prod.cantPrevia,

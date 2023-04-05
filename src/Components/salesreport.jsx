@@ -13,7 +13,7 @@ export default function SalesReport() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol < 10) {
+      if (JSON.parse(Cookies.get("userAuth")).rol <= 10) {
       } else {
         navigate("/principal");
       }

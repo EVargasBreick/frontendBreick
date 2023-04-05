@@ -31,7 +31,7 @@ function structureXml(
   const current = new Date();
   const formatted = current.toISOString();
   const parts = formatted.split("Z");
-  console.log("Products in xml ", products);
+  console.log("Monto gift card ", giftCard);
   return new Promise((resolve, reject) => {
     const dataObj = {
       nitEmisor: invoice.nitEmpresa,
@@ -45,21 +45,23 @@ function structureXml(
       fechaEmision: parts[0],
       razonSocialCliente: invoice.razonSocial,
       tipoDocumento: tipoDocumento,
-      nitCliente: invoice.nitCliente,
+      nitCliente: invoice.nitCliente == 0 ? 1000001 : invoice.nitCliente,
       codigoCliente: invoice.idCliente,
       codigoMetodoPago: tipoPago,
       numeroTarjeta: nroTarjeta.length == 16 ? nroTarjeta : "",
-      montoFacturar: totalDescontado,
+      montoFacturar: totalDescontado - giftCard,
       codigoMoneda: 1,
       tipoCambio: 1,
-      montoTotalMoneda: totalDescontado,
-      montoGiftCard: giftCard,
-      descuento: descuentoCalculado,
+      montoTotalMoneda: totalDescontado - giftCard,
+      montoGiftCard: 0,
+      descuento: parseFloat(descuentoCalculado) + parseFloat(giftCard),
       leyenda: `Ley Nº 453: El proveedor debe brindar atención sin discriminación, con respeto, calidez y cordialidad a los usuarios`,
       nombreUsuario: user,
       products: products,
     };
+    console.log("Data obj flag 1", dataObj);
     const invoiceJson = generateInvoiceJson(dataObj);
+    console.log("Invoice JSON", invoiceJson);
     const xmlResultante = convertJsonToXml(invoiceJson);
     resolve(xmlResultante);
   });

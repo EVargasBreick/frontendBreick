@@ -18,17 +18,18 @@ function traditionalDiscounts(
   console.log("Tradicionales", tradicionales);
   console.log("Esp", especiales);
   console.log("SD", sinDesc);
+
   const totalTradicional = tradicionales.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalSinDesc = sinDesc.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalEspecial = especiales.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalEspecialDesc = especiales.reduce((accumulator, object) => {
-    return accumulator + object.totalDescFijo;
+    return accumulator + parseFloat(object.totalDescFijo);
   }, 0);
   const tradA = getDiscountPercentage(1, "A", discountList);
   const tradB = getDiscountPercentage(1, "B", discountList);
@@ -179,8 +180,9 @@ function easterDiscounts(pascua, discountList) {
   const pasH = getDiscountPercentage(2, "H", discountList);
   console.log("Pascua test", pascua);
   const totalPascua = pascua.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
+  console.log("Total pascua", totalPascua);
   if (totalPascua * parseFloat(1 - pasA / 100).toFixed(2) < 1000) {
     return {
       total: totalPascua,
@@ -308,7 +310,7 @@ function christmassDiscounts(navidad, discountList) {
   const crisD = getDiscountPercentage(3, "D", discountList);
   const crisE = getDiscountPercentage(3, "E", discountList);
   const totalNavidad = navidad.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   if (totalNavidad * parseFloat(1 - crisA / 100).toFixed(2) < 1000) {
     return {
@@ -391,7 +393,7 @@ function halloweenDiscounts(halloween, discountList) {
   const hallD = getDiscountPercentage(4, "D", discountList);
   const hallE = getDiscountPercentage(4, "E", discountList);
   const totalHalloween = halloween.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   if (totalHalloween * parseFloat(1 - hallA / 100).toFixed(2) < 1000) {
     return {
@@ -478,25 +480,25 @@ function manualAutomaticDiscount(
   descuento
 ) {
   const totalTradicional = tradicionales.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalSinDesc = sinDesc.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalEspecial = especiales.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalEspecialDesc = especiales.reduce((accumulator, object) => {
     return accumulator + object.totalDescFijo;
   }, 0);
   const totalPascua = pascua.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalNavidad = navidad.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalHalloween = halloween.reduce((accumulator, object) => {
-    return accumulator + object.totalProd;
+    return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalDescontado =
     (totalTradicional + totalPascua + totalNavidad + totalHalloween) *
@@ -569,11 +571,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           nombreProducto: sp.nombreProducto,
           precioDeFabrica: sp.precioDeFabrica,
           precioDescuentoFijo: sp.precioDescuentoFijo,
-          totalProd:
-            sp.totalProd -
-            cantidadDeProducto *
-              (sp.precioDeFabrica -
-                sp.precioDeFabrica * (1 - tradObj.descuento / 100)),
+          totalProd: sp.totalProd,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: (
@@ -601,11 +599,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           nombreProducto: sp.nombreProducto,
           precioDeFabrica: sp.precioDeFabrica,
           precioDescuentoFijo: sp.precioDescuentoFijo,
-          totalProd:
-            sp.totalProd -
-            cantidadDeProducto *
-              (sp.precioDeFabrica -
-                sp.precioDeFabrica * (1 - pasObj.descuento / 100)),
+          totalProd: sp.totalProd,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: (
@@ -633,11 +627,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           nombreProducto: sp.nombreProducto,
           precioDeFabrica: sp.precioDeFabrica,
           precioDescuentoFijo: sp.precioDescuentoFijo,
-          totalProd:
-            sp.totalProd -
-            cantidadDeProducto *
-              (sp.precioDeFabrica -
-                sp.precioDeFabrica * (1 - navObj.descuento / 100)),
+          totalProd: sp.totalProd,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: (
@@ -665,11 +655,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           nombreProducto: sp.nombreProducto,
           precioDeFabrica: sp.precioDeFabrica,
           precioDescuentoFijo: sp.precioDescuentoFijo,
-          totalProd:
-            sp.totalProd -
-            cantidadDeProducto *
-              (sp.precioDeFabrica -
-                sp.precioDeFabrica * (1 - hallObj.descuento / 100)),
+          totalProd: sp.totalProd,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: (
@@ -721,9 +707,7 @@ function addProductDiscounts(selectedProds, tradObj, pasObj, navObj, hallObj) {
           nombreProducto: sp.nombreProducto,
           precioDeFabrica: sp.precioDeFabrica,
           precioDescuentoFijo: sp.precioDescuentoFijo,
-          totalProd: tradObj.especial
-            ? cantidadDeProducto * sp.precioDescuentoFijo
-            : sp.totalProd,
+          totalProd: sp.totalProd,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: tradObj.especial
@@ -758,7 +742,7 @@ function addProductDiscSimple(selectedProds, descSimple) {
           nombreProducto: sp.nombreProducto,
           precioDeFabrica: sp.precioDeFabrica,
           precioDescuentoFijo: sp.precioDescuentoFijo,
-          totalProd: sp.totalProd - descSimple.descCalculadoEspeciales,
+          totalProd: sp.totalProd,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: descSimple.especial
@@ -784,11 +768,8 @@ function addProductDiscSimple(selectedProds, descSimple) {
           nombreProducto: sp.nombreProducto,
           precioDeFabrica: sp.precioDeFabrica,
           precioDescuentoFijo: sp.precioDescuentoFijo,
-          totalProd:
-            sp.totalProd -
-            cantidadDeProducto *
-              (sp.precioDeFabrica -
-                sp.precioDeFabrica * (1 - descSimple.descuento / 100)),
+
+          totalProd: sp.totalProd,
           totalDescFijo: sp.totalDescFijo,
           tipoProducto: sp.tipoProducto,
           descuentoProd: (
@@ -882,11 +863,7 @@ function saleDiscount(selectedProducts, descuento) {
             (sp.precioDeFabrica - sp.precioDeFabrica * (1 - descuento / 100)) *
             sp.cantProducto
           ).toFixed(2),
-          total:
-            (sp.precioDeFabrica -
-              (sp.precioDeFabrica -
-                sp.precioDeFabrica * (1 - descuento / 100))) *
-            sp.cantProducto,
+          total: sp.precioDeFabrica * sp.cantProducto,
           tipoProducto: sp.tipoProducto,
           unidadDeMedida: sp.unidadDeMedida,
         };

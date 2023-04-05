@@ -15,10 +15,8 @@ export default function CurrentKardexReport() {
     const user = Cookies.get("userAuth");
     if (user) {
       if (
-        JSON.parse(Cookies.get("userAuth")).rol != 10 &&
         JSON.parse(Cookies.get("userAuth")).rol != 7 &&
         JSON.parse(Cookies.get("userAuth")).rol != 1 &&
-        JSON.parse(Cookies.get("userAuth")).rol != 10 &&
         JSON.parse(Cookies.get("userAuth")).rol != 9
       ) {
       } else {

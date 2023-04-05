@@ -97,7 +97,7 @@ export default function FormInvoiceOrder() {
             nombreProducto: dt.nombreProducto,
             idProducto: dt.idProducto,
             cantProducto: dt.cantidadProducto,
-            total: dt.totalProd,
+            total: dt.cantidadProducto * dt.precioDeFabrica,
             descuentoProd: dt.descuentoProducto,
             codInterno: dt.codInterno,
             codigoUnidad: dt.codigoUnidad,

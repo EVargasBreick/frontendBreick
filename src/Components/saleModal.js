@@ -18,41 +18,56 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
-export default function SaleModal({
-  datos,
-  show,
-  setDescuento,
-  isSaleModal,
-  setIsSaleModal,
-  setIsInvoice,
-  tipoPago,
-  setTipoPago,
-  setCambio,
-  cambio,
-  cancelado,
-  setCancelado,
-  cardNumbersA,
-  setCardNumbersA,
-  cardNumbersB,
-  setCardNumbersB,
-  saveInvoice,
-  setAlert,
-  setIsAlert,
-  branchInfo,
-  selectedProducts,
-  invoice,
-  total,
-  descuentoCalculado,
-  totalDescontado,
-  fechaHora,
-  tipoDocumento,
-  userName,
-  pointOfSale,
-  otherPayments,
-  userStore,
-  userId,
-  saleType,
-}) {
+import { deleteInvoice, invoiceUpdate } from "../services/invoiceServices";
+import { deleteSale } from "../services/saleServices";
+function SaleModal(
+  {
+    datos,
+    show,
+    setDescuento,
+    isSaleModal,
+    setIsSaleModal,
+    setIsInvoice,
+    tipoPago,
+    setTipoPago,
+    setCambio,
+    cambio,
+    cancelado,
+    setCancelado,
+    cardNumbersA,
+    setCardNumbersA,
+    cardNumbersB,
+    setCardNumbersB,
+    saveInvoice,
+    setAlert,
+    setIsAlert,
+    branchInfo,
+    selectedProducts,
+    invoice,
+    total,
+    descuentoCalculado,
+    totalDescontado,
+    fechaHora,
+    tipoDocumento,
+    userName,
+    pointOfSale,
+    otherPayments,
+    userStore,
+    userId,
+    saleType,
+    setTotalFacturar,
+    setTotalDesc,
+    setTotalPrevio,
+    giftCard,
+    setGiftCard,
+    ofp,
+    setOfp,
+    aPagar,
+    setAPagar,
+    isRoute,
+  },
+  ref
+) {
   const numberARef = useRef();
   const numberBRef = useRef();
   const canceledRef = useRef();
@@ -66,9 +81,6 @@ export default function SaleModal({
   const [invoiceId, setInvoiceId] = useState("");
   const componentRef = useRef();
   const [approvedId, setApprovedId] = useState("");
-  const [ofp, setOfp] = useState(0);
-  const [giftCard, setGiftCard] = useState(0);
-  const [aPagar, setAPagar] = useState(0);
   const [motivo, setMotivo] = useState("");
   const [isDrop, setIsDrop] = useState(false);
   const [dropId, setDropId] = useState(0);
@@ -77,8 +89,18 @@ export default function SaleModal({
   const dropRef = useRef();
   const dropButtonRef = useRef();
   const invButtonRef = useRef();
+  const invButtonRefAlt = useRef();
   const invoiceWrapRef = useRef(null);
   const componentCopyRef = useRef(null);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const totalDesc = datos.total * (1 - datos.descuento / 100);
+  const [descuentoFactura, setDescuentoFactura] = useState(totalDesc);
+  const [isDownloadable, setIsDownloadable] = useState(false);
+  console.log(
+    "Total descontado",
+    parseFloat(totalDescontado) + parseFloat(giftCard)
+  );
+  console.log("total", total);
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -86,6 +108,8 @@ export default function SaleModal({
   }
   const isMobile = isMobileDevice();
   useEffect(() => {
+    console.log("Is mobile", isMobile);
+    console.log("CUF guardado");
     if (cuf.length > 0) {
       setIsFactura(true);
       setInvoceMod(true);
@@ -119,9 +143,21 @@ export default function SaleModal({
       }
     }
   }, [isFactura, isDrop]);
+
   useEffect(() => {
+    console.log(
+      "Cambio",
+      cancelado - (total * (1 - datos.descuento / 100) - giftCard)
+    );
     setCambio(
-      Math.abs((cancelado - (datos.totalDescontado - giftCard)).toFixed(2))
+      isRoute
+        ? cancelado - totalDescontado
+        : Math.abs(
+            (
+              cancelado -
+              (total * (1 - datos.descuento / 100) - giftCard)
+            ).toFixed()
+          )
     );
   }, [cancelado]);
 
@@ -132,9 +168,23 @@ export default function SaleModal({
   }, [isSaved]);
 
   useEffect(() => {
-    const canceled = (datos.totalDescontado - giftCard).toFixed(2);
-    setCancelado(canceled < 0 ? 0 : canceled);
+    if (isDownloadable) {
+      invButtonRefAlt.current.click();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
+  }, [isDownloadable]);
+
+  useEffect(() => {
+    setTotalFacturar(datos.total - giftCard);
+    setTotalDesc(descuentoCalculado);
+    setCancelado(
+      parseFloat(parseFloat(-giftCard) + parseFloat(datos.total)).toFixed(2)
+    );
     setCambio(0);
+    setDescuentoFactura(total - totalDesc + parseFloat(giftCard));
+    console.log("Totaldesc", total - totalDesc + parseFloat(giftCard));
   }, [giftCard]);
 
   useEffect(() => {
@@ -171,23 +221,26 @@ export default function SaleModal({
         setCardNumbersB("");
         setOfp(0);
         setCancelado("");
+        setGiftCard(0);
         break;
       case "2":
         setStringPago("Tarjeta");
-        setCancelado(datos.totalDescontado);
+        setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
+        setGiftCard(0);
         break;
       case "3":
         setStringPago("Cheque");
-        setCancelado(datos.totalDescontado);
+        setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
+        setGiftCard(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
       case "4":
-        setStringPago("Vales");
+        setStringPago("Efectivo");
         setCancelado(0);
         setCambio(0);
         setOfp(0);
@@ -196,49 +249,55 @@ export default function SaleModal({
         break;
       case "5":
         setStringPago("Otros");
-        setCancelado(datos.totalDescontado);
+        setCancelado(totalDescontado);
         setCambio(0);
         setCardNumbersA("");
         setCardNumbersB("");
+        setGiftCard(0);
         break;
       case "6":
         setStringPago("Pago Posterior");
-        setAPagar(1);
-        setCancelado(datos.totalDescontado);
+        setAPagar(0);
+        setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
+        setGiftCard(0);
         break;
       case "7":
         setStringPago("Transferencia");
-        setCancelado(datos.totalDescontado);
+        setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
+        setGiftCard(0);
         break;
       case "8":
         setStringPago("Deposito");
-        setCancelado(datos.totalDescontado);
+        setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
+        setGiftCard(0);
         break;
       case "9":
         setStringPago("Transferencia Swift");
-        setCancelado(datos.totalDescontado);
+        setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
+        setGiftCard(0);
         break;
       case "10":
         setStringPago("Efectivo-tarjeta");
-        setCancelado(datos.totalDescontado.toFixed(2));
+        setCancelado(parseFloat(totalDescontado).toFixed(2));
         setOfp(0);
         setCambio(0);
+        setGiftCard(0);
         break;
       case "11":
         setStringPago("Baja");
@@ -246,6 +305,8 @@ export default function SaleModal({
         setCancelado(0);
         setOfp(0);
         setCambio(0);
+        setCardNumbersA("");
+        setCardNumbersB("");
         break;
     }
   }
@@ -257,16 +318,12 @@ export default function SaleModal({
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          console.log("Cancelado", cancelado, datos.totalDescontado);
-          if (
-            cancelado == 0 ||
-            !parseFloat(cancelado).toFixed(2) >=
-              parseFloat(datos.totalDescontado).toFixed(2)
-          ) {
+          console.log("Cancelado", cancelado, totalDescontado);
+          if (cancelado == 0 || cancelado - (totalDescontado + giftCard) < 0) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
-            invoiceProcess();
+            saveInvoice();
           }
         } else {
           if (tipoPago == 2 || tipoPago == 10) {
@@ -274,7 +331,7 @@ export default function SaleModal({
               setAlert("Ingrese valores válidos para la tarjeta por favor");
               setIsAlert(true);
             } else {
-              invoiceProcess();
+              savingInvoice();
             }
           }
           if (tipoPago == 4) {
@@ -282,11 +339,11 @@ export default function SaleModal({
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
             } else {
-              if (cancelado - (datos.totalDescontado - giftCard) < 0) {
+              if (cancelado <= totalDescontado - giftCard) {
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
-                invoiceProcess();
+                savingInvoice();
               }
             }
           }
@@ -298,7 +355,7 @@ export default function SaleModal({
             tipoPago == 8 ||
             tipoPago == 9
           ) {
-            invoiceProcess();
+            savingInvoice();
           }
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");
@@ -323,8 +380,6 @@ export default function SaleModal({
                 const updatedStock = updateStock(objStock);
                 updatedStock
                   .then((res) => {
-                    setIsAlertSec(false);
-
                     setIsDrop(true);
                   })
                   .catch((err) => {
@@ -340,7 +395,30 @@ export default function SaleModal({
       resolve(true);
     });
   }
-  async function invoiceProcess() {
+  const childFunction = (idFactura, idVenta, objStock) => {
+    invoiceProcess(idFactura, idVenta, objStock);
+  };
+  React.useImperativeHandle(ref, () => ({
+    childFunction,
+  }));
+
+  function savingInvoice() {
+    const saved = saveInvoice(
+      "-",
+      "-",
+      "-",
+      "-",
+      "-",
+      "-",
+      ofp,
+      giftCard,
+      aPagar
+    );
+    saved.then((res) => {
+      setIsAlertSec(true);
+    });
+  }
+  async function invoiceProcess(idFactura, idVenta, objStock) {
     setAlertSec("Generando información de última factura");
     setIsAlertSec(true);
     const lastIdObj = {
@@ -361,7 +439,7 @@ export default function SaleModal({
         const xmlRes = structureXml(
           selectedProducts,
           branchInfo,
-          tipoPago,
+          tipoPago == 4 ? 1 : tipoPago,
           totalDescontado,
           descuentoCalculado,
           invoice,
@@ -399,6 +477,7 @@ export default function SaleModal({
                 const idTransaccion =
                   result.SalidaTransaccion.Transaccion[0].ID[0];
                 var intento = 1;
+                var count = 0;
                 let intervalId = setInterval(function () {
                   const transaccion = SoapInvoiceTransaction(transacObj);
                   transaccion
@@ -408,39 +487,84 @@ export default function SaleModal({
                         resp.response.data.SalidaTransaccionBoliviaResponse[0]
                           .SalidaTransaccionBoliviaResult[0]
                       );
+                      const invoiceState =
+                        resp.response.data.SalidaTransaccionBoliviaResponse[0]
+                          .SalidaTransaccionBoliviaResult[0].Transaccion[0]
+                          .Estado[0];
                       const invocieResponse =
                         resp.response.data.SalidaTransaccionBoliviaResponse[0]
                           .SalidaTransaccionBoliviaResult[0]
                           .TransaccionSalidaUnificada[0];
-                      if (invocieResponse?.CUF[0].length > 10) {
-                        setAlertSec("Generando Factura");
-                        const resCuf = invocieResponse.CUF[0];
-
-                        const resCufd = invocieResponse.CUFD[0];
-                        const aut = invocieResponse.Autorizacion[0];
-                        const fe = invocieResponse.FECHAEMISION[0];
-                        const numFac = invocieResponse.NumeroFactura[0];
-
-                        const saved = saveInvoice(
-                          resCuf,
-                          resCufd,
-                          aut,
-                          fe,
-                          numFac,
-                          idTransaccion,
-                          ofp,
-                          giftCard,
-                          aPagar
-                        );
-                        saved.then((res) => {
+                      if (invoiceState == "Transacción Exitosa") {
+                        console.log("Count", count);
+                        if (invocieResponse?.CUF[0].length > 10) {
+                          setAlertSec("Generando Factura");
+                          const resCuf = invocieResponse.CUF[0];
+                          const resCufd = invocieResponse.CUFD[0];
+                          const aut = invocieResponse.Autorizacion[0];
+                          const fe = invocieResponse.FECHAEMISION[0];
+                          const numFac = invocieResponse.NumeroFactura[0];
+                          const idTrac = idTransaccion;
+                          invoice.nroFactura = numFac;
+                          invoice.cuf = resCuf;
                           setCuf(resCuf);
-
-                          setIsAlertSec(false);
-                        });
-                        clearInterval(intervalId);
+                          if (count == 0) {
+                            clearInterval(intervalId);
+                            console.log("Venta registrada");
+                            const updateBody = {
+                              nroFactura: numFac,
+                              cuf: resCuf,
+                              cufd: resCufd,
+                              autorizacion: aut,
+                              fe: fe,
+                              nroTransaccion: idTrac,
+                              idFactura: idFactura,
+                            };
+                            const updateInvoice = invoiceUpdate(updateBody);
+                            updateInvoice
+                              .then((inv) => {})
+                              .catch((err) => {
+                                console.log(
+                                  "Error al actualizar la factura",
+                                  err
+                                );
+                              });
+                          }
+                        } else {
+                          intento += 1;
+                          setAlertSec("Generando Codigo Único de Facturación");
+                        }
                       } else {
-                        intento += 1;
-                        setAlertSec("Generando Codigo Único de Facturación");
+                        const errorInvoice =
+                          resp.response.data.SalidaTransaccionBoliviaResponse[0]
+                            .SalidaTransaccionBoliviaResult[0]
+                            .TransaccionSalidaUnificada[0].Errores[0].Error[0]
+                            .Descripcion[0];
+                        setIsAlertSec(false);
+                        setAlert(
+                          `Error al obtener la factura, intente nuevamente, ${JSON.stringify(
+                            errorInvoice
+                          )}`
+                        );
+                        setIsAlert(true);
+
+                        clearInterval(intervalId);
+                        const deletedInvoice = deleteInvoice(idFactura);
+                        deletedInvoice.then((rs) => {
+                          const deletedSale = deleteSale(idVenta);
+                          deletedSale.then((res) => {
+                            console.log("Borrados");
+                            console.log("Devolviendo Stock");
+                            setIsAlertSec(false);
+                            const returned = updateStock(objStock);
+                            setIsAlertSec(false);
+                            returned
+                              .then((res) => {})
+                              .catch((err) => {
+                                console.log("Error al devolver el stock", err);
+                              });
+                          });
+                        });
                       }
                     })
                     .catch((error) => {
@@ -485,7 +609,7 @@ export default function SaleModal({
     const imgProperties = pdf.getImageProperties(data);
     const imgPropertiesCopy = pdf.getImageProperties(dataCopy);
 
-    const pdfWidth = 75;
+    const pdfWidth = 78;
     const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
     const pdfHeightCopy =
       (imgPropertiesCopy.height * pdfWidth) / imgPropertiesCopy.width;
@@ -493,7 +617,7 @@ export default function SaleModal({
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.addPage();
     pdf.addImage(dataCopy, "PNG", 0, 0, pdfWidth, pdfHeightCopy);
-    pdf.save(`factura-${invoiceId}.pdf`);
+    pdf.save(`factura-${invoiceId}-${invoice.nitCliente}.pdf`);
     setIsSaved(true);
   };
 
@@ -534,7 +658,9 @@ export default function SaleModal({
                     </button>
                   )}
                   content={() => componentRef.current}
-                  onAfterPrint={() => window.location.reload()}
+                  onAfterPrint={() => {
+                    setIsDownloadable(true);
+                  }}
                 />
                 <Button hidden>
                   <InvoiceComponent
@@ -546,14 +672,17 @@ export default function SaleModal({
                     paymentData={{
                       tipoPago: stringPago,
                       cancelado: cancelado,
-                      cambio: cambio,
+                      cambio: cancelado - totalDescontado - giftCard,
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
                       total: total,
-                      descuentoCalculado: descuentoCalculado,
-                      totalDescontado: totalDescontado,
+                      descuentoCalculado: isRoute
+                        ? descuentoCalculado
+                        : descuentoFactura,
+                      totalDescontado: totalDescontado - giftCard,
                     }}
+                    giftCard={giftCard}
                   />
                 </Button>
               </div>
@@ -578,13 +707,15 @@ export default function SaleModal({
                   paymentData={{
                     tipoPago: stringPago,
                     cancelado: cancelado,
-                    cambio: cambio,
+                    cambio: cancelado - totalDescontado - giftCard,
                     fechaHora: fechaHora,
                   }}
                   totalsData={{
                     total: total,
-                    descuentoCalculado: descuentoCalculado,
-                    totalDescontado: totalDescontado,
+                    descuentoCalculado: isRoute
+                      ? descuentoCalculado
+                      : descuentoFactura,
+                    totalDescontado: totalDescontado - giftCard,
                   }}
                 />
                 <InvoiceComponentCopy
@@ -596,13 +727,15 @@ export default function SaleModal({
                   paymentData={{
                     tipoPago: stringPago,
                     cancelado: cancelado,
-                    cambio: cambio,
+                    cambio: cancelado - totalDescontado - giftCard,
                     fechaHora: fechaHora,
                   }}
                   totalsData={{
                     total: total,
-                    descuentoCalculado: descuentoCalculado,
-                    totalDescontado: totalDescontado,
+                    descuentoCalculado: isRoute
+                      ? descuentoCalculado
+                      : descuentoFactura,
+                    totalDescontado: totalDescontado - giftCard,
                   }}
                 />
               </div>
@@ -681,16 +814,17 @@ export default function SaleModal({
           <div className="modalRows">
             <div className="modalLabel"> Descuento:</div>
             <div className="modalData">
-              {descuentoCalculado > 0
-                ? descuentoCalculado
-                : `${parseFloat(datos.descuento).toFixed(2)} %`}
+              {(
+                parseFloat(giftCard != "" ? giftCard : 0) +
+                parseFloat(descuentoCalculado)
+              ).toFixed(2)}
             </div>
           </div>
           <div className="modalRows">
             <div className="modalLabel"> Total a pagar:</div>
-            <div className="modalData">{`${parseFloat(
-              datos.totalDescontado
-            ).toFixed(2)} Bs.`}</div>
+            <div className="modalData">{`${parseFloat(totalDescontado).toFixed(
+              2
+            )} Bs.`}</div>
           </div>
           <div className="modalRows">
             <div className="modalLabel"> Tipo de pago:</div>
@@ -704,7 +838,7 @@ export default function SaleModal({
                   <option value="1">Efectivo</option>
                   <option value="2">Tarjeta</option>
                   <option value="3">Cheque</option>
-                  <option value="4">Vales</option>
+                  {!isRoute ? <option value="4">Vales</option> : null}
                   <option value="5">Otros</option>
                   <option value="6">Pago Posterior</option>
                   <option value="7">Transferencia</option>
@@ -762,9 +896,9 @@ export default function SaleModal({
               <div className="modalRows">
                 <div className="modalLabel"> Cambio:</div>
                 <div className="modalData">{`${
-                  cancelado - datos.totalDescontado < 0
+                  cancelado - totalDescontado < 0
                     ? " Ingrese un monto igual o superior"
-                    : `${(cancelado - datos.totalDescontado).toFixed(2)} Bs.`
+                    : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
                 } `}</div>
               </div>
             </div>
@@ -817,7 +951,7 @@ export default function SaleModal({
               <div className="modalRows">
                 <div className="modalLabel"> A cobrar con tarjeta:</div>
                 <div className="modalData">{`${(
-                  -cancelado + datos.totalDescontado
+                  -cancelado + parseFloat(totalDescontado)
                 ).toFixed(2)} Bs.`}</div>
               </div>
               <div className="modalRows">
@@ -870,12 +1004,15 @@ export default function SaleModal({
               <div className="modalRows">
                 <div className="modalLabel"> A pagar en efectivo:</div>
                 <div className="modalData">{`${
-                  giftCard - datos.totalDescontado > 0
+                  datos.total - giftCard < 0
                     ? "El valor del Vale es mayor al monto de la compra"
-                    : `${(-giftCard + datos.totalDescontado).toFixed(2)} Bs.`
+                    : `${parseFloat(
+                        parseFloat(-giftCard) +
+                          total * (1 - datos.descuento / 100)
+                      ).toFixed(2)} Bs.`
                 } `}</div>
               </div>
-              {datos.totalDescontado - giftCard > 0 ? (
+              {1 > 0 ? (
                 <div>
                   <div className="modalRows">
                     <div className="modalLabel"> Cancelado:</div>
@@ -896,15 +1033,14 @@ export default function SaleModal({
                   <div className="modalRows">
                     <div className="modalLabel"> Cambio:</div>
                     <div className="modalData">{`${
-                      parseFloat(cancelado).toFixed(2) -
-                        parseFloat(datos.totalDescontado - giftCard).toFixed(
-                          2
-                        ) <=
+                      cancelado -
+                        (total * (1 - datos.descuento / 100) - giftCard) <
                       0
-                        ? "Test"
+                        ? "Ingrese un monto mayor"
                         : `${(
                             cancelado -
-                            (datos.totalDescontado - giftCard)
+                            totalDesc +
+                            parseFloat(giftCard)
                           ).toFixed(2)} Bs.`
                     } `}</div>
                   </div>
@@ -941,6 +1077,62 @@ export default function SaleModal({
           </Button>
         </Modal.Footer>
       </Modal>
+      {isDownloadable ? (
+        <div>
+          <button
+            hidden
+            type="button"
+            onClick={handleDownloadPdfInv}
+            ref={invButtonRefAlt}
+          >
+            Download as PDF
+          </button>
+          <div ref={invoiceWrapRef}>
+            <InvoiceComponentAlt
+              ref={componentRef}
+              branchInfo={branchInfo}
+              selectedProducts={selectedProducts}
+              cuf={cuf}
+              invoice={invoice}
+              paymentData={{
+                tipoPago: stringPago,
+                cancelado: cancelado,
+
+                cambio: cancelado - totalDescontado - giftCard,
+                fechaHora: fechaHora,
+              }}
+              totalsData={{
+                total: total,
+                descuentoCalculado: isRoute
+                  ? descuentoCalculado
+                  : descuentoFactura,
+                totalDescontado: totalDescontado - giftCard,
+              }}
+            />
+            <InvoiceComponentCopy
+              ref={componentCopyRef}
+              branchInfo={branchInfo}
+              selectedProducts={selectedProducts}
+              cuf={cuf}
+              invoice={invoice}
+              paymentData={{
+                tipoPago: stringPago,
+                cancelado: cancelado,
+                cambio: cancelado - totalDescontado - giftCard,
+                fechaHora: fechaHora,
+              }}
+              totalsData={{
+                total: total,
+                descuentoCalculado: isRoute
+                  ? descuentoCalculado
+                  : descuentoFactura,
+                totalDescontado: totalDescontado - giftCard,
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
+export default React.forwardRef(SaleModal);

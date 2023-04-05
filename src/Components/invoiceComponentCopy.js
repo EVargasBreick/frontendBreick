@@ -5,7 +5,16 @@ import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
 export const InvoiceComponentCopy = React.forwardRef(
   (
-    { branchInfo, selectedProducts, cuf, invoice, paymentData, totalsData },
+    {
+      branchInfo,
+      selectedProducts,
+      cuf,
+      invoice,
+      paymentData,
+      totalsData,
+      isOrder,
+      invoiceNumber,
+    },
     ref
   ) => {
     const convertido = convertToText(totalsData?.totalDescontado);
@@ -13,9 +22,11 @@ export const InvoiceComponentCopy = React.forwardRef(
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
     function formattedCuf(cuf) {
-      const splitted = cuf.match(/.{25}/g);
-      return splitted ? splitted.join(" ") : cuf;
+      const regex = new RegExp(".{1,30}", "g");
+      const result = cuf.match(regex).join(" ");
+      return result;
     }
+    const inum = isOrder ? invoiceNumber : invoice?.nroFactura;
     return (
       <div>
         <div ref={ref} className="invoicePage">
@@ -33,7 +44,7 @@ export const InvoiceComponentCopy = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
           <div>{`NIT ${invoice?.nitEmpresa}`}</div>
-          <div>{`FACTURA Nº ${invoice?.nroFactura}`}</div>
+          <div>{`FACTURA Nº ${inum}`}</div>
           <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
@@ -147,7 +158,7 @@ export const InvoiceComponentCopy = React.forwardRef(
               datos={JSON.stringify(
                 invoice?.nitEmpresa +
                   "|" +
-                  invoice?.nroFactura +
+                  inum +
                   "|" +
                   invoice?.cuf +
                   "|" +

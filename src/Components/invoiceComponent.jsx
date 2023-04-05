@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
 import { convertToText } from "../services/numberServices";
@@ -13,22 +13,29 @@ export const InvoiceComponent = React.forwardRef(
       paymentData,
       totalsData,
       isStore,
+      giftCard,
+      isOrder,
+      invoiceNumber,
     },
     ref
   ) => {
-    console.log("Productos seleccionados", selectedProducts);
+    console.log("Invoice recibido", invoice);
     const convertido = convertToText(totalsData?.totalDescontado);
     const splittedDate = dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
     function formattedCuf(cuf) {
-      const splitted = cuf.match(/.{25}/g);
-      return splitted ? splitted.join(" ") : cuf;
+      const regex = new RegExp(".{1,30}", "g");
+      const result = cuf.match(regex).join(" ");
+      return result;
     }
+    console.log("invoice", invoice.nroFactura);
+    const inum = isOrder ? invoiceNumber : invoice?.nroFactura;
     return (
       <div ref={ref} className="invoicePage">
         <div style={{ pageBreakAfter: "always" }}>
           <div className="invoiceTittle">Incadex S.R.L</div>
+
           <div>{`${branchInfo?.nombre}`}</div>
           <div className="simpleSeparator"></div>
           <div>{`${branchInfo?.dir}`}</div>
@@ -42,7 +49,7 @@ export const InvoiceComponent = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
           <div>{`NIT ${invoice?.nitEmpresa}`}</div>
-          <div>{`FACTURA Nº ${invoice?.nroFactura}`}</div>
+          <div>{`FACTURA Nº ${inum}`}</div>
           <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
@@ -111,7 +118,7 @@ export const InvoiceComponent = React.forwardRef(
                 <tr>
                   <td className="totals">Descuento</td>
                   <td className="totalsData">{`${parseFloat(
-                    totalsData?.descuentoCalculado
+                    totalsData.descuentoCalculado
                   ).toFixed(2)}`}</td>
                 </tr>
                 <tr>
@@ -139,13 +146,9 @@ export const InvoiceComponent = React.forwardRef(
                   ).toFixed(2)}`}</td>
                 </tr>
                 <tr>
-                  <td className="totals">
-                    {paymentData?.cambio == "Efectivo-tarjeta"
-                      ? `Tarjeta `
-                      : `Cambio `}
-                  </td>
-                  <td className="totalsData">{`${parseFloat(
-                    paymentData?.cambio
+                  <td className="totals">{"Cambio: "}</td>
+                  <td className="totalsData">{` ${parseFloat(
+                    paymentData.cambio
                   ).toFixed(2)}`}</td>
                 </tr>
               </tbody>
@@ -156,7 +159,7 @@ export const InvoiceComponent = React.forwardRef(
               datos={JSON.stringify(
                 invoice?.nitEmpresa +
                   "|" +
-                  invoice?.nroFactura +
+                  inum +
                   "|" +
                   invoice?.cuf +
                   "|" +
@@ -194,6 +197,7 @@ export const InvoiceComponent = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
         </div>
+        {/*
         <div style={{ pageBreakAfter: "always" }}>
           <div className="invoiceTittle">Incadex S.R.L</div>
           <div>{`${branchInfo?.nombre}`}</div>
@@ -202,6 +206,7 @@ export const InvoiceComponent = React.forwardRef(
           <div>{`Telefono ${branchInfo?.tel}`}</div>
           <div> {`${branchInfo?.ciudad} - Bolivia`}</div>
           <div> {`Sucursal No ${branchInfo?.nro}`}</div>
+          
           <div className="simpleSeparator"></div>
           <div>FACTURA</div>
           <div className="simpleSeparator"></div>
@@ -209,7 +214,7 @@ export const InvoiceComponent = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
           <div>{`NIT ${invoice?.nitEmpresa}`}</div>
-          <div>{`FACTURA Nº ${invoice?.nroFactura}`}</div>
+          <div>{`FACTURA Nº ${inum}`}</div>
           <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
@@ -310,8 +315,8 @@ export const InvoiceComponent = React.forwardRef(
                       ? `Tarjeta `
                       : `Cambio `}
                   </td>
-                  <td className="totalsData">{`${parseFloat(
-                    paymentData?.cambio
+                  <td className="totalsData">{` ${parseFloat(
+                    paymentData.cambio
                   ).toFixed(2)}`}</td>
                 </tr>
               </tbody>
@@ -322,7 +327,7 @@ export const InvoiceComponent = React.forwardRef(
               datos={JSON.stringify(
                 invoice?.nitEmpresa +
                   "|" +
-                  invoice?.nroFactura +
+                  inum +
                   "|" +
                   invoice?.cuf +
                   "|" +
@@ -360,6 +365,7 @@ export const InvoiceComponent = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
         </div>
+              */}
       </div>
     );
   }

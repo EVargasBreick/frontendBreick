@@ -4,6 +4,7 @@ import {
   getBranches,
   getSalePointsAndStores,
   getBranchesPs,
+  getMobileSalePoints,
 } from "../services/storeServices";
 import Cookies from "js-cookie";
 import { dateString } from "../services/dateServices";
@@ -42,42 +43,69 @@ export default function BodyEodReport() {
   const [hora, setHora] = useState("");
   const [userName, setUserName] = useState("");
   const [userRol, setUserRol] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const componentRef = useRef();
   useEffect(() => {
     setFecha(dateString().split(" ").shift());
     setHora(dateString().split(" ").pop());
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
+      var data;
       const rol = JSON.parse(UsuarioAct).rol;
       setUserName(JSON.parse(UsuarioAct).usuario);
       setUserRol(JSON.parse(UsuarioAct).rol);
       const pdv = Cookies.get("pdv");
       const PuntoDeVenta = pdv != undefined ? pdv : 0;
       console.log("Punto de venta", PuntoDeVenta);
-      const sucps = getBranchesPs();
-      const idAlmacen = JSON.parse(UsuarioAct).idAlmacen;
 
-      setUserStore(idAlmacen);
-      sucps.then((res) => {
-        const sucur =
-          rol == 4
-            ? res.data.find((sc) => sc.idAgencia == "AL001")
-            : res.data.find((sc) => sc.idAgencia == idAlmacen);
-        console.log("SUCUR", sucur);
-        setIdSucursal(sucur.idImpuestos);
-        setPuntoDeVenta(PuntoDeVenta);
-        const storeNameList = getSalePointsAndStores(
-          rol == 4 ? "AL001" : JSON.parse(UsuarioAct).idAlmacen
-        );
-        storeNameList.then((sn) => {
-          console.log("Store names", sn);
-          const list = sn.data;
-          const nameSetter = list.find(
-            (li) => li.nroPuntoDeVenta == PuntoDeVenta
-          );
-          console.log("Name setter", nameSetter);
-          setStoreData(nameSetter);
-        });
+      const mobilepdvdata = getMobileSalePoints(
+        JSON.parse(UsuarioAct).idAlmacen
+      );
+      mobilepdvdata.then((res) => {
+        const datos = res.data[0];
+        data = datos;
+        console.log("Datos del punto de venta", datos);
+        if (datos != undefined) {
+          setPuntoDeVenta(datos.nroPuntoDeVenta);
+          setIsMobile(true);
+          setIdSucursal(0);
+          setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+          const storeNameList = getSalePointsAndStores("AL001");
+          storeNameList.then((sn) => {
+            console.log("Store names", sn);
+            const list = sn.data;
+            const nameSetter = list.find(
+              (li) => li.nroPuntoDeVenta == PuntoDeVenta
+            );
+            console.log("Name setter", nameSetter);
+            setStoreData(nameSetter);
+          });
+        } else {
+          const idAlmacen = JSON.parse(UsuarioAct).idAlmacen;
+          setUserStore(idAlmacen);
+          const sucps = getBranchesPs();
+          sucps.then((res) => {
+            const sucur =
+              rol == 4
+                ? res.data.find((sc) => sc.idAgencia == "AL001")
+                : res.data.find((sc) => sc.idAgencia == idAlmacen);
+            console.log("SUCUR", sucur);
+            setIdSucursal(sucur.idImpuestos);
+            setPuntoDeVenta(PuntoDeVenta);
+            const storeNameList = getSalePointsAndStores(
+              rol == 4 ? "AL001" : JSON.parse(UsuarioAct).idAlmacen
+            );
+            storeNameList.then((sn) => {
+              console.log("Store names", sn);
+              const list = sn.data;
+              const nameSetter = list.find(
+                (li) => li.nroPuntoDeVenta == PuntoDeVenta
+              );
+              console.log("Name setter", nameSetter);
+              setStoreData(nameSetter);
+            });
+          });
+        }
       });
     }
   }, []);
@@ -101,23 +129,25 @@ export default function BodyEodReport() {
       const swift = data.find((dt) => dt.tipoPago == 9);
       const mixto = data.find((dt) => dt.tipoPago == 10);
       const otros = data.filter((dt) => dt.tipoPago == 5);
+      console.log("Otros", otros);
       const gf = pagadoVale ? pagadoVale.totalVale : 0;
       setVale(gf);
       if (otros.length > 0) {
-        const qrTot = otros.find((ot) => (ot.idOtroPago = 1));
-        const qhantuyTot = otros.find((ot) => (ot.idOtroPago = 2));
-        const clnTot = otros.find((ot) => (ot.idOtroPago = 3));
+        const qrTot = otros.find((ot) => ot.idOtroPago == 1);
+        const qhantuyTot = otros.find((ot) => ot.idOtroPago == 2);
+        const clnTot = otros.find((ot) => ot.idOtroPago == 3);
         qrTot ? setQr(qrTot.totalPagado) : setQr(0);
         qhantuyTot ? setQhantuy(qhantuyTot.totalPagado) : setQhantuy(0);
         clnTot ? setCln(clnTot.totalPagado) : setCln(0);
       }
       const totalTarjeta =
-        (tarjeta ? tarjeta.totalPagado : 0) + (mixto ? mixto.totalCambio : 0);
+        (tarjeta ? tarjeta.totalPagado : 0) +
+        (mixto ? Math.abs(mixto.totalCambio) : 0);
       setTarjeta(totalTarjeta);
       const totalEfectivo =
         (efectivo ? efectivo.totalPagado : 0) -
         (efectivo ? efectivo.totalCambio : 0) +
-        (mixto ? mixto.totalCambio : 0) +
+        (mixto ? mixto.totalPagado : 0) +
         ((pagadoVale ? pagadoVale.totalPagado : 0) -
           (pagadoVale ? pagadoVale.totalCambio : 0));
       setEfectivo(totalEfectivo);

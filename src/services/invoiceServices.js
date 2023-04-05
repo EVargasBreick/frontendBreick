@@ -177,6 +177,21 @@ function cancelInvoiceUpdate(id) {
       });
   });
 }
+function invoiceUpdate(body) {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/facturas`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
 
 function otherPaymentsList() {
   return new Promise((resolve, reject) => {
@@ -200,4 +215,5 @@ export {
   getStoreInvoices,
   cancelInvoiceUpdate,
   otherPaymentsList,
+  invoiceUpdate,
 };

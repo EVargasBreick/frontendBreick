@@ -136,7 +136,7 @@ export default function FormManageOrders() {
           setIsAlert(true);
 
           setTimeout(() => {
-            navigate("/principal");
+            window.location.reload();
             setIsLoading(false);
           }, 2000);
         })

@@ -11,7 +11,11 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
-import { createSale, verifyQuantities } from "../services/saleServices";
+import {
+  createSale,
+  deleteSale,
+  verifyQuantities,
+} from "../services/saleServices";
 import {
   getBranches,
   getBranchesPs,
@@ -57,7 +61,8 @@ export default function FormNewSale() {
     { nombreProducto: "Cargando..." },
   ]);
   const [isSaleModal, setIsSaleModal] = useState(true);
-
+  const [ofp, setOfp] = useState(0);
+  const [aPagar, setAPagar] = useState(0);
   const [tipoPago, setTipoPago] = useState(0);
   const [cambio, setCambio] = useState(0);
   const [cancelado, setCancelado] = useState(0);
@@ -94,7 +99,12 @@ export default function FormNewSale() {
   const searchRef = useRef(null);
   const productRef = useRef(null);
   const quantref = useRef(null);
+  const saleModalRef = useRef();
   useEffect(() => {
+    console.log(
+      "Es isla?",
+      JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+    );
     searchRef.current.focus();
     const spplited = dateString().split(" ");
 
@@ -132,7 +142,7 @@ export default function FormNewSale() {
         });
       }
       console.log("Almacen", JSON.parse(UsuarioAct).idAlmacen);
-      if (JSON.parse(UsuarioAct).idAlmacen === "AG005") {
+      if (JSON.parse(UsuarioAct).idAlmacen === "AG009") {
         setIsMore(true);
       }
       setUserName(JSON.parse(UsuarioAct).usuario);
@@ -197,6 +207,10 @@ export default function FormNewSale() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+  useEffect(() => {
+    setTotalFacturar(totalFacturar * (1 - descuento / 100));
+    setTotalDesc(totalFacturar - totalFacturar * (1 - descuento / 100));
+  }, [descuento]);
   useEffect(() => {
     if (isQuantity) {
       quantref.current.focus();
@@ -289,9 +303,15 @@ export default function FormNewSale() {
           cant_Actual: produc.cant_Actual,
           cantidadRestante: produc.cant_Actual,
           precioDescuentoFijo: produc.precioDescuentoFijo,
-          precioDeFabrica: isMore ? produc.precioPDV : produc.precioDeFabrica,
+          precioDeFabrica:
+            JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+              ? produc.precioPDV
+              : produc.precioDeFabrica,
           descuentoProd: 0,
-          total: produc.precioDeFabrica,
+          total:
+            JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+              ? produc.precioPDV
+              : produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
         };
@@ -330,10 +350,16 @@ export default function FormNewSale() {
             idProducto: selected.idProducto,
             cant_Actual: selected.cant_Actual,
             cantidadRestante: selected.cant_Actual,
-            precioDeFabrica: selected.precioDeFabrica,
+            precioDeFabrica:
+              JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+                ? selected.precioPDV
+                : selected.precioDeFabrica,
             precioDescuentoFijo: selected.precioDescuentoFijo,
             descuentoProd: 0,
-            total: selected.precioDeFabrica,
+            total:
+              JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+                ? selected.precioPDV
+                : selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
           };
@@ -352,15 +378,18 @@ export default function FormNewSale() {
   }
   function changeQuantitiesModal(e) {
     e.preventDefault();
-
     const index = selectedProducts.length - 1;
     const selectedProd = selectedProducts[index];
-
     changeQuantities(index, modalQuantity, selectedProd, false);
     setIsQuantity(false);
     setModalQuantity("");
     setAvailable(auxProducts);
+
     searchRef.current.focus();
+  }
+
+  function handleModalQuantity(cantidad) {
+    setModalQuantity(cantidad);
   }
 
   const handleClose = () => {
@@ -383,18 +412,18 @@ export default function FormNewSale() {
     addProductToList("scanner");
   }
   function changeQuantities(index, cantidad, prod, isScanner) {
+    console.log("Cantidad entrando al cambio", cantidad);
     const arrCant = !isScanner ? cantidad.split(".") : cantidad;
     const isThree =
       cantidad === ""
         ? ""
         : arrCant[1]?.length > process.env.REACT_APP_DECIMALES
-        ? prod.cantProducto
+        ? parseFloat(cantidad).toFixed(2)
         : cantidad;
-    const total =
-      parseFloat(prod.precioDeFabrica) *
-      (prod.unidadDeMedida == "Unidad"
-        ? parseInt(isThree)
-        : parseFloat(isThree));
+    const total = parseFloat(
+      parseFloat(prod.precioDeFabrica).toFixed(2) *
+        (prod.unidadDeMedida == "Unidad" ? parseInt(isThree) : isThree)
+    ).toFixed(2);
     let auxObj = {
       codInterno: prod.codInterno,
       cantProducto:
@@ -407,10 +436,9 @@ export default function FormNewSale() {
       cant_Actual: prod.cant_Actual,
       cantidadRestante: prod.cant_Actual - cantidad,
       descuentoProd: total - total * (1 - descuento / 100),
-      precioDeFabrica: prod.precioDeFabrica,
-      precioDescuentoFijo: prod.precioDescuentoFijo,
+      precioDeFabrica: parseFloat(prod.precioDeFabrica).toFixed(2),
+      precioDescuentoFijo: parseFloat(prod.precioDescuentoFijo).toFixed(2),
       total: total,
-      descuentoProd: 0,
       unidadDeMedida: prod.unidadDeMedida,
     };
     let auxSelected = [...selectedProducts];
@@ -440,15 +468,21 @@ export default function FormNewSale() {
       setInvoice(invoiceBody);
       const totPrev = parseFloat(
         auxSelectedProducts.reduce((accumulator, object) => {
-          return accumulator + object.total;
+          return accumulator + parseFloat(object.total);
         }, 0)
       ).toFixed(2);
-      const totDesc = selectedProducts.reduce((accumulator, object) => {
-        return accumulator + object.total;
-      }, 0);
-      setTotalPrevio(totPrev);
-      setTotalDesc(totPrev - totDesc);
-      setTotalFacturar(totDesc);
+
+      const totDesc =
+        selectedProducts.reduce((accumulator, object) => {
+          return accumulator + parseFloat(object.total);
+        }, 0) *
+        (1 - descuento / 100);
+      console.log("Tot desc", totDesc);
+      setTotalPrevio(parseFloat(totPrev).toFixed(2));
+      setTotalDesc(
+        parseFloat(totPrev).toFixed(2) - parseFloat(totDesc).toFixed(2)
+      );
+      setTotalFacturar(parseFloat(totDesc).toFixed(2));
       setTimeout(() => {
         setIsInvoice(true);
         setIsSaleModal(true);
@@ -461,11 +495,12 @@ export default function FormNewSale() {
   function saveSale(createdId) {
     const totPrev = parseFloat(
       auxSelectedProducts.reduce((accumulator, object) => {
-        return accumulator + object.total;
+        return accumulator + parseFloat(object.total).toFixed(2);
       }, 0)
     ).toFixed(2);
+    console.log("Tot prev 2", parseFloat(totPrev).toFixed(2));
     const totDesc = selectedProducts.reduce((accumulator, object) => {
-      return accumulator + object.total;
+      return accumulator + parseFloat(object.total).toFixed(2);
     }, 0);
     return new Promise((resolve, reject) => {
       setFechaHora(dateString());
@@ -475,10 +510,25 @@ export default function FormNewSale() {
           idCliente: selectedClient,
           fechaCrea: dateString(),
           fechaActualizacion: dateString(),
-          montoTotal: parseFloat(totPrev).toFixed(2),
-          descCalculado: parseFloat(totPrev - totDesc).toFixed(2),
+          montoTotal: parseFloat(totalPrevio).toFixed(2),
+          descCalculado: parseFloat(
+            parseFloat(giftCard) +
+              parseFloat(totalPrevio) -
+              (selectedProducts.reduce((accumulator, object) => {
+                return accumulator + parseFloat(object.total);
+              }, 0) *
+                (100 - descuento)) /
+                100
+          ).toFixed(2),
           descuento: descuento,
-          montoFacturar: parseFloat(totDesc).toFixed(2),
+          montoFacturar: parseFloat(
+            -giftCard +
+              (selectedProducts.reduce((accumulator, object) => {
+                return accumulator + parseFloat(object.total);
+              }, 0) *
+                (100 - descuento)) /
+                100
+          ).toFixed(2),
           idPedido: "",
           idFactura: createdId,
         },
@@ -487,43 +537,69 @@ export default function FormNewSale() {
       const ventaCreada = createSale(objVenta);
       ventaCreada
         .then((res) => {
-          const updatedStock = updateStock({
-            accion: "take",
-            idAlmacen: userStore,
-            productos: selectedProducts,
-          });
-          updatedStock.then((us) => {
-            setAlertSec("Gracias por su compra!");
-            resolve(true);
-            setIsAlertSec(true);
-            setTimeout(() => {
-              setIsAlertSec(false);
-            }, 1000);
-          });
+          const idVenta = res.data.idCreado;
+          setTimeout(() => {
+            const updatedStock = updateStock({
+              accion: "take",
+              idAlmacen: userStore,
+              productos: selectedProducts,
+            });
+            const objStock = {
+              accion: "add",
+              idAlmacen: userStore,
+              productos: selectedProducts,
+            };
+            updatedStock
+              .then((us) => {
+                saleModalRef.current.childFunction(
+                  createdId,
+                  idVenta,
+                  objStock
+                );
+                resolve(true);
+                setIsAlertSec(false);
+              })
+              .catch((err) => {
+                setAlert("Error al actualizar el stock", err);
+                setIsAlertSec(false);
+                const deletedInvoice = deleteInvoice(createdId);
+                deletedInvoice.then((rs) => {
+                  const deletedSale = deleteSale(idVenta);
+                  deletedSale.then((res) => {
+                    console.log("Borrados");
+                  });
+                });
+              });
+          }, 500);
         })
         .catch((err) => {
           console.log("Error al crear la venta", err);
           const deletedInvoice = deleteInvoice(createdId);
+          setIsAlertSec(false);
+          setAlert("Error al crear la factura, intente nuevamente");
           reject(false);
         });
     });
   }
-  function saveInvoice(
-    cuf,
-    cufd,
-    autorizacion,
-    fechaEmision,
-    nro,
-    idTransaccion,
-    ofp,
-    giftCard,
-    aPagar
-  ) {
+  function saveInvoice() {
+    console.log(
+      "Cambio en save invoice",
+      cancelado -
+        parseFloat(
+          -giftCard +
+            (selectedProducts.reduce((accumulator, object) => {
+              return accumulator + parseFloat(object.total);
+            }, 0) *
+              (100 - descuento)) /
+              100
+        ).toFixed(2)
+    );
     return new Promise((resolve, reject) => {
-      setAlertSec("Guardando Venta");
+      setAlertSec("Registrando Venta");
+      setIsAlertSec(true);
       const invoiceBody = {
         idCliente: selectedClient,
-        nroFactura: nro,
+        nroFactura: 0,
         idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
@@ -531,47 +607,70 @@ export default function FormNewSale() {
         razonSocial: clientes[0].razonSocial,
         tipoPago: tipoPago,
         pagado: cancelado,
-        cambio: cambio,
+        cambio:
+          cancelado -
+          parseFloat(
+            -giftCard +
+              (selectedProducts.reduce((accumulator, object) => {
+                return accumulator + parseFloat(object.total);
+              }, 0) *
+                (100 - descuento)) /
+                100
+          ).toFixed(2),
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
-        cuf: cuf,
-        importeBase: parseFloat(cancelado - cambio).toFixed(2),
-        debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
+        cuf: "",
+        importeBase: parseFloat(
+          parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)
+        ).toFixed(2),
+        debitoFiscal: parseFloat(
+          (parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)) *
+            0.13
+        ).toFixed(2),
         desembolsada: 0,
-        autorizacion: autorizacion,
-        cufd: cufd,
-        fechaEmision: fechaEmision,
-        nroTransaccion: idTransaccion,
+        autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
+        cufd: "",
+        fechaEmision: "",
+        nroTransaccion: 0,
         idOtroPago: ofp,
         vale: giftCard,
         aPagar: aPagar,
         puntoDeVenta: pointOfSale,
         idAgencia: userStore,
       };
+      console.log("INVOICE BODY", invoiceBody);
       setInvoice(invoiceBody);
+      console.log("Invoice body", invoiceBody);
       const newInvoice = createInvoice(invoiceBody);
       newInvoice
         .then((res) => {
-          const newId = res.data.idCreado;
-          const created = saveSale(newId);
-          created
-            .then((res) => {
-              resolve(true);
-            })
-            .catch((error) => {
-              reject(false);
-            });
+          setTimeout(() => {
+            const newId = res.data.idCreado;
+            const created = saveSale(newId);
+            created
+              .then((res) => {
+                resolve(true);
+              })
+              .catch((error) => {
+                reject(false);
+              });
+          }, 500);
         })
         .catch((error) => {
           console.log("Error en la creacion de la factura", error);
+          setAlert("Error al crear la factura, intente nuevamente");
+          setIsAlertSec(false);
         });
 
       setIsSaleModal(!isSaleModal);
     });
   }
   function handleDiscount() {
-    if (city == 1) {
+    console.log("Descuento", descuento);
+    handleModal();
+    /*if (city == 1) {
       const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
       newDiscount.then((nd) => {
+        console.log("Descuento", descuento);
         setDescuento(nd);
         const discountedProds = saleDiscount(selectedProducts, nd);
         discountedProds.then((res) => {
@@ -581,7 +680,7 @@ export default function FormNewSale() {
       });
     } else {
       handleModal();
-    }
+    }*/
   }
 
   function validateQuantities() {
@@ -636,12 +735,13 @@ export default function FormNewSale() {
           <Form>
             <Form.Control
               type="number"
-              onChange={(e) => setModalQuantity(e.target.value)}
+              onChange={(e) => handleModalQuantity(e.target.value)}
               onKeyDown={(e) =>
                 e.key === "Enter" ? changeQuantitiesModal(e) : null
               }
               ref={quantref}
               value={modalQuantity}
+              min={0.01}
             />
           </Form>
         </Modal.Body>
@@ -654,15 +754,11 @@ export default function FormNewSale() {
       {isInvoice ? (
         <div>
           <SaleModal
+            ref={saleModalRef}
             datos={{
               total: totalPrevio,
               descuento,
-              totalDescontado: selectedProducts.reduce(
-                (accumulator, object) => {
-                  return accumulator + object.total;
-                },
-                0
-              ),
+              totalDescontado: totalFacturar,
               nit: clientes[0].nit,
               razonSocial: clientes[0].razonSocial,
             }}
@@ -689,16 +785,20 @@ export default function FormNewSale() {
             invoice={invoice}
             total={totalPrevio}
             descuentoCalculado={
-              auxSelectedProducts.reduce((accumulator, object) => {
-                return accumulator + object.total;
-              }, 0) -
-              selectedProducts.reduce((accumulator, object) => {
-                return accumulator + object.total;
-              }, 0)
+              totalPrevio -
+              (selectedProducts.reduce((accumulator, object) => {
+                return accumulator + parseFloat(object.total);
+              }, 0) *
+                (100 - descuento)) /
+                100
             }
-            totalDescontado={selectedProducts.reduce((accumulator, object) => {
-              return accumulator + object.total;
-            }, 0)}
+            totalDescontado={
+              (selectedProducts.reduce((accumulator, object) => {
+                return accumulator + parseFloat(object.total);
+              }, 0) *
+                (100 - descuento)) /
+              100
+            }
             fechaHora={fechaHora}
             tipoDocumento={tipoDoc}
             userName={userName}
@@ -709,6 +809,13 @@ export default function FormNewSale() {
             userStore={userStore}
             userId={usuarioAct}
             saleType="store"
+            setTotalFacturar={setTotalFacturar}
+            setTotalDesc={setTotalDesc}
+            setTotalPrevio={setTotalPrevio}
+            ofp={ofp}
+            setOfp={setOfp}
+            aPagar={aPagar}
+            setAPagar={setAPagar}
           />
         </div>
       ) : null}
@@ -924,7 +1031,7 @@ export default function FormNewSale() {
                           />
                         </td>
                         <td className="smallTableColumn">
-                          {sp.total.toFixed(2)}
+                          {parseFloat(sp.total).toFixed(2)}
                         </td>
                         <td className="smallTableColumn">
                           {sp.unidadDeMedida == "Unidad"
@@ -944,22 +1051,20 @@ export default function FormNewSale() {
                     <th></th>
                     <th className="smallTableColumn">{"Total: "}</th>
                     <th className="smallTableColumn">
-                      {`${selectedProducts
-                        .reduce((accumulator, object) => {
-                          return accumulator + object.total;
-                        }, 0)
-                        .toFixed(2)} Bs.`}
+                      {`${selectedProducts.reduce((accumulator, object) => {
+                        return accumulator + parseFloat(object.total);
+                      }, 0)} Bs.`}
                     </th>
                     <th className="smallTableColumn">
                       {isMobile ? "Total Descon tado" : "Total descontado: "}
                     </th>
-                    <th className="smallTableColumn">{`${(
+                    <th className="smallTableColumn">{`${
                       (selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + object.total;
+                        return accumulator + parseFloat(object.total);
                       }, 0) *
                         (100 - descuento)) /
                       100
-                    ).toFixed(2)}
+                    }
                      Bs.`}</th>
                   </tr>
                 </tfoot>

@@ -213,24 +213,7 @@ export default function FormRegisterClient(props) {
                               });
                             })
                             .catch((err) => {
-                              const errorMessage = err.response.data.message;
-                              if (
-                                errorMessage.includes(
-                                  "The duplicate key value is"
-                                )
-                              ) {
-                                const errorM = err.response.data.message.split(
-                                  "The duplicate key value is"
-                                );
-                                const errorDisplay =
-                                  "La combinación de Nit y Zona ya se encuentran registrada en la base de datos";
-                                console.log(
-                                  "Error desde el front",
-                                  errorDisplay
-                                );
-                                setAlert(errorDisplay);
-                              }
-
+                              setAlert(err);
                               setIsAlert(true);
                               setisLoading(false);
                               console.log(err);

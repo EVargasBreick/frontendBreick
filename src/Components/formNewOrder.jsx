@@ -298,9 +298,8 @@ export default function FormNewOrder() {
     if (prod.unidadDeMedida == "unidad") {
       cantidad = cantidades != "" ? parseInt(cantidades) : 0;
     } else {
-      cantidad = cantidades;
+      cantidad = parseFloat(cantidades).toFixed(2);
     }
-
     let auxObj = {
       cant_Actual: prod.cant_Actual,
       cantPrevia: prod.cantPrevia,
@@ -395,7 +394,7 @@ export default function FormNewOrder() {
         setAlert("Por favor seleccione al menos un producto");
       }
       selectedProds.map((pr) => {
-        if (pr.cantProducto < 1 || pr.cantProducto === "") {
+        if (pr.cantProducto < 0.01 || pr.cantProducto === "") {
           error = true;
           setAlert("La cantidad elegida de algun producto esta en 0");
         }
@@ -738,10 +737,10 @@ export default function FormNewOrder() {
       setHallObject(hallObj);
       setTotalDesc(
         (
-          parseFloat(pasObject.descCalculado) +
-          parseFloat(tradObject.descCalculado) +
-          parseFloat(navObject.descCalculado) +
-          parseFloat(hallObject.descCalculado)
+          parseFloat(pasObj.descCalculado) +
+          parseFloat(tradObj.descCalculado) +
+          parseFloat(navObj.descCalculado) +
+          parseFloat(hallObj.descCalculado)
         ).toFixed(2)
       );
 
@@ -755,10 +754,10 @@ export default function FormNewOrder() {
       );
       setTotalFacturar(
         (
-          parseFloat(tradObject.facturar) +
-          parseFloat(pasObject.facturar) +
-          parseFloat(navObject.facturar) +
-          parseFloat(hallObject.facturar)
+          parseFloat(tradObj.facturar) +
+          parseFloat(pasObj.facturar) +
+          parseFloat(navObj.facturar) +
+          parseFloat(hallObj.facturar)
         ).toFixed(2)
       );
 

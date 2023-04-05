@@ -1,23 +1,29 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Modal, Button, Form, Image } from "react-bootstrap";
 import { getBranches, getBranchesPs } from "../services/storeServices";
+
 import loading2 from "../assets/loading2.gif";
 import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
 import { structureXml, getInvoiceNumber } from "../services/mockedServices";
 import { dateString } from "../services/dateServices";
+import { jsPDF } from "jspdf";
 import Cookies from "js-cookie";
 import "../styles/generalStyle.css";
 import {
   createInvoice,
   deleteInvoice,
+  invoiceUpdate,
   otherPaymentsList,
 } from "../services/invoiceServices";
 import { SoapInvoice } from "../Xml/soapInvoice";
 import xml2js from "xml2js";
 import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
 import { updateInvoicedOrder, updateStock } from "../services/orderServices";
-import { createSale } from "../services/saleServices";
+import { createSale, deleteSale } from "../services/saleServices";
+import { InvoiceComponentAlt } from "./invoiceComponentAlt";
+import { InvoiceComponentCopy } from "./invoiceComponentCopy";
+import html2canvas from "html2canvas";
 export default function PaymentModal({
   setIsInvoice,
   isSaleModal,
@@ -58,9 +64,19 @@ export default function PaymentModal({
   const [aPagar, setAPagar] = useState(0);
   const [ofp, setOfp] = useState(0);
   const [otherPayments, setOtherPayments] = useState([]);
+
   const [invoice, setInvoice] = useState({});
   const [userStore, setUserStore] = useState("");
   const [pdv, setPdv] = useState("");
+  const dropRef = useRef();
+  const dropButtonRef = useRef();
+  const invButtonRef = useRef();
+  const invButtonRefAlt = useRef();
+  const invoiceWrapRef = useRef(null);
+  const componentCopyRef = useRef(null);
+  const [invoiceId, setInvoiceId] = useState("");
+  const [isDownloadable, setIsDownloadable] = useState(false);
+  const printRef = useRef(false);
   useEffect(() => {
     const otrosPagos = otherPaymentsList();
     otrosPagos
@@ -93,15 +109,28 @@ export default function PaymentModal({
     });
   }, []);
   useEffect(() => {
-    if (cuf.length > 0) {
+    if (cuf.length > 0 && invoiceNumber != 0) {
       setIsFactura(true);
     }
-  }, [cuf]);
+  }, [cuf, invoiceNumber]);
   useEffect(() => {
-    if (isFactura) {
+    console.log("Body factura", invoice);
+    console.log("Invoiceref", invoiceRef);
+    if (isFactura && componentRef.current) {
       invoiceRef.current.click();
     }
-  }, [isFactura]);
+    setTimeout(() => {
+      console.log("Invoiceref2", invoiceRef);
+    }, 2000);
+  }, [isFactura, invoiceRef]);
+  useEffect(() => {
+    if (isDownloadable) {
+      invButtonRefAlt.current.click();
+    }
+  }, [isDownloadable]);
+  useEffect(() => {
+    console.log("Invoice ref en su use", invoiceRef);
+  }, [invoiceRef]);
   useEffect(() => {
     setCambio(parseFloat(cancelado - totales.montoFacturar).toFixed(2));
   }, [cancelado]);
@@ -160,7 +189,7 @@ export default function PaymentModal({
         break;
       case "6":
         setStringPago("Pago Posterior");
-        setAPagar(1);
+        setAPagar(0);
         setCancelado(totales.montoFacturar);
         setCambio(0);
         setOfp(0);
@@ -215,7 +244,9 @@ export default function PaymentModal({
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
-            invoiceProcess();
+            setAlertSec(`Guardando Venta`);
+            setIsAlertSec(true);
+            saveInvoice();
           }
         } else {
           if (tipoPago == 2 || tipoPago == 10) {
@@ -223,7 +254,9 @@ export default function PaymentModal({
               setAlert("Ingrese valores válidos para la tarjeta por favor");
               setIsAlert(true);
             } else {
-              invoiceProcess();
+              setAlertSec(`Guardando Venta`);
+              setIsAlertSec(true);
+              saveInvoice();
             }
           }
           if (tipoPago == 4) {
@@ -235,7 +268,9 @@ export default function PaymentModal({
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
-                invoiceProcess();
+                setAlertSec(`Guardando Venta`);
+                setIsAlertSec(true);
+                saveInvoice();
               }
             }
           }
@@ -247,7 +282,9 @@ export default function PaymentModal({
             tipoPago == 8 ||
             tipoPago == 9
           ) {
-            invoiceProcess();
+            setAlertSec(`Guardando Venta`);
+            setIsAlertSec(true);
+            saveInvoice();
           }
         }
       }
@@ -255,7 +292,7 @@ export default function PaymentModal({
     });
   }
 
-  async function invoiceProcess() {
+  async function invoiceProcess(idFactura, idVenta) {
     const invoiceBody = {
       idCliente: totales.idCliente,
       nroFactura: 1,
@@ -285,6 +322,8 @@ export default function PaymentModal({
     const newId = getInvoiceNumber(lastIdObj);
     newId
       .then((res) => {
+        setInvoiceId(res.response.data + 1);
+        setAlertSec(`Última factura: ${res.response.data}`);
         const xmlRes = structureXml(
           selectedProducts,
           branchInfo,
@@ -329,53 +368,107 @@ export default function PaymentModal({
                   const transaccion = SoapInvoiceTransaction(transacObj);
                   transaccion
                     .then((resp) => {
+                      var count = 0;
                       console.log(
                         "Respuesta de la transaccion",
                         resp.response.data.SalidaTransaccionBoliviaResponse[0]
                           .SalidaTransaccionBoliviaResult[0]
                       );
+                      const invoiceState =
+                        resp.response.data.SalidaTransaccionBoliviaResponse[0]
+                          .SalidaTransaccionBoliviaResult[0].Transaccion[0]
+                          .Estado[0];
                       const invocieResponse =
                         resp.response.data.SalidaTransaccionBoliviaResponse[0]
                           .SalidaTransaccionBoliviaResult[0]
                           .TransaccionSalidaUnificada[0];
-                      if (invocieResponse.CUF[0].length > 10) {
-                        setAlertSec("Generando Factura");
-                        const resCuf = invocieResponse.CUF[0];
-
-                        const resCufd = invocieResponse.CUFD[0];
-                        const aut = invocieResponse.Autorizacion[0];
-                        const fe = invocieResponse.FECHAEMISION[0];
-                        const numFac = invocieResponse.NumeroFactura[0];
-
-                        const saved = saveInvoice(
-                          resCuf,
-                          resCufd,
-                          aut,
-                          fe,
-                          numFac,
-                          idTransaccion,
-                          ofp,
-                          giftCard,
-                          aPagar
-                        );
-                        saved.then((res) => {
-                          setCuf(resCuf);
-
-                          setIsAlertSec(false);
-                        });
-                        clearInterval(intervalId);
+                      if (invoiceState == "Transacción Exitosa") {
+                        console.log("Count", count);
+                        if (invocieResponse?.CUF[0].length > 10) {
+                          setAlertSec("Generando Factura");
+                          const resCuf = invocieResponse.CUF[0];
+                          const resCufd = invocieResponse.CUFD[0];
+                          const aut = invocieResponse.Autorizacion[0];
+                          const fe = invocieResponse.FECHAEMISION[0];
+                          const numFac = invocieResponse.NumeroFactura[0];
+                          const idTrac = idTransaccion;
+                          invoice.nroFactura = numFac;
+                          if (count == 0) {
+                            console.log("Invoice body", invoice);
+                            console.log("Venta registrada");
+                            const updateBody = {
+                              nroFactura: numFac,
+                              cuf: resCuf,
+                              cufd: resCufd,
+                              autorizacion: aut,
+                              fe: fe,
+                              nroTransaccion: idTrac,
+                              idFactura: idFactura,
+                            };
+                            const updateInvoice = invoiceUpdate(updateBody);
+                            updateInvoice
+                              .then((inv) => {
+                                const fecha = dateString();
+                                const updated = updateInvoicedOrder(
+                                  totales.idPedido,
+                                  fecha
+                                );
+                                updated.then((res) => {
+                                  setAlertSec("Gracias por su compra!");
+                                  setCuf(resCuf);
+                                  setInvoiceNumber(numFac);
+                                  setIsAlertSec(true);
+                                  setTimeout(() => {
+                                    setIsAlertSec(false);
+                                  }, 1000);
+                                });
+                              })
+                              .catch((err) => {
+                                console.log(
+                                  "Error al actualizar la factura",
+                                  err
+                                );
+                              });
+                          }
+                          clearInterval(intervalId);
+                        } else {
+                          intento += 1;
+                          setAlertSec("Generando Codigo Único de Facturación");
+                        }
                       } else {
-                        intento += 1;
-                        setAlertSec("Generando Codigo Único de Facturación");
+                        const errorInvoice =
+                          resp.response.data.SalidaTransaccionBoliviaResponse[0]
+                            .SalidaTransaccionBoliviaResult[0]
+                            .TransaccionSalidaUnificada[0].Errores[0].Error[0]
+                            .Descripcion[0];
+                        setAlert(
+                          `Error al obtener la factura, intente nuevamente, ${JSON.stringify(
+                            errorInvoice
+                          )}`
+                        );
+                        setIsAlert(true);
+                        clearInterval(intervalId);
+                        setIsAlertSec(false);
+                        const deletedInvoice = deleteInvoice(idFactura);
+                        deletedInvoice.then((rs) => {
+                          const deletedSale = deleteSale(idVenta);
+                          deletedSale.then((res) => {
+                            console.log("Borrados");
+                            console.log("Devolviendo Stock");
+                            setIsAlertSec(false);
+                          });
+                        });
                       }
                     })
                     .catch((error) => {
-                      console.log("Esto paso", error);
+                      console.log("Esto paso en la transaccion", error);
                     });
                 }, 5000);
               });
             })
-            .catch((err) => console.log("Esto paso", err));
+            .catch((err) =>
+              console.log("Esto paso en la validacion del comprobante", err)
+            );
         });
       })
       .catch((err) => {
@@ -389,22 +482,12 @@ export default function PaymentModal({
     });
     setIsModified(true);
   }
-  function saveInvoice(
-    cuf,
-    cufd,
-    autorizacion,
-    fechaEmision,
-    nro,
-    idTransaccion,
-    ofp,
-    giftCard,
-    aPagar
-  ) {
+  function saveInvoice() {
     return new Promise((resolve, reject) => {
       setAlertSec("Guardando Venta");
       const invoiceBody = {
         idCliente: totales.idCliente,
-        nroFactura: nro,
+        nroFactura: 0,
         idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
@@ -414,14 +497,14 @@ export default function PaymentModal({
         pagado: cancelado,
         cambio: cambio,
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
-        cuf: cuf,
+        cuf: "",
         importeBase: parseFloat(cancelado - cambio).toFixed(2),
         debitoFiscal: parseFloat((cancelado - cambio) * 0.13).toFixed(2),
         desembolsada: 0,
-        autorizacion: autorizacion,
-        cufd: cufd,
-        fechaEmision: fechaEmision,
-        nroTransaccion: idTransaccion,
+        autorizacion: `${fechaHora}-${0}-${userStore}`,
+        cufd: "",
+        fechaEmision: "",
+        nroTransaccion: 0,
         idOtroPago: ofp,
         vale: giftCard,
         aPagar: aPagar,
@@ -432,18 +515,21 @@ export default function PaymentModal({
       const newInvoice = createInvoice(invoiceBody);
       newInvoice
         .then((res) => {
-          const newId = res.data.idCreado;
-          const created = saveSale(newId);
-          created
-            .then((res) => {
-              resolve(true);
-            })
-            .catch((error) => {
-              reject(false);
-            });
+          setTimeout(() => {
+            const newId = res.data.idCreado;
+            const created = saveSale(newId);
+            created
+              .then((res) => {
+                resolve(true);
+              })
+              .catch((error) => {
+                reject(false);
+              });
+          }, 500);
         })
         .catch((error) => {
           console.log("Error en la creacion de la factura", error);
+          setAlert("Error al crear la factura, intente nuevamente");
         });
 
       //setIsSaleModal(!isSaleModal);
@@ -470,31 +556,54 @@ export default function PaymentModal({
       const ventaCreada = createSale(objVenta);
       ventaCreada
         .then((res) => {
-          const updatedStock = updateStock({
-            accion: "take",
-            idAlmacen: totales.idAlmacen,
-            productos: selectedProducts,
-          });
-          updatedStock.then((us) => {
-            const fecha = dateString();
-            const updated = updateInvoicedOrder(totales.idPedido, fecha);
-            updated.then((res) => {
-              setAlertSec("Gracias por su compra!");
-              resolve(true);
-              setIsAlertSec(true);
-              setTimeout(() => {
-                setIsAlertSec(false);
-              }, 1000);
-            });
-          });
+          const idVenta = res.data.idCreado;
+          setTimeout(() => {
+            invoiceProcess(createdId, idVenta);
+            resolve(true);
+            setIsAlertSec(true);
+          }, 500);
         })
         .catch((err) => {
           console.log("Error al crear la venta", err);
           const deletedInvoice = deleteInvoice(createdId);
+          setAlert("Error al crear la factura, intente nuevamente");
           reject(false);
         });
     });
   }
+
+  const handleDownloadPdfInv = async () => {
+    const element = componentRef.current;
+    const canvas = await html2canvas(element);
+    const data = canvas.toDataURL("image/png");
+
+    const elementCopy = componentCopyRef.current;
+    const canvasCopy = await html2canvas(elementCopy);
+    const dataCopy = canvasCopy.toDataURL("image/png");
+
+    const node = invoiceWrapRef.current;
+    const { height } = node.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const mmHeight = height / ((dpr * 96) / 25.4);
+    console.log("Height in mm:", mmHeight);
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: [80, mmHeight * 1.5 + 20],
+    });
+
+    const imgProperties = pdf.getImageProperties(data);
+    const imgPropertiesCopy = pdf.getImageProperties(dataCopy);
+    const pdfWidth = 75;
+    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    const pdfHeightCopy =
+      (imgPropertiesCopy.height * pdfWidth) / imgPropertiesCopy.width;
+
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.addPage();
+    pdf.addImage(dataCopy, "PNG", 0, 0, pdfWidth, pdfHeightCopy);
+    pdf.save(`factura-${invoiceId}-${invoice.nitCliente}.pdf`);
+  };
 
   return (
     <div>
@@ -511,15 +620,18 @@ export default function PaymentModal({
           <Modal.Title>{`Facturacion`}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <ReactToPrint
+            trigger={() => <button ref={invoiceRef}>Print this out!</button>}
+            content={() => componentRef.current}
+            onAfterPrint={() => {
+              setIsDownloadable(true);
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            }}
+          />
           {isFactura ? (
             <div>
-              <ReactToPrint
-                trigger={() => (
-                  <button ref={invoiceRef}>Print this out!</button>
-                )}
-                content={() => componentRef.current}
-                onAfterPrint={() => window.location.reload()}
-              />
               <Button hidden>
                 <InvoiceComponent
                   ref={componentRef}
@@ -538,6 +650,8 @@ export default function PaymentModal({
                     descuentoCalculado: totales.descuentoCalculado,
                     totalDescontado: totales.montoFacturar,
                   }}
+                  isOrder={true}
+                  invoiceNumber={invoiceNumber}
                 />
               </Button>
             </div>
@@ -591,8 +705,8 @@ export default function PaymentModal({
           <div className="modalRows">
             <div className="modalLabel"> Descuento:</div>
             <div className="modalData">{`${parseFloat(
-              totales.descuento
-            ).toFixed(2)} %`}</div>
+              totales.descuentoCalculado
+            ).toFixed(2)}`}</div>
           </div>
           <div className="modalRows">
             <div className="modalLabel"> Total a pagar:</div>
@@ -612,7 +726,6 @@ export default function PaymentModal({
                   <option value="1">Efectivo</option>
                   <option value="2">Tarjeta</option>
                   <option value="3">Cheque</option>
-                  <option value="4">Vales</option>
                   <option value="5">Otros</option>
                   <option value="6">Pago Posterior</option>
                   <option value="7">Transferencia</option>
@@ -717,6 +830,60 @@ export default function PaymentModal({
           </Button>
         </Modal.Footer>
       </Modal>
+      {isDownloadable ? (
+        <div>
+          <button
+            hidden
+            type="button"
+            onClick={handleDownloadPdfInv}
+            ref={invButtonRefAlt}
+          >
+            Download as PDF
+          </button>
+          <div ref={invoiceWrapRef}>
+            <InvoiceComponentAlt
+              ref={componentRef}
+              branchInfo={branchInfo}
+              selectedProducts={selectedProducts}
+              cuf={cuf}
+              invoice={invoice}
+              paymentData={{
+                tipoPago: stringPago,
+                cancelado: cancelado,
+                cambio: cambio,
+                fechaHora: fechaHora,
+              }}
+              totalsData={{
+                total: totales.montoTotal,
+                descuentoCalculado: totales.descuentoCalculado,
+                totalDescontado: totales.montoFacturar,
+              }}
+              isOrder={true}
+              invoiceNumber={invoiceNumber}
+            />
+            <InvoiceComponentCopy
+              ref={componentCopyRef}
+              branchInfo={branchInfo}
+              selectedProducts={selectedProducts}
+              cuf={cuf}
+              invoice={invoice}
+              paymentData={{
+                tipoPago: stringPago,
+                cancelado: cancelado,
+                cambio: cambio,
+                fechaHora: fechaHora,
+              }}
+              totalsData={{
+                total: totales.montoTotal,
+                descuentoCalculado: totales.descuentoCalculado,
+                totalDescontado: totales.montoFacturar,
+              }}
+              isOrder={true}
+              invoiceNumber={invoiceNumber}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

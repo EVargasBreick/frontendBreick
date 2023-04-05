@@ -11,6 +11,7 @@ import "../styles/generalStyle.css";
 import Reportes from "./Sidebars/reportes";
 import Logistica from "./Sidebars/logistica";
 import Produccion from "./Sidebars/produccion";
+import Ventas from "./Sidebars/ventas";
 export default function SidebarWarehousing() {
   const [toggledProd, setToggledProd] = useState(false);
   const [toggledAlm, setToggledAlm] = useState(false);
@@ -169,6 +170,11 @@ export default function SidebarWarehousing() {
               toggleSub={toggleSub}
               redirectOnClick={redirectOnClick}
               toggleLog={toggleLog}
+            />
+            <Ventas
+              toggleSub={toggleSub}
+              redirectOnClick={redirectOnClick}
+              toggledVent={toggledVent}
             />
             <Reportes
               toggleSub={toggleSub}

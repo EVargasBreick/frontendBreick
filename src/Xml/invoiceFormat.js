@@ -1,6 +1,7 @@
 import xml2js from "xml2js";
 
 function generateInvoiceJson(data) {
+  console.log("Descuento en funcion bien adentro", data.descuento);
   const detalleArray = [];
   data.products.map((product) => {
     const prodObj = {
@@ -11,7 +12,7 @@ function generateInvoiceJson(data) {
       cantidad: parseFloat(product.cantProducto).toFixed(2),
       unidadMedida: product.codigoUnidad,
       precioUnitario: product.precioDeFabrica,
-      montoDescuento: parseFloat(product.descuentoProd).toFixed(2),
+      montoDescuento: 0,
       subTotal:
         product.totalProd != undefined
           ? parseFloat(product.totalProd).toFixed(2)
@@ -30,7 +31,7 @@ function generateInvoiceJson(data) {
     console.log("Producto ya modificado", prodObj);
     detalleArray.push(prodObj);
   });
-
+  console.log("Test", data.montoFacturar + data.montoGiftCard);
   const xmlJson = {
     Comprobantes: {
       Comprobante: {
@@ -72,9 +73,8 @@ function generateInvoiceJson(data) {
                       },
                     },
               montoTotal: parseFloat(data.montoFacturar).toFixed(2),
-              montoTotalSujetoIva: parseFloat(
-                data.montoFacturar - data.montoGiftCard
-              ).toFixed(2),
+
+              montoTotalSujetoIva: parseFloat(data.montoFacturar).toFixed(2),
               codigoMoneda: data.codigoMoneda,
               tipoCambio: data.tipoCambio,
               montoTotalMoneda: parseFloat(data.montoTotalMoneda).toFixed(2),
