@@ -156,23 +156,7 @@ export const InvoiceComponent = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={JSON.stringify(
-                invoice?.nitEmpresa +
-                  "|" +
-                  inum +
-                  "|" +
-                  invoice?.cuf +
-                  "|" +
-                  date +
-                  "|" +
-                  totalsData?.total +
-                  "|" +
-                  totalsData?.totalDescontado +
-                  "|" +
-                  totalsData?.descuentoCalculado +
-                  "|" +
-                  invoice?.nitCliente
-              )}
+              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${invoice.cuf}&numero=${inum}`}
               size={100}
             />
           </div>
@@ -324,23 +308,7 @@ export const InvoiceComponent = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={JSON.stringify(
-                invoice?.nitEmpresa +
-                  "|" +
-                  inum +
-                  "|" +
-                  invoice?.cuf +
-                  "|" +
-                  date +
-                  "|" +
-                  totalsData?.total +
-                  "|" +
-                  totalsData?.totalDescontado +
-                  "|" +
-                  totalsData?.descuentoCalculado +
-                  "|" +
-                  invoice?.nitCliente
-              )}
+             datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${invoice.cuf}&numero=${inum}`}
               size={100}
             />
           </div>

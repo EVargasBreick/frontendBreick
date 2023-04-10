@@ -150,9 +150,9 @@ export default function BodySalesReport() {
       reportTable.map((rt, index) => {
         const dataRecord = {
           nro: index + 1,
-          cuf: rt.cuf,
           fecha: rt.fecha,
           hora: rt.hora,
+          nroFactura: rt.nroFactura,
           "nit cliente": rt.nitCliente,
           complemento: 0,
           "razon social": rt.razonSocial,
@@ -364,7 +364,6 @@ export default function BodySalesReport() {
                   <th className="reportColumnMedium">FECHA</th>
                   <th className="reportColumnSmall ">HORA</th>
                   <th className="reportColumnSmall ">NRO FACTURA</th>
-                  <th className="reportColumnSmall ">CUF</th>
                   <th className="reportColumnMedium ">NIT CLIENTE</th>
                   <th className="reportColumnXSmall ">COMPLE MENTO</th>
                   <th className="reportColumnMedium ">RAZON SOCIAL</th>
@@ -396,9 +395,6 @@ export default function BodySalesReport() {
                       <td className="reportColumnMedium">{rt.fecha}</td>
                       <td className="reportColumnMedium">{rt.hora}</td>
                       <td className="reportCufColumn">{rt.nroFactura}</td>
-                      <td className="reportColumnMedium">
-                        {formattedCuf(rt.cuf)}
-                      </td>
                       <td className="reportColumnXSmall">{`${rt.nitCliente}`}</td>
                       <td className="reportColumnXSmall">{0}</td>
                       <td className="reportColumnMedium">{rt.razonSocial}</td>

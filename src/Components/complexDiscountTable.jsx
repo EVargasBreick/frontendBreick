@@ -70,9 +70,11 @@ export default function ComplexDiscountTable({
             <td>{`${parseFloat(pasObject.descuento).toFixed(2)} %`}</td>
           ) : null}
           {pascua.length > 0 ? (
-            <td>{pasObject.descCalculado + " Bs."}</td>
+            <td>{parseFloat(pasObject.descCalculado).toFixed(2) + " Bs."}</td>
           ) : null}
-          {pascua.length > 0 ? <td>{pasObject.facturar + " Bs."}</td> : null}
+          {pascua.length > 0 ? (
+            <td>{parseFloat(pasObject.facturar).toFixed(2) + " Bs."}</td>
+          ) : null}
         </tr>
         <tr>
           {navidad.length > 0 ? <td>Navidad</td> : null}
@@ -81,10 +83,12 @@ export default function ComplexDiscountTable({
           ) : null}
           {navidad.length > 0 ? <td>{`${navObject.descuento} %`}</td> : null}
           {navidad.length > 0 ? (
-            <td>{navObject.descCalculado + " Bs."}</td>
+            <td>{parseFloat(navObject.descCalculado).toFixed(2) + " Bs."}</td>
           ) : null}
 
-          {navidad.length > 0 ? <td>{navObject.facturar + " Bs."}</td> : null}
+          {navidad.length > 0 ? (
+            <td>{parseFloat(navObject.facturar).toFixed(2) + " Bs."}</td>
+          ) : null}
         </tr>
         <tr>
           {halloween.length > 0 ? <td>Halloween</td> : null}
@@ -93,10 +97,10 @@ export default function ComplexDiscountTable({
           ) : null}
           {halloween.length > 0 ? <td>{`${hallObject.descuento} %`}</td> : null}
           {halloween.length > 0 ? (
-            <td>{hallObject.descCalculado + " Bs."}</td>
+            <td>{parseFloat(hallObject.descCalculado).toFixed(2) + " Bs."}</td>
           ) : null}
           {halloween.length > 0 ? (
-            <td>{hallObject.facturar + " Bs."}</td>
+            <td>{parseFloat(hallObject.facturar).toFixed(2) + " Bs."}</td>
           ) : null}
         </tr>
       </tbody>

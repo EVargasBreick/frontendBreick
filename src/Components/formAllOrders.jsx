@@ -7,6 +7,7 @@ import loading2 from "../assets/loading2.gif";
 import "../styles/buttonsStyles.css";
 import {
   approveOrderFromId,
+  getAllOrderList,
   getOrderDetail,
   getOrderList,
   getOrderProdList,
@@ -15,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { ExportToExcel } from "../services/exportServices";
 import { OrderPDF } from "./orderPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-export default function FormManageOrders() {
+export default function FormAllOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
   const [vendedor, setVendedor] = useState("");
@@ -56,7 +57,7 @@ export default function FormManageOrders() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const listaPedidos = getOrderList("");
+    const listaPedidos = getAllOrderList("");
     listaPedidos.then((res) => {
       console.log("Lista pedidos", res.data.data);
       setPedidosList(res.data.data);
@@ -67,6 +68,23 @@ export default function FormManageOrders() {
     setIsLoading(false);
   };
   function setOrderDetails(stringPedido) {
+    setProductDetail(null);
+    setProductTable([]);
+
+    setSelectedOrder({});
+    setCodigoPedido("");
+    setVendedor("");
+    setCliente("");
+    setZona("");
+    setTotal("");
+    setDescuento("");
+    setFacturado("");
+    setDescCalculado("");
+    setNit("");
+    setNotas("");
+    setIsOrder(false);
+    setProductList([]);
+    setIsPdf(false);
     const stringParts = stringPedido.split("|");
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
@@ -313,24 +331,10 @@ export default function FormManageOrders() {
         </div>
       </div>
       <div className="secondHalf">
-        <div className="formLabel">APROBAR PEDIDO</div>
+        <div className="formLabel">EXPORTAR PEDIDO</div>
         <Form>
           <Form.Group className="halfRadio" controlId="productDisccount">
             <div className="buttonsLarge">
-              <Button
-                variant="warning"
-                className="cyanLarge"
-                onClick={() => {
-                  approveOrder(selectedOrder);
-                }}
-              >
-                {isLoading ? (
-                  <Image src={loading2} style={{ width: "10%" }} />
-                ) : (
-                  "Aprobar"
-                )}
-              </Button>
-
               <Dropdown className="yellowDrop">
                 <Dropdown.Toggle
                   variant="success"

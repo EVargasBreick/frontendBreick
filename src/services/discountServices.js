@@ -1,5 +1,4 @@
 function getDiscountPercentage(tipoProd, rango, discountList) {
-  console.log("Discount list", discountList);
   return discountList
     .filter((dl) => dl.idTiposProducto == tipoProd)
     .find((fd) => fd.rango == rango) != undefined
@@ -37,113 +36,149 @@ function traditionalDiscounts(
   const tradD = getDiscountPercentage(1, "D", discountList);
   const tradE = getDiscountPercentage(1, "E", discountList);
   if (
-    totalTradicional * parseFloat(1 - tradA / 100).toFixed(2) +
-      totalSinDesc +
-      totalEspecial <
+    parseFloat(totalTradicional) * parseFloat(1 - tradA / 100).toFixed(2) +
+      parseFloat(totalSinDesc) +
+      parseFloat(totalEspecial) <
     1000
   ) {
     return {
-      total: totalTradicional + totalEspecial + totalSinDesc,
+      total:
+        parseFloat(totalTradicional) +
+        parseFloat(totalEspecial) +
+        parseFloat(totalSinDesc),
       descuento: 0,
       descCalculado: 0,
       especial: false,
-      facturar: totalTradicional + totalEspecial + totalSinDesc,
+      facturar:
+        parseFloat(totalTradicional) +
+        parseFloat(totalEspecial) +
+        parseFloat(totalSinDesc),
     };
   } else {
     if (
-      totalTradicional * parseFloat(1 - tradB / 100).toFixed(2) +
-        totalSinDesc +
-        totalEspecial <
+      parseFloat(totalTradicional) * parseFloat(1 - tradB / 100).toFixed(2) +
+        parseFloat(totalSinDesc) +
+        parseFloat(totalEspecial) <
       3000
     ) {
       const totalDescontado =
-        totalTradicional * parseFloat(1 - tradA / 100).toFixed(2) +
-        totalSinDesc +
-        totalEspecial;
+        parseFloat(totalTradicional) * parseFloat(1 - tradA / 100).toFixed(2) +
+        parseFloat(totalSinDesc) +
+        parseFloat(totalEspecial);
       return {
-        total: totalTradicional + totalEspecial + totalSinDesc,
+        total:
+          parseFloat(totalTradicional) +
+          parseFloat(totalEspecial) +
+          parseFloat(totalSinDesc),
         descuento: tradA,
         descCalculado: parseFloat(
-          totalTradicional + totalSinDesc + totalEspecial - totalDescontado
+          parseFloat(totalTradicional) +
+            parseFloat(totalSinDesc) +
+            parseFloat(totalEspecial) -
+            parseFloat(totalDescontado)
         ).toFixed(2),
-        facturar: totalDescontado.toFixed(2),
+        facturar: parseFloat(totalDescontado).toFixed(2),
         especial: false,
       };
     } else {
       if (
-        totalTradicional * parseFloat(1 - tradC / 100).toFixed(2) +
-          totalSinDesc +
-          totalEspecial <
+        parseFloat(totalTradicional) * parseFloat(1 - tradC / 100).toFixed(2) +
+          parseFloat(totalSinDesc) +
+          parseFloat(totalEspecial) <
         5000
       ) {
         const totalDescontado =
-          totalTradicional * parseFloat(1 - tradB / 100).toFixed(2) +
-          totalSinDesc +
-          totalEspecial;
+          parseFloat(totalTradicional) *
+            parseFloat(1 - tradB / 100).toFixed(2) +
+          parseFloat(totalSinDesc) +
+          parseFloat(totalEspecial);
 
         return {
-          total: totalTradicional + totalEspecial + totalSinDesc,
+          total:
+            parseFloat(totalTradicional) +
+            parseFloat(totalEspecial) +
+            parseFloat(totalSinDesc),
           descuento: tradB,
           descCalculado: parseFloat(
-            totalTradicional + totalSinDesc + totalEspecial - totalDescontado
+            parseFloat(totalTradicional) +
+              parseFloat(totalSinDesc) +
+              parseFloat(totalEspecial) -
+              parseFloat(totalDescontado)
           ).toFixed(2),
-          facturar: totalDescontado.toFixed(2),
+          facturar: parseFloat(totalDescontado).toFixed(2),
           especial: false,
         };
       } else {
         if (
-          totalTradicional * parseFloat(1 - tradD / 100).toFixed(2) +
-            totalSinDesc +
-            totalEspecial <
+          parseFloat(totalTradicional) *
+            parseFloat(1 - tradD / 100).toFixed(2) +
+            parseFloat(totalSinDesc) +
+            parseFloat(totalEspecial) <
           10000
         ) {
           const totalDescontado =
-            totalTradicional * parseFloat(1 - tradC / 100).toFixed(2) +
-            totalSinDesc +
-            totalEspecial;
+            parseFloat(totalTradicional) *
+              parseFloat(1 - tradC / 100).toFixed(2) +
+            parseFloat(totalSinDesc) +
+            parseFloat(totalEspecial);
 
           return {
-            total: totalTradicional + totalEspecial + totalSinDesc,
+            total:
+              parseFloat(totalTradicional) +
+              parseFloat(totalEspecial) +
+              parseFloat(totalSinDesc),
             descuento: tradC,
             descCalculado: parseFloat(
-              totalTradicional + totalSinDesc + totalEspecial - totalDescontado
+              parseFloat(totalTradicional) +
+                parseFloat(totalSinDesc) +
+                parseFloat(totalEspecial) -
+                parseFloat(totalDescontado)
             ).toFixed(2),
-            facturar: totalDescontado.toFixed(2),
+            facturar: parseFloat(totalDescontado).toFixed(2),
             especial: false,
           };
         } else {
           if (
-            totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
-              totalEspecialDesc +
-              totalSinDesc <
+            parseFloat(
+              totalTradicional * parseFloat(1 - tradE / 100).toFixed(2)
+            ) +
+              parseFloat(totalEspecialDesc) +
+              parseFloat(totalSinDesc) <
             20000
           ) {
             const totalDescontado =
-              totalTradicional * parseFloat(1 - tradD / 100).toFixed(2) +
-              totalSinDesc +
-              totalEspecial;
+              parseFloat(
+                totalTradicional * parseFloat(1 - tradD / 100).toFixed(2)
+              ) +
+              parseFloat(totalSinDesc) +
+              parseFloat(totalEspecial);
             console.log(
               "A ver que onda",
               totalTradicional * parseFloat(1 - tradD / 100).toFixed(2)
             );
             console.log("Total descontado", totalSinDesc + totalEspecial);
             return {
-              total: totalTradicional + totalEspecial + totalSinDesc,
+              total:
+                parseFloat(totalTradicional) +
+                parseFloat(totalEspecial) +
+                parseFloat(totalSinDesc),
               descuento: tradD,
               descCalculado: parseFloat(
-                totalTradicional +
-                  totalSinDesc +
-                  totalEspecial -
-                  totalDescontado
+                parseFloat(totalTradicional) +
+                  parseFloat(totalSinDesc) +
+                  parseFloat(totalEspecial) -
+                  parseFloat(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
               especial: false,
             };
           } else {
             const totalDescontado =
-              totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
-              totalSinDesc +
-              totalEspecialDesc;
+              parseFloat(
+                totalTradicional * parseFloat(1 - tradE / 100).toFixed(2)
+              ) +
+              parseFloat(totalSinDesc) +
+              parseFloat(totalEspecialDesc);
             console.log(
               "Total descontado",
               totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
@@ -151,13 +186,16 @@ function traditionalDiscounts(
                 totalSinDesc
             );
             return {
-              total: totalTradicional + totalEspecial + totalSinDesc,
+              total:
+                parseFloat(totalTradicional) +
+                parseFloat(totalEspecial) +
+                parseFloat(totalSinDesc),
               descuento: tradE,
               descCalculado: parseFloat(
-                totalTradicional +
-                  totalEspecialDesc +
-                  totalSinDesc -
-                  totalDescontado
+                parseFloat(totalTradicional) +
+                  parseFloat(totalEspecialDesc) +
+                  parseFloat(totalSinDesc) -
+                  parseFloat(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
               especial: true,
@@ -198,7 +236,9 @@ function easterDiscounts(pascua, discountList) {
       return {
         total: totalPascua,
         descuento: pasA,
-        descCalculado: parseFloat(totalPascua - totalDescontado).toFixed(2),
+        descCalculado: parseFloat(
+          parseFloat(totalPascua) - parseFloat(totalDescontado)
+        ).toFixed(2),
         facturar: totalDescontado.toFixed(2),
       };
     } else {
@@ -209,7 +249,9 @@ function easterDiscounts(pascua, discountList) {
         return {
           total: totalPascua,
           descuento: pasB,
-          descCalculado: parseFloat(totalPascua - totalDescontado).toFixed(2),
+          descCalculado: parseFloat(
+            parseFloat(totalPascua) - parseFloat(totalDescontado)
+          ).toFixed(2),
           facturar: totalDescontado.toFixed(2),
         };
       } else {
@@ -220,7 +262,9 @@ function easterDiscounts(pascua, discountList) {
           return {
             total: totalPascua,
             descuento: pasC,
-            descCalculado: parseFloat(totalPascua - totalDescontado).toFixed(2),
+            descCalculado: parseFloat(
+              parseFloat(totalPascua) - parseFloat(totalDescontado)
+            ).toFixed(2),
             facturar: totalDescontado.toFixed(2),
           };
         } else {
@@ -231,9 +275,9 @@ function easterDiscounts(pascua, discountList) {
             return {
               total: totalPascua,
               descuento: pasD,
-              descCalculado: parseFloat(totalPascua - totalDescontado).toFixed(
-                2
-              ),
+              descCalculado: parseFloat(
+                parseFloat(totalPascua) - parseFloat(totalDescontado)
+              ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
           } else {
@@ -261,7 +305,7 @@ function easterDiscounts(pascua, discountList) {
                   total: totalPascua,
                   descuento: pasF,
                   descCalculado: parseFloat(
-                    totalPascua - totalDescontado
+                    parseFloat(totalPascua) - parseFloat(totalDescontado)
                   ).toFixed(2),
                   facturar: totalDescontado.toFixed(2),
                 };
@@ -286,10 +330,10 @@ function easterDiscounts(pascua, discountList) {
                     totalPascua * parseFloat(1 - pasH / 100).toFixed(2);
 
                   return {
-                    total: totalPascua,
+                    total: parseFloat(totalPascua),
                     descuento: pasH,
                     descCalculado: parseFloat(
-                      totalPascua - totalDescontado
+                      parseFloat(totalPascua) - parseFloat(totalDescontado)
                     ).toFixed(2),
                     facturar: totalDescontado.toFixed(2),
                   };
@@ -327,7 +371,9 @@ function christmassDiscounts(navidad, discountList) {
       return {
         total: totalNavidad,
         descuento: crisA,
-        descCalculado: parseFloat(totalNavidad - totalDescontado).toFixed(2),
+        descCalculado: parseFloat(
+          parseFloat(totalNavidad) - parseFloat(totalDescontado)
+        ).toFixed(2),
         facturar: totalDescontado.toFixed(2),
       };
     } else {
@@ -338,7 +384,9 @@ function christmassDiscounts(navidad, discountList) {
         return {
           total: totalNavidad,
           descuento: crisB,
-          descCalculado: parseFloat(totalNavidad - totalDescontado).toFixed(2),
+          descCalculado: parseFloat(
+            parseFloat(totalNavidad) - parseFloat(totalDescontado)
+          ).toFixed(2),
           facturar: totalDescontado.toFixed(2),
         };
       } else {
@@ -349,9 +397,9 @@ function christmassDiscounts(navidad, discountList) {
           return {
             total: totalNavidad,
             descuento: crisC,
-            descCalculado: parseFloat(totalNavidad - totalDescontado).toFixed(
-              2
-            ),
+            descCalculado: parseFloat(
+              parseFloat(totalNavidad) - parseFloat(totalDescontado)
+            ).toFixed(2),
             facturar: totalDescontado.toFixed(2),
           };
         } else {
@@ -362,9 +410,9 @@ function christmassDiscounts(navidad, discountList) {
             return {
               total: totalNavidad,
               descuento: crisD,
-              descCalculado: parseFloat(totalNavidad - totalDescontado).toFixed(
-                2
-              ),
+              descCalculado: parseFloat(
+                parseFloat(totalNavidad) - parseFloat(totalDescontado)
+              ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
           } else {
@@ -374,9 +422,9 @@ function christmassDiscounts(navidad, discountList) {
             return {
               total: totalNavidad,
               descuento: crisE,
-              descCalculado: parseFloat(totalNavidad - totalDescontado).toFixed(
-                2
-              ),
+              descCalculado: parseFloat(
+                parseFloat(totalNavidad) - parseFloat(totalDescontado)
+              ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
           }
@@ -410,7 +458,9 @@ function halloweenDiscounts(halloween, discountList) {
       return {
         total: totalHalloween,
         descuento: hallA,
-        descCalculado: parseFloat(totalHalloween - totalDescontado).toFixed(2),
+        descCalculado: parseFloat(
+          parseFloat(totalHalloween) - parseFloat(totalDescontado)
+        ).toFixed(2),
         facturar: totalDescontado.toFixed(2),
       };
     } else {
@@ -421,9 +471,9 @@ function halloweenDiscounts(halloween, discountList) {
         return {
           total: totalHalloween,
           descuento: hallB,
-          descCalculado: parseFloat(totalHalloween - totalDescontado).toFixed(
-            2
-          ),
+          descCalculado: parseFloat(
+            parseFloat(totalHalloween) - parseFloat(totalDescontado)
+          ).toFixed(2),
           facturar: totalDescontado.toFixed(2),
         };
       } else {
@@ -434,33 +484,35 @@ function halloweenDiscounts(halloween, discountList) {
           return {
             total: totalHalloween,
             descuento: hallC,
-            descCalculado: parseFloat(totalHalloween - totalDescontado).toFixed(
-              2
-            ),
+            descCalculado: parseFloat(
+              parseFloat(totalHalloween) - parseFloat(totalDescontado)
+            ).toFixed(2),
             facturar: totalDescontado.toFixed(2),
           };
         } else {
           if (totalHalloween * parseFloat(1 - hallE / 100).toFixed(2) < 20000) {
             const totalDescontado =
-              totalHalloween * parseFloat(1 - hallD / 100).toFixed(2);
+              parseFloat(totalHalloween) *
+              parseFloat(1 - hallD / 100).toFixed(2);
 
             return {
               total: totalHalloween,
               descuento: hallD,
               descCalculado: parseFloat(
-                totalHalloween - totalDescontado
+                parseFloat(totalHalloween) - parseFloat(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
           } else {
             const totalDescontado =
-              totalHalloween * parseFloat(1 - hallE / 100).toFixed(2);
+              parseFloat(totalHalloween) *
+              parseFloat(1 - hallE / 100).toFixed(2);
 
             return {
               total: totalHalloween,
               descuento: hallE,
               descCalculado: parseFloat(
-                totalHalloween - totalDescontado
+                parseFloat(totalHalloween) - parseFloat(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
@@ -501,48 +553,57 @@ function manualAutomaticDiscount(
     return accumulator + parseFloat(object.totalProd);
   }, 0);
   const totalDescontado =
-    (totalTradicional + totalPascua + totalNavidad + totalHalloween) *
+    (parseFloat(totalTradicional) +
+      parseFloat(totalPascua) +
+      parseFloat(totalNavidad) +
+      parseFloat(totalHalloween)) *
     (1 - descuento / 100);
 
-  if (totalDescontado + totalSinDesc + totalEspecialDesc > 20000) {
+  if (
+    parseFloat(totalDescontado) +
+      parseFloat(totalSinDesc) +
+      parseFloat(totalEspecialDesc) >
+    20000
+  ) {
     return {
       totalDescontables:
-        totalTradicional +
-        totalPascua +
-        totalNavidad +
-        totalHalloween +
-        totalSinDesc,
+        parseFloat(totalTradicional) +
+        parseFloat(totalPascua) +
+        parseFloat(totalNavidad) +
+        parseFloat(totalHalloween) +
+        parseFloat(totalSinDesc),
       descuento: descuento,
       descCalculado:
-        totalTradicional +
-        totalPascua +
-        totalNavidad +
-        totalHalloween +
-        totalSinDesc -
-        totalDescontado,
-      totalTradicional: totalDescontado + totalSinDesc,
-      totalEspecial: totalEspecial,
-      descCalculadoEspeciales: totalEspecial - totalEspecialDesc,
-      facturar: totalEspecialDesc,
+        parseFloat(totalTradicional) +
+        parseFloat(totalPascua) +
+        parseFloat(totalNavidad) +
+        parseFloat(totalHalloween) +
+        parseFloat(totalSinDesc) -
+        parseFloat(totalDescontado),
+      totalTradicional: parseFloat(totalDescontado) + parseFloat(totalSinDesc),
+      totalEspecial: parseFloat(totalEspecial),
+      descCalculadoEspeciales:
+        parseFloat(totalEspecial) - parseFloat(totalEspecialDesc),
+      facturar: parseFloat(totalEspecialDesc),
       especial: true,
     };
   } else {
     return {
       totalDescontables:
-        totalTradicional +
-        totalPascua +
-        totalNavidad +
-        totalHalloween +
-        totalSinDesc,
+        parseFloat(totalTradicional) +
+        parseFloat(totalPascua) +
+        parseFloat(totalNavidad) +
+        parseFloat(totalHalloween) +
+        parseFloat(totalSinDesc),
       descuento: descuento,
       descCalculado:
-        totalTradicional +
-        totalPascua +
-        totalNavidad +
-        totalHalloween +
-        totalSinDesc -
-        totalDescontado,
-      totalTradicional: totalDescontado + totalSinDesc,
+        parseFloat(totalTradicional) +
+        parseFloat(totalPascua) +
+        parseFloat(totalNavidad) +
+        parseFloat(totalHalloween) +
+        parseFloat(totalSinDesc) -
+        parseFloat(totalDescontado),
+      totalTradicional: parseFloat(totalDescontado) + parseFloat(totalSinDesc),
       totalEspecial: totalEspecial,
       descCalculadoEspeciales: 0,
       facturar: totalEspecial,
@@ -793,13 +854,16 @@ function verifyAutomaticDiscount(selectedProducts, descuento) {
       const especiales = response.especiales;
       const tradicionales = response.tradicionales;
       const totEspeciales = especiales.reduce((accumulator, object) => {
-        return accumulator + object.total;
+        return accumulator + parseFloat(object.total);
       }, 0);
       const totTradicional = tradicionales.reduce((accumulator, object) => {
-        return accumulator + object.total;
+        return accumulator + parseFloat(object.total);
       }, 0);
 
-      if (totTradicional * 0.93 + totEspeciales > 1000) {
+      if (
+        parseFloat(totTradicional) * 0.93 + parseFloat(totEspeciales) >
+        1000
+      ) {
         resolve(7);
       } else {
         resolve(descuento);
@@ -874,6 +938,391 @@ function saleDiscount(selectedProducts, descuento) {
   });
 }
 
+function discountByAmount(selectedProducts, descuento) {
+  console.log("Selected products", selectedProducts);
+  const total = selectedProducts.reduce((accumulator, object) => {
+    return accumulator + parseFloat(object.totalProd);
+  }, 0);
+  const descuentoCalculado = (total * descuento) / 100;
+  const totalDescontado = parseFloat(total) - parseFloat(descuentoCalculado);
+  return {
+    totalDescontables: total,
+    descuento: descuento,
+    descCalculado: descuentoCalculado,
+    totalTradicional: totalDescontado,
+    totalEspecial: 0,
+    descCalculadoEspeciales: 0,
+    facturar: 0,
+    especial: false,
+  };
+}
+
+function complexDiscountFunction(selectedProducts, discountList) {
+  console.log("Selected", selectedProducts);
+  var totalTrad = 0;
+  var totalPascua = 0;
+  var totalHallo = 0;
+  var totalNav = 0;
+  var totalSinDesc = 0;
+  var totalEsp = 0;
+  var totalEspDesc = 0;
+  selectedProducts.map((sp) => {
+    console.log("Producto", sp);
+    switch (sp.tipoProducto) {
+      case 1:
+        totalTrad += parseFloat(sp.totalProd);
+        break;
+      case 2:
+        totalPascua += parseFloat(sp.totalProd);
+        break;
+      case 3:
+        totalNav += parseFloat(sp.totalProd);
+        break;
+      case 4:
+        totalHallo += parseFloat(sp.totalProd);
+        break;
+      case 5:
+        totalSinDesc += parseFloat(sp.totalProd);
+        break;
+      case 6:
+        totalEsp += parseFloat(sp.totalProd);
+        totalEspDesc += parseFloat(sp.cantProducto * sp.precioDescuentoFijo);
+    }
+  });
+  const trads = getTradDiscounts(
+    totalTrad,
+    totalEsp,
+    totalEspDesc,
+    totalSinDesc,
+    discountList
+  );
+  const pasc = getEasterDiscounts(totalPascua, discountList);
+  const nav = getNavDiscounts(totalNav, discountList);
+  const hall = getHalloweenDiscounts(totalHallo, discountList);
+  return {
+    tradicionales: trads,
+    pascua: pasc,
+    navidad: nav,
+    halloween: hall,
+  };
+}
+
+function getTradDiscounts(
+  totalTrad,
+  totalEsp,
+  totalEspDesc,
+  totalSD,
+  discountList
+) {
+  const tradA = getDiscountPercentage(1, "A", discountList);
+  const tradB = getDiscountPercentage(1, "B", discountList);
+  const tradC = getDiscountPercentage(1, "C", discountList);
+  const tradD = getDiscountPercentage(1, "D", discountList);
+  const tradE = getDiscountPercentage(1, "E", discountList);
+  const totalConDescuentoA = totalTrad * (1 - tradA / 100);
+  const totalConDescuentoB = totalTrad * (1 - tradB / 100);
+  const totalConDescuentoC = totalTrad * (1 - tradC / 100);
+  const totalConDescuentoD = totalTrad * (1 - tradD / 100);
+  const totalConDescuentoE = totalTrad * (1 - tradE / 100);
+  const totalGeneral =
+    parseFloat(totalTrad) + parseFloat(totalEsp) + parseFloat(totalSD);
+  const totalDescA =
+    parseFloat(totalConDescuentoA) + parseFloat(totalEsp) + parseFloat(totalSD);
+  const totalDescB =
+    parseFloat(totalConDescuentoB) + parseFloat(totalEsp) + parseFloat(totalSD);
+  const totalDescC =
+    parseFloat(totalConDescuentoC) + parseFloat(totalEsp) + parseFloat(totalSD);
+  const totalDescD =
+    parseFloat(totalConDescuentoD) + parseFloat(totalEsp) + parseFloat(totalSD);
+  const totalDescF =
+    parseFloat(totalConDescuentoE) +
+    parseFloat(totalEspDesc) +
+    parseFloat(totalSD);
+  if (totalConDescuentoA + totalEsp + totalSD < 1000) {
+    return {
+      total: totalGeneral,
+      descuento: 0,
+      descCalculado: 0,
+      especial: false,
+      facturar: totalGeneral,
+    };
+  } else {
+    if (totalConDescuentoB + totalEsp + totalSD < 3000) {
+      return {
+        total: totalGeneral,
+        descuento: tradA,
+        descCalculado: totalGeneral - totalDescA,
+        especial: false,
+        facturar: totalDescA,
+      };
+    } else {
+      if (totalConDescuentoC + totalEsp + totalSD < 5000) {
+        return {
+          total: totalGeneral,
+          descuento: tradB,
+          descCalculado: totalGeneral - totalDescB,
+          especial: false,
+          facturar: totalDescB,
+        };
+      } else {
+        if (totalConDescuentoD + totalEsp + totalSD < 10000) {
+          return {
+            total: totalGeneral,
+            descuento: tradC,
+            descCalculado: totalGeneral - totalDescC,
+            especial: false,
+            facturar: totalDescC,
+          };
+        } else {
+          console.log("Test", totalConDescuentoE, totalEspDesc, totalSD);
+          if (totalConDescuentoE + totalEspDesc + totalSD < 20000) {
+            return {
+              total: totalGeneral,
+              descuento: tradD,
+              descCalculado: totalGeneral - totalDescD,
+              especial: false,
+              facturar: totalDescD,
+            };
+          } else {
+            return {
+              total: totalGeneral,
+              descuento: tradE,
+              descCalculado: totalGeneral - totalDescF,
+              especial: true,
+              facturar: totalDescF,
+            };
+          }
+        }
+      }
+    }
+  }
+}
+
+function getEasterDiscounts(totalPascua, discountList) {
+  const pasA = getDiscountPercentage(2, "A", discountList);
+  const pasB = getDiscountPercentage(2, "B", discountList);
+  const pasC = getDiscountPercentage(2, "C", discountList);
+  const pasD = getDiscountPercentage(2, "D", discountList);
+  const pasE = getDiscountPercentage(2, "E", discountList);
+  const pasF = getDiscountPercentage(2, "F", discountList);
+  const pasG = getDiscountPercentage(2, "G", discountList);
+  const pasH = getDiscountPercentage(2, "H", discountList);
+  const totalConDescuentoA = totalPascua * (1 - pasA / 100);
+  const totalConDescuentoB = totalPascua * (1 - pasB / 100);
+  const totalConDescuentoC = totalPascua * (1 - pasC / 100);
+  const totalConDescuentoD = totalPascua * (1 - pasD / 100);
+  const totalConDescuentoE = totalPascua * (1 - pasE / 100);
+  const totalConDescuentoF = totalPascua * (1 - pasF / 100);
+  const totalConDescuentoG = totalPascua * (1 - pasG / 100);
+  const totalConDescuentoH = totalPascua * (1 - pasH / 100);
+  if (totalConDescuentoA < 1000) {
+    return {
+      total: totalPascua,
+      descuento: 0,
+      descCalculado: 0,
+      facturar: totalPascua,
+    };
+  } else {
+    if (totalConDescuentoB < 3000) {
+      return {
+        total: totalPascua,
+        descuento: pasA,
+        descCalculado: totalPascua - totalConDescuentoA,
+        facturar: totalConDescuentoA,
+      };
+    } else {
+      if (totalConDescuentoC < 5000) {
+        return {
+          total: totalPascua,
+          descuento: pasB,
+          descCalculado: totalPascua - totalConDescuentoB,
+          facturar: totalConDescuentoB,
+        };
+      } else {
+        if (totalConDescuentoD < 10000) {
+          return {
+            total: totalPascua,
+            descuento: pasC,
+            descCalculado: totalPascua - totalConDescuentoC,
+            facturar: totalConDescuentoC,
+          };
+        } else {
+          if (totalConDescuentoD < 20000) {
+            return {
+              total: totalPascua,
+              descuento: pasD,
+              descCalculado: totalPascua - totalConDescuentoD,
+              facturar: totalConDescuentoD,
+            };
+          } else {
+            if (totalConDescuentoD < 50000) {
+              return {
+                total: totalPascua,
+                descuento: pasE,
+                descCalculado: totalPascua - totalConDescuentoE,
+                facturar: totalConDescuentoE,
+              };
+            } else {
+              if (totalConDescuentoD < 100000) {
+                return {
+                  total: totalPascua,
+                  descuento: pasF,
+                  descCalculado: totalPascua - totalConDescuentoF,
+                  facturar: totalConDescuentoF,
+                };
+              } else {
+                if (totalConDescuentoD < 200000) {
+                  return {
+                    total: totalPascua,
+                    descuento: pasG,
+                    descCalculado: totalPascua - totalConDescuentoG,
+                    facturar: totalConDescuentoG,
+                  };
+                } else {
+                  return {
+                    total: totalPascua,
+                    descuento: pasH,
+                    descCalculado: totalPascua - totalConDescuentoH,
+                    facturar: totalConDescuentoH,
+                  };
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function getNavDiscounts(totalNav, discountList) {
+  const crisA = getDiscountPercentage(3, "A", discountList);
+  const crisB = getDiscountPercentage(3, "B", discountList);
+  const crisC = getDiscountPercentage(3, "C", discountList);
+  const crisD = getDiscountPercentage(3, "D", discountList);
+  const crisE = getDiscountPercentage(3, "E", discountList);
+  const totalConDescuentoA = totalNav * (1 - crisA / 100);
+  const totalConDescuentoB = totalNav * (1 - crisB / 100);
+  const totalConDescuentoC = totalNav * (1 - crisC / 100);
+  const totalConDescuentoD = totalNav * (1 - crisD / 100);
+  const totalConDescuentoE = totalNav * (1 - crisE / 100);
+  if (totalConDescuentoA < 1000) {
+    return {
+      total: totalNav,
+      descuento: 0,
+      descCalculado: 0,
+      facturar: totalNav,
+    };
+  } else {
+    if (totalConDescuentoB < 3000) {
+      return {
+        total: totalNav,
+        descuento: crisA,
+        descCalculado: totalNav - totalConDescuentoA,
+        facturar: totalConDescuentoA,
+      };
+    } else {
+      if (totalConDescuentoC < 5000) {
+        return {
+          total: totalNav,
+          descuento: crisB,
+          descCalculado: totalNav - totalConDescuentoB,
+          facturar: totalConDescuentoB,
+        };
+      } else {
+        if (totalConDescuentoC < 10000) {
+          return {
+            total: totalNav,
+            descuento: crisC,
+            descCalculado: totalNav - totalConDescuentoC,
+            facturar: totalConDescuentoC,
+          };
+        } else {
+          if (totalConDescuentoC < 20000) {
+            return {
+              total: totalNav,
+              descuento: crisD,
+              descCalculado: totalNav - totalConDescuentoD,
+              facturar: totalConDescuentoD,
+            };
+          } else {
+            return {
+              total: totalNav,
+              descuento: crisE,
+              descCalculado: totalNav - totalConDescuentoE,
+              facturar: totalConDescuentoE,
+            };
+          }
+        }
+      }
+    }
+  }
+}
+
+function getHalloweenDiscounts(totalHall, discountList) {
+  const hallA = getDiscountPercentage(4, "A", discountList);
+  const hallB = getDiscountPercentage(4, "B", discountList);
+  const hallC = getDiscountPercentage(4, "C", discountList);
+  const hallD = getDiscountPercentage(4, "D", discountList);
+  const hallE = getDiscountPercentage(4, "E", discountList);
+  const totalConDescuentoA = totalHall * (1 - hallA / 100);
+  const totalConDescuentoB = totalHall * (1 - hallB / 100);
+  const totalConDescuentoC = totalHall * (1 - hallC / 100);
+  const totalConDescuentoD = totalHall * (1 - hallD / 100);
+  const totalConDescuentoE = totalHall * (1 - hallE / 100);
+  if (totalConDescuentoA < 1000) {
+    return {
+      total: totalHall,
+      descuento: 0,
+      descCalculado: 0,
+      facturar: totalHall,
+    };
+  } else {
+    if (totalConDescuentoB < 3000) {
+      return {
+        total: totalHall,
+        descuento: hallA,
+        descCalculado: totalHall - totalConDescuentoA,
+        facturar: totalConDescuentoA,
+      };
+    } else {
+      if (totalConDescuentoC < 5000) {
+        return {
+          total: totalHall,
+          descuento: hallB,
+          descCalculado: totalHall - totalConDescuentoB,
+          facturar: totalConDescuentoB,
+        };
+      } else {
+        if (totalConDescuentoD < 10000) {
+          return {
+            total: totalHall,
+            descuento: hallC,
+            descCalculado: totalHall - totalConDescuentoC,
+            facturar: totalConDescuentoC,
+          };
+        } else {
+          if (totalConDescuentoE < 20000) {
+            return {
+              total: totalHall,
+              descuento: hallD,
+              descCalculado: totalHall - totalConDescuentoD,
+              facturar: totalConDescuentoD,
+            };
+          } else {
+            return {
+              total: totalHall,
+              descuento: hallE,
+              descCalculado: totalHall - totalConDescuentoE,
+              facturar: totalConDescuentoE,
+            };
+          }
+        }
+      }
+    }
+  }
+}
+
 export {
   traditionalDiscounts,
   easterDiscounts,
@@ -884,4 +1333,6 @@ export {
   addProductDiscSimple,
   saleDiscount,
   verifyAutomaticDiscount,
+  discountByAmount,
+  complexDiscountFunction,
 };

@@ -28,6 +28,7 @@ import {
   addProductDiscounts,
   addProductDiscSimple,
   christmassDiscounts,
+  complexDiscountFunction,
   easterDiscounts,
   halloweenDiscounts,
   manualAutomaticDiscount,
@@ -53,6 +54,7 @@ export default function FormModifyOrders() {
   const [facturado, setFacturado] = useState("");
   const [isProduct, setIsProduct] = useState(false);
   const [alert, setAlert] = useState("");
+  const [isSpecial, setIsSpecial] = useState(false);
   const [isAlert, setIsAlert] = useState(false);
   const [isOrder, setIsOrder] = useState(false);
   const [productList, setProductList] = useState([]);
@@ -661,7 +663,7 @@ export default function FormModifyOrders() {
   }
 
   function processDiscounts() {
-    if (tipoUsuario == 1) {
+    if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
       const objDesc = manualAutomaticDiscount(
         tradicionales,
         pascua,
@@ -683,56 +685,35 @@ export default function FormModifyOrders() {
       });
       setDiscModal(true);
     } else {
-      const tradObj = traditionalDiscounts(
-        tradicionales,
-        especiales,
-        sinDesc,
+      const discountObject = complexDiscountFunction(
+        selectedProds,
         discountList
       );
-      const pasObj = easterDiscounts(pascua, discountList);
-      const navObj = christmassDiscounts(navidad, discountList);
-      const hallObj = halloweenDiscounts(halloween, discountList);
-
-      setTradObject(tradObj);
-      setPasObject(pasObj);
-      setNavObject(navObj);
-      setHallObject(hallObj);
+      setTradObject(discountObject.tradicionales);
+      setPasObject(discountObject.pascua);
+      setNavObject(discountObject.navidad);
+      setHallObject(discountObject.halloween);
       setTotalDesc(
-        (
-          parseFloat(pasObject.descCalculado) +
-          parseFloat(tradObject.descCalculado) +
-          parseFloat(navObject.descCalculado) +
-          parseFloat(hallObject.descCalculado)
-        ).toFixed(2)
+        discountObject.tradicionales.descCalculado +
+          discountObject.pascua.descCalculado +
+          discountObject.navidad.descCalculado +
+          discountObject.halloween.descCalculado
       );
       setTotalPrevio(
-        (
-          parseFloat(tradObj.total) +
-          parseFloat(pasObj.total) +
-          parseFloat(navObj.total) +
-          parseFloat(hallObj.total)
-        ).toFixed(2)
+        discountObject.tradicionales.total +
+          discountObject.pascua.total +
+          discountObject.navidad.total +
+          discountObject.halloween.total
       );
       setTotalFacturar(
-        (
-          parseFloat(tradObject.facturar) +
-          parseFloat(pasObject.facturar) +
-          parseFloat(navObject.facturar) +
-          parseFloat(hallObject.facturar)
-        ).toFixed(2)
+        discountObject.tradicionales.facturar +
+          discountObject.pascua.facturar +
+          discountObject.navidad.facturar +
+          discountObject.halloween.facturar
       );
+      setIsSpecial(discountObject.tradicionales.especial);
       setDiscModalType(true);
       setDiscModal(true);
-      const newArr = addProductDiscounts(
-        selectedProds,
-        tradObj,
-        pasObj,
-        navObj,
-        hallObj
-      );
-      newArr.then((result) => {
-        setSelectedProds(result);
-      });
     }
   }
   function validateProductLen() {
@@ -814,12 +795,20 @@ export default function FormModifyOrders() {
                 navObject={navObject}
                 hallObject={hallObject}
               />
-              <SpecialsTable especiales={especiales} totales={descSimple} />
+              <SpecialsTable
+                especiales={especiales}
+                totales={descSimple}
+                isEsp={isSpecial}
+              />
             </div>
           ) : (
             <div>
               <SimpleDiscountTable totales={descSimple} />
-              <SpecialsTable especiales={especiales} totales={descSimple} />
+              <SpecialsTable
+                especiales={especiales}
+                totales={descSimple}
+                isEsp={isSpecial}
+              />
             </div>
           )}
         </Modal.Body>

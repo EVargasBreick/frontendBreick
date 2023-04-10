@@ -37,6 +37,7 @@ import {
 import {
   addProductDiscounts,
   christmassDiscounts,
+  complexDiscountFunction,
   easterDiscounts,
   halloweenDiscounts,
   saleDiscount,
@@ -847,59 +848,33 @@ export default function FormRouteSale() {
   }
 
   function processDiscounts() {
-    const tradObj = traditionalDiscounts(
-      tradicionales,
-      especiales,
-      sinDesc,
+    const discountObject = complexDiscountFunction(
+      selectedProducts,
       discountList
     );
-    console.log("Trad obj", tradObj);
-    setIsSpecial(tradObj.especial);
-    const pasObj = easterDiscounts(pascua, discountList);
-    console.log("Pas obj", pasObj);
-    const navObj = christmassDiscounts(navidad, discountList);
-    console.log("Nav obj", navidad);
-    const hallObj = halloweenDiscounts(halloween, discountList);
-    setTradObject(tradObj);
-    setPasObject(pasObj);
-    setNavObject(navObj);
-    setHallObject(hallObj);
+    setTradObject(discountObject.tradicionales);
+    setPasObject(discountObject.pascua);
+    setNavObject(discountObject.navidad);
+    setHallObject(discountObject.halloween);
     setTotalDesc(
-      (
-        parseFloat(pasObj.descCalculado) +
-        parseFloat(tradObj.descCalculado) +
-        parseFloat(navObj.descCalculado) +
-        parseFloat(hallObj.descCalculado)
-      ).toFixed(2)
+      discountObject.tradicionales.descCalculado +
+        discountObject.pascua.descCalculado +
+        discountObject.navidad.descCalculado +
+        discountObject.halloween.descCalculado
     );
-
     setTotalPrevio(
-      (
-        parseFloat(tradObj.total) +
-        parseFloat(pasObj.total) +
-        parseFloat(navObj.total) +
-        parseFloat(hallObj.total)
-      ).toFixed(2)
+      discountObject.tradicionales.total +
+        discountObject.pascua.total +
+        discountObject.navidad.total +
+        discountObject.halloween.total
     );
     setTotalFacturar(
-      (
-        parseFloat(tradObj.facturar) +
-        parseFloat(pasObj.facturar) +
-        parseFloat(navObj.facturar) +
-        parseFloat(hallObj.facturar)
-      ).toFixed(2)
+      discountObject.tradicionales.facturar +
+        discountObject.pascua.facturar +
+        discountObject.navidad.facturar +
+        discountObject.halloween.facturar
     );
-    const newArr = addProductDiscounts(
-      selectedProducts,
-      tradObj,
-      pasObj,
-      navObj,
-      hallObj
-    );
-    newArr.then((result) => {
-      setSelectedProducts(result);
-      setDiscModal(true);
-    });
+    setDiscModal(true);
   }
   function cancelDiscounts() {
     setSelectedProducts(auxSelectedProducts);

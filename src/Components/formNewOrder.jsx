@@ -30,6 +30,8 @@ import {
   addProductDiscounts,
   addProductDiscSimple,
   christmassDiscounts,
+  complexDiscountFunction,
+  discountByAmount,
   easterDiscounts,
   halloweenDiscounts,
   manualAutomaticDiscount,
@@ -294,24 +296,18 @@ export default function FormNewOrder() {
     }
   }
   function changeQuantitys(index, cantidades, prod) {
-    var cantidad;
-    if (prod.unidadDeMedida == "unidad") {
-      cantidad = cantidades != "" ? parseInt(cantidades) : 0;
-    } else {
-      cantidad = parseFloat(cantidades).toFixed(2);
-    }
     let auxObj = {
       cant_Actual: prod.cant_Actual,
       cantPrevia: prod.cantPrevia,
-      cantProducto: cantidad,
+      cantProducto: cantidades,
       codInterno: prod.codInterno,
       codigoBarras: prod.codigoBarras,
       idProducto: prod.idProducto,
       nombreProducto: prod.nombreProducto,
       precioDeFabrica: prod.precioDeFabrica,
       precioDescuentoFijo: prod.precioDescuentoFijo,
-      totalProd: cantidad * prod.precioDeFabrica,
-      totalDescFijo: cantidad * prod.precioDescuentoFijo,
+      totalProd: cantidades * prod.precioDeFabrica,
+      totalDescFijo: cantidades * prod.precioDescuentoFijo,
       tipoProducto: prod.tipoProducto,
       descuentoProd: 0,
       unidadDeMedida: prod.unidadDeMedida,
@@ -699,19 +695,12 @@ export default function FormNewOrder() {
 
   function processDiscounts() {
     if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
-      const objDesc = manualAutomaticDiscount(
-        tradicionales,
-        pascua,
-        halloween,
-        navidad,
-        especiales,
-        sinDesc,
-        descuento
-      );
+      const objDesc = discountByAmount(selectedProds, descuento);
+      console.log("Obj desc", objDesc);
       setDescSimple(objDesc);
-      setTotalDesc(objDesc.descCalculado + objDesc.descCalculadoEspeciales);
-      setTotalPrevio(objDesc.totalDescontables + objDesc.totalEspecial);
-      setTotalFacturar(objDesc.facturar + objDesc.totalTradicional);
+      setTotalDesc(objDesc.descCalculado);
+      setTotalPrevio(objDesc.totalDescontables);
+      setTotalFacturar(objDesc.totalTradicional);
       setDiscModalType(false);
       const newSelected = addProductDiscSimple(selectedProds, objDesc);
       newSelected.then((response) => {
@@ -719,64 +708,39 @@ export default function FormNewOrder() {
       });
       setDiscModal(true);
     } else {
-      const tradObj = traditionalDiscounts(
-        tradicionales,
-        especiales,
-        sinDesc,
+      const discountObject = complexDiscountFunction(
+        selectedProds,
         discountList
       );
-
-      setIsSpecial(tradObj.especial);
-      const pasObj = easterDiscounts(pascua, discountList);
-      const navObj = christmassDiscounts(navidad, discountList);
-      const hallObj = halloweenDiscounts(halloween, discountList);
-
-      setTradObject(tradObj);
-      setPasObject(pasObj);
-      setNavObject(navObj);
-      setHallObject(hallObj);
+      setTradObject(discountObject.tradicionales);
+      setPasObject(discountObject.pascua);
+      setNavObject(discountObject.navidad);
+      setHallObject(discountObject.halloween);
       setTotalDesc(
-        (
-          parseFloat(pasObj.descCalculado) +
-          parseFloat(tradObj.descCalculado) +
-          parseFloat(navObj.descCalculado) +
-          parseFloat(hallObj.descCalculado)
-        ).toFixed(2)
+        discountObject.tradicionales.descCalculado +
+          discountObject.pascua.descCalculado +
+          discountObject.navidad.descCalculado +
+          discountObject.halloween.descCalculado
       );
-
       setTotalPrevio(
-        (
-          parseFloat(tradObj.total) +
-          parseFloat(pasObj.total) +
-          parseFloat(navObj.total) +
-          parseFloat(hallObj.total)
-        ).toFixed(2)
+        discountObject.tradicionales.total +
+          discountObject.pascua.total +
+          discountObject.navidad.total +
+          discountObject.halloween.total
       );
       setTotalFacturar(
-        (
-          parseFloat(tradObj.facturar) +
-          parseFloat(pasObj.facturar) +
-          parseFloat(navObj.facturar) +
-          parseFloat(hallObj.facturar)
-        ).toFixed(2)
+        discountObject.tradicionales.facturar +
+          discountObject.pascua.facturar +
+          discountObject.navidad.facturar +
+          discountObject.halloween.facturar
       );
-
+      setIsSpecial(discountObject.tradicionales.especial);
       setDiscModalType(true);
       setDiscModal(true);
-      const newArr = addProductDiscounts(
-        selectedProds,
-        tradObj,
-        pasObj,
-        navObj,
-        hallObj
-      );
-      newArr.then((result) => {
-        setSelectedProds(result);
-      });
     }
   }
   function cancelDiscounts() {
-    setSelectedProds(auxProds);
+    setSelectedProds(auxProds, discountList);
     setDiscModal(false);
   }
   function filterProducts(value) {
@@ -1151,7 +1115,60 @@ export default function FormNewOrder() {
 
 /**
 
+const tradObj = traditionalDiscounts(
+        tradicionales,
+        especiales,
+        sinDesc,
+        discountList
+      );
 
+      setIsSpecial(tradObj.especial);
+      const pasObj = easterDiscounts(pascua, discountList);
+      const navObj = christmassDiscounts(navidad, discountList);
+      const hallObj = halloweenDiscounts(halloween, discountList);
+
+      setTradObject(tradObj);
+      setPasObject(pasObj);
+      setNavObject(navObj);
+      setHallObject(hallObj);
+      setTotalDesc(
+        (
+          parseFloat(pasObj.descCalculado) +
+          parseFloat(tradObj.descCalculado) +
+          parseFloat(navObj.descCalculado) +
+          parseFloat(hallObj.descCalculado)
+        ).toFixed(2)
+      );
+
+      setTotalPrevio(
+        (
+          parseFloat(tradObj.total) +
+          parseFloat(pasObj.total) +
+          parseFloat(navObj.total) +
+          parseFloat(hallObj.total)
+        ).toFixed(2)
+      );
+      setTotalFacturar(
+        (
+          parseFloat(tradObj.facturar) +
+          parseFloat(pasObj.facturar) +
+          parseFloat(navObj.facturar) +
+          parseFloat(hallObj.facturar)
+        ).toFixed(2)
+      );
+
+      setDiscModalType(true);
+      setDiscModal(true);
+      const newArr = addProductDiscounts(
+        selectedProds,
+        tradObj,
+        pasObj,
+        navObj,
+        hallObj
+      );
+      newArr.then((result) => {
+        setSelectedProds(result);
+      });
 
 
 

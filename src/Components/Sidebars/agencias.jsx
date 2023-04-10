@@ -12,6 +12,7 @@ import ReturnWare from "../../assets/returnWare.png";
 import Book from "../../assets/book.png";
 import Lines from "../../assets/lines.png";
 import Chocolate from "../../assets/chocolate.png";
+import newClient from "../../assets/newClient.png";
 import "../../styles/generalStyle.css";
 import Cross from "../../assets/cross.png";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
@@ -61,6 +62,12 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Actualizar Stock
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/buscarCliente")}
+        className="menuItem"
+      >
+        <Image src={newClient} className="icon"></Image>Modificacion de Clientes
       </MenuItem>
       {/*<MenuItem
         onClick={() => redirectOnClick("/traspaso")}

@@ -208,6 +208,22 @@ function otherPaymentsList() {
   });
 }
 
+function logIncompleteInvoice(body) {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/facturas/log`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 export {
   createInvoice,
   deleteInvoice,
@@ -216,4 +232,5 @@ export {
   cancelInvoiceUpdate,
   otherPaymentsList,
   invoiceUpdate,
+  logIncompleteInvoice,
 };

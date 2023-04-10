@@ -78,6 +78,7 @@ export default function FormEditClient(props) {
   const [idContacta, setIdContacta] = useState("");
   const [idContactb, setIdContactb] = useState("");
   const [idContactc, setIdContactc] = useState("");
+  const [isStore, setIsStore] = useState(false);
   const [tipoDoc, setTipoDoc] = useState("1");
   const navigate = useNavigate();
   const [idUsuarioActual, setIdUsuarioActual] = useState();
@@ -104,6 +105,9 @@ export default function FormEditClient(props) {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setIdUsuarioActual(JSON.parse(UsuarioAct).idUsuario);
+      const userRol = JSON.parse(UsuarioAct).rol;
+
+      setIsStore(userRol == 2 ? true : false);
     }
     setisLoading(true);
     const usuarios = userBasic();
@@ -469,348 +473,356 @@ export default function FormEditClient(props) {
               </Form.Group>
             </Form>
           </div>
-          <div className="division">
-            <div className="line">Direcciones</div>
-            <Form>
-              <div className="adresses">
-                <div className="adress">
-                  <Form.Group className="completeHalf" controlId="comName">
-                    <Form.Label>Direccion 1</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Direccion 1..."
-                      value={dira}
-                      onChange={(e) => {
-                        setDira(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
-                  <Form.Group className="completeHalf" controlId="comName">
-                    <Form.Label>Direccion 2</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Direccion 2..."
-                      value={dirb}
-                      onChange={(e) => {
-                        setDirb(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
-                  <Form.Group className="completeHalf" controlId="comName">
-                    <Form.Label>Direccion 3</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Direccion 3..."
-                      value={dirc}
-                      onChange={(e) => {
-                        setDirc(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
+          {!isStore ? (
+            <div className="division">
+              <div className="line">Direcciones</div>
+              <Form>
+                <div className="adresses">
+                  <div className="adress">
+                    <Form.Group className="completeHalf" controlId="comName">
+                      <Form.Label>Direccion 1</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Direccion 1..."
+                        value={dira}
+                        onChange={(e) => {
+                          setDira(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="completeHalf" controlId="comName">
+                      <Form.Label>Direccion 2</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Direccion 2..."
+                        value={dirb}
+                        onChange={(e) => {
+                          setDirb(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="completeHalf" controlId="comName">
+                      <Form.Label>Direccion 3</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Direccion 3..."
+                        value={dirc}
+                        onChange={(e) => {
+                          setDirc(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                  </div>
+                  <div className="postalCode">
+                    <Form.Group className="completeHalf" controlId="pCode1">
+                      <Form.Label>Cod Postal 1</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Cod Postal 1..."
+                        value={cpa}
+                        onChange={(e) => {
+                          setCpa(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="completeHalf" controlId="pCode2">
+                      <Form.Label>Cod Postal 2</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Cod Postal 2..."
+                        value={cpb}
+                        onChange={(e) => {
+                          setCpb(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                    <Form.Group className="completeHalf" controlId="pCode3">
+                      <Form.Label>Cod Postal 3</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Cod Postal 3..."
+                        value={cpc}
+                        onChange={(e) => {
+                          setCpc(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                  </div>
                 </div>
-                <div className="postalCode">
-                  <Form.Group className="completeHalf" controlId="pCode1">
-                    <Form.Label>Cod Postal 1</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Cod Postal 1..."
-                      value={cpa}
-                      onChange={(e) => {
-                        setCpa(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
-                  <Form.Group className="completeHalf" controlId="pCode2">
-                    <Form.Label>Cod Postal 2</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Cod Postal 2..."
-                      value={cpb}
-                      onChange={(e) => {
-                        setCpb(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
-                  <Form.Group className="completeHalf" controlId="pCode3">
-                    <Form.Label>Cod Postal 3</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Cod Postal 3..."
-                      value={cpc}
-                      onChange={(e) => {
-                        setCpc(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
+              </Form>
+            </div>
+          ) : null}
+          {!isStore ? (
+            <div className="division">
+              <div className="line">Teléfonos</div>
+              <Form>
+                <div className="adresses">
+                  <div className="phone">
+                    <Form.Group className="completeHalf" controlId="phone1">
+                      <Form.Label>Telefono 1</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Ingrese Telefono"
+                        value={tela}
+                        onChange={(e) => {
+                          setTela(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                  </div>
+                  <div className="phone">
+                    <Form.Group className="completeHalf" controlId="phone2">
+                      <Form.Label>Telefono 2</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Ingrese telefono"
+                        value={telb}
+                        onChange={(e) => {
+                          setTelb(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                  </div>
+                  <div className="phone">
+                    <Form.Group className="completeHalf" controlId="phone3">
+                      <Form.Label>Telefono 3</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Ingrese telefono"
+                        value={telc}
+                        onChange={(e) => {
+                          setTelc(e.target.value);
+                        }}
+                      />
+                    </Form.Group>
+                  </div>
                 </div>
-              </div>
-            </Form>
-          </div>
-          <div className="division">
-            <div className="line">Teléfonos</div>
-            <Form>
-              <div className="adresses">
-                <div className="phone">
-                  <Form.Group className="completeHalf" controlId="phone1">
-                    <Form.Label>Telefono 1</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Ingrese Telefono"
-                      value={tela}
-                      onChange={(e) => {
-                        setTela(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
-                </div>
-                <div className="phone">
-                  <Form.Group className="completeHalf" controlId="phone2">
-                    <Form.Label>Telefono 2</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Ingrese telefono"
-                      value={telb}
-                      onChange={(e) => {
-                        setTelb(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
-                </div>
-                <div className="phone">
-                  <Form.Group className="completeHalf" controlId="phone3">
-                    <Form.Label>Telefono 3</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder="Ingrese telefono"
-                      value={telc}
-                      onChange={(e) => {
-                        setTelc(e.target.value);
-                      }}
-                    />
-                  </Form.Group>
-                </div>
-              </div>
-            </Form>
-          </div>
-          <div className="division">
-            <div className="line">Datos adicionales</div>
-            <Form>
-              <Form.Group className="selectHalf" controlId="productType">
-                <Form.Select
-                  onChange={(e) => {
-                    setIdioma(e.target.value);
-                  }}
-                >
-                  <option>
-                    {idiomaActual ? idiomaActual : "- Seleccione Idioma -"}
-                  </option>
+              </Form>
+            </div>
+          ) : null}
+          {!isStore ? (
+            <div className="division">
+              <div className="line">Datos adicionales</div>
+              <Form>
+                <Form.Group className="selectHalf" controlId="productType">
+                  <Form.Select
+                    onChange={(e) => {
+                      setIdioma(e.target.value);
+                    }}
+                  >
+                    <option>
+                      {idiomaActual ? idiomaActual : "- Seleccione Idioma -"}
+                    </option>
 
-                  {lang.map((z) => {
-                    return (
-                      <option value={z.idLenguaje} key={z.idLenguaje}>
-                        {z.lenguaje}
-                      </option>
-                    );
-                  })}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="selectHalf" controlId="productType">
-                <Form.Select
-                  onChange={(e) => {
-                    setTipop(e.target.value);
-                  }}
-                >
-                  <option>
-                    {" "}
-                    {tipoP ? tipoP : "- Seleccione tipo de precio * -"}
-                  </option>
-                  <option value="normal" key="1">
-                    Normal
-                  </option>
-                  <option value="descuento" key="">
-                    Descuento
-                  </option>
-                </Form.Select>
-              </Form.Group>
+                    {lang.map((z) => {
+                      return (
+                        <option value={z.idLenguaje} key={z.idLenguaje}>
+                          {z.lenguaje}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="selectHalf" controlId="productType">
+                  <Form.Select
+                    onChange={(e) => {
+                      setTipop(e.target.value);
+                    }}
+                  >
+                    <option>
+                      {" "}
+                      {tipoP ? tipoP : "- Seleccione tipo de precio * -"}
+                    </option>
+                    <option value="normal" key="1">
+                      Normal
+                    </option>
+                    <option value="descuento" key="">
+                      Descuento
+                    </option>
+                  </Form.Select>
+                </Form.Group>
 
-              <Form.Group className="selectHalf" controlId="productType">
-                <Form.Select
-                  onChange={(e) => {
-                    setFrecuencia(e.target.value);
-                  }}
-                >
-                  <option>
-                    {" "}
-                    {frecActual ? frecActual : "- Seleccione Frecuencia -"}
-                  </option>
-                  {diasArray.map((z) => {
-                    return (
-                      <option value={z.idDiasFrec} key={z.idDiasFrec}>
-                        {z.dias}
-                      </option>
-                    );
-                  })}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="selectHalf" controlId="productType">
-                <Form.Select
-                  onChange={(e) => {
-                    setUsuario(e.target.value);
-                  }}
-                >
-                  <option>
-                    {" "}
-                    {usuarioActual
-                      ? usuarioActual
-                      : "- Seleccionar Vendedor * -"}
-                  </option>
-                  {usArray.map((z) => {
-                    return (
-                      <option value={z.idUsuario} key={z.idUsuario}>
-                        {z.nombre}
-                      </option>
-                    );
-                  })}
-                </Form.Select>
-              </Form.Group>
-            </Form>
-          </div>
+                <Form.Group className="selectHalf" controlId="productType">
+                  <Form.Select
+                    onChange={(e) => {
+                      setFrecuencia(e.target.value);
+                    }}
+                  >
+                    <option>
+                      {" "}
+                      {frecActual ? frecActual : "- Seleccione Frecuencia -"}
+                    </option>
+                    {diasArray.map((z) => {
+                      return (
+                        <option value={z.idDiasFrec} key={z.idDiasFrec}>
+                          {z.dias}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="selectHalf" controlId="productType">
+                  <Form.Select
+                    onChange={(e) => {
+                      setUsuario(e.target.value);
+                    }}
+                  >
+                    <option>
+                      {" "}
+                      {usuarioActual
+                        ? usuarioActual
+                        : "- Seleccionar Vendedor * -"}
+                    </option>
+                    {usArray.map((z) => {
+                      return (
+                        <option value={z.idUsuario} key={z.idUsuario}>
+                          {z.nombre}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
+                </Form.Group>
+              </Form>
+            </div>
+          ) : null}
         </div>
-        <div className="contactInfo">
-          <div className="division">
-            <div className="line">Persona de contacto 1</div>
+        {!isStore ? (
+          <div className="contactInfo">
+            <div className="division">
+              <div className="line">Persona de contacto 1</div>
 
-            <Form>
-              <Form.Group className="completeHalf" controlId="contactName1">
-                <Form.Label>Nombre *</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Nombre persona de contacto"
-                  value={nombreca}
-                  onChange={(e) => {
-                    setNombreca(e.target.value);
-                  }}
-                />
-              </Form.Group>
-              <Form.Group className="completeHalf" controlId="contactEmail1">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Correo persona de contacto"
-                  value={correoca}
-                  onChange={(e) => {
-                    setCorreoca(e.target.value);
-                  }}
-                />
-              </Form.Group>
-              <Form.Group className="completeHalf" controlId="contactPhone1">
-                <Form.Label>Telefono *</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Telefono persona de contacto"
-                  value={telefca}
-                  onChange={(e) => {
-                    setTelefca(e.target.value);
-                  }}
-                />
-              </Form.Group>
-            </Form>
+              <Form>
+                <Form.Group className="completeHalf" controlId="contactName1">
+                  <Form.Label>Nombre *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Nombre persona de contacto"
+                    value={nombreca}
+                    onChange={(e) => {
+                      setNombreca(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+                <Form.Group className="completeHalf" controlId="contactEmail1">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Correo persona de contacto"
+                    value={correoca}
+                    onChange={(e) => {
+                      setCorreoca(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+                <Form.Group className="completeHalf" controlId="contactPhone1">
+                  <Form.Label>Telefono *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Telefono persona de contacto"
+                    value={telefca}
+                    onChange={(e) => {
+                      setTelefca(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+              </Form>
+            </div>
+            <div className="division">
+              <div className="line">Persona de contacto 2</div>
+              <Form>
+                <Form.Group className="completeHalf" controlId="contactName1">
+                  <Form.Label>Nombre</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Nombre persona de contacto"
+                    value={nombrecb}
+                    onChange={(e) => {
+                      setNombrecb(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+                <Form.Group className="completeHalf" controlId="contactEmail1">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    value={correocb}
+                    onChange={(e) => {
+                      setCorreocb(e.target.value);
+                    }}
+                    type="text"
+                    placeholder="Correo persona de contacto"
+                  />
+                </Form.Group>
+                <Form.Group className="completeHalf" controlId="contactPhone1">
+                  <Form.Label>Telefono</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Telefono persona de contacto"
+                    value={telefcb}
+                    onChange={(e) => {
+                      setTelefcb(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+              </Form>
+            </div>
+            <div className="division">
+              <div className="line">Persona de contacto 3</div>
+              <Form>
+                <Form.Group className="completeHalf" controlId="contactName1">
+                  <Form.Label>Nombre</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Nombre persona de contacto"
+                    value={nombrecc}
+                    onChange={(e) => {
+                      setNombrecc(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+                <Form.Group className="completeHalf" controlId="contactEmail1">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Correo persona de contacto"
+                    value={correocc}
+                    onChange={(e) => {
+                      setCorreocc(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+                <Form.Group className="completeHalf" controlId="contactPhone1">
+                  <Form.Label>Telefono</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Telefono persona de contacto"
+                    value={telefcc}
+                    onChange={(e) => {
+                      setTelefcc(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+              </Form>
+            </div>
+            <div className="division">
+              <div className="line">Notas adicionales</div>
+              <Form>
+                <Form.Group className="completeHalf" controlId="contactName1">
+                  <Form.Label>Inserte aqui notas adicionales</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    type="text"
+                    rows={"4"}
+                    placeholder="..."
+                    value={notas}
+                    onChange={(e) => {
+                      setNotas(e.target.value);
+                    }}
+                  />
+                </Form.Group>
+              </Form>
+            </div>
           </div>
-          <div className="division">
-            <div className="line">Persona de contacto 2</div>
-            <Form>
-              <Form.Group className="completeHalf" controlId="contactName1">
-                <Form.Label>Nombre</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Nombre persona de contacto"
-                  value={nombrecb}
-                  onChange={(e) => {
-                    setNombrecb(e.target.value);
-                  }}
-                />
-              </Form.Group>
-              <Form.Group className="completeHalf" controlId="contactEmail1">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  value={correocb}
-                  onChange={(e) => {
-                    setCorreocb(e.target.value);
-                  }}
-                  type="text"
-                  placeholder="Correo persona de contacto"
-                />
-              </Form.Group>
-              <Form.Group className="completeHalf" controlId="contactPhone1">
-                <Form.Label>Telefono</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Telefono persona de contacto"
-                  value={telefcb}
-                  onChange={(e) => {
-                    setTelefcb(e.target.value);
-                  }}
-                />
-              </Form.Group>
-            </Form>
-          </div>
-          <div className="division">
-            <div className="line">Persona de contacto 3</div>
-            <Form>
-              <Form.Group className="completeHalf" controlId="contactName1">
-                <Form.Label>Nombre</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Nombre persona de contacto"
-                  value={nombrecc}
-                  onChange={(e) => {
-                    setNombrecc(e.target.value);
-                  }}
-                />
-              </Form.Group>
-              <Form.Group className="completeHalf" controlId="contactEmail1">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Correo persona de contacto"
-                  value={correocc}
-                  onChange={(e) => {
-                    setCorreocc(e.target.value);
-                  }}
-                />
-              </Form.Group>
-              <Form.Group className="completeHalf" controlId="contactPhone1">
-                <Form.Label>Telefono</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Telefono persona de contacto"
-                  value={telefcc}
-                  onChange={(e) => {
-                    setTelefcc(e.target.value);
-                  }}
-                />
-              </Form.Group>
-            </Form>
-          </div>
-          <div className="division">
-            <div className="line">Notas adicionales</div>
-            <Form>
-              <Form.Group className="completeHalf" controlId="contactName1">
-                <Form.Label>Inserte aqui notas adicionales</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  type="text"
-                  rows={"4"}
-                  placeholder="..."
-                  value={notas}
-                  onChange={(e) => {
-                    setNotas(e.target.value);
-                  }}
-                />
-              </Form.Group>
-            </Form>
-          </div>
-        </div>
+        ) : null}
       </div>
       <div className="secondHalf">
         <div className="buttons">

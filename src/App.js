@@ -44,6 +44,7 @@ import StoreRefill from "./Components/storeRefill";
 import TransferReception from "./Components/transferReception";
 import ProductDrop from "./Components/productDrop";
 import RetirePack from "./Components/retirePack";
+import AllOrders from "./Components/allOrders";
 
 function App() {
   return (
@@ -81,6 +82,14 @@ function App() {
               element={
                 <RequireAuth>
                   <ManageOrders />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/pedidos"
+              element={
+                <RequireAuth>
+                  <AllOrders />
                 </RequireAuth>
               }
             />

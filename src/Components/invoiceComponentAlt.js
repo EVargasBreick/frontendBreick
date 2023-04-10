@@ -156,24 +156,8 @@ export const InvoiceComponentAlt = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={JSON.stringify(
-                invoice?.nitEmpresa +
-                  "|" +
-                  inum +
-                  "|" +
-                  invoice?.cuf +
-                  "|" +
-                  date +
-                  "|" +
-                  totalsData?.total +
-                  "|" +
-                  totalsData?.totalDescontado +
-                  "|" +
-                  totalsData?.descuentoCalculado +
-                  "|" +
-                  invoice?.nitCliente
-              )}
-              size={150}
+              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${invoice.cuf}&numero=${inum}`}
+              size={170}
             />
           </div>
           <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>

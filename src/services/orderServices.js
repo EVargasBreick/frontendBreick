@@ -47,6 +47,21 @@ const getOrderList = (id) => {
   });
 };
 
+const getAllOrderList = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/lista/todos?id=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 const getUserOrderList = (id, condition) => {
   return new Promise((resolve, reject) => {
     axios
@@ -392,4 +407,5 @@ export {
   printedOrder,
   ordersToReady,
   updateReady,
+  getAllOrderList,
 };

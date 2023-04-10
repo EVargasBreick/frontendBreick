@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   addProductToTransfer,
   deleteProductFromTransfer,
@@ -28,6 +28,8 @@ export default function FormEditTransfer() {
   const [stockList, setStockList] = useState([]);
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
+  const [transferId, setTransferId] = useState("");
+  const timestampRef = useRef(Date.now());
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -45,21 +47,34 @@ export default function FormEditTransfer() {
       });
     }
   }, []);
-  function selectTransfer(id) {
+  useEffect(() => {
+    if (transferId != "") {
+      selectTransfer();
+    }
+  }, [transferId, timestampRef]);
+  function selectTransfer() {
+    console.log("Id seleccionado", transferId);
+    setSelectedTransfer({});
+    setSelectedProducts([]);
     setAlertSec("Cargando traspaso");
     setIsAlertSec(true);
-
-    const storeId = tList.find((tl) => (tl.idTraspaso = id)).idOrigen;
+    console.log(
+      "Testeando",
+      tList.find((tl) => tl.idTraspaso == transferId)
+    );
+    setSelectedTransfer(tList.find((tl) => tl.idTraspaso == transferId));
+    const storeId = tList.find((tl) => (tl.idTraspaso = transferId)).idOrigen;
     const prods = getProductsWithStock(storeId, "all");
     prods.then((pr) => {
+      console.log("Flag 1");
       setStockList(pr.data);
-      const details = transferProducts(id);
+      const details = transferProducts(transferId);
       details.then((res) => {
         console.log("Detalles traspaso", res);
-        setSelectedTransfer(tList.find((tl) => tl.idTraspaso == id));
         setTransferProductList(res.data.response);
         setSelectedProducts(res.data.response);
         setIsAlertSec(false);
+        setTransferId("");
       });
     });
   }
@@ -165,36 +180,61 @@ export default function FormEditTransfer() {
       idTraspaso: selectedTransfer.idTraspaso,
       productos: added,
     });
-    add.then((response) => {
-      const deld = deleteProductFromTransfer({
-        idTraspaso: selectedTransfer.idTraspaso,
-        productos: deleted,
-      });
-      deld
-        .then((res) => {
-          const rem = updateProductTransfer({
-            idTraspaso: selectedTransfer.idTraspaso,
-            productos: remaining,
-          });
-          rem.then((resp) => {
-            const updateBody = {
-              fechaActualizacion: dateString(),
-              idTraspaso: selectedTransfer.idTraspaso,
-            };
-            const updated = updateChangedTransfer(updateBody);
-            updated.then((up) => {
-              setAlertSec("Traspaso actualizado");
-              setTimeout(() => {
-                setIsAlertSec(false);
-                window.location.reload();
-              }, 2500);
-            });
-          });
-        })
-        .catch((err) => {
-          console.log("Error al borrar", err);
+    add
+      .then((response) => {
+        const deld = deleteProductFromTransfer({
+          idTraspaso: selectedTransfer.idTraspaso,
+          productos: deleted,
         });
-    });
+        deld
+          .then((res) => {
+            const rem = updateProductTransfer({
+              idTraspaso: selectedTransfer.idTraspaso,
+              productos: remaining,
+            });
+            rem
+              .then((resp) => {
+                const updateBody = {
+                  fechaActualizacion: dateString(),
+                  idTraspaso: selectedTransfer.idTraspaso,
+                };
+                const updated = updateChangedTransfer(updateBody);
+                updated
+                  .then((up) => {
+                    setAlertSec("Traspaso actualizado");
+                    setTimeout(() => {
+                      setIsAlertSec(false);
+                      window.location.reload();
+                    }, 2500);
+                  })
+                  .catch((err) => {
+                    setAlertSec("Error al editar el traspaso", err);
+                    setTimeout(() => {
+                      setIsAlertSec(false);
+                    }, 5000);
+                  });
+              })
+              .catch((err) => {
+                setAlertSec("Error al editar productos del traspaso:", err);
+                setTimeout(() => {
+                  setIsAlertSec(false);
+                }, 5000);
+              });
+          })
+          .catch((err) => {
+            console.log("Error al borrar productos del traspaso", err);
+            setAlertSec("Error al borrar productos del traspaso:", err);
+            setTimeout(() => {
+              setIsAlertSec(false);
+            }, 5000);
+          });
+      })
+      .catch((err) => {
+        setAlertSec("Error al agregar productos el traspaso:", err);
+        setTimeout(() => {
+          setIsAlertSec(false);
+        }, 5000);
+      });
   }
 
   function verifyQuantities() {
@@ -214,10 +254,11 @@ export default function FormEditTransfer() {
       <div>
         <div>Lista de traspasos</div>
         <Form.Select
-          onChange={(e) => selectTransfer(e.target.value)}
+          value={transferId}
+          onChange={(e) => setTransferId(e.target.value)}
           className="selectMargin"
         >
-          <option>Seleccione un traspaso</option>
+          <option value={null}>Seleccione un traspaso</option>
           {tList.map((tl, index) => {
             return (
               <option value={tl.idTraspaso} key={index}>
@@ -229,7 +270,9 @@ export default function FormEditTransfer() {
       </div>
       {selectedTransfer.idTraspaso && stockList.length > 0 ? (
         <div>
-          <div className="formLabel">Detalles traspaso</div>
+          <div className="formLabel">
+            Detalles del traspaso {` ${selectedTransfer.nroOrden}`}
+          </div>
           <div>
             <Table>
               <thead>

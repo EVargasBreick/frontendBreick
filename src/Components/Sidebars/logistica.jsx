@@ -25,6 +25,12 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       icon={<Image src={Barcode} className="compIcon"></Image>}
     >
       <MenuItem
+        onClick={() => redirectOnClick("/pedidos")}
+        className="menuItem"
+      >
+        <Image src={newOrder} className="icon"></Image>Ver Pedidos
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/adminPedidos")}
         className="menuItem"
       >

@@ -420,7 +420,9 @@ export const OrderPDF = ({ detalle, productos, codigo }) => {
                   color: "#347571",
                 }}
               >
-                {" " + producto.total + " Bs "}
+                {` ${
+                  producto.totalProd ? producto.totalProd : producto.total
+                } Bs`}
               </Text>
             </View>
           );

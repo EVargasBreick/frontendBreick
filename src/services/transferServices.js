@@ -17,31 +17,37 @@ const createTransfer = (transferObject) => {
 };
 
 const transferList = (accion) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/lista?crit=${accion}`
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 };
 
 const transferProducts = (id) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos?id=${id}`
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 };
 
 const updateTransfer = (body) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .put(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/actualizar`,
@@ -49,6 +55,9 @@ const updateTransfer = (body) => {
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 };
@@ -69,7 +78,7 @@ const printedTrasnfer = (id) => {
 };
 
 function updateChangedTransfer(body) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .put(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso`,
@@ -77,12 +86,15 @@ function updateChangedTransfer(body) {
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 }
 
 function addProductToTransfer(body) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .post(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos`,
@@ -90,12 +102,15 @@ function addProductToTransfer(body) {
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 }
 
 function deleteProductFromTransfer(body) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .delete(
         `${process.env.REACT_APP_ENDPOINT_URL}${
@@ -104,12 +119,15 @@ function deleteProductFromTransfer(body) {
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 }
 
 function updateProductTransfer(body) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .put(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos`,
@@ -117,30 +135,39 @@ function updateProductTransfer(body) {
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 }
 
 const transitTransfer = (id) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/transito?storeId=${id}`
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 };
 
 const acceptTransferById = (id) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .put(
         `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/transito?id=${id}`
       )
       .then((response) => {
         resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
       });
   });
 };
