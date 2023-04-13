@@ -340,7 +340,7 @@ function SaleModal(
               setAlert("Ingrese valores válidos para la tarjeta por favor");
               setIsAlert(true);
             } else {
-              savingInvoice();
+              savingInvoice(e);
             }
           }
           if (tipoPago == 4) {
@@ -411,7 +411,7 @@ function SaleModal(
     childFunction,
   }));
 
-  function savingInvoice() {
+  function savingInvoice(e) {
     const saved = saveInvoice(
       "-",
       "-",
@@ -593,6 +593,12 @@ function SaleModal(
                     })
                     .catch((error) => {
                       console.log("Esto paso", error);
+                      setIsAlertSec(false);
+                      rollbackPurchase(idFactura, idVenta, objStock);
+                      setAlert(
+                        "Error al enviar la factura a impuestos, intente nuevamente"
+                      );
+                      setIsAlert(true);
                     });
                 }, 10000);
               });

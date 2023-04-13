@@ -14,6 +14,7 @@ export const InvoiceComponentAlt = React.forwardRef(
       totalsData,
       isOrder,
       invoiceNumber,
+      orderDetails,
     },
     ref
   ) => {
@@ -156,7 +157,7 @@ export const InvoiceComponentAlt = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${invoice.cuf}&numero=${inum}`}
+              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${cuf}&numero=${inum}`}
               size={170}
             />
           </div>
@@ -175,6 +176,12 @@ export const InvoiceComponentAlt = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
+          {orderDetails != undefined ? (
+            <div>
+              <div className="simpleSeparator">{`Código del pedido:${orderDetails.idString}`}</div>
+              <div className="simpleSeparator">{`Notas del pedido:${orderDetails.notas}`}</div>
+            </div>
+          ) : null}
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>

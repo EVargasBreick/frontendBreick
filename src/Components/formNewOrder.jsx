@@ -601,7 +601,7 @@ export default function FormNewOrder() {
                       codigoPedido: res.data.data.idCreado,
                       correoUsuario: userEmail,
                       fecha: dateString(),
-                      email: ["evargas@breick.com.bo"],
+                      email: [userEmail, "tcuellar@breick.com.bo"],
                       tipo: "pedido",
                       header: "Pedido Creado",
                     };

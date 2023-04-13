@@ -31,6 +31,8 @@ export default function FormInvoiceOrder() {
   const [isInvoice, setIsInvoice] = useState(false);
   const [idAlmacen, setIdAlmacen] = useState("");
   const [userRol, setUserRol] = useState("");
+  const [idString, setIdString] = useState("");
+  const [notas, setNotas] = useState("");
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
@@ -86,6 +88,11 @@ export default function FormInvoiceOrder() {
     setOrderList(auxOrderList);
   }
   function invoiceProcess(id) {
+    const idString = currentData.find((cd) => cd.idPedido == id).idString;
+    const note = currentData.find((cd) => cd.idPedido == id).notas;
+    setIdString(idString);
+    setNotas(note);
+    console.log("Id String", idString);
     const orderDetails = orderDetailsInvoice(id);
     orderDetails
       .then((os) => {
@@ -164,6 +171,11 @@ export default function FormInvoiceOrder() {
             totales={totales}
             selectedProducts={selectedProducts}
             idAlmacen={idAlmacen}
+            orderDetails={{
+              idString: idString,
+              notas: notas,
+            }}
+            isOrder={true}
           />
         </div>
       ) : null}

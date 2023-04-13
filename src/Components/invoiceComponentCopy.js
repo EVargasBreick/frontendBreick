@@ -14,6 +14,7 @@ export const InvoiceComponentCopy = React.forwardRef(
       totalsData,
       isOrder,
       invoiceNumber,
+      orderDetails,
     },
     ref
   ) => {
@@ -155,8 +156,8 @@ export const InvoiceComponentCopy = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${invoice.cuf}&numero=${inum}`}
-              size={150}
+              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${cuf}&numero=${inum}`}
+              size={170}
             />
           </div>
           <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
@@ -174,6 +175,12 @@ export const InvoiceComponentCopy = React.forwardRef(
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
+          {orderDetails != undefined ? (
+            <div>
+              <div className="simpleSeparator">{`Código del pedido:${orderDetails.idString}`}</div>
+              <div className="simpleSeparator">{`Notas del pedido:${orderDetails.notas}`}</div>
+            </div>
+          ) : null}
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>

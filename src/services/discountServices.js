@@ -943,8 +943,8 @@ function discountByAmount(selectedProducts, descuento) {
   const total = selectedProducts.reduce((accumulator, object) => {
     return accumulator + parseFloat(object.totalProd);
   }, 0);
-  const descuentoCalculado = (total * descuento) / 100;
-  const totalDescontado = parseFloat(total) - parseFloat(descuentoCalculado);
+  const descuentoCalculado = parseFloat((total * descuento) / 100).toFixed(2);
+  const totalDescontado = total - descuentoCalculado;
   return {
     totalDescontables: total,
     descuento: descuento,

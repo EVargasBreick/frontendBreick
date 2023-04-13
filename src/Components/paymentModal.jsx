@@ -36,6 +36,7 @@ export default function PaymentModal({
   setCliente,
   selectedProducts,
   idAlmacen,
+  orderDetails,
 }) {
   const numberARef = useRef();
   const numberBRef = useRef();
@@ -652,6 +653,7 @@ export default function PaymentModal({
                   }}
                   isOrder={true}
                   invoiceNumber={invoiceNumber}
+                  orderDetails={orderDetails}
                 />
               </Button>
             </div>
@@ -860,6 +862,7 @@ export default function PaymentModal({
               }}
               isOrder={true}
               invoiceNumber={invoiceNumber}
+              orderDetails={orderDetails}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -880,6 +883,7 @@ export default function PaymentModal({
               }}
               isOrder={true}
               invoiceNumber={invoiceNumber}
+              orderDetails={orderDetails}
             />
           </div>
         </div>

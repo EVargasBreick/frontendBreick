@@ -110,12 +110,16 @@ function addProductToTransfer(body) {
 }
 
 function deleteProductFromTransfer(body) {
+  let jsonString = JSON.stringify(body, (key, value) => {
+    if (typeof value === "string") {
+      return value.replace(/%/g, "-");
+    }
+    return value;
+  });
   return new Promise((resolve, reject) => {
     axios
       .delete(
-        `${process.env.REACT_APP_ENDPOINT_URL}${
-          process.env.REACT_APP_ENDPOINT_PORT
-        }/traspaso/productos?body=${JSON.stringify(body)}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos?body=${jsonString}`
       )
       .then((response) => {
         resolve(response);

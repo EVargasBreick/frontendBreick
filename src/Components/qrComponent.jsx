@@ -6,7 +6,7 @@ export default function QrComponent({ datos, size }) {
     <QRCodeCanvas
       id="invoiceQr"
       value={datos}
-      size={size}
+      size={170}
       bgColor="#FFF"
       fgColor="#000"
       includeMargin
