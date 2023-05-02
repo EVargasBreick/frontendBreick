@@ -132,16 +132,16 @@ export default function FormCancelInvoice() {
                 setAlert("Factura anulada");
                 setTimeout(() => {
                   window.location.reload(false);
-                }, 2000);
+                }, 5000);
               })
               .catch((err) => {
-                console.log("Error al anular", err);
+                console.log("Error al anular en sistema breick", err);
               });
           });
         }
       })
       .catch((err) => {
-        console.log("Error al anular", err);
+        console.log("Error al anular en sistema de impuestos", err);
       });
   }
 

@@ -52,7 +52,7 @@ export default function ComplexDiscountTable({
             <td>{parseFloat(tradObject?.total).toFixed(2) + " Bs."}</td>
           ) : null}
           {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
-            <td>{`${parseFloat(tradObject.descuento).toFixed(2)} %`}</td>
+            <td>{`${parseFloat(tradObject.descuento).toFixed(0)} %`}</td>
           ) : null}
           {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
             <td>{parseFloat(tradObject.descCalculado).toFixed(2) + " Bs."}</td>
@@ -67,7 +67,7 @@ export default function ComplexDiscountTable({
             <td>{parseFloat(pasObject.total).toFixed(2) + " Bs."}</td>
           ) : null}
           {pascua.length > 0 ? (
-            <td>{`${parseFloat(pasObject.descuento).toFixed(2)} %`}</td>
+            <td>{`${parseFloat(pasObject.descuento).toFixed(0)} %`}</td>
           ) : null}
           {pascua.length > 0 ? (
             <td>{parseFloat(pasObject.descCalculado).toFixed(2) + " Bs."}</td>

@@ -45,6 +45,8 @@ import TransferReception from "./Components/transferReception";
 import ProductDrop from "./Components/productDrop";
 import RetirePack from "./Components/retirePack";
 import AllOrders from "./Components/allOrders";
+import RePrintInvoices from "./Components/rePrintInvoices";
+import EntryReport from "./Components/entryReport";
 
 function App() {
   return (
@@ -370,6 +372,22 @@ function App() {
               element={
                 <RequireAuth>
                   <ProductDrop />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/entradas"
+              element={
+                <RequireAuth>
+                  <EntryReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturas/reimprimir"
+              element={
+                <RequireAuth>
+                  <RePrintInvoices />
                 </RequireAuth>
               }
             />

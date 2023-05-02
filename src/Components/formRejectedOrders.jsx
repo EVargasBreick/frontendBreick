@@ -13,6 +13,7 @@ import {
   getRejected,
   logRejected,
   reviseRejected,
+  updateRejected,
 } from "../services/rejectedServices";
 export default function FormRejectedOrders() {
   const [orderList, setOrderList] = useState([]);
@@ -43,7 +44,11 @@ export default function FormRejectedOrders() {
     const revised = reviseRejected(id);
     revised
       .then((res) => {
-        window.location.reload();
+        const rejected = updateRejected(orderDetails.detalles.intId);
+        rejected.then((res) => {
+          console.log("Actualizado", res);
+          window.location.reload();
+        });
       })
       .catch((err) => {
         console.log("Error al marcar como revisado", err);

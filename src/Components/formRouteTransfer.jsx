@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Table, Image, Modal } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import Switch from "../assets/switch.png";
@@ -25,20 +25,36 @@ export default function FormRouteTransfer() {
   const [productos, setProductos] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [userId, setUserId] = useState("");
+  const [user, setUser] = useState("");
+  const [isPrint, setIsPrint] = useState(false);
+  const [productList, setProductList] = useState([]);
+  const [filtered, setFiltered] = useState("");
+  const [auxProducts, setAuxProducts] = useState([]);
+  const [nombreOrigen, setNombreOrigen] = useState("");
+  const [nombreDestino, setNombreDestino] = useState();
+  const componentRef = useRef();
+  const buttonRef = useRef();
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserId(JSON.parse(Cookies.get("userAuth")).idUsuario);
+      setUser(JSON.parse(UsuarioAct).usuario);
     }
     const stores = getStores();
     stores.then((store) => {
       setAlmacen(store.data);
+      setNombreOrigen(
+        store.data.find(
+          (al) => al.idAgencia == JSON.parse(UsuarioAct).idAlmacen
+        ).Nombre
+      );
     });
     setIdOrigen("AL001");
     setIdDestino(JSON.parse(Cookies.get("userAuth")).idAlmacen);
     const prods = getProductsWithStock("AL001", "all");
     prods.then((product) => {
       setProductos(product.data);
+      setAuxProducts(product.data);
     });
   }, []);
   const handleClose = () => {

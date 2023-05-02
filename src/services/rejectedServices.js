@@ -49,4 +49,20 @@ const reviseRejected = (id) => {
   });
 };
 
-export { logRejected, getRejected, reviseRejected };
+const updateRejected = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/rechazar?id=${id}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+export { logRejected, getRejected, reviseRejected, updateRejected };

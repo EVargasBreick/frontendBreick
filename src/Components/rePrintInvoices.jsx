@@ -1,15 +1,12 @@
 import React from "react";
 import Display from "./display";
-import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
 import "../styles/generalStyle.css";
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-
-import BodyCurrentKardex from "./bodyCurrentKardex";
-export default function CurrentKardexReport() {
+import FormRePrintInvoices from "./formRePrintInvoices";
+export default function RePrintInvoices() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
@@ -31,7 +28,7 @@ export default function CurrentKardexReport() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <BodyCurrentKardex />
+          <FormRePrintInvoices />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Table, Image, Modal } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import Switch from "../assets/switch.png";
@@ -14,6 +14,8 @@ import { getProductsWithStock } from "../services/productServices";
 import { createTransfer } from "../services/transferServices";
 import { sendOrderEmail, updateStock } from "../services/orderServices";
 import { dateString } from "../services/dateServices";
+import { OrderNote } from "./orderNote";
+import ReactToPrint from "react-to-print";
 export default function FormNewTransfer() {
   const navigate = useNavigate();
   const [alert, setAlert] = useState("");
@@ -27,21 +29,64 @@ export default function FormNewTransfer() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [userEmail, setUserEmail] = useState("");
   const [userId, setUserId] = useState("");
+  const [user, setUser] = useState("");
+  const [isPrint, setIsPrint] = useState(false);
+  const [productList, setProductList] = useState([]);
+  const [filtered, setFiltered] = useState("");
+  const [auxProducts, setAuxProducts] = useState([]);
+  const [nombreOrigen, setNombreOrigen] = useState("");
+  const [nombreDestino, setNombreDestino] = useState();
+  const componentRef = useRef();
+  const buttonRef = useRef();
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserId(JSON.parse(Cookies.get("userAuth")).idUsuario);
       setUserEmail(JSON.parse(UsuarioAct).correo);
+      setUser(JSON.parse(UsuarioAct).usuario);
+      setIdOrigen(JSON.parse(UsuarioAct).idAlmacen);
+      const prods = getProductsWithStock(
+        JSON.parse(UsuarioAct).idAlmacen,
+        "all"
+      );
+      prods.then((product) => {
+        const available = product.data.filter((prod) => prod.cant_Actual > 0);
+        console.log("disponibles", available);
+        setProductos(available);
+        setAuxProducts(available);
+      });
     }
     const stores = getStores();
     stores.then((store) => {
       setAlmacen(store.data);
+      console.log(
+        "Prueiblla",
+        store.data.find(
+          (al) => al.idAgencia == JSON.parse(UsuarioAct).idAlmacen
+        )
+      );
+      setNombreOrigen(
+        store.data.find(
+          (al) => al.idAgencia == JSON.parse(UsuarioAct).idAlmacen
+        ).Nombre
+      );
+      console.log("Datos almacen", store.data);
     });
   }, []);
   const handleClose = () => {
     setIsAlert(false);
   };
-
+  useEffect(() => {
+    if (JSON.stringify(productList).length > 5) {
+      console.log("Flag 2");
+      setIsPrint(true);
+    }
+  }, [productList]);
+  useEffect(() => {
+    if (isPrint) {
+      buttonRef.current.click();
+    }
+  }, [isPrint]);
   function prepareStoreId(id, action) {
     const idSub = id.split(" ");
     if (action === "origen") {
@@ -63,8 +108,12 @@ export default function FormNewTransfer() {
     } else {
       if (idSub[1]) {
         setIdDestino(idSub[0]);
+        setNombreDestino(
+          almacen.find((al) => al.idAgencia == idSub[0])?.Nombre
+        );
       } else {
         setIdDestino(id + "");
+        setNombreDestino(almacen.find((al) => al.idAgencia == id)?.Nombre);
       }
     }
   }
@@ -110,6 +159,15 @@ export default function FormNewTransfer() {
     setSelectedProducts(auxArray);
   }
   function registerTransfer() {
+    const productsArray = selectedProducts.map((item) => {
+      const obj = {
+        codInterno: item.codInterno,
+        nombreProducto: item.nombreProducto,
+        cantidadProducto: item.cantProducto,
+      };
+      return obj;
+    });
+
     setAlertSec("Validando Traspaso");
     setIsAlertSec(true);
     const zeroValidated = validateZero();
@@ -134,25 +192,38 @@ export default function FormNewTransfer() {
             const newTransfer = createTransfer(transferObj);
             newTransfer
               .then((nt) => {
-                setIsAlertSec(false);
                 console.log("New Transfer", nt);
                 const emailBody = {
                   codigoPedido: nt.data.data.idCreado,
                   correoUsuario: userEmail,
                   fecha: dateString(),
-                  email: ["eric.vargas.kubber@gmail.com", userEmail],
+                  email: [userEmail],
                   tipo: "Traspaso",
                   header: "Traspaso Creado",
                 };
                 const emailSent = sendOrderEmail(emailBody);
                 emailSent
                   .then((response) => {
+                    const origenArray = nombreOrigen.split(" ");
+                    const outputOrigen = origenArray.slice(1).join(" ");
+                    const destinoArray = nombreDestino.split(" ");
+                    const outputDestino = destinoArray.slice(1).join(" ");
+                    const orderObj = [
+                      {
+                        rePrint: false,
+                        fechaSolicitud: dateString(),
+                        id: nt.data.data.idCreado,
+                        usuario: user,
+                        notas: "",
+                        productos: productsArray,
+                        origen: outputOrigen,
+                        destino: outputDestino,
+                      },
+                    ];
+                    setProductList(orderObj);
                     setIsAlertSec(false);
                     setAlert("Traspaso Creado correctamente");
                     setIsAlert(true);
-                    setTimeout(() => {
-                      navigate("/principal");
-                    }, 1500);
                   })
                   .catch((error) => {
                     console.log("Error al enviar el correo", error);
@@ -196,6 +267,33 @@ export default function FormNewTransfer() {
       }, 1000);
     });
   }
+  function filterProducts(value) {
+    setFiltered(value);
+    const newList = auxProducts.filter(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
+        dt.codInterno.toString().includes(value.toString()) ||
+        dt.codigoBarras.toString().includes(value.toString())
+    );
+    if (newList.length == 1) {
+    }
+    setProductos([...newList]);
+  }
+
+  function addWithEnter(e) {
+    e.preventDefault();
+    const found = auxProducts.find(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(filtered.toLowerCase()) ||
+        dt.codInterno.toString().includes(filtered.toString()) ||
+        dt.codigoBarras.toString().includes(filtered.toString())
+    );
+    console.log("Found", found);
+    addProductToList(JSON.stringify(found));
+    setFiltered("");
+    setProductos(auxProducts);
+  }
+
   return (
     <div>
       <div className="formLabel">CREAR TRASPASO</div>
@@ -222,25 +320,8 @@ export default function FormNewTransfer() {
       <Form className="halfSelectors">
         <Form.Group className="mb-3 halfSelect" controlId="origin">
           <div className="formLabel">Origen</div>
-          <Form.Select
-            className="selectorFull"
-            onChange={(e) => {
-              prepareStoreId(e.target.value, "origen");
-            }}
-          >
-            <option>Seleccione origen</option>
-            {almacen.map((ag) => {
-              return (
-                <option value={ag.Nombre} key={ag.Nombre}>
-                  {ag.Nombre.includes("-")
-                    ? `Agencia movil ${ag.Nombre}`
-                    : ag.Nombre}
-                </option>
-              );
-            })}
-          </Form.Select>
+          <div>{almacen.find((al) => al.idAgencia == idOrigen)?.Nombre}</div>
         </Form.Group>
-
         <Form.Group className="mb-3 halfSelect" controlId="destiny">
           <div className="formLabel">Destino</div>
           <Form.Select
@@ -262,10 +343,10 @@ export default function FormNewTransfer() {
       </Form>
       <div className="secondHalf">
         <div className="formLabel">Agregar Productos</div>
-        <Form>
-          <Form.Group className="mb-3" controlId="order">
+        <Form className="mb-3" onSubmit={(e) => addWithEnter(e)}>
+          <Form.Group className="halfSelectAlt" controlId="order">
             <Form.Select
-              className="selectorFull"
+              className="selectorFullAlt"
               onChange={(e) => {
                 addProductToList(e.target.value);
               }}
@@ -287,6 +368,13 @@ export default function FormNewTransfer() {
                 );
               })}
             </Form.Select>
+            <Form.Control
+              className="halfSearch"
+              type="text"
+              placeholder="Buscar"
+              value={filtered}
+              onChange={(e) => filterProducts(e.target.value)}
+            ></Form.Control>
           </Form.Group>
         </Form>
       </div>
@@ -371,6 +459,27 @@ export default function FormNewTransfer() {
           </div>
         </div>
       </div>
+      {isPrint ? (
+        <div>
+          <div hidden>
+            <OrderNote productList={productList} ref={componentRef} />
+          </div>
+          <ReactToPrint
+            trigger={() => (
+              <Button
+                variant="warning"
+                className="yellowLarge"
+                ref={buttonRef}
+                hidden
+              >
+                Imprimir ordenes
+              </Button>
+            )}
+            content={() => componentRef.current}
+            onAfterPrint={() => window.location.reload()}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

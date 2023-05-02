@@ -17,6 +17,7 @@ import { Button, Form, Table } from "react-bootstrap";
 import { getProductsWithStock } from "../services/productServices";
 import { dateString } from "../services/dateServices";
 import LoadingModal from "./Modals/loadingModal";
+import { updateStock } from "../services/orderServices";
 export default function FormEditTransfer() {
   const [userId, setUserId] = useState("");
   const [tList, setTList] = useState([]);
@@ -29,6 +30,7 @@ export default function FormEditTransfer() {
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
   const [transferId, setTransferId] = useState("");
+  const [transferOrigin, setTransferOrigin] = useState("");
   const timestampRef = useRef(Date.now());
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
@@ -64,6 +66,7 @@ export default function FormEditTransfer() {
     );
     setSelectedTransfer(tList.find((tl) => tl.idTraspaso == transferId));
     const storeId = tList.find((tl) => (tl.idTraspaso = transferId)).idOrigen;
+    setTransferOrigin(storeId);
     const prods = getProductsWithStock(storeId, "all");
     prods.then((pr) => {
       console.log("Flag 1");
@@ -157,6 +160,19 @@ export default function FormEditTransfer() {
         setIsAlertSec(false);
       }, 2000);
     } else {
+      var arrReturns = [];
+      var arrAdds = [];
+      var arrNew = [];
+      for (const product of selectedProducts) {
+        const found = transferProductList.find(
+          (prod) => prod.idProducto == product.idProducto
+        );
+        if (found) {
+          console.log("Producto que ya estaba", product);
+        } else {
+          console.log("Producto a sacar de stock por completo", product);
+        }
+      }
       setAlertSec("Actualizando traspaso");
       setIsAlertSec(true);
       if (
@@ -169,7 +185,6 @@ export default function FormEditTransfer() {
         const deleted = compareArrays(transferProductList, deletedProducts);
 
         const remaining = compareArrays(selectedProducts, transferProductList);
-
         saveTransfer(added, deleted, remaining);
       }
     }
@@ -201,11 +216,42 @@ export default function FormEditTransfer() {
                 const updated = updateChangedTransfer(updateBody);
                 updated
                   .then((up) => {
-                    setAlertSec("Traspaso actualizado");
-                    setTimeout(() => {
-                      setIsAlertSec(false);
-                      window.location.reload();
-                    }, 2500);
+                    console.log("Devolviendo stock", transferProductList);
+                    const updateToreturn = updateStock({
+                      accion: "add",
+                      idAlmacen: transferOrigin,
+                      productos: transferProductList,
+                    });
+                    updateToreturn
+                      .then((res) => {
+                        console.log("Devuelto");
+                        console.log("Sacando Stock", selectedProducts);
+                        setTimeout(() => {
+                          const updateToTake = updateStock({
+                            accion: "take",
+                            idAlmacen: transferOrigin,
+                            productos: selectedProducts,
+                          });
+                          updateToTake
+                            .then((res) => {
+                              console.log("Retirado");
+                              setTimeout(() => {
+                                setAlertSec(
+                                  "Traspaso actualizado, recargando..."
+                                );
+                                window.location.reload();
+                              }, 6000);
+                            })
+                            .catch((err) => {
+                              console.log(
+                                "Error al actualizar nuevas cantidades "
+                              );
+                            });
+                        }, 5000);
+                      })
+                      .catch((err) => {
+                        console.log("Error al actualizar");
+                      });
                   })
                   .catch((err) => {
                     setAlertSec("Error al editar el traspaso", err);
@@ -230,7 +276,8 @@ export default function FormEditTransfer() {
           });
       })
       .catch((err) => {
-        setAlertSec("Error al agregar productos el traspaso:", err);
+        setAlertSec("Error al agregar productos al traspaso:", err);
+        console.log("error", err);
         setTimeout(() => {
           setIsAlertSec(false);
         }, 5000);
@@ -350,7 +397,7 @@ export default function FormEditTransfer() {
                         {parseInt(
                           stockList.find((sl) => sl.idProducto == sp.idProducto)
                             ?.cant_Actual
-                        ) + sp.cantidadProducto}
+                        )}
                       </td>
                     </tr>
                   );

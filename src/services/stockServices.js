@@ -92,6 +92,22 @@ const initializeStock = (body) => {
   });
 };
 
+const logProductEntry = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/log/ingreso`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   getLogStockProduct,
   getLogStockStore,
@@ -99,4 +115,5 @@ export {
   getCurrentStockStore,
   updateFullStock,
   initializeStock,
+  logProductEntry,
 };

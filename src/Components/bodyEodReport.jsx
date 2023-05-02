@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Button, Table } from "react-bootstrap";
+import { Button, Form, Table } from "react-bootstrap";
 import {
   getBranches,
   getSalePointsAndStores,
@@ -17,6 +17,7 @@ import {
 } from "../services/reportServices";
 import ReactToPrint from "react-to-print";
 import { EndOfDayComponent } from "./endOfDayComponent";
+import LoadingModal from "./Modals/loadingModal";
 export default function BodyEodReport() {
   const [idSucursal, setIdSucursal] = useState("");
   const [puntoDeVenta, setPuntoDeVenta] = useState();
@@ -44,6 +45,10 @@ export default function BodyEodReport() {
   const [userName, setUserName] = useState("");
   const [userRol, setUserRol] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [parsedDate, setParsedDate] = useState("");
+  const [isAlertSec, setIsAlertSec] = useState(false);
+  const [alertSec, setAlertSec] = useState("");
   const componentRef = useRef();
   useEffect(() => {
     setFecha(dateString().split(" ").shift());
@@ -110,11 +115,24 @@ export default function BodyEodReport() {
     }
   }, []);
   function generateReport() {
+    setAlertSec("Generando reporte");
+    setIsAlertSec(true);
+
+    const date = new Date();
+    const current = `${date.getFullYear()}-${
+      date.getMonth() + 1
+    }-${date.getDate()}`;
+    setSelectedDate(current);
+    console.log("Current", current);
+    if (selectedDate == "") {
+      setSelectedDate(current);
+    }
     const report = getEndOfDayReport({
       idSucursal: idSucursal,
       idPuntoDeVenta: puntoDeVenta,
       idAgencia: userStore,
       ruta: userRol == 4 ? true : false,
+      fecha: selectedDate === "" ? current : selectedDate,
     });
     report.then((rp) => {
       const data = rp.data;
@@ -162,23 +180,51 @@ export default function BodyEodReport() {
         idPuntoDeVenta: puntoDeVenta,
         idAgencia: userStore,
         ruta: userRol == 4 ? true : false,
+        fecha: selectedDate === "" ? current : selectedDate,
       });
       details.then((dt) => {
         const det = dt.data[0];
-
+        setSelectedDate("");
         setNumberInv(det.CantidadFacturas);
         setFirstInv(det.PrimeraFactura);
         setLastInv(det.UltimaFactura);
         setIsReporte(true);
         setIsNota(true);
+        setIsAlertSec(false);
       });
     });
   }
+
+  function handleDate(value) {
+    const parsed = value.split("-");
+
+    setParsedDate(parsed[2] + "/" + parsed[1] + "/" + parsed[0]);
+    setNumberInv("");
+    setFirstInv("");
+    setLastInv("");
+    setIsReporte(false);
+    setIsNota(false);
+    setEfectivo(0);
+    setTarjeta(0);
+    setCheque(0);
+    setDeposito(0);
+    setCln(0);
+    setQhantuy(0);
+    setVale(0);
+    setPosterior(0);
+    setTransfer(0);
+    setSwift(0);
+    setQr(0);
+    setSelectedDate(value);
+    console.log("Selected date", value);
+  }
+
   return (
     <div>
       <div>
         <div className="formLabel">REPORTE CIERRE DIARIO DE VENTAS</div>
       </div>
+      <LoadingModal isAlertSec={isAlertSec} alertSec={alertSec} />
       <div>
         {storeData?.nombre ? (
           <Table>
@@ -193,7 +239,17 @@ export default function BodyEodReport() {
               <tr className="tableRow">
                 <td>{storeData?.nombre}</td>
                 <td>{storeData?.nroPuntoDeVenta + 1}</td>
-                <td>{fecha}</td>
+                <td>
+                  {
+                    <Form>
+                      <Form.Control
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => handleDate(e.target.value)}
+                      />
+                    </Form>
+                  }
+                </td>
               </tr>
             </tbody>
             <tfoot className="tableHeader">
@@ -211,7 +267,7 @@ export default function BodyEodReport() {
           <Table className="thinTable">
             <thead>
               <tr className="tableHeaderCenter">
-                <th colSpan={3}>Detalles</th>
+                <th colSpan={3}>{`Detalles del ${parsedDate}`}</th>
               </tr>
             </thead>
             <tbody>
@@ -329,7 +385,7 @@ export default function BodyEodReport() {
                     primeraFactura: firstInv,
                     ultimaFactura: lastInv,
                     cantFacturas: numberInv,
-                    fecha: fecha,
+                    fecha: parsedDate,
                     hora: hora,
                   }}
                   totales={{

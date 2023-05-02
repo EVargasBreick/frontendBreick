@@ -12,6 +12,7 @@ import ReturnWare from "../../assets/returnWare.png";
 import Invoice from "../../assets/invoice.png";
 import cancelInvoice from "../../assets/cancelInvoice.png";
 import Cross from "../../assets/cross.png";
+import Printer from "../../assets/printer.png";
 import "../../styles/generalStyle.css";
 
 export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
@@ -50,6 +51,13 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/facturas/reimprimir")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Printer} className="icon"></Image>Reimprimir Facturas
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/traspaso")}
         className="menuItem"
       >
@@ -80,11 +88,19 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={newOrder} className="icon"></Image>Ver Traspasos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/traspaso/recepcion")}
+        className="menuItem"
+      >
+        <Image src={ReturnWare} className="icon inverted"></Image>
+        Recepcion traspasos
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/rechazados")}
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Ver Ped/Trasp Rechazados
       </MenuItem>
+
       <MenuItem
         onClick={() => redirectOnClick("/productos/baja")}
         className="menuItem"

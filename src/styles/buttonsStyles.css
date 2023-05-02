@@ -98,13 +98,12 @@
   color: white;
 }
 .yellowDrop {
-  background-color: #5cb8b2;
   width: 50%;
 }
 
 .yellowDropOp {
   background-color: #eead1a;
-  width: 100%;
+  width: 30%;
 }
 
 .hiddenButton {

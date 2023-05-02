@@ -210,6 +210,7 @@ export default function FormProductDrop() {
             </option>
             <option value={"Producto roto"}>Producto roto</option>
             <option value={"Producto derretido"}>Producto derretido</option>
+            <option value={"Devolucion a fabrica"}>Devolución a fábrica</option>
           </Form.Select>
           <Button
             className="yellowLarge"

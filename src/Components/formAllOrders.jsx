@@ -16,6 +16,8 @@ import { useNavigate } from "react-router-dom";
 import { ExportToExcel } from "../services/exportServices";
 import { OrderPDF } from "./orderPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import { dateString } from "../services/dateServices";
+import { getProducts } from "../services/productServices";
 export default function FormAllOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
@@ -40,6 +42,9 @@ export default function FormAllOrders() {
   const pdfRef = useRef();
   const [descCalculado, setDescCalculado] = useState("");
   const [notas, setNotas] = useState("");
+  const [allProducts, setAllProducts] = useState([]);
+  const [tipo, setTipo] = useState("");
+  const [totalMuestra, setTotalMuestra] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -61,6 +66,10 @@ export default function FormAllOrders() {
     listaPedidos.then((res) => {
       console.log("Lista pedidos", res.data.data);
       setPedidosList(res.data.data);
+    });
+    const allProducts = getProducts("all");
+    allProducts.then((res) => {
+      setAllProducts(res.data.data);
     });
   }, []);
   const handleClose = () => {
@@ -89,11 +98,12 @@ export default function FormAllOrders() {
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
     setSelectedOrder(stringParts[0]);
+
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
       console.log("Order details", res);
       const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
-
+      const currentDate = dateString().substring(0, 10).split("/");
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
       );
@@ -108,11 +118,11 @@ export default function FormAllOrders() {
         "descuento calculado": res.data.data[0].descuentoCalculado?.toFixed(2),
         facturado: res.data.data[0].montoTotal?.toFixed(2),
         fechaCrea:
-          fechaDesc[0] +
+          currentDate[0] +
           " de " +
-          meses[fechaDesc[1] - 1] +
+          meses[currentDate[1] - 1] +
           " de " +
-          fechaDesc[2],
+          currentDate[2],
       };
       setVendedor(res.data.data[0].nombreVendedor);
       setCliente(res.data.data[0].razonSocial);
@@ -123,22 +133,53 @@ export default function FormAllOrders() {
       setDescCalculado(res.data.data[0].descuentoCalculado);
       setNit(res.data.data[0].nit);
       setNotas(res.data.data[0].notas);
+      setTipo(res.data.data[0].tipo);
+      var sumatoria = 0;
       const prodList = getOrderProdList(stringParts[0]);
-      prodList.then((res) => {
-        res.data.data.map((pr) => {
-          console.log("Producto", pr);
+      prodList.then((resp) => {
+        resp.data.data.map((pr) => {
+          const found = allProducts.find(
+            (item) => item.nombreProducto === pr.nombreProducto
+          );
+          sumatoria += found.precioDeFabrica * pr.cantidadProducto;
+          setTotalMuestra(sumatoria);
+          const total =
+            res.data.data[0].tipo === "normal"
+              ? pr.totalProd
+              : found.precioDeFabrica * pr.cantidadProducto;
+
+          //console.log("Found", found);
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,
             precio: pr.precioDeFabrica?.toFixed(2),
-            total: pr.totalProd?.toFixed(2),
+            total: total?.toFixed(2),
             "descuento calculado": pr.descuentoProducto?.toFixed(2),
           };
           setProductTable((productTable) => [...productTable, pTable]);
         });
-        setProductList(res.data.data);
+        setProductList(resp.data.data);
         const auxDetail = [...productDetail];
         setProductDetail([...auxDetail, prodHeaderObj]);
+        if (res.data.data[0].tipo !== "normal") {
+          const prodHeaderObj = {
+            vendedor: res.data.data[0].nombreVendedor,
+            cliente: res.data.data[0].razonSocial,
+            nit: res.data.data[0].nit,
+            zona: res.data.data[0].zona,
+            montoTotal: sumatoria,
+            descuento: 0,
+            "descuento calculado": 0,
+            facturado: sumatoria,
+            fechaCrea:
+              currentDate[0] +
+              " de " +
+              meses[currentDate[1] - 1] +
+              " de " +
+              currentDate[2],
+          };
+          setProductDetail([...auxDetail, prodHeaderObj]);
+        }
         setIsLoading(false);
         setIsOrder(true);
         setIsPdf(true);
@@ -194,7 +235,7 @@ export default function FormAllOrders() {
         </Modal.Footer>
       </Modal>
 
-      <div className="formLabel">ADMINISTRAR PEDIDOS</div>
+      <div className="formLabel">TODOS LOS PEDIDOS</div>
       <Form>
         <Form.Group
           className="mb-3"
@@ -274,6 +315,13 @@ export default function FormAllOrders() {
                 </thead>
                 <tbody>
                   {productList.map((product, index) => {
+                    const found = allProducts.find(
+                      (item) => item.nombreProducto === product.nombreProducto
+                    );
+                    const total =
+                      tipo === "normal"
+                        ? product.totalProd
+                        : found.precioDeFabrica * product.cantidadProducto;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumn">
@@ -286,7 +334,7 @@ export default function FormAllOrders() {
                           {product.cantidadProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {`${product.totalProd.toFixed(2)} Bs.`}
+                          {`${total?.toFixed(2)} Bs.`}
                         </td>
                       </tr>
                     );
@@ -297,28 +345,42 @@ export default function FormAllOrders() {
                     <th className="totalColumnOrder" colSpan={3}>
                       Total
                     </th>
-                    <td>{`${total?.toFixed(2)} Bs.`}</td>
+                    <td>{`${
+                      tipo === "normal"
+                        ? total?.toFixed(2)
+                        : totalMuestra?.toFixed(2)
+                    } Bs.`}</td>
                   </tr>
                   <tr className="tableRow">
                     <th
                       colSpan={3}
                       className="totalColumnOrder"
                     >{`Descuento (%)`}</th>
-                    <td>{`${((descCalculado / total) * 100).toFixed(2)} %`}</td>
+                    <td>{`${
+                      tipo === "normal"
+                        ? ((descCalculado / total) * 100).toFixed(2)
+                        : 0
+                    } %`}</td>
                   </tr>
                   <tr className="tableRow">
                     <th
                       colSpan={3}
                       className="totalColumnOrder"
                     >{`Descuento calculado`}</th>
-                    <td>{`${descCalculado?.toFixed(2)} Bs.`}</td>
+                    <td>{`${
+                      tipo === "normal" ? descCalculado?.toFixed(2) : 0.0
+                    } Bs.`}</td>
                   </tr>
                   <tr className="tableRow">
                     <th
                       colSpan={3}
                       className="totalColumnOrder"
                     >{`Total a facturar`}</th>
-                    <td>{`${facturado?.toFixed(2)} Bs.`}</td>
+                    <td>{`${
+                      tipo === "normal"
+                        ? facturado?.toFixed(2)
+                        : totalMuestra?.toFixed(2)
+                    } Bs.`}</td>
                   </tr>
                 </tfoot>
               </Table>

@@ -58,6 +58,8 @@ export default function FormOrderReception() {
           usuario: detallesPedido[0].usuario,
           tipo: detallesPedido[0].tipo,
           notas: detallesPedido[0].notas,
+          razonSocial: detallesPedido[0].razonSocial,
+          zona: detallesPedido[0].zona,
         };
         array.push(element);
       });

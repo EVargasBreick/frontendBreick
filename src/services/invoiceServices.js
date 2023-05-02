@@ -4,21 +4,29 @@ import { dateString } from "./dateServices";
 import { updateInvoicedOrder } from "./orderServices";
 
 import { createSale } from "./saleServices";
+import { debounce } from "lodash";
+
+const debouncedCreateInvoice = debounce(
+  async (invoiceObject) => {
+    const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/factura`;
+    const response = await axios.post(url, invoiceObject);
+    if (response.status === 200) {
+      return { data: response.data };
+    } else {
+      resetDebouncedInvoice();
+      throw new Error(`Invalid response status code: ${response.status}`);
+    }
+  },
+  45000,
+  { leading: true }
+);
+
+const resetDebouncedInvoice = () => {
+  debouncedCreateInvoice.cancel();
+};
 
 const createInvoice = (invoiceObject) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .post(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/factura`,
-        invoiceObject
-      )
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+  return debouncedCreateInvoice(invoiceObject);
 };
 
 const deleteInvoice = (id) => {
@@ -224,6 +232,21 @@ function logIncompleteInvoice(body) {
   });
 }
 
+function getInvoiceToRePrint(idAgencia, pdv, nroFactura) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/facturas/reimprimir?idAgencia=${idAgencia}&pdv=${pdv}&nroFactura=${nroFactura}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 export {
   createInvoice,
   deleteInvoice,
@@ -233,4 +256,5 @@ export {
   otherPaymentsList,
   invoiceUpdate,
   logIncompleteInvoice,
+  getInvoiceToRePrint,
 };

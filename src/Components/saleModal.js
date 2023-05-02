@@ -25,6 +25,7 @@ import {
 } from "../services/invoiceServices";
 import { deleteSale } from "../services/saleServices";
 import Cookies from "js-cookie";
+import { debounce } from "lodash";
 function SaleModal(
   {
     datos,
@@ -109,6 +110,7 @@ function SaleModal(
   const [invoiceNubmer, setInvoiceNumber] = useState("");
   const [invObj, setInvObj] = useState({});
   const [idFactura, setIdFactura] = useState("");
+  const [noFactura, setNoFactura] = useState("");
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -332,7 +334,7 @@ function SaleModal(
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
-            saveInvoice();
+            handleSave(e);
           }
         } else {
           if (tipoPago == 2 || tipoPago == 10) {
@@ -340,7 +342,7 @@ function SaleModal(
               setAlert("Ingrese valores válidos para la tarjeta por favor");
               setIsAlert(true);
             } else {
-              savingInvoice(e);
+              handleSave(e);
             }
           }
           if (tipoPago == 4) {
@@ -352,7 +354,7 @@ function SaleModal(
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
-                savingInvoice();
+                handleSave(e);
               }
             }
           }
@@ -364,7 +366,7 @@ function SaleModal(
             tipoPago == 8 ||
             tipoPago == 9
           ) {
-            savingInvoice();
+            handleSave(e);
           }
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");
@@ -381,7 +383,6 @@ function SaleModal(
               idAlmacen: userStore,
               productos: selectedProducts,
             };
-
             const bajaRegistrada = registerDrop(objBaja);
             bajaRegistrada
               .then((res) => {
@@ -410,8 +411,18 @@ function SaleModal(
   React.useImperativeHandle(ref, () => ({
     childFunction,
   }));
+  const debauncedSaving = debounce(savingInvoice, 30000, { leading: true });
+
+  function handleSave(e) {
+    setIsSaleModal(false);
+    console.log("Guardando 1");
+    debauncedSaving(e);
+  }
 
   function savingInvoice(e) {
+    console.log("Dentro del debounce");
+    e.preventDefault(e);
+
     const saved = saveInvoice(
       "-",
       "-",
@@ -511,8 +522,8 @@ function SaleModal(
                           .TransaccionSalidaUnificada[0];
                       if (invoiceState == "Transacción Exitosa") {
                         console.log("Count", count);
-
                         const numFac = invocieResponse.NumeroFactura[0];
+                        setNoFactura(numFac);
                         const idTrac = idTransaccion;
                         const updateBodyInit = {
                           nroFactura: numFac,
@@ -642,8 +653,7 @@ function SaleModal(
     const logged = logIncompleteInvoice(object);
     logged
       .then((res) => {
-        console.log("Factura loggeada");
-
+        console.log("Factura loggeada", res);
         setTimeout(() => {
           window.location.reload();
         }, 4000);
@@ -665,22 +675,24 @@ function SaleModal(
   }
 
   function rollbackPurchase(idFactura, idVenta, objStock) {
-    const deletedInvoice = deleteInvoice(idFactura);
-    deletedInvoice.then((rs) => {
-      const deletedSale = deleteSale(idVenta);
-      deletedSale.then((res) => {
-        console.log("Borrados");
-        console.log("Devolviendo Stock");
-        setIsAlertSec(false);
-        const returned = updateStock(objStock);
-        setIsAlertSec(false);
-        returned
-          .then((res) => {})
-          .catch((err) => {
-            console.log("Error al devolver el stock", err);
-          });
+    if (noFactura == "" || cuf == "") {
+      const deletedInvoice = deleteInvoice(idFactura);
+      deletedInvoice.then((rs) => {
+        const deletedSale = deleteSale(idVenta);
+        deletedSale.then((res) => {
+          console.log("Borrados");
+          console.log("Devolviendo Stock");
+          setIsAlertSec(false);
+          const returned = updateStock(objStock);
+          setIsAlertSec(false);
+          returned
+            .then((res) => {})
+            .catch((err) => {
+              console.log("Error al devolver el stock", err);
+            });
+        });
       });
-    });
+    }
   }
   function handleClose() {
     setDescuento(0);
@@ -1200,6 +1212,7 @@ function SaleModal(
                       <option value="vale">Vale</option>
                       <option value="promo">Promoción</option>
                       <option value="muestra">Muestra</option>
+                      <option value="muestra">Venta en línea</option>
                     </Form.Select>
                   </Form>
                 }

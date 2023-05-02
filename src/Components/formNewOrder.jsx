@@ -119,8 +119,12 @@ export default function FormNewOrder() {
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
       disponibles.then((fetchedAvailable) => {
-        setAvailable(fetchedAvailable.data.data);
-        setAuxProducts(fetchedAvailable.data.data);
+        const filtered = fetchedAvailable.data.data.filter(
+          (product) => product.cant_Actual > 0
+        );
+        console.log("Productos disponibles", filtered);
+        setAvailable(filtered);
+        setAuxProducts(filtered);
       });
       const dl = productsDiscount(
         JSON.parse(Cookies.get("userAuth")).idUsuario
@@ -371,7 +375,7 @@ export default function FormNewOrder() {
 
   function handleType(value) {
     setTipo(value);
-    if (value === "muestra") {
+    if (value === "muestra" || value === "consignacion") {
       setDescuento(0);
       setIsDesc(true);
     } else {
@@ -484,7 +488,7 @@ export default function FormNewOrder() {
                     codigoPedido: res.data.data.idCreado,
                     correoUsuario: userEmail,
                     fecha: dateString(),
-                    email: [userEmail, "evargas@breick.com.bo"],
+                    email: [userEmail],
                     tipo: "Pedido",
                     header: "Pedido Creado",
                   };
@@ -506,9 +510,9 @@ export default function FormNewOrder() {
                         const faltantesLogged = logShortage(bodyFaltantes);
                         faltantesLogged.then((fl) => {
                           setTimeout(() => {
-                            navigate("/principal");
+                            window.location.reload()
                             setisLoading(false);
-                          }, 3000);
+                          }, 4000);
                         });
                       } else {
                         setTimeout(() => {
@@ -601,7 +605,7 @@ export default function FormNewOrder() {
                       codigoPedido: res.data.data.idCreado,
                       correoUsuario: userEmail,
                       fecha: dateString(),
-                      email: [userEmail, "tcuellar@breick.com.bo"],
+                      email: [userEmail],
                       tipo: "pedido",
                       header: "Pedido Creado",
                     };
@@ -623,13 +627,13 @@ export default function FormNewOrder() {
                           const faltantesLogged = logShortage(bodyFaltantes);
                           faltantesLogged.then((fl) => {
                             setTimeout(() => {
-                              navigate("/principal");
+                              window.location.reload();
                               setisLoading(false);
                             }, 3000);
                           });
                         } else {
                           setTimeout(() => {
-                            navigate("/principal");
+                            window.location.reload();
                             setisLoading(false);
                           }, 3000);
                         }
@@ -1056,7 +1060,13 @@ export default function FormNewOrder() {
                     <th className="smallTableColumn"></th>
 
                     <th className="smallTableColumn">{"Total: "}</th>
-                    <th className="smallTableColumn"></th>
+                    <th className="smallTableColumn">
+                      {selectedProds
+                        .reduce((accumulator, object) => {
+                          return accumulator + parseFloat(object.totalProd);
+                        }, 0)
+                        ?.toFixed(2)}
+                    </th>
                     <th className="smallTableColumn"></th>
                   </tr>
                 </tfoot>
@@ -1071,6 +1081,7 @@ export default function FormNewOrder() {
             >
               <option value="normal">Normal</option>
               <option value="muestra">Muestra</option>
+              <option value="consignacion">Consignación</option>
             </Form.Select>
           </Form.Group>
           <Form.Group>

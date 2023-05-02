@@ -13,6 +13,7 @@ import Book from "../../assets/book.png";
 import Lines from "../../assets/lines.png";
 import Chocolate from "../../assets/chocolate.png";
 import newClient from "../../assets/newClient.png";
+import Printer from "../../assets/printer.png";
 import "../../styles/generalStyle.css";
 import Cross from "../../assets/cross.png";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
@@ -48,6 +49,13 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/facturas/reimprimir")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Printer} className="icon"></Image>Reimprimir Facturas
+      </MenuItem>
       {isInterior ? (
         <MenuItem
           onClick={() => redirectOnClick("/pedidos/facturar")}
@@ -76,6 +84,13 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso productos
       </MenuItem>*/}
+      <MenuItem
+        onClick={() => redirectOnClick("/traspaso")}
+        className="menuItem"
+      >
+        <Image src={ReturnWare} className="icon inverted"></Image>
+        Traspaso entre agencias
+      </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso/recepcion")}
         className="menuItem"

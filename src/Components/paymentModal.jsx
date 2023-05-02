@@ -24,6 +24,7 @@ import { createSale, deleteSale } from "../services/saleServices";
 import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
 import html2canvas from "html2canvas";
+import { debounce } from "lodash";
 export default function PaymentModal({
   setIsInvoice,
   isSaleModal,
@@ -97,7 +98,12 @@ export default function PaymentModal({
     const suc = getBranchesPs();
     suc.then((resp) => {
       const sucursales = resp.data;
-      const sucur = sucursales.find((sc) => idAlmacen == sc.idAgencia);
+      console.log("Sucursales", sucursales);
+      console.log("Id almacen", idAlmacen);
+      const sucur = sucursales.find((sc) => idAlmacen == sc.idAgencia)
+        ? sucursales.find((sc) => idAlmacen == sc.idAgencia)
+        : sucursales.find((sc) => "AL001" == sc.idAgencia);
+      console.log("Sucur", sucur);
       const branchData = {
         nombre: sucur.nombre,
         dir: sucur.direccion,
@@ -247,7 +253,7 @@ export default function PaymentModal({
           } else {
             setAlertSec(`Guardando Venta`);
             setIsAlertSec(true);
-            saveInvoice();
+            handleSave(e);
           }
         } else {
           if (tipoPago == 2 || tipoPago == 10) {
@@ -257,7 +263,7 @@ export default function PaymentModal({
             } else {
               setAlertSec(`Guardando Venta`);
               setIsAlertSec(true);
-              saveInvoice();
+              handleSave(e);
             }
           }
           if (tipoPago == 4) {
@@ -271,7 +277,7 @@ export default function PaymentModal({
               } else {
                 setAlertSec(`Guardando Venta`);
                 setIsAlertSec(true);
-                saveInvoice();
+                handleSave(e);
               }
             }
           }
@@ -285,7 +291,7 @@ export default function PaymentModal({
           ) {
             setAlertSec(`Guardando Venta`);
             setIsAlertSec(true);
-            saveInvoice();
+            handleSave(e);
           }
         }
       }
@@ -293,7 +299,8 @@ export default function PaymentModal({
     });
   }
 
-  async function invoiceProcess(idFactura, idVenta) {
+  async function invoiceProcess(idFactura, idVenta, e) {
+    e.preventDefault();
     const invoiceBody = {
       idCliente: totales.idCliente,
       nroFactura: 1,
@@ -483,7 +490,16 @@ export default function PaymentModal({
     });
     setIsModified(true);
   }
-  function saveInvoice() {
+
+  const debauncedSaving = debounce(saveInvoice, 30000, { leading: true });
+
+  function handleSave(e) {
+    console.log("Guardando 1");
+    debauncedSaving(e);
+  }
+
+  function saveInvoice(e) {
+    e.preventDefault();
     return new Promise((resolve, reject) => {
       setAlertSec("Guardando Venta");
       const invoiceBody = {
@@ -518,7 +534,7 @@ export default function PaymentModal({
         .then((res) => {
           setTimeout(() => {
             const newId = res.data.idCreado;
-            const created = saveSale(newId);
+            const created = saveSale(newId, e);
             created
               .then((res) => {
                 resolve(true);
@@ -536,7 +552,8 @@ export default function PaymentModal({
       //setIsSaleModal(!isSaleModal);
     });
   }
-  function saveSale(createdId) {
+  function saveSale(createdId, e) {
+    e.preventDefault(e);
     return new Promise((resolve, reject) => {
       setFechaHora(dateString());
       const objVenta = {
@@ -559,7 +576,7 @@ export default function PaymentModal({
         .then((res) => {
           const idVenta = res.data.idCreado;
           setTimeout(() => {
-            invoiceProcess(createdId, idVenta);
+            invoiceProcess(createdId, idVenta, e);
             resolve(true);
             setIsAlertSec(true);
           }, 500);

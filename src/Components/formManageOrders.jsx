@@ -7,14 +7,21 @@ import loading2 from "../assets/loading2.gif";
 import "../styles/buttonsStyles.css";
 import {
   approveOrderFromId,
+  cancelOrder,
   getOrderDetail,
   getOrderList,
   getOrderProdList,
+  updateStock,
 } from "../services/orderServices";
 import { useNavigate } from "react-router-dom";
 import { ExportToExcel } from "../services/exportServices";
 import { OrderPDF } from "./orderPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import { getProducts } from "../services/productServices";
+import { dateString } from "../services/dateServices";
+
+import ReactToPrint from "react-to-print";
+import { OrderNote } from "./orderNote";
 export default function FormManageOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
@@ -39,6 +46,15 @@ export default function FormManageOrders() {
   const pdfRef = useRef();
   const [descCalculado, setDescCalculado] = useState("");
   const [notas, setNotas] = useState("");
+  const [allProducts, setAllProducts] = useState([]);
+  const [tipo, setTipo] = useState("");
+  const [totalMuestra, setTotalMuestra] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [noteList, setNoteList] = useState([]);
+  const [isAlertSec, setIsAlertSec] = useState(false);
+  const [alertSec, setAlertSec] = useState("");
+  const [userStore, setUserStore] = useState("");
+  const buttonRef = useRef();
   const meses = [
     "Enero",
     "Febrero",
@@ -53,13 +69,18 @@ export default function FormManageOrders() {
     "Noviembre",
     "Diciembre",
   ];
+  const [prodList, setProdList] = useState([]);
   const navigate = useNavigate();
-
+  const componentRef = useRef();
   useEffect(() => {
     const listaPedidos = getOrderList("");
     listaPedidos.then((res) => {
       console.log("Lista pedidos", res.data.data);
       setPedidosList(res.data.data);
+    });
+    const allProducts = getProducts("all");
+    allProducts.then((res) => {
+      setAllProducts(res.data.data);
     });
   }, []);
   const handleClose = () => {
@@ -69,13 +90,15 @@ export default function FormManageOrders() {
   function setOrderDetails(stringPedido) {
     const stringParts = stringPedido.split("|");
     setIsLoading(true);
+    console.log("Codigo", stringParts[0]);
     setCodigoPedido(stringParts[1]);
     setSelectedOrder(stringParts[0]);
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
       console.log("Order details", res);
+      console.log(dateString().substring(0, 10).split("/"));
       const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
-
+      const currentDate = dateString().substring(0, 10).split("/");
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
       );
@@ -90,12 +113,13 @@ export default function FormManageOrders() {
         "descuento calculado": res.data.data[0].descuentoCalculado?.toFixed(2),
         facturado: res.data.data[0].montoTotal?.toFixed(2),
         fechaCrea:
-          fechaDesc[0] +
+          currentDate[0] +
           " de " +
-          meses[fechaDesc[1] - 1] +
+          meses[currentDate[1] - 1] +
           " de " +
-          fechaDesc[2],
+          currentDate[2],
       };
+      setUserStore(res.data.data[0].idAlmacen);
       setVendedor(res.data.data[0].nombreVendedor);
       setCliente(res.data.data[0].razonSocial);
       setZona(res.data.data[0].zona);
@@ -105,22 +129,72 @@ export default function FormManageOrders() {
       setDescCalculado(res.data.data[0].descuentoCalculado);
       setNit(res.data.data[0].nit);
       setNotas(res.data.data[0].notas);
+      setTipo(res.data.data[0].tipo);
       const prodList = getOrderProdList(stringParts[0]);
-      prodList.then((res) => {
-        res.data.data.map((pr) => {
-          console.log("Producto", pr);
+      console.log("Tipo", res.data.data[0].tipo === "normal");
+      var sumatoria = 0;
+      prodList.then((resp) => {
+        console.log("Order prod list", resp.data.data);
+        const array = [];
+        const element = {
+          idNro: res.data.data[0].idPedido,
+          id: res.data.data[0].codigoPedido,
+          productos: resp.data.data,
+          fechaSolicitud: res.data.data[0].fechaCrea,
+          usuario: res.data.data[0].usuario,
+          tipo: res.data.data[0].tipo,
+          notas: res.data.data[0].notas,
+          razonSocial: res.data.data[0].razonSocial,
+          zona: res.data.data[0].zona,
+        };
+        array.push(element);
+        setNoteList(array);
+        console.log("Array test", array);
+        resp.data.data.map((pr) => {
+          const found = allProducts.find(
+            (item) => item.nombreProducto === pr.nombreProducto
+          );
+          sumatoria += found?.precioDeFabrica * pr.cantidadProducto;
+          setTotalMuestra(sumatoria);
+          const total =
+            res.data.data[0].tipo === "normal"
+              ? pr.totalProd
+              : found.precioDeFabrica * pr.cantidadProducto;
+
+          //console.log("Found", found);
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,
             precio: pr.precioDeFabrica?.toFixed(2),
-            total: pr.totalProd?.toFixed(2),
+            total: total?.toFixed(2),
             "descuento calculado": pr.descuentoProducto?.toFixed(2),
           };
+
           setProductTable((productTable) => [...productTable, pTable]);
         });
-        setProductList(res.data.data);
+        setProductList(resp.data.data);
         const auxDetail = [...productDetail];
         setProductDetail([...auxDetail, prodHeaderObj]);
+        if (res.data.data[0].tipo !== "normal") {
+          const prodHeaderObj = {
+            vendedor: res.data.data[0].nombreVendedor,
+            cliente: res.data.data[0].razonSocial,
+            nit: res.data.data[0].nit,
+            zona: res.data.data[0].zona,
+            montoTotal: sumatoria,
+            descuento: 0,
+            "descuento calculado": 0,
+            facturado: sumatoria,
+            fechaCrea:
+              currentDate[0] +
+              " de " +
+              meses[currentDate[1] - 1] +
+              " de " +
+              currentDate[2],
+          };
+          setProductDetail([...auxDetail, prodHeaderObj]);
+        }
+
         setIsLoading(false);
         setIsOrder(true);
         setIsPdf(true);
@@ -135,18 +209,12 @@ export default function FormManageOrders() {
         .then(() => {
           setAlert("Orden aprobada!");
           setIsAlert(true);
-
-          setTimeout(() => {
-            window.location.reload();
-            setIsLoading(false);
-          }, 2000);
+          setIsLoaded(true);
         })
         .catch(() => {
           setAlert("Error al aprobar la orden");
           setIsAlert(true);
-
           setTimeout(() => {
-            navigate("/principal");
             setIsLoading(false);
           }, 2000);
         });
@@ -162,8 +230,47 @@ export default function FormManageOrders() {
   function handlePdf() {
     pdfRef.current.click();
   }
+  useEffect(() => {
+    if (isLoaded) {
+      buttonRef.current.click();
+    }
+  }, [isLoaded]);
+  function deleteOrderAndUpdate() {
+    if (selectedOrder === "") {
+      setAlert("Por favor, seleccione un pedido");
+      setIsAlert(true);
+    } else {
+      setAlertSec("Cancelando pedido y actualizando kardex");
+      setIsAlertSec(true);
+      const objProdsDelete = {
+        accion: "add",
+        idAlmacen: userStore,
+        productos: productList,
+      };
+      const reStocked = updateStock(objProdsDelete);
+      reStocked.then((rs) => {
+        const canceled = cancelOrder(selectedOrder);
+        canceled.then((cld) => {
+          setAlertSec("Pedido cancelado y kardex actualizado, redirigiendo...");
+          setIsAlertSec(true);
+          setTimeout(() => {
+            navigate("/principal");
+          }, 1500);
+        });
+      });
+    }
+  }
   return (
     <div>
+      <Modal show={isAlertSec}>
+        <Modal.Header closeButton>
+          <Modal.Title>{alertSec}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {" "}
+          <Image src={loading2} style={{ width: "5%" }} />
+        </Modal.Body>
+      </Modal>
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Mensaje del Sistema</Modal.Title>
@@ -256,6 +363,13 @@ export default function FormManageOrders() {
                 </thead>
                 <tbody>
                   {productList.map((product, index) => {
+                    const found = allProducts.find(
+                      (item) => item.nombreProducto === product.nombreProducto
+                    );
+                    const total =
+                      tipo === "normal"
+                        ? product.totalProd
+                        : found.precioDeFabrica * product.cantidadProducto;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumn">
@@ -268,7 +382,7 @@ export default function FormManageOrders() {
                           {product.cantidadProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {`${product.totalProd.toFixed(2)} Bs.`}
+                          {`${total?.toFixed(2)} Bs.`}
                         </td>
                       </tr>
                     );
@@ -279,28 +393,42 @@ export default function FormManageOrders() {
                     <th className="totalColumnOrder" colSpan={3}>
                       Total
                     </th>
-                    <td>{`${total?.toFixed(2)} Bs.`}</td>
+                    <td>{`${
+                      tipo === "normal"
+                        ? total?.toFixed(2)
+                        : totalMuestra?.toFixed(2)
+                    } Bs.`}</td>
                   </tr>
                   <tr className="tableRow">
                     <th
                       colSpan={3}
                       className="totalColumnOrder"
                     >{`Descuento (%)`}</th>
-                    <td>{`${((descCalculado / total) * 100).toFixed(2)} %`}</td>
+                    <td>{`${
+                      tipo === "normal"
+                        ? ((descCalculado / total) * 100).toFixed(2)
+                        : 0
+                    } %`}</td>
                   </tr>
                   <tr className="tableRow">
                     <th
                       colSpan={3}
                       className="totalColumnOrder"
                     >{`Descuento calculado`}</th>
-                    <td>{`${descCalculado?.toFixed(2)} Bs.`}</td>
+                    <td>{`${
+                      tipo === "normal" ? descCalculado?.toFixed(2) : 0.0
+                    } Bs.`}</td>
                   </tr>
                   <tr className="tableRow">
                     <th
                       colSpan={3}
                       className="totalColumnOrder"
                     >{`Total a facturar`}</th>
-                    <td>{`${facturado?.toFixed(2)} Bs.`}</td>
+                    <td>{`${
+                      tipo === "normal"
+                        ? facturado?.toFixed(2)
+                        : totalMuestra?.toFixed(2)
+                    } Bs.`}</td>
                   </tr>
                 </tfoot>
               </Table>
@@ -315,11 +443,11 @@ export default function FormManageOrders() {
       <div className="secondHalf">
         <div className="formLabel">APROBAR PEDIDO</div>
         <Form>
-          <Form.Group className="halfRadio" controlId="productDisccount">
-            <div className="buttonsLarge">
+          <Form.Group className="halfRadioAlt" controlId="productDisccount">
+            <div className="buttonsLargeAlt">
               <Button
                 variant="warning"
-                className="cyanLarge"
+                className="yellow"
                 onClick={() => {
                   approveOrder(selectedOrder);
                 }}
@@ -369,6 +497,9 @@ export default function FormManageOrders() {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
+              <Button variant="danger" onClick={() => deleteOrderAndUpdate()}>
+                Cancelar Pedido
+              </Button>
             </div>
           </Form.Group>
         </Form>
@@ -386,6 +517,26 @@ export default function FormManageOrders() {
         >
           <Button ref={pdfRef} className="hiddenButton"></Button>
         </PDFDownloadLink>
+      ) : null}
+      {isLoaded ? (
+        <div>
+          <div hidden>
+            <OrderNote productList={noteList} ref={componentRef} />
+          </div>
+          <ReactToPrint
+            trigger={() => (
+              <Button variant="warning" className="yellowLarge" ref={buttonRef}>
+                Imprimir ordenes
+              </Button>
+            )}
+            content={() => componentRef.current}
+            onAfterPrint={() => {
+              setTimeout(() => {
+                window.location.reload();
+              }, 500);
+            }}
+          />
+        </div>
       ) : null}
     </div>
   );

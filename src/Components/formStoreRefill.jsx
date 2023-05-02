@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Table, Image, Modal } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import loading2 from "../assets/loading2.gif";
@@ -12,6 +12,9 @@ import { getStores } from "../services/storeServices";
 import { getProductsWithStock } from "../services/productServices";
 import { createTransfer } from "../services/transferServices";
 import { updateStock } from "../services/orderServices";
+import { OrderNote } from "./orderNote";
+import ReactToPrint from "react-to-print";
+import { dateString } from "../services/dateServices";
 export default function FormStoreRefill() {
   const navigate = useNavigate();
   const [alert, setAlert] = useState("");
@@ -25,21 +28,39 @@ export default function FormStoreRefill() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [isInterior, setIsInterior] = useState(false);
   const [userId, setUserId] = useState("");
+  const [user, setUser] = useState("");
+  const [isPrint, setIsPrint] = useState(false);
+  const [productList, setProductList] = useState([]);
+  const [filtered, setFiltered] = useState("");
+  const [auxProducts, setAuxProducts] = useState([]);
+  const [nombreOrigen, setNombreOrigen] = useState("");
+  const [nombreDestino, setNombreDestino] = useState();
+  const componentRef = useRef();
+  const buttonRef = useRef();
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       const parsed = JSON.parse(UsuarioAct);
       setUserId(JSON.parse(Cookies.get("userAuth")).idUsuario);
+      setUser(JSON.parse(UsuarioAct).usuario);
       const stores = getStores();
       stores.then((store) => {
         setAlmacen(store.data);
+        setNombreOrigen(
+          store.data.find(
+            (al) => al.idAgencia == JSON.parse(UsuarioAct).idAlmacen
+          ).Nombre
+        );
       });
       if (parsed.idDepto == 1) {
         setIdOrigen("AL001");
         setIdDestino(JSON.parse(Cookies.get("userAuth")).idAlmacen);
         const prods = getProductsWithStock("AL001", "all");
         prods.then((product) => {
-          setProductos(product.data);
+          const available = product.data.filter((prod) => prod.cant_Actual > 0);
+          console.log("disponibles", available);
+          setProductos(available);
+          setAuxProducts(available);
         });
       } else {
         setIsInterior(true);
@@ -48,6 +69,7 @@ export default function FormStoreRefill() {
         const prods = getProductsWithStock(parsed.idAlmacen, "all");
         prods.then((product) => {
           setProductos(product.data);
+          setAuxProducts(product.data);
         });
       }
     }
@@ -55,6 +77,17 @@ export default function FormStoreRefill() {
   const handleClose = () => {
     setIsAlert(false);
   };
+  useEffect(() => {
+    if (JSON.stringify(productList).length > 5) {
+      console.log("Flag 2");
+      setIsPrint(true);
+    }
+  }, [productList]);
+  useEffect(() => {
+    if (isPrint) {
+      buttonRef.current.click();
+    }
+  }, [isPrint]);
 
   function prepareStoreId(id, action) {
     const idSub = id.split(" ");
@@ -76,8 +109,12 @@ export default function FormStoreRefill() {
     } else {
       if (idSub[1]) {
         setIdDestino(idSub[0]);
+        setNombreDestino(
+          almacen.find((al) => al.idAgencia == idSub[0])?.Nombre
+        );
       } else {
         setIdDestino(id + "");
+        setNombreDestino(almacen.find((al) => al.idAgencia == id)?.Nombre);
       }
     }
   }
@@ -150,12 +187,33 @@ export default function FormStoreRefill() {
             const newTransfer = createTransfer(transferObj);
             newTransfer
               .then((nt) => {
+                const productsArray = selectedProducts.map((item) => {
+                  const obj = {
+                    codInterno: item.codInterno,
+                    nombreProducto: item.nombreProducto,
+                    cantidadProducto: item.cantProducto,
+                  };
+                  return obj;
+                });
                 setIsAlertSec(false);
                 setAlert("Traspaso creado correctamente");
-                setIsAlert(true);
-                setTimeout(() => {
-                  navigate("/principal");
-                }, 1500);
+                const origenArray = nombreOrigen.split(" ");
+                const outputOrigen = origenArray.slice(1).join(" ");
+                const destinoArray = nombreDestino.split(" ");
+                const outputDestino = destinoArray.slice(1).join(" ");
+                const orderObj = [
+                  {
+                    rePrint: false,
+                    fechaSolicitud: dateString(),
+                    id: nt.data.data.idCreado,
+                    usuario: user,
+                    notas: "",
+                    productos: productsArray,
+                    origen: outputOrigen,
+                    destino: outputDestino,
+                  },
+                ];
+                setProductList(orderObj);
               })
               .catch((error) => {
                 setIsAlertSec(false);
@@ -195,6 +253,34 @@ export default function FormStoreRefill() {
       }, 1000);
     });
   }
+
+  function filterProducts(value) {
+    setFiltered(value);
+    const newList = auxProducts.filter(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
+        dt.codInterno.toString().includes(value.toString()) ||
+        dt.codigoBarras.toString().includes(value.toString())
+    );
+    if (newList.length == 1) {
+    }
+    setProductos([...newList]);
+  }
+
+  function addWithEnter(e) {
+    e.preventDefault();
+    const found = auxProducts.find(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(filtered.toLowerCase()) ||
+        dt.codInterno.toString().includes(filtered.toString()) ||
+        dt.codigoBarras.toString().includes(filtered.toString())
+    );
+    console.log("Found", found);
+    addProductToList(JSON.stringify(found));
+    setFiltered("");
+    setProductos(auxProducts);
+  }
+
   return (
     <div>
       <div className="formLabel">CREAR TRASPASO</div>
@@ -245,10 +331,10 @@ export default function FormStoreRefill() {
       </Form>
       <div className="secondHalf">
         <div className="formLabel">Agregar Productos</div>
-        <Form>
-          <Form.Group className="mb-3" controlId="order">
+        <Form className="mb-3" onSubmit={(e) => addWithEnter(e)}>
+          <Form.Group className="halfSelectAlt" controlId="order">
             <Form.Select
-              className="selectorFull"
+              className="selectorFullAlt"
               onChange={(e) => {
                 addProductToList(e.target.value);
               }}
@@ -270,6 +356,13 @@ export default function FormStoreRefill() {
                 );
               })}
             </Form.Select>
+            <Form.Control
+              className="halfSearch"
+              type="text"
+              placeholder="Buscar"
+              value={filtered}
+              onChange={(e) => filterProducts(e.target.value)}
+            ></Form.Control>
           </Form.Group>
         </Form>
       </div>
@@ -354,6 +447,27 @@ export default function FormStoreRefill() {
           </div>
         </div>
       </div>
+      {isPrint ? (
+        <div>
+          <div hidden>
+            <OrderNote productList={productList} ref={componentRef} />
+          </div>
+          <ReactToPrint
+            trigger={() => (
+              <Button
+                variant="warning"
+                className="yellowLarge"
+                ref={buttonRef}
+                hidden
+              >
+                Imprimir ordenes
+              </Button>
+            )}
+            content={() => componentRef.current}
+            onAfterPrint={() => window.location.reload()}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

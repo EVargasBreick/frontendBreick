@@ -97,6 +97,8 @@ export default function FormOrdersToReady() {
           productos: dt.data,
           notas: dt.data[0].notas,
           rePrint: true,
+          razonSocial: dt.data[0].razonSocial,
+          zona: dt.data[0].zona,
         },
       ];
       setProductList(list);

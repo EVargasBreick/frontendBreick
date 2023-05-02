@@ -2,6 +2,7 @@ import React from "react";
 import { Table } from "react-bootstrap";
 import { dateString } from "../services/dateServices";
 export const OrderNote = React.forwardRef(({ productList }, ref) => {
+  console.log("Datos", productList);
   return (
     <div ref={ref} className="invoicePage">
       {productList.map((pl, index) => {
@@ -9,7 +10,7 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
           <div key={index} style={{ pageBreakAfter: "always" }}>
             <div className="invoiceTittle">Incadex S.R.L</div>
             <div className="simpleSeparator"></div>
-            <div>NOTA DE ORDEN</div>
+            <div>NOTA DE PEDIDO/TRASPASO</div>
             {pl.rePrint ? <div>REIMPRESION</div> : null}
             <div className="simpleSeparator"></div>
             <div className="textWithLine"></div>
@@ -17,9 +18,25 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
             <div className="invoiceStart">
               <div>{`Fecha de Solicitud: ${pl.fechaSolicitud}`}</div>
               <div>{`Fecha de Impresión: ${dateString()}`}</div>
-              <div>{`Id Pedido: ${pl.id}`}</div>
+              <div>{`Id Pedido/Traspaso: ${pl.id}`}</div>
               <div>{`Usuario solicitante: ${pl.usuario}`}</div>
             </div>
+            {pl.origen && pl.destino ? (
+              <div className="invoiceStart">
+                <div>{`Origen: ${pl.origen}`}</div>
+                <div>{`Destino: ${pl.destino}`}</div>
+              </div>
+            ) : null}
+            {pl.zona != "" ? (
+              <div className="invoiceStart">
+                <div>{`Zona: ${pl.zona}`}</div>
+              </div>
+            ) : null}
+            {pl.razonSocial != "" ? (
+              <div className="invoiceStart">
+                <div>{`Cliente: ${pl.razonSocial}`}</div>
+              </div>
+            ) : null}
             <div className="simpleSeparator"></div>
             <div className="textWithLine"></div>
             <div className="simpleSeparator"></div>
@@ -55,7 +72,7 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
                   <td>Total</td>
                   <td>
                     {pl.productos.reduce((accumulator, object) => {
-                      return accumulator + object.cantidadProducto;
+                      return accumulator + parseFloat(object.cantidadProducto);
                     }, 0)}
                   </td>
                   <td></td>

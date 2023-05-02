@@ -17,12 +17,12 @@ import newClient from "../../assets/newClient.png";
 import newOrder from "../../assets/newOrder.png";
 
 import cancelSample from "../../assets/cancelSample.png";
-import Printer from "../../assets/printer.png";
+
 import appBooking from "../../assets/approveBook.png";
 import ReturnWare from "../../assets/returnWare.png";
 import Cross from "../../assets/cross.png";
 import Load from "../../assets/load.png";
-
+import Printer from "../../assets/printer.png";
 import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
 import "../../styles/generalStyle.css";
@@ -97,6 +97,13 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         {" "}
         <Image src={HStar} className="icon inverted"></Image>
         Retirar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/facturas/reimprimir")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
       {/*<div>En Desarrollo ...</div>
       <MenuItem>

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Table, Modal, Image } from "react-bootstrap";
+import { debounce } from "lodash";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
@@ -582,21 +583,9 @@ export default function FormNewSale() {
     });
   }
   function saveInvoice() {
-    console.log(
-      "Cambio en save invoice",
-      cancelado -
-        parseFloat(
-          -giftCard +
-            (selectedProducts.reduce((accumulator, object) => {
-              return accumulator + parseFloat(object.total);
-            }, 0) *
-              (100 - descuento)) /
-              100
-        ).toFixed(2)
-    );
+    setAlertSec("Registrando Venta");
+    setIsAlertSec(true);
     return new Promise((resolve, reject) => {
-      setAlertSec("Registrando Venta");
-      setIsAlertSec(true);
       const invoiceBody = {
         idCliente: selectedClient,
         nroFactura: 0,
@@ -643,6 +632,7 @@ export default function FormNewSale() {
       const newInvoice = createInvoice(invoiceBody);
       newInvoice
         .then((res) => {
+          console.log("Respuesta", res);
           setTimeout(() => {
             const newId = res.data.idCreado;
             const created = saveSale(newId);

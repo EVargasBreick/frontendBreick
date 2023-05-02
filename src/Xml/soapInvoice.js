@@ -1,22 +1,28 @@
 import axios from "axios";
+import { debounce } from "lodash";
+
+const debouncedSoapInvoice = debounce(
+  async (body) => {
+    const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/xml/aprobarComprobante`;
+    const response = await axios.post(url, body);
+    console.log("Respuesta", response);
+    if (response.status === 200) {
+      return { response };
+    } else {
+      resetDebouncedFunction();
+      throw new Error(`Invalid response status code: ${response.status}`);
+    }
+  },
+  45000,
+  { leading: true }
+);
+
+const resetDebouncedFunction = () => {
+  debouncedSoapInvoice.cancel();
+};
 
 const SoapInvoice = (body) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .post(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/xml/aprobarComprobante`,
-        body
-      )
-      .then((response) => {
-        resolve({
-          response,
-        });
-      })
-      .catch((error) => {
-        reject(error);
-        console.log("Error del back ", error);
-      });
-  });
+  return debouncedSoapInvoice(body);
 };
 
 export { SoapInvoice };

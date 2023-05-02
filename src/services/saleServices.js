@@ -1,19 +1,27 @@
 import axios from "axios";
+import { debounce } from "lodash";
+
+const debouncedCreateSale = debounce(
+  async (saleObject) => {
+    const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/venta`;
+    const response = await axios.post(url, saleObject);
+    if (response.status === 200) {
+      return { data: response.data };
+    } else {
+      resetDebouncedInvoice();
+      throw new Error(`Invalid response status code: ${response.status}`);
+    }
+  },
+  45000,
+  { leading: true }
+);
+
+const resetDebouncedInvoice = () => {
+  debouncedCreateSale.cancel();
+};
 
 const createSale = (saleObject) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .post(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/venta`,
-        saleObject
-      )
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+  return debouncedCreateSale(saleObject);
 };
 
 const deleteSale = (id) => {
@@ -34,7 +42,6 @@ const deleteSale = (id) => {
 const verifyQuantities = (selectedProducts) => {
   return new Promise((resolve, reject) => {
     const mappedArr = selectedProducts.map((item) => {
-      // Perform mapping logic here
       if (item.cant_Actual == 0) {
         reject(
           `El producto ${item.nombreProducto} no tiene existencias disponibles`

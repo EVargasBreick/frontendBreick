@@ -29,6 +29,7 @@ import {
   addProductDiscSimple,
   christmassDiscounts,
   complexDiscountFunction,
+  discountByAmount,
   easterDiscounts,
   halloweenDiscounts,
   manualAutomaticDiscount,
@@ -111,6 +112,7 @@ export default function FormModifyOrders() {
   const [auxProds, setAuxProds] = useState([]);
   const [tipoUsuario, setTipoUsuario] = useState("");
   const [isInterior, setIsInterior] = useState(false);
+  const [originalProducts, setOriginalProducts] = useState();
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -392,7 +394,7 @@ export default function FormModifyOrders() {
     }
     let auxObj = {
       cantPrevia: prod.cantPrevia,
-      cantProducto: cantidad,
+      cantProducto: cantidades,
       codInterno: prod.codInterno,
       codigoBarras: prod.codigoBarras,
       idPedido: prod.idPedido,
@@ -513,21 +515,22 @@ export default function FormModifyOrders() {
       selectedProds.map((sp) => {
         if (sp.cantProducto === sp.cantPrevia) {
           countProdsChanged++;
-        }
-        if (sp.cantProducto > sp.cantPrevia) {
-          const objProd = {
-            idProducto: sp.idProducto,
-            cantProducto: sp.cantProducto - sp.cantPrevia,
-            totalProd: sp.cantProducto * sp.precioDeFabrica,
-          };
-          arrayTakes.push(objProd);
         } else {
-          const objProd = {
-            idProducto: sp.idProducto,
-            cantProducto: sp.cantPrevia - sp.cantProducto,
-            totalProd: sp.cantProducto * sp.precioDeFabrica,
-          };
-          arrayAdds.push(objProd);
+          if (sp.cantProducto > sp.cantPrevia) {
+            const objProd = {
+              idProducto: sp.idProducto,
+              cantProducto: sp.cantProducto - sp.cantPrevia,
+              totalProd: sp.cantProducto * sp.precioDeFabrica,
+            };
+            arrayTakes.push(objProd);
+          } else {
+            const objProd = {
+              idProducto: sp.idProducto,
+              cantProducto: sp.cantPrevia - sp.cantProducto,
+              totalProd: sp.cantProducto * sp.precioDeFabrica,
+            };
+            arrayAdds.push(objProd);
+          }
         }
         if (sp.idPedidoProducto === null) {
           const objProd = {
@@ -562,74 +565,77 @@ export default function FormModifyOrders() {
         setAlertSec("Actualizando Pedido");
         setIsAlertSec(true);
         const toUpdateTakes = {
-          accion: "take",
+          accion: "add",
           idAlmacen: userStore,
-          productos: arrayTakes,
+          productos: auxSelectedProds,
         };
         const updatedStock = updateStock(toUpdateTakes);
         updatedStock
           .then((res) => {
-            const toUpdateAdds = {
-              accion: "add",
-              idAlmacen: userStore,
-              productos: arrayAdds,
-            };
-            const updatedStockThen = updateStock(toUpdateAdds);
-            updatedStockThen
-              .then((res) => {
-                const toAddProducts = {
-                  idPedido: idPedido,
-                  productos: objProductsAdded,
-                };
-                const addedProds = addProductToOrder(toAddProducts);
-                addedProds.then((added) => {
-                  const toUpdateProducts = {
+            setTimeout(() => {
+              const toUpdateAdds = {
+                accion: "take",
+                idAlmacen: userStore,
+                productos: selectedProds,
+              };
+              const updatedStockThen = updateStock(toUpdateAdds);
+              updatedStockThen
+                .then((res) => {
+                  const toAddProducts = {
                     idPedido: idPedido,
-                    productos: objProductsUpdated,
+                    productos: objProductsAdded,
                   };
-                  const updatedProds = updateOrderProduct(toUpdateProducts);
-                  updatedProds.then((res) => {
-                    const objDeletedProds = {
-                      productos: arrProductsDeleted,
+                  const addedProds = addProductToOrder(toAddProducts);
+                  addedProds.then((added) => {
+                    const toUpdateProducts = {
+                      idPedido: idPedido,
+                      productos: objProductsUpdated,
                     };
-                    const deletedProds = deleteProductOrder(objDeletedProds);
-                    deletedProds.then((res) => {
-                      const updOrder = updateDbOrder(objUpdateOrder);
-                      updOrder
-                        .then((upo) => {
-                          if (faltantes.length > 0) {
-                            const bodyFaltantes = {
-                              idPedido: idPedido,
-                              fecha: dateString(),
-                              idUsuarioCrea: usuarioCrea,
-                              idAgencia: userStore,
-                              idString: codigoPedido,
-                              products: faltantes,
-                            };
-                            const faltantesLogged = logShortage(bodyFaltantes);
-                            faltantesLogged.then((fl) => {
-                              setAlertSec("Pedido actualizado correctamente");
-                              setIsAlertSec(true);
+                    const updatedProds = updateOrderProduct(toUpdateProducts);
+                    updatedProds.then((res) => {
+                      const objDeletedProds = {
+                        productos: arrProductsDeleted,
+                      };
+                      const deletedProds = deleteProductOrder(objDeletedProds);
+                      deletedProds.then((res) => {
+                        const updOrder = updateDbOrder(objUpdateOrder);
+                        updOrder
+                          .then((upo) => {
+                            if (faltantes.length > 0) {
+                              const bodyFaltantes = {
+                                idPedido: idPedido,
+                                fecha: dateString(),
+                                idUsuarioCrea: usuarioCrea,
+                                idAgencia: userStore,
+                                idString: codigoPedido,
+                                products: faltantes,
+                              };
+                              const faltantesLogged =
+                                logShortage(bodyFaltantes);
+                              faltantesLogged.then((fl) => {
+                                setAlertSec("Pedido actualizado correctamente");
+                                setIsAlertSec(true);
+                                setTimeout(() => {
+                                  window.location.reload();
+                                }, 5000);
+                              });
+                            } else {
                               setTimeout(() => {
-                                navigate("/principal");
-                              }, 3000);
-                            });
-                          } else {
-                            setTimeout(() => {
-                              setAlertSec("Pedido actualizado correctamente");
-                              setIsAlertSec(true);
-                              navigate("/principal");
-                            }, 3000);
-                          }
-                        })
-                        .catch((error) => {
-                          console.log(error);
-                        });
+                                setAlertSec("Pedido actualizado correctamente");
+                                setIsAlertSec(true);
+                                window.location.reload();
+                              }, 5000);
+                            }
+                          })
+                          .catch((error) => {
+                            console.log(error);
+                          });
+                      });
                     });
                   });
-                });
-              })
-              .catch((error) => {});
+                })
+                .catch((error) => {});
+            }, 6000);
           })
           .catch((error) => {
             setFaltantes(error.response.data.faltantes);
@@ -664,20 +670,12 @@ export default function FormModifyOrders() {
 
   function processDiscounts() {
     if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
-      const objDesc = manualAutomaticDiscount(
-        tradicionales,
-        pascua,
-        halloween,
-        navidad,
-        especiales,
-        sinDesc,
-        descuento
-      );
-
+      const objDesc = discountByAmount(selectedProds, descuento);
+      console.log("Obj desc", objDesc);
       setDescSimple(objDesc);
-      setTotalDesc(objDesc.descCalculado + objDesc.descCalculadoEspeciales);
-      setTotalPrevio(objDesc.totalDescontables + objDesc.totalEspecial);
-      setTotalFacturar(objDesc.facturar + objDesc.totalTradicional);
+      setTotalDesc(objDesc.descCalculado);
+      setTotalPrevio(objDesc.totalDescontables);
+      setTotalFacturar(objDesc.totalTradicional);
       setDiscModalType(false);
       const newSelected = addProductDiscSimple(selectedProds, objDesc);
       newSelected.then((response) => {
@@ -719,6 +717,8 @@ export default function FormModifyOrders() {
   function validateProductLen() {
     if (selectedProds.length > 0) {
       setAuxProds(selectedProds);
+      console.log("Productos a devolver a stock", auxSelectedProds);
+      console.log("Productos a sacar de stock", selectedProds);
       processDiscounts();
     } else {
       setAlert("Seleccione al menos un producto por favor");
@@ -979,7 +979,7 @@ export default function FormModifyOrders() {
                           ) !== undefined
                             ? auxAva.find(
                                 (pr) => pr.idProducto === product.idProducto
-                              ).cant_Actual + product.cantPrevia
+                              ).cant_Actual
                             : 0}
                         </td>
                         <td className="tableColumnSmall">{`${product.precioDeFabrica} Bs.`}</td>

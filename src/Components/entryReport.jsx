@@ -7,14 +7,14 @@ import "../styles/generalStyle.css";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import BodyEntryReport from "./bodyEntryReport";
 
-import BodyCurrentKardex from "./bodyCurrentKardex";
-export default function CurrentKardexReport() {
+export default function EntryReport() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol < 12) {
+      if (JSON.parse(Cookies.get("userAuth")).rol < 13) {
       } else {
         navigate("/principal");
       }
@@ -31,7 +31,7 @@ export default function CurrentKardexReport() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <BodyCurrentKardex />
+          <BodyEntryReport />
         </div>
       </div>
     </div>

@@ -11,6 +11,9 @@ import { useRef } from "react";
 import * as XLSX from "xlsx";
 import { ExportTemplate } from "../services/exportServices";
 import { updateStock } from "../services/orderServices";
+import Cookies from "js-cookie";
+import { dateString } from "../services/dateServices";
+import { logProductEntry } from "../services/stockServices";
 export default function FormUpdateProducts() {
   const navigate = useNavigate();
   const [isAlertSec, setIsAlertSec] = useState(false);
@@ -19,11 +22,16 @@ export default function FormUpdateProducts() {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [alert, setAlert] = useState("");
   const [isAlert, setIsAlert] = useState(false);
+  const [userId, setUserId] = useState("");
   const acceptable = ["xlsx", "xls"];
   const fileRef = useRef();
   const [upFile, setUpFile] = useState(null);
   const [jsonExcel, setJsonExcel] = useState([]);
   useEffect(() => {
+    const UsuarioAct = Cookies.get("userAuth");
+    if (UsuarioAct) {
+      setUserId(JSON.parse(UsuarioAct).idUsuario);
+    }
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
       setprodList(fetchedProducts.data.data);
@@ -130,19 +138,31 @@ export default function FormUpdateProducts() {
     if (selectedProducts.length > 0) {
       setAlertSec("Actualizando productos");
       setIsAlertSec(true);
-      const addedProducts = updateStock({
-        accion: "add",
-        idAlmacen: "AL001",
-        productos: selectedProducts,
-      });
-      addedProducts.then((ap) => {
-        setIsAlertSec(false);
-        setAlert("Productos agregados correctamente a almacén central");
-        setIsAlert(true);
-        setTimeout(() => {
-          navigate("/principal");
-        }, 1500);
-      });
+      const logObj = {
+        idUsuarioCrea: userId,
+        fechaCrea: dateString(),
+        products: selectedProducts,
+      };
+      const logEntry = logProductEntry(logObj);
+      logEntry
+        .then((res) => {
+          const addedProducts = updateStock({
+            accion: "add",
+            idAlmacen: "AL001",
+            productos: selectedProducts,
+          });
+          addedProducts.then((ap) => {
+            setIsAlertSec(false);
+            setAlert("Productos agregados correctamente a almacén central");
+            setIsAlert(true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          });
+        })
+        .catch((err) => {
+          console.log("Error al guardar el ingreso");
+        });
     } else {
       setAlert("Seleccione al menos un producto por favor");
       setIsAlert(true);

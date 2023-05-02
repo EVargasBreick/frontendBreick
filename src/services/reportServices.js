@@ -36,7 +36,7 @@ const getEndOfDayReport = (params) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}&idAgencia='${params.idAgencia}'&ruta=${params.ruta}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}&idAgencia='${params.idAgencia}'&ruta=${params.ruta}&fecha='${params.fecha}'`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -52,7 +52,7 @@ const firstAndLastReport = (params) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre/detalles/facturas?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre/detalles/facturas?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}&fecha='${params.fecha}'`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -80,10 +80,27 @@ const mainPageReport = () => {
   });
 };
 
+const entryReport = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/log/ingreso`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
   getEndOfDayReport,
   firstAndLastReport,
   mainPageReport,
+  entryReport,
 };

@@ -49,7 +49,8 @@ export default function BodySalesReport() {
       userAct.rol == 1 ||
       userAct.rol == 9 ||
       userAct.rol == 10 ||
-      userAct.rol == 8
+      userAct.rol == 8 ||
+      userAct.rol == 5
         ? ""
         : userAct.idAlmacen;
     const formatted = formatDate();
@@ -153,6 +154,7 @@ export default function BodySalesReport() {
           fecha: rt.fecha,
           hora: rt.hora,
           nroFactura: rt.nroFactura,
+          cuf: rt.cuf,
           "nit cliente": rt.nitCliente,
           complemento: 0,
           "razon social": rt.razonSocial,
@@ -171,7 +173,6 @@ export default function BodySalesReport() {
           "debito fiscal": (rt.montoFacturar * 0.13).toFixed(2),
           estado: rt.estado == 0 ? "Valida" : "Cancelada",
           "derecho fiscal": "si",
-          "estado pago": rt.desembolsada == 0 ? "Pagada" : "Pendiente",
           vendedor: rt.nombreCompleto,
           agencia: rt.Agencia,
           "monto a pagar":
@@ -382,7 +383,7 @@ export default function BodySalesReport() {
                   <th className="reportColumnSmall ">DEBITO FISCAL</th>
                   <th className="reportColumnSmall ">ESTADO</th>
                   <th className="reportColumnSmall ">DERECHO FISCAL</th>
-                  <th className="reportColumnSmall ">ESTADO PAGO</th>
+
                   <th className="reportColumnMedium ">VENDEDOR</th>
                   <th className="reportColumnMedium ">AGENCIA</th>
                 </tr>
@@ -423,9 +424,7 @@ export default function BodySalesReport() {
                         {rt.estado == 0 ? "Valida" : "Cancelada"}
                       </td>
                       <td className="reportColumnSmall">SI</td>
-                      <td className="reportColumnSmall">
-                        {rt.desembolsada == 0 ? "Pagada" : "Pendiente"}
-                      </td>
+
                       <td className="reportColumnMedium">
                         {rt.nombreCompleto}
                       </td>
