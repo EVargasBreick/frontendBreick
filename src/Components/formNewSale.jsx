@@ -544,11 +544,13 @@ export default function FormNewSale() {
               accion: "take",
               idAlmacen: userStore,
               productos: selectedProducts,
+              detalle: `NVAG-${idVenta}`,
             });
             const objStock = {
               accion: "add",
               idAlmacen: userStore,
               productos: selectedProducts,
+              detalle: `CVAGN-${idVenta}`,
             };
             updatedStock
               .then((us) => {
@@ -609,10 +611,32 @@ export default function FormNewSale() {
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
         cuf: "",
         importeBase: parseFloat(
-          parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)
+          parseFloat(cancelado).toFixed(2) -
+            parseFloat(
+              cancelado -
+                parseFloat(
+                  -giftCard +
+                    (selectedProducts.reduce((accumulator, object) => {
+                      return accumulator + parseFloat(object.total);
+                    }, 0) *
+                      (100 - descuento)) /
+                      100
+                ).toFixed(2)
+            ).toFixed(2)
         ).toFixed(2),
         debitoFiscal: parseFloat(
-          (parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)) *
+          (parseFloat(cancelado).toFixed(2) -
+            parseFloat(
+              cancelado -
+                parseFloat(
+                  -giftCard +
+                    (selectedProducts.reduce((accumulator, object) => {
+                      return accumulator + parseFloat(object.total);
+                    }, 0) *
+                      (100 - descuento)) /
+                      100
+                ).toFixed(2)
+            ).toFixed(2)) *
             0.13
         ).toFixed(2),
         desembolsada: 0,

@@ -146,10 +146,12 @@ export default function FormUpdateProducts() {
       const logEntry = logProductEntry(logObj);
       logEntry
         .then((res) => {
+          const idCreado = res.data.id;
           const addedProducts = updateStock({
             accion: "add",
             idAlmacen: "AL001",
             productos: selectedProducts,
+            detalle: `NIDPR-${idCreado}`,
           });
           addedProducts.then((ap) => {
             setIsAlertSec(false);

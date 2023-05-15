@@ -102,22 +102,30 @@ export default function FormRetirePack() {
         accion: "take",
         idAlmacen: selectedStoreId,
         productos: prodPack,
+        detalle: `DCPACK-${selectedPackId}`,
       };
       const updatedForTake = updateStock(objProdsTake);
       updatedForTake.then((resp) => {
-        const objProdsAdd = {
-          accion: "add",
-          idAlmacen: selectedStoreId,
-          productos: selectedProducts,
-        };
-        const updatedForAdd = updateStock(objProdsAdd);
-        updatedForAdd.then((res) => {
-          setAlertSec("Pack retirado correctamente");
-          setIsAlertSec(true);
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
-        });
+        setTimeout(() => {
+          const objProdsAdd = {
+            accion: "add",
+            idAlmacen: selectedStoreId,
+            productos: selectedProducts,
+            detalle: `DVPACK-${selectedPackId}`,
+          };
+          const updatedForAdd = updateStock(objProdsAdd);
+          updatedForAdd.then((res) => {
+            setTimeout(() => {
+              if (res) {
+                setAlertSec("Pack retirado correctamente");
+                setIsAlertSec(true);
+                setTimeout(() => {
+                  window.location.reload();
+                }, 2000);
+              }
+            }, 3100);
+          });
+        }, 5000);
       });
     }
   }

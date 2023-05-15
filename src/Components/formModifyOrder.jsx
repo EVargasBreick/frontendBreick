@@ -79,6 +79,7 @@ export default function FormModifyOrders() {
   const [faltantes, setFaltantes] = useState([]);
   const [flagDiscount, setFlagDiscount] = useState(false);
   const [fechaPedido, setFechaPedido] = useState("");
+  const [userRol, setUserRol] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -113,6 +114,8 @@ export default function FormModifyOrders() {
   const [tipoUsuario, setTipoUsuario] = useState("");
   const [isInterior, setIsInterior] = useState(false);
   const [originalProducts, setOriginalProducts] = useState();
+  const [auxPedidosList, setAuxPedidosList] = useState([]);
+  const [filter, setFilter] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -121,22 +124,23 @@ export default function FormModifyOrders() {
       }
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      const isSudo =
+        JSON.parse(UsuarioAct).rol === 1 || JSON.parse(UsuarioAct).rol === 10
+          ? true
+          : false;
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
       const listaPedidos = getUserOrderList(
-        JSON.parse(Cookies.get("userAuth")).idUsuario,
-        "and estado='0'"
+        isSudo ? "" : JSON.parse(Cookies.get("userAuth")).idUsuario,
+        "and estado!='2' and facturado=0 and listo=0"
       );
       listaPedidos.then((res) => {
         console.log("Lista de pedidos", res);
         setPedidosList(res.data.data);
+        setAuxPedidosList(res.data.data);
       });
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
     }
 
-    const dl = productsDiscount(JSON.parse(Cookies.get("userAuth")).idUsuario);
-    dl.then((res) => {
-      setDiscountList(res.data.data);
-    });
     const disponibles = availableProducts(
       JSON.parse(Cookies.get("userAuth")).idUsuario
     );
@@ -276,7 +280,12 @@ export default function FormModifyOrders() {
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
       setSelectedProds([]);
-
+      console.log("order details", res.data.data);
+      const dl = productsDiscount(res.data.data[0].idUsuarioCrea);
+      dl.then((res) => {
+        setDiscountList(res.data.data);
+      });
+      setUserRol(res.data.data[0].rol);
       setAuxOrder(res.data.data[0]);
       setFechaPedido(res.data.data[0].fechaCrea);
       const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
@@ -475,6 +484,7 @@ export default function FormModifyOrders() {
         accion: "add",
         idAlmacen: userStore,
         productos: auxSelectedProds,
+        detalle: `DPCPD-${idPedido}`,
       };
       const reStocked = updateStock(objProdsDelete);
       reStocked.then((rs) => {
@@ -510,6 +520,7 @@ export default function FormModifyOrders() {
         descCalculado: totalDesc,
         listo: 0,
         impreso: isInterior ? 1 : 0,
+        estado: 0,
       };
       var countProdsChanged = 0;
       selectedProds.map((sp) => {
@@ -568,6 +579,7 @@ export default function FormModifyOrders() {
           accion: "add",
           idAlmacen: userStore,
           productos: auxSelectedProds,
+          detalle: `DSEPD-${idPedido}`,
         };
         const updatedStock = updateStock(toUpdateTakes);
         updatedStock
@@ -577,6 +589,7 @@ export default function FormModifyOrders() {
                 accion: "take",
                 idAlmacen: userStore,
                 productos: selectedProds,
+                detalle: `SSEPD-${idPedido}`,
               };
               const updatedStockThen = updateStock(toUpdateAdds);
               updatedStockThen
@@ -601,31 +614,11 @@ export default function FormModifyOrders() {
                         const updOrder = updateDbOrder(objUpdateOrder);
                         updOrder
                           .then((upo) => {
-                            if (faltantes.length > 0) {
-                              const bodyFaltantes = {
-                                idPedido: idPedido,
-                                fecha: dateString(),
-                                idUsuarioCrea: usuarioCrea,
-                                idAgencia: userStore,
-                                idString: codigoPedido,
-                                products: faltantes,
-                              };
-                              const faltantesLogged =
-                                logShortage(bodyFaltantes);
-                              faltantesLogged.then((fl) => {
-                                setAlertSec("Pedido actualizado correctamente");
-                                setIsAlertSec(true);
-                                setTimeout(() => {
-                                  window.location.reload();
-                                }, 5000);
-                              });
-                            } else {
-                              setTimeout(() => {
-                                setAlertSec("Pedido actualizado correctamente");
-                                setIsAlertSec(true);
-                                window.location.reload();
-                              }, 5000);
-                            }
+                            setTimeout(() => {
+                              setAlertSec("Pedido actualizado correctamente");
+                              setIsAlertSec(true);
+                              window.location.reload();
+                            }, 5000);
                           })
                           .catch((error) => {
                             console.log(error);
@@ -635,7 +628,7 @@ export default function FormModifyOrders() {
                   });
                 })
                 .catch((error) => {});
-            }, 6000);
+            }, 5000);
           })
           .catch((error) => {
             setFaltantes(error.response.data.faltantes);
@@ -644,20 +637,12 @@ export default function FormModifyOrders() {
               error.response.data.faltantes
             );
             updateado.then((upd) => {
-              setSelectedProds(upd.modificados);
-              setTradicionales(upd.trads);
-              setPascua(upd.pas);
-              setNavidad(upd.nav);
-              setHalloween(upd.hall);
-              setSinDesc(upd.sd);
-              setEspeciales(upd.esp);
-              setAlertSec(
-                "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
-              );
               setIsAlertSec(true);
+              setIsAlertSec(
+                "Error al actualizar el pedido, revise stocks por favor"
+              );
               setTimeout(() => {
                 setIsAlertSec(false);
-                setFlagDiscount(true);
               }, 5000);
             });
           });
@@ -669,7 +654,7 @@ export default function FormModifyOrders() {
   }
 
   function processDiscounts() {
-    if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
+    if (userRol != 2 && userRol != 3 && userRol != 4) {
       const objDesc = discountByAmount(selectedProds, descuento);
       console.log("Obj desc", objDesc);
       setDescSimple(objDesc);
@@ -754,6 +739,19 @@ export default function FormModifyOrders() {
     }
   }
 
+  function filterOrders(value) {
+    setFilter(value);
+    const filtered = auxPedidosList.filter(
+      (data) =>
+        data.idPedido === value ||
+        data.codigoPedido
+          .toString()
+          .toLowerCase()
+          .includes(value.toString().toLowerCase())
+    );
+    setPedidosList(filtered);
+  }
+
   return (
     <div>
       <div className="formLabel">MODIFICAR PEDIDO</div>
@@ -823,6 +821,15 @@ export default function FormModifyOrders() {
       </Modal>
       <Form>
         <Form.Group className="mb-3" controlId="order">
+          <Form.Label>Filtrar por numero, usuario o tipo</Form.Label>
+          <Form.Control
+            type="text"
+            onChange={(e) => {
+              filterOrders(e.target.value);
+            }}
+            value={filter}
+          />
+          <Form.Label className="formLabel">Lista de Pedidos</Form.Label>
           <Form.Select onChange={(e) => setOrderDetails(e.target.value)}>
             <option>Seleccione pedido</option>
             {pedidosList.map((pedido) => {
@@ -926,7 +933,7 @@ export default function FormModifyOrders() {
                 min="0"
                 max="100"
                 value={descuento}
-                disabled={tipoUsuario == 1 ? false : true}
+                disabled={userRol == 1 ? false : true}
                 onChange={(e) => handleDiscount(e.target.value)}
                 type="number"
                 placeholder="Ingrese porcentaje"

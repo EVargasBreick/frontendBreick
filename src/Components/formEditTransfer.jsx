@@ -31,6 +31,8 @@ export default function FormEditTransfer() {
   const [alertSec, setAlertSec] = useState("");
   const [transferId, setTransferId] = useState("");
   const [transferOrigin, setTransferOrigin] = useState("");
+  const [auxPedidosList, setAuxPedidosList] = useState([]);
+  const [filter, setFilter] = useState("");
   const timestampRef = useRef(Date.now());
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
@@ -44,7 +46,8 @@ export default function FormEditTransfer() {
         const userList = list.filter(
           (ls) => ls.idUsuario == idUsuario && ls.listo != 1
         );
-
+        console.log("User list", userList);
+        setAuxPedidosList(userList);
         setTList(userList);
       });
     }
@@ -221,6 +224,7 @@ export default function FormEditTransfer() {
                       accion: "add",
                       idAlmacen: transferOrigin,
                       productos: transferProductList,
+                      detalle: `DSETR-${selectedTransfer.idTraspaso}`,
                     });
                     updateToreturn
                       .then((res) => {
@@ -231,6 +235,7 @@ export default function FormEditTransfer() {
                             accion: "take",
                             idAlmacen: transferOrigin,
                             productos: selectedProducts,
+                            detalle: `SSETR-${selectedTransfer.idTraspaso}`,
                           });
                           updateToTake
                             .then((res) => {
@@ -294,12 +299,31 @@ export default function FormEditTransfer() {
     return verified.includes(false);
   }
 
+  function filterOrders(value) {
+    setFilter(value);
+    const filtered = auxPedidosList.filter((data) =>
+      data.nroOrden
+        .toString()
+        .toLowerCase()
+        .includes(value.toString().toLowerCase())
+    );
+    setTList(filtered);
+  }
+
   return (
     <div>
       <LoadingModal isAlertSec={isAlertSec} alertSec={alertSec} />
       <div className="formLabel">EDITAR TUS TRASPASOS</div>
       <div>
-        <div>Lista de traspasos</div>
+        <Form.Label>Filtrar por numero, usuario o tipo</Form.Label>
+        <Form.Control
+          type="text"
+          onChange={(e) => {
+            filterOrders(e.target.value);
+          }}
+          value={filter}
+        />
+        <Form.Label className="formLabel">Lista de Traspasos</Form.Label>
         <Form.Select
           value={transferId}
           onChange={(e) => setTransferId(e.target.value)}

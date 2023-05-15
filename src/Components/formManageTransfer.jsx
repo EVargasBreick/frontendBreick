@@ -37,6 +37,7 @@ export default function FormManageTransfer() {
   const [isVfModal, setIsVfModal] = useState(false);
   const [vfModal, setVfModal] = useState();
   const [action, setAction] = useState("");
+
   useEffect(() => {
     const tList = transferList("p");
     tList.then((tl) => {
@@ -99,6 +100,7 @@ export default function FormManageTransfer() {
         accion: "add",
         idAlmacen: idOrigen,
         productos: productos,
+        detalle: `DPCTR-${idTraspaso}`,
       });
       returnToStock.then((returned) => {
         setIsFormModal(false);
@@ -127,6 +129,7 @@ export default function FormManageTransfer() {
       }, 1000);
     });
   }
+
   return (
     <div>
       <div className="formLabel">APROBAR TRASPASOS</div>

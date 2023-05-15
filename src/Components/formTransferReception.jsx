@@ -143,17 +143,20 @@ export default function FormTransferReception() {
             accion: "add",
             idAlmacen: storeId,
             productos: transferProucts,
+            detalle: `RPRTR-${transferDetails.idTraspaso}`,
           };
-          const added = updateStock(addBody);
-          added.then((res) => {
-            const accepted = acceptTransferById(transferDetails.idTraspaso);
-            accepted.then((acc) => {
-              setAlertSec("Traspaso aceptado correctamente");
-              setTimeout(() => {
-                window.location.reload();
-              }, 1500);
+          setTimeout(() => {
+            const added = updateStock(addBody);
+            added.then((res) => {
+              const accepted = acceptTransferById(transferDetails.idTraspaso);
+              accepted.then((acc) => {
+                setAlertSec("Traspaso aceptado correctamente");
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+              });
             });
-          });
+          }, 5000);
         });
       });
     } else {
@@ -161,6 +164,7 @@ export default function FormTransferReception() {
         accion: "add",
         idAlmacen: storeId,
         productos: transferProucts,
+        detalle: `RPRTR-${transferDetails.idTraspaso}`,
       };
       const added = updateStock(addBody);
       added.then((res) => {

@@ -123,6 +123,7 @@ export default function FormCancelInvoice() {
             accion: "add",
             idAlmacen: selectedInvoice.idAlmacen,
             productos: products,
+            detalle: `ANFAC-${invoice.idFactura}`,
           });
           console.log("Updateando stock", products);
           returnToStock.then((returned) => {

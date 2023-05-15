@@ -371,11 +371,7 @@ function SaleModal(
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");
             setIsAlertSec(true);
-            const objStock = {
-              accion: "take",
-              idAlmacen: userStore,
-              productos: selectedProducts,
-            };
+
             const objBaja = {
               motivo: motivo,
               fechaBaja: dateString(),
@@ -387,6 +383,12 @@ function SaleModal(
             bajaRegistrada
               .then((res) => {
                 setDropId(res.data.id);
+                const objStock = {
+                  accion: "take",
+                  idAlmacen: userStore,
+                  productos: selectedProducts,
+                  detalle: `SPRBJ-${res.data.id}`,
+                };
                 const updatedStock = updateStock(objStock);
                 updatedStock
                   .then((res) => {
@@ -449,11 +451,11 @@ function SaleModal(
       caja: pointOfSale,
     };
     console.log("Last id obj", lastIdObj);
-
     const newId = getInvoiceNumber(lastIdObj);
     newId
       .then((res) => {
         setInvoiceId(res.response.data + 1);
+        const nextId = res.response.data + 1;
         setAlertSec(`Última factura: ${res.response.data}`);
         setTimeout(() => {
           setAlertSec("Generando Codigo Único de Facturación");
@@ -603,13 +605,21 @@ function SaleModal(
                       }
                     })
                     .catch((error) => {
-                      console.log("Esto paso", error);
                       setIsAlertSec(false);
-                      rollbackPurchase(idFactura, idVenta, objStock);
+                      setIsAlert(false);
                       setAlert(
-                        "Error al enviar la factura a impuestos, intente nuevamente"
+                        "Error al obtener el codigo unico de facturación, intente nuevamente"
                       );
-                      setIsAlert(true);
+                      const obj = {
+                        nroFactura: nextId,
+                        idSucursal: 0,
+                        puntoDeVenta: 0,
+                        nroTransaccion: idTransaccion,
+                        idgencia: userStore,
+                      };
+                      setInvObj(obj);
+                      clearInterval(intervalId);
+                      setIsEmailModal(true);
                     });
                 }, 10000);
               });
@@ -675,7 +685,7 @@ function SaleModal(
   }
 
   function rollbackPurchase(idFactura, idVenta, objStock) {
-    if (noFactura == "" || cuf == "") {
+    if (!isEmailModal) {
       const deletedInvoice = deleteInvoice(idFactura);
       deletedInvoice.then((rs) => {
         const deletedSale = deleteSale(idVenta);

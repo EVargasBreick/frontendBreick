@@ -42,10 +42,14 @@ export default function FormViewTransfer() {
   const [estado, setEstado] = useState("");
   const [detalleExcel, setDetalleExcel] = useState();
   const [detalleTraspaso, setDetalleTraspaso] = useState();
+  const [auxPedidosList, setAuxPedidosList] = useState([]);
+  const [filter, setFilter] = useState("");
   useEffect(() => {
     const tList = transferList("todo");
     tList.then((tl) => {
+      console.log("Datos", tl.data);
       setList(tl.data);
+      setAuxPedidosList(tl.data);
     });
   }, []);
   const handleClose = () => {
@@ -95,7 +99,15 @@ export default function FormViewTransfer() {
 
     setIsFormModal(true);
   }
-  function handlePdf() {}
+  function filterOrders(value) {
+    console.log("Lista", auxPedidosList);
+    setFilter(value);
+    const filtered = auxPedidosList.filter((entry) =>
+      entry.nombreCompleto.toString().includes(value)
+    );
+    console.log("Flag", filtered);
+    setList(filtered);
+  }
   return (
     <div>
       <div className="formLabel">VER TRASPASOS </div>
@@ -225,7 +237,6 @@ export default function FormViewTransfer() {
       </Modal>
 
       <div className="secondHalf">
-        <div className="formLabel">Lista de traspasos</div>
         <Table bordered striped hover className="table">
           <thead>
             <tr className="tableHeader">

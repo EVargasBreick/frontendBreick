@@ -449,7 +449,6 @@ export default function FormNewOrder() {
           productos: selectedProds,
           total: tot,
         };
-
         const objPedido = {
           pedido: {
             idUsuarioCrea: usuarioAct,
@@ -467,21 +466,21 @@ export default function FormNewOrder() {
           },
           productos: selectedProds,
         };
-
         setPedidoFinal(ped);
-        const stockObject = {
-          accion: "take",
-          idAlmacen: userStore,
-          productos: selectedProds,
-        };
-        const updatedStock = updateStock(stockObject);
-        updatedStock
-          .then((updatedRes) => {
-            const newOrder = createOrder(objPedido);
-            newOrder
-              .then((res) => {
-                console.log("respuesta de creacion del pedido", res);
-                const idPedidoCreado = res.data.data.idCreado;
+        const newOrder = createOrder(objPedido);
+        newOrder
+          .then((res) => {
+            console.log("respuesta de creacion del pedido", res);
+            const idPedidoCreado = res.data.data.idCreado;
+            const stockObject = {
+              accion: "take",
+              idAlmacen: userStore,
+              productos: selectedProds,
+              detalle: `SPNPD-${idPedidoCreado}`,
+            };
+            const updatedStock = updateStock(stockObject);
+            updatedStock
+              .then((updatedRes) => {
                 const codPedido = getOrderList(res.data.data.idCreado);
                 codPedido.then((resp) => {
                   const emailBody = {
@@ -498,28 +497,10 @@ export default function FormNewOrder() {
                       setIsAlertSec(false);
                       setAlert("Pedido Creado correctamente");
                       setIsAlert(true);
-                      if (faltantes.length > 0) {
-                        const bodyFaltantes = {
-                          idPedido: idPedidoCreado,
-                          fecha: dateString(),
-                          idUsuarioCrea: usuarioAct,
-                          idAgencia: userStore,
-                          idString: `${userName}-${tipo}00${idPedidoCreado}`,
-                          products: faltantes,
-                        };
-                        const faltantesLogged = logShortage(bodyFaltantes);
-                        faltantesLogged.then((fl) => {
-                          setTimeout(() => {
-                            window.location.reload()
-                            setisLoading(false);
-                          }, 4000);
-                        });
-                      } else {
-                        setTimeout(() => {
-                          navigate("/principal");
-                          setisLoading(false);
-                        }, 3000);
-                      }
+                      setTimeout(() => {
+                        window.location.reload();
+                        setisLoading(false);
+                      }, 3000);
                     })
                     .catch((error) => {
                       console.log("Error al enviar el correo", error);
@@ -527,32 +508,15 @@ export default function FormNewOrder() {
                 });
               })
               .catch((error) => {
-                console.log("Error", error);
+                console.log(
+                  "Algun producto no cuenta con el stock seleccionado"
+                );
+                setAlert("Algun producto no cuenta con el stock seleccionado");
+                setIsAlert(true);
               });
           })
           .catch((error) => {
-            setFaltantes(error.response.data.faltantes);
-            const updateado = updateForMissing(
-              selectedProds,
-              error.response.data.faltantes
-            );
-            updateado.then((upd) => {
-              setSelectedProds(upd.modificados);
-              setTradicionales(upd.trads);
-              setPascua(upd.pas);
-              setNavidad(upd.nav);
-              setHalloween(upd.hall);
-              setSinDesc(upd.sd);
-              setEspeciales(upd.esp);
-              setAlertSec(
-                "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
-              );
-              setIsAlertSec(true);
-              setTimeout(() => {
-                setIsAlertSec(false);
-                setFlagDiscount(true);
-              }, 5000);
-            });
+            console.log("Error", error);
           });
       } else {
         setIsAlert(true);
@@ -587,19 +551,21 @@ export default function FormNewOrder() {
             productos: zero.modificados,
           };
           console.log("Objeto pedido", objPedido);
-          const stockObject = {
-            accion: "take",
-            idAlmacen: userStore,
-            productos: zero.modificados,
-          };
-          const updatedStock = updateStock(stockObject);
-          updatedStock
-            .then((updatedRes) => {
-              const newOrder = createOrder(objPedido);
-              newOrder
-                .then((res) => {
-                  const idPedidoCreado = res.data.data.idCreado;
-                  const codPedido = getOrderList(res.data.data.idCreado);
+
+          const newOrder = createOrder(objPedido);
+          newOrder
+            .then((res) => {
+              const idPedidoCreado = res.data.data.idCreado;
+              const codPedido = getOrderList(res.data.data.idCreado);
+              const stockObject = {
+                accion: "take",
+                idAlmacen: userStore,
+                productos: zero.modificados,
+                detalle: `SPNPD-${idPedidoCreado}`,
+              };
+              const updatedStock = updateStock(stockObject);
+              updatedStock
+                .then((updatedRes) => {
                   codPedido.then((resp) => {
                     const emailBody = {
                       codigoPedido: res.data.data.idCreado,
@@ -615,28 +581,10 @@ export default function FormNewOrder() {
                         setIsAlertSec(false);
                         setAlert("Pedido Creado correctamente");
                         setIsAlert(true);
-                        if (faltantes.length > 0) {
-                          const bodyFaltantes = {
-                            idPedido: idPedidoCreado,
-                            fecha: dateString(),
-                            idUsuarioCrea: usuarioAct,
-                            idAgencia: userStore,
-                            idString: `${userName}-${tipo}00${idPedidoCreado}`,
-                            products: faltantes,
-                          };
-                          const faltantesLogged = logShortage(bodyFaltantes);
-                          faltantesLogged.then((fl) => {
-                            setTimeout(() => {
-                              window.location.reload();
-                              setisLoading(false);
-                            }, 3000);
-                          });
-                        } else {
-                          setTimeout(() => {
-                            window.location.reload();
-                            setisLoading(false);
-                          }, 3000);
-                        }
+                        setTimeout(() => {
+                          window.location.reload();
+                          setisLoading(false);
+                        }, 3000);
                       })
                       .catch((error) => {
                         console.log("Error al enviar el correo", error);
@@ -644,26 +592,17 @@ export default function FormNewOrder() {
                   });
                 })
                 .catch((error) => {
-                  console.log("Error", error);
+                  setAlertSec(
+                    "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
+                  );
+                  setIsAlertSec(true);
+                  setTimeout(() => {
+                    setIsAlertSec(false);
+                  }, 5000);
                 });
             })
             .catch((error) => {
-              setFaltantes(error.response.data.faltantes);
-              const updateado = updateForMissingSample(
-                zero.modificados,
-                error.response.data.faltantes
-              );
-              updateado.then((upd) => {
-                setSelectedProds(upd.modificados);
-                setAlertSec(
-                  "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
-                );
-                setIsAlertSec(true);
-                setTimeout(() => {
-                  setIsAlertSec(false);
-                  setFlagDiscount(true);
-                }, 5000);
-              });
+              console.log("Error al crear el pedido", error);
             });
         } else {
           setIsAlert(true);

@@ -47,6 +47,7 @@ import RetirePack from "./Components/retirePack";
 import AllOrders from "./Components/allOrders";
 import RePrintInvoices from "./Components/rePrintInvoices";
 import EntryReport from "./Components/entryReport";
+import LoggedStockReport from "./Components/loggedStockReport";
 
 function App() {
   return (
@@ -388,6 +389,14 @@ function App() {
               element={
                 <RequireAuth>
                   <RePrintInvoices />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/stock"
+              element={
+                <RequireAuth>
+                  <LoggedStockReport />
                 </RequireAuth>
               }
             />

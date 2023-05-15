@@ -65,7 +65,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         Modificar/Cancelar Pedido
       </MenuItem>
 
-      <div className="menuItem">Productos</div>
+      <div className="menuItem">Traspasos</div>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso")}
         className="menuItem"
@@ -74,6 +74,14 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso productos
       </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspasos/editar")}
+        className="menuItem"
+      >
+        <Image src={leftArrow} className="icon"></Image>
+        Modificar Traspaso
+      </MenuItem>
+      <div className="menuItem">Productos</div>
       <MenuItem
         onClick={() => redirectOnClick("/packs/registrar")}
         className="menuItem"

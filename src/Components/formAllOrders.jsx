@@ -45,6 +45,8 @@ export default function FormAllOrders() {
   const [allProducts, setAllProducts] = useState([]);
   const [tipo, setTipo] = useState("");
   const [totalMuestra, setTotalMuestra] = useState("");
+  const [auxPedidosList, setAuxPedidosList] = useState([]);
+  const [filter, setFilter] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -66,6 +68,7 @@ export default function FormAllOrders() {
     listaPedidos.then((res) => {
       console.log("Lista pedidos", res.data.data);
       setPedidosList(res.data.data);
+      setAuxPedidosList(res.data.data);
     });
     const allProducts = getProducts("all");
     allProducts.then((res) => {
@@ -221,6 +224,19 @@ export default function FormAllOrders() {
   function handlePdf() {
     pdfRef.current.click();
   }
+
+  function filterOrders(value) {
+    setFilter(value);
+    const filtered = auxPedidosList.filter(
+      (data) =>
+        data.idPedido === value ||
+        data.codigoPedido
+          .toString()
+          .toLowerCase()
+          .includes(value.toString().toLowerCase())
+    );
+    setPedidosList(filtered);
+  }
   return (
     <div>
       <Modal show={isAlert} onHide={handleClose}>
@@ -237,12 +253,17 @@ export default function FormAllOrders() {
 
       <div className="formLabel">TODOS LOS PEDIDOS</div>
       <Form>
-        <Form.Group
-          className="mb-3"
-          controlId="order"
-          onChange={(e) => setOrderDetails(e.target.value)}
-        >
-          <Form.Select>
+        <Form.Group className="mb-3" controlId="order">
+          <Form.Label>Filtrar por numero, usuario o tipo</Form.Label>
+          <Form.Control
+            type="text"
+            onChange={(e) => {
+              filterOrders(e.target.value);
+            }}
+            value={filter}
+          />
+          <Form.Label className="formLabel">Lista de Pedidos</Form.Label>
+          <Form.Select onChange={(e) => setOrderDetails(e.target.value)}>
             <option>Seleccione pedido</option>
             {pedidosList.map((pedido) => {
               return (

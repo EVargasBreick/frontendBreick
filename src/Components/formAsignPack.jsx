@@ -86,6 +86,7 @@ export default function FormAsignPack() {
       accion: "take",
       idAlmacen: selectedStoreId,
       productos: selectedProducts,
+      detalle: `SPPACK-${selectedPackId}`,
     };
     const updatedForTake = updateStock(objProdsTake);
     updatedForTake.then((resp) => {
@@ -102,15 +103,18 @@ export default function FormAsignPack() {
             cantProducto: cantPack,
           },
         ],
+        detalle: `ACPACK-${selectedPackId}`,
       };
-      const updatedForAdd = updateStock(objProdsAdd);
-      updatedForAdd.then((res) => {
-        setAlertSec("Pack asignado correctamente");
-        setIsAlertSec(true);
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      });
+      setTimeout(() => {
+        const updatedForAdd = updateStock(objProdsAdd);
+        updatedForAdd.then((res) => {
+          setAlertSec("Pack asignado correctamente");
+          setIsAlertSec(true);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        });
+      }, 3100);
     });
   }
   return (

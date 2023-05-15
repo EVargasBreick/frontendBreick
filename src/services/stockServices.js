@@ -108,6 +108,36 @@ const logProductEntry = (body) => {
   });
 };
 
+const getStockCodes = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/codigos`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const getStockLogged = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/logged?idAgencia=${body.idAgencia}&fromDate=${body.fromDate}&toDate=${body.toDate}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   getLogStockProduct,
   getLogStockStore,
@@ -116,4 +146,6 @@ export {
   updateFullStock,
   initializeStock,
   logProductEntry,
+  getStockCodes,
+  getStockLogged,
 };

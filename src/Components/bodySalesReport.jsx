@@ -171,7 +171,7 @@ export default function BodySalesReport() {
           "gift card": 0,
           "importe base": rt.montoFacturar.toFixed(2),
           "debito fiscal": (rt.montoFacturar * 0.13).toFixed(2),
-          estado: rt.estado == 0 ? "Valida" : "Cancelada",
+          estado: rt.estado == 0 ? "Valida" : "Anulada",
           "derecho fiscal": "si",
           vendedor: rt.nombreCompleto,
           agencia: rt.Agencia,
@@ -227,7 +227,7 @@ export default function BodySalesReport() {
           reportTable,
           (dato) => dato.estado == 0
         ),
-        "facturas canceladas": countElements(
+        "facturas anuladas": countElements(
           reportTable,
           (dato) => dato.estado == 1
         ),
@@ -334,7 +334,7 @@ export default function BodySalesReport() {
               >
                 <option value="2">Todas</option>
                 <option value="0">Validas</option>
-                <option value="1">Canceladas</option>
+                <option value="1">Anuladas</option>
               </Form.Select>
             </div>
             <div>
@@ -421,7 +421,7 @@ export default function BodySalesReport() {
                         {(rt.montoFacturar * 0.13).toFixed(2)}
                       </td>
                       <td className="reportColumnSmall">
-                        {rt.estado == 0 ? "Valida" : "Cancelada"}
+                        {rt.estado == 0 ? "Valida" : "Anulada"}
                       </td>
                       <td className="reportColumnSmall">SI</td>
 

@@ -54,6 +54,8 @@ export default function FormManageOrders() {
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
   const [userStore, setUserStore] = useState("");
+  const [auxPedidosList, setAuxPedidosList] = useState([]);
+  const [filter, setFilter] = useState("");
   const buttonRef = useRef();
   const meses = [
     "Enero",
@@ -77,6 +79,7 @@ export default function FormManageOrders() {
     listaPedidos.then((res) => {
       console.log("Lista pedidos", res.data.data);
       setPedidosList(res.data.data);
+      setAuxPedidosList(res.data.data);
     });
     const allProducts = getProducts("all");
     allProducts.then((res) => {
@@ -246,6 +249,7 @@ export default function FormManageOrders() {
         accion: "add",
         idAlmacen: userStore,
         productos: productList,
+        detalle: `DPCPD-${selectedOrder}`,
       };
       const reStocked = updateStock(objProdsDelete);
       reStocked.then((rs) => {
@@ -259,6 +263,18 @@ export default function FormManageOrders() {
         });
       });
     }
+  }
+  function filterOrders(value) {
+    setFilter(value);
+    const filtered = auxPedidosList.filter(
+      (data) =>
+        data.idPedido === value ||
+        data.codigoPedido
+          .toString()
+          .toLowerCase()
+          .includes(value.toString().toLowerCase())
+    );
+    setPedidosList(filtered);
   }
   return (
     <div>
@@ -285,12 +301,17 @@ export default function FormManageOrders() {
 
       <div className="formLabel">ADMINISTRAR PEDIDOS</div>
       <Form>
-        <Form.Group
-          className="mb-3"
-          controlId="order"
-          onChange={(e) => setOrderDetails(e.target.value)}
-        >
-          <Form.Select>
+        <Form.Group className="mb-3" controlId="order">
+          <Form.Label>Filtrar por numero, usuario o tipo</Form.Label>
+          <Form.Control
+            type="text"
+            onChange={(e) => {
+              filterOrders(e.target.value);
+            }}
+            value={filter}
+          />
+          <Form.Label className="formLabel">Lista de Pedidos</Form.Label>
+          <Form.Select onChange={(e) => setOrderDetails(e.target.value)}>
             <option>Seleccione pedido</option>
             {pedidosList.map((pedido) => {
               return (

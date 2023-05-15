@@ -52,12 +52,7 @@ export default function FormOrdersToReady() {
         });
       }
     }
-    const orders = ordersToReady(JSON.parse(UsuarioAct).idDepto);
-    orders.then((res) => {
-      console.log("Res", res);
-      setOrderList(res.data);
-      setAuxOrderList(res.data);
-    });
+
     const intervalId = setInterval(() => {
       navigate("/almacenes/recepcionar-pedidos");
     }, 120000);
@@ -99,6 +94,8 @@ export default function FormOrdersToReady() {
           rePrint: true,
           razonSocial: dt.data[0].razonSocial,
           zona: dt.data[0].zona,
+          origen: dt.data[0].origen,
+          destino: dt.data[0].destino,
         },
       ];
       setProductList(list);
@@ -217,7 +214,7 @@ export default function FormOrdersToReady() {
         <Modal.Body>
           <div>
             Está seguro que quiere marcar como listo? Esta acción no se puede
-            deshacer {"Es interior" + isInterior}
+            deshacer
           </div>
         </Modal.Body>
         <Modal.Footer className="modalHeader">

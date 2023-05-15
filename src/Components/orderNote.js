@@ -27,12 +27,12 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
                 <div>{`Destino: ${pl.destino}`}</div>
               </div>
             ) : null}
-            {pl.zona != "" ? (
+            {pl.zona && pl.zona != "" ? (
               <div className="invoiceStart">
                 <div>{`Zona: ${pl.zona}`}</div>
               </div>
             ) : null}
-            {pl.razonSocial != "" ? (
+            {pl.razonSocial != "" && pl.razonSocial ? (
               <div className="invoiceStart">
                 <div>{`Cliente: ${pl.razonSocial}`}</div>
               </div>

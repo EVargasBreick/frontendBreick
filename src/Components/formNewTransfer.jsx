@@ -180,18 +180,18 @@ export default function FormNewTransfer() {
           productos: selectedProducts,
           transito: 0,
         };
-        const reservedProducts = updateStock({
-          accion: "take",
-          idAlmacen: idOrigen,
-          productos: selectedProducts,
-        });
-        reservedProducts
-          .then((res) => {
-            setAlertSec("Creando traspaso");
-
-            const newTransfer = createTransfer(transferObj);
-            newTransfer
-              .then((nt) => {
+        setAlertSec("Creando traspaso");
+        const newTransfer = createTransfer(transferObj);
+        newTransfer
+          .then((nt) => {
+            const reservedProducts = updateStock({
+              accion: "take",
+              idAlmacen: idOrigen,
+              productos: selectedProducts,
+              detalle: `SSNTR-${nt.data.data.idCreado}`,
+            });
+            reservedProducts
+              .then((res) => {
                 console.log("New Transfer", nt);
                 const emailBody = {
                   codigoPedido: nt.data.data.idCreado,
@@ -231,15 +231,14 @@ export default function FormNewTransfer() {
               })
               .catch((error) => {
                 setIsAlertSec(false);
-                setAlert("Error al crear el traspaso", error);
+                setAlert("Error al actualizar", error);
                 setIsAlert(true);
               });
           })
           .catch((error) => {
             setIsAlertSec(false);
-            setAlert(error.response.data.message);
+            setAlert(`Error al crear el traspaso`);
             setIsAlert(true);
-            console.log("Error al actualizar", error.response.data.message);
           });
       })
       .catch((error) => {

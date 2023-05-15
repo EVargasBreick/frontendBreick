@@ -50,6 +50,13 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         Reporte Kardex Pasado
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/reportes/stock")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Reporte Movimientos Kardex
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/reportes/actual/kardex")}
         className="menuItem"
       >

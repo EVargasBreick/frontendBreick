@@ -175,18 +175,20 @@ export default function FormStoreRefill() {
           impreso: isInterior ? 1 : 0,
           transito: 0,
         };
-        const reservedProducts = updateStock({
-          accion: "take",
-          idAlmacen: idOrigen,
-          productos: selectedProducts,
-        });
-        reservedProducts
-          .then((res) => {
-            setAlertSec("Creando traspaso");
-            console.log(res);
-            const newTransfer = createTransfer(transferObj);
-            newTransfer
-              .then((nt) => {
+
+        setAlertSec("Creando traspaso");
+
+        const newTransfer = createTransfer(transferObj);
+        newTransfer
+          .then((nt) => {
+            const reservedProducts = updateStock({
+              accion: "take",
+              idAlmacen: idOrigen,
+              productos: selectedProducts,
+              detalle: `SSNTR-${nt.data.data.idCreado}`,
+            });
+            reservedProducts
+              .then((res) => {
                 const productsArray = selectedProducts.map((item) => {
                   const obj = {
                     codInterno: item.codInterno,
@@ -217,15 +219,15 @@ export default function FormStoreRefill() {
               })
               .catch((error) => {
                 setIsAlertSec(false);
-                setAlert("Error al crear el traspaso", error);
+                setAlert("Error al actualizar");
                 setIsAlert(true);
               });
           })
           .catch((error) => {
             setIsAlertSec(false);
-            setAlert(error.response.data.message);
+            setAlert("Error al crear el traspaso", error);
             setIsAlert(true);
-            console.log("Error al actualizar", error.response.data.message);
+            console.log();
           });
       })
       .catch((error) => {

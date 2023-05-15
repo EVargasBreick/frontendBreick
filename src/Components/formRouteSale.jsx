@@ -159,7 +159,6 @@ export default function FormRouteSale() {
     "706027",
     "706028",
     "706029",
-    "706040",
     "707001",
     "707002",
     "707003",
@@ -716,11 +715,13 @@ export default function FormRouteSale() {
               accion: "take",
               idAlmacen: userStore,
               productos: selectedProducts,
+              detalle: `NVAG-${idVenta}`,
             });
             const objStock = {
               accion: "add",
               idAlmacen: userStore,
               productos: selectedProducts,
+              detalle: `CVAGN-${idVenta}`,
             };
             updatedStock
               .then((us) => {

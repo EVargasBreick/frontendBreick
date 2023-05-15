@@ -64,13 +64,13 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
           <Image src={Invoice} className="icon"></Image>Facturar Pedidos
         </MenuItem>
       ) : null}
-      <MenuItem
+      {/*<MenuItem
         onClick={() => redirectOnClick("/stock/actualizar")}
         className="menuItem"
       >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Actualizar Stock
-      </MenuItem>
+      </MenuItem>*/}
       <MenuItem
         onClick={() => redirectOnClick("/buscarCliente")}
         className="menuItem"

@@ -98,10 +98,12 @@ export default function FormProductDrop() {
         };
         const bajaRegistrada = registerDrop(objBaja);
         bajaRegistrada.then((res) => {
+          const idBaja = res.data.id;
           const objStock = {
             accion: "take",
             idAlmacen: storeId,
             productos: [selectedProduct],
+            detalle: `SPRBJ-${idBaja}`,
           };
           const updatedStock = updateStock(objStock);
           updatedStock.then((response) => {
