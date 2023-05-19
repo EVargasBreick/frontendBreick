@@ -166,70 +166,83 @@ export default function FormStoreRefill() {
     const zeroValidated = validateZero();
     zeroValidated
       .then((validated) => {
-        const transferObj = {
-          idOrigen: idOrigen,
-          idDestino: idDestino,
-          idUsuario: userId,
-          productos: selectedProducts,
-          movil: 1,
-          impreso: isInterior ? 1 : 0,
-          transito: 0,
-        };
-
-        setAlertSec("Creando traspaso");
-
-        const newTransfer = createTransfer(transferObj);
-        newTransfer
-          .then((nt) => {
-            const reservedProducts = updateStock({
-              accion: "take",
-              idAlmacen: idOrigen,
+        const validatedQuant = validateQuantities();
+        validatedQuant
+          .then((res) => {
+            const transferObj = {
+              idOrigen: idOrigen,
+              idDestino: idDestino,
+              idUsuario: userId,
               productos: selectedProducts,
-              detalle: `SSNTR-${nt.data.data.idCreado}`,
-            });
-            reservedProducts
-              .then((res) => {
-                const productsArray = selectedProducts.map((item) => {
-                  const obj = {
-                    codInterno: item.codInterno,
-                    nombreProducto: item.nombreProducto,
-                    cantidadProducto: item.cantProducto,
-                  };
-                  return obj;
+              movil: 1,
+              impreso: isInterior ? 1 : 0,
+              transito: 0,
+            };
+
+            setAlertSec("Creando traspaso");
+
+            const newTransfer = createTransfer(transferObj);
+            newTransfer
+              .then((nt) => {
+                const reservedProducts = updateStock({
+                  accion: "take",
+                  idAlmacen: idOrigen,
+                  productos: selectedProducts,
+                  detalle: `SSNTR-${nt.data.data.idCreado}`,
                 });
-                setIsAlertSec(false);
-                setAlert("Traspaso creado correctamente");
-                const origenArray = nombreOrigen.split(" ");
-                const outputOrigen = origenArray.slice(1).join(" ");
-                const destinoArray = nombreDestino.split(" ");
-                const outputDestino = destinoArray.slice(1).join(" ");
-                const orderObj = [
-                  {
-                    rePrint: false,
-                    fechaSolicitud: dateString(),
-                    id: nt.data.data.idCreado,
-                    usuario: user,
-                    notas: "",
-                    productos: productsArray,
-                    origen: outputOrigen,
-                    destino: outputDestino,
-                  },
-                ];
-                setProductList(orderObj);
+                reservedProducts
+                  .then((res) => {
+                    const productsArray = selectedProducts.map((item) => {
+                      const obj = {
+                        codInterno: item.codInterno,
+                        nombreProducto: item.nombreProducto,
+                        cantidadProducto: item.cantProducto,
+                      };
+                      return obj;
+                    });
+                    setIsAlertSec(false);
+                    setAlert("Traspaso creado correctamente");
+                    const origenArray = nombreOrigen.split(" ");
+                    const outputOrigen = origenArray.slice(1).join(" ");
+                    const destinoArray = nombreDestino.split(" ");
+                    const outputDestino = destinoArray.slice(1).join(" ");
+                    const orderObj = [
+                      {
+                        rePrint: false,
+                        fechaSolicitud: dateString(),
+                        id: nt.data.data.idCreado,
+                        usuario: user,
+                        notas: "",
+                        productos: productsArray,
+                        origen: outputOrigen,
+                        destino: outputDestino,
+                      },
+                    ];
+                    setProductList(orderObj);
+                  })
+                  .catch((error) => {
+                    setIsAlertSec(false);
+                    setAlert("Error al actualizar");
+                    console.log("Error", error);
+                    setIsAlert(true);
+                  });
               })
               .catch((error) => {
                 setIsAlertSec(false);
-                setAlert("Error al actualizar");
+                setAlert("Error al crear el traspaso", error);
                 setIsAlert(true);
+                console.log();
               });
           })
-          .catch((error) => {
+          .catch((err) => {
             setIsAlertSec(false);
-            setAlert("Error al crear el traspaso", error);
+            setAlert(
+              "La cantidad de un producto seleccionado no se encuentra disponible"
+            );
             setIsAlert(true);
-            console.log();
           });
       })
+
       .catch((error) => {
         setIsAlertSec(false);
         setAlert(
@@ -253,6 +266,24 @@ export default function FormStoreRefill() {
           reject(false);
         }
       }, 1000);
+    });
+  }
+
+  function validateQuantities() {
+    console.log("Ingresando a validar cantidades");
+    var errCount = 0;
+    return new Promise((resolve, reject) => {
+      for (const product of selectedProducts) {
+        if (product.cant_Actual < product.cantProducto) {
+          errCount += 1;
+        }
+      }
+      console.log("Err count", errCount);
+      if (errCount == 0) {
+        resolve(true);
+      } else {
+        reject(false);
+      }
     });
   }
 

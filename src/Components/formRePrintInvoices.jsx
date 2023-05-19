@@ -408,6 +408,7 @@ export default function FormRePrintInvoices() {
                 totalDescontado: fullInvData.montoFacturar,
               }}
               giftCard={fullInvData.vale}
+              isOrder={true}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -438,6 +439,7 @@ export default function FormRePrintInvoices() {
                 totalDescontado: fullInvData.montoFacturar,
               }}
               giftCard={fullInvData.vale}
+              isOrder={true}
             />
           </div>
         </div>

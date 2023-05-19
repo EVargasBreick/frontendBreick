@@ -19,7 +19,9 @@ export const InvoiceComponentCopy = React.forwardRef(
     ref
   ) => {
     const convertido = convertToText(totalsData?.totalDescontado);
-    const splittedDate = dateString().split(" ");
+    const splittedDate = isOrder
+      ? paymentData.fechaHora.split(" ")
+      : dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
     function formattedCuf(cuf) {

@@ -627,24 +627,25 @@ export default function FormModifyOrders() {
                     });
                   });
                 })
-                .catch((error) => {});
+                .catch((error) => {
+                  setIsAlertSec(true);
+                  setIsAlertSec(
+                    "Error al actualizar el pedido, revise stocks por favor"
+                  );
+                  setTimeout(() => {
+                    setIsAlertSec(false);
+                  }, 5000);
+                });
             }, 5000);
           })
           .catch((error) => {
-            setFaltantes(error.response.data.faltantes);
-            const updateado = updateForMissing(
-              selectedProds,
-              error.response.data.faltantes
+            setIsAlertSec(true);
+            setIsAlertSec(
+              "Error al actualizar el pedido, revise stocks por favor"
             );
-            updateado.then((upd) => {
-              setIsAlertSec(true);
-              setIsAlertSec(
-                "Error al actualizar el pedido, revise stocks por favor"
-              );
-              setTimeout(() => {
-                setIsAlertSec(false);
-              }, 5000);
-            });
+            setTimeout(() => {
+              setIsAlertSec(false);
+            }, 5000);
           });
       }
     }

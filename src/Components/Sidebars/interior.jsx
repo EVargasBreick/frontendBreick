@@ -111,6 +111,13 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         <Image src={Invoice} className="icon"></Image>Facturar Pedidos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/facturas/reimprimir")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Printer} className="icon"></Image>Reimprimir Facturas
+      </MenuItem>
+      <MenuItem
         className="menuItem"
         onClick={() => redirectOnClick("/facturas/anular")}
       >

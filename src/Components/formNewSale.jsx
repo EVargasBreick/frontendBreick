@@ -121,6 +121,10 @@ export default function FormNewSale() {
       setUserStore(JSON.parse(UsuarioAct).idAlmacen);
       var data;
       const PuntoDeVenta = Cookies.get("pdv");
+      console.log("Datos punto de venta", PuntoDeVenta);
+      if (PuntoDeVenta == undefined) {
+        console.log("True test for undefined");
+      }
       if (PuntoDeVenta) {
         setIsPoint(true);
         setPointOfsale(PuntoDeVenta);

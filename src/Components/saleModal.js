@@ -587,60 +587,83 @@ function SaleModal(
                           }
                         });
                       } else {
-                        const errorInvoice =
-                          resp.response.data.SalidaTransaccionBoliviaResponse[0]
-                            .SalidaTransaccionBoliviaResult[0]
-                            .TransaccionSalidaUnificada[0].Errores[0].Error[0]
-                            .Descripcion[0];
-                        setIsAlertSec(false);
-                        setTransactionObject("");
-                        setAlert(
-                          `Error al obtener la factura, intente nuevamente, ${JSON.stringify(
-                            errorInvoice
-                          )}`
+                        const reverted = rollbackPurchase(
+                          idFactura,
+                          idVenta,
+                          objStock
                         );
-                        setIsAlert(true);
-                        clearInterval(intervalId);
-                        rollbackPurchase(idFactura, idVenta, objStock);
+                        reverted.then((res) => {
+                          const errorInvoice =
+                            resp.response.data
+                              .SalidaTransaccionBoliviaResponse[0]
+                              .SalidaTransaccionBoliviaResult[0]
+                              .TransaccionSalidaUnificada[0].Errores[0].Error[0]
+                              .Descripcion[0];
+                          setIsAlertSec(false);
+                          setTransactionObject("");
+                          setAlert(
+                            `Error al obtener la factura, intente nuevamente, ${JSON.stringify(
+                              errorInvoice
+                            )}`
+                          );
+                          setIsAlert(true);
+                          clearInterval(intervalId);
+                        });
                       }
                     })
                     .catch((error) => {
-                      setIsAlertSec(false);
-                      setIsAlert(false);
-                      setAlert(
-                        "Error al obtener el codigo unico de facturación, intente nuevamente"
-                      );
-                      const obj = {
+                      const updateBodyInit = {
                         nroFactura: nextId,
-                        idSucursal: 0,
-                        puntoDeVenta: 0,
+                        cuf: "",
+                        cufd: "",
+                        autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
+                        fe: "",
                         nroTransaccion: idTransaccion,
-                        idgencia: userStore,
+                        idFactura: idFactura,
                       };
-                      setInvObj(obj);
-                      clearInterval(intervalId);
-                      setIsEmailModal(true);
+                      const updated = updateInvoiceProcess(updateBodyInit);
+                      updated.then((res) => {
+                        setIsAlertSec(false);
+                        setIsAlert(false);
+                        setAlert(
+                          "Error al obtener el codigo unico de facturación, intente nuevamente"
+                        );
+                        const obj = {
+                          nroFactura: nextId,
+                          idSucursal: 0,
+                          puntoDeVenta: 0,
+                          nroTransaccion: idTransaccion,
+                          idgencia: userStore,
+                        };
+                        setInvObj(obj);
+                        clearInterval(intervalId);
+                        setIsEmailModal(true);
+                      });
                     });
                 }, 10000);
               });
             })
             .catch((err) => {
-              rollbackPurchase(idFactura, idVenta, objStock);
-              setIsAlertSec(false);
-              setTransactionObject("");
-              setAlert("Error procesar el comprobante, intente nuevamente");
-              setIsAlert(true);
+              const reverted = rollbackPurchase(idFactura, idVenta, objStock);
+              reverted.then((res) => {
+                setIsAlertSec(false);
+                setTransactionObject("");
+                setAlert("Error procesar el comprobante, intente nuevamente");
+                setIsAlert(true);
+              });
             });
         });
       })
       .catch((err) => {
-        rollbackPurchase(idFactura, idVenta, objStock);
-        setIsAlertSec(false);
-        setAlert(
-          "Error al obtener el ultimo numero de comprobante, intente nuevamente"
-        );
-        setIsAlert(true);
-        console.log("Error al obtener el id", err);
+        const reverted = rollbackPurchase(idFactura, idVenta, objStock);
+        reverted.then((res) => {
+          setIsAlertSec(false);
+          setAlert(
+            "Error al obtener el ultimo numero de comprobante, intente nuevamente"
+          );
+          setIsAlert(true);
+          console.log("Error al obtener el id", err);
+        });
       });
   }
 
@@ -685,7 +708,7 @@ function SaleModal(
   }
 
   function rollbackPurchase(idFactura, idVenta, objStock) {
-    if (!isEmailModal) {
+    return new Promise((resolve) => {
       const deletedInvoice = deleteInvoice(idFactura);
       deletedInvoice.then((rs) => {
         const deletedSale = deleteSale(idVenta);
@@ -696,13 +719,15 @@ function SaleModal(
           const returned = updateStock(objStock);
           setIsAlertSec(false);
           returned
-            .then((res) => {})
+            .then((res) => {
+              resolve(res);
+            })
             .catch((err) => {
               console.log("Error al devolver el stock", err);
             });
         });
       });
-    }
+    });
   }
   function handleClose() {
     setDescuento(0);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllStores } from "../services/storeServices";
 import { getStockCodes, getStockLogged } from "../services/stockServices";
 import { Button, Form, Table } from "react-bootstrap";
-
+import * as XLSX from "xlsx";
 export default function BodyLoggedStockReport() {
   useEffect(() => {
     const allStores = getAllStores();
@@ -50,6 +50,64 @@ export default function BodyLoggedStockReport() {
     );
     setTableData(filtered);
   };
+
+  function ExportStockReport() {
+    var array = [];
+    for (const entry of tableData) {
+      const codigo = entry.detalle.split("-")[0];
+      const id = entry.detalle.split("-")[1];
+      const obj = {
+        ["Cod Interno"]: entry.codInterno,
+        Producto: entry.nombreProducto,
+        Cantidad: entry.cantidadProducto,
+        Tipo: entry.accion === "+" ? "Ingreso" : "Salida",
+        Detalle: codeList.find((cl) => cl.codigo === codigo).descripcion,
+        Id: id,
+        ["Fecha - Hora"]: entry.fechaHora,
+        Entrada: entry.accion === "+" ? entry.cantidadProducto : 0,
+        Salida: entry.accion === "-" ? entry.cantidadProducto : 0,
+      };
+      array.push(obj);
+    }
+    const newEntry = {
+      ["Cod Interno"]: "",
+      Producto: "",
+      Cantidad: "",
+      Tipo: "",
+      Detalle: "",
+      Id: "",
+      ["Fecha - Hora"]: "Totales",
+      Entrada: array.reduce((accumulator, object) => {
+        return accumulator + parseFloat(object.Entrada);
+      }, 0),
+      Salida: array.reduce((accumulator, object) => {
+        return accumulator + parseFloat(object.Salida);
+      }, 0),
+      Diferencia:
+        array.reduce((accumulator, object) => {
+          return accumulator + parseFloat(object.Entrada);
+        }, 0) -
+        array.reduce((accumulator, object) => {
+          return accumulator + parseFloat(object.Salida);
+        }, 0),
+    };
+    array.push(newEntry);
+    const storeName = storeList.find(
+      (sl) => sl.idagencia === selectedStore
+    ).nombre;
+    return new Promise((resolve) => {
+      var ws_data = array;
+      var ws = XLSX.utils.json_to_sheet(ws_data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, `Detalle reporte`);
+      XLSX.writeFile(
+        wb,
+        `Reporte movimiento de kardex de ${fromDate} a ${toDate}' de ${storeName} con filtro ${filtered}.xlsx`
+      );
+      resolve(true);
+    });
+  }
+
   return (
     <div>
       <div className="formLabel">REPORTE DE MOVIMIENTOS DE KARDEX</div>
@@ -147,6 +205,17 @@ export default function BodyLoggedStockReport() {
                 })}
               </tbody>
             </Table>
+          </div>
+          <div style={{ paddingTop: "5%" }}>
+            <Button
+              variant="info"
+              className="cyanLarge"
+              onClick={() => {
+                ExportStockReport();
+              }}
+            >
+              Exportar a excel
+            </Button>
           </div>
         </div>
       ) : null}

@@ -125,7 +125,7 @@ export default function FormRetirePack() {
               }
             }, 3100);
           });
-        }, 5000);
+        }, 10000);
       });
     }
   }

@@ -44,6 +44,7 @@ export default function FormTransferReception() {
     }
   }, []);
   function selectTransfer(transfer) {
+    console.log("Selected transfer data", JSON.parse(transfer));
     const id = JSON.parse(transfer).idTraspaso;
     setSelectedTransferId(id);
     setTransferDetails(JSON.parse(transfer));
@@ -134,7 +135,7 @@ export default function FormTransferReception() {
       logged.then(() => {
         const returnBody = {
           accion: "add",
-          idAlmacen: "AL001",
+          idAlmacen: transferDetails.idOrigen,
           productos: lessProducts,
         };
         const returned = updateStock(returnBody);
@@ -156,7 +157,7 @@ export default function FormTransferReception() {
                 }, 1500);
               });
             });
-          }, 5000);
+          }, 10000);
         });
       });
     } else {
@@ -173,7 +174,7 @@ export default function FormTransferReception() {
           setAlertSec("Traspaso aceptado correctamente");
           setTimeout(() => {
             window.location.reload();
-          }, 1500);
+          }, 5000);
         });
       });
     }

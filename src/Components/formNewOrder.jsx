@@ -20,6 +20,7 @@ import Cookies from "js-cookie";
 import {
   availabilityInterval,
   createOrder,
+  deleteOrder,
   getOrderList,
   sendOrderEmail,
   updateStock,
@@ -592,13 +593,16 @@ export default function FormNewOrder() {
                   });
                 })
                 .catch((error) => {
-                  setAlertSec(
-                    "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
-                  );
-                  setIsAlertSec(true);
-                  setTimeout(() => {
-                    setIsAlertSec(false);
-                  }, 5000);
+                  const deleted = deleteOrder(res.data.data.idCreado);
+                  deleted.then((res) => {
+                    setAlertSec(
+                      "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
+                    );
+                    setIsAlertSec(true);
+                    setTimeout(() => {
+                      setIsAlertSec(false);
+                    }, 5000);
+                  });
                 });
             })
             .catch((error) => {

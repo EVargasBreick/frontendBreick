@@ -87,7 +87,12 @@ export default function FormCancelInvoice() {
   }
   function filterById(id) {
     setFilter(id);
-    const newList = auxFac.filter((dt) => dt.nroFactura.includes(id));
+    const newList = auxFac.filter(
+      (dt) =>
+        dt.nroFactura.includes(id) ||
+        dt.razonSocial.toLowerCase().includes(id.toLowerCase()) ||
+        dt.nitCliente.includes(id)
+    );
     setFacturas([...newList]);
   }
   function cancelInvoice(invoice) {
@@ -121,7 +126,7 @@ export default function FormCancelInvoice() {
           console.log("Selected invoice", selectedInvoice);
           const returnToStock = updateStock({
             accion: "add",
-            idAlmacen: selectedInvoice.idAlmacen,
+            idAlmacen: selectedInvoice.idAgencia,
             productos: products,
             detalle: `ANFAC-${invoice.idFactura}`,
           });
@@ -233,9 +238,11 @@ export default function FormCancelInvoice() {
       <div>
         <Form>
           <Form.Group>
-            <Form.Label>Filtrar por número de factura</Form.Label>
+            <Form.Label>
+              Filtrar por número de factura - Razón Social - Nit
+            </Form.Label>
             <Form.Control
-              type="number"
+              type="text"
               value={filter}
               onChange={(e) => filterById(e.target.value)}
             />

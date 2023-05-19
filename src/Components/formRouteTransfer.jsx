@@ -110,42 +110,53 @@ export default function FormRouteTransfer() {
     const zeroValidated = validateZero();
     zeroValidated
       .then((validated) => {
-        const transferObj = {
-          idOrigen: idOrigen,
-          idDestino: idDestino,
-          idUsuario: userId,
-          productos: selectedProducts,
-          movil: 1,
-          transito: 0,
-        };
-        setAlertSec("Creando traspaso");
-        const newTransfer = createTransfer(transferObj);
-        newTransfer
-          .then((nt) => {
-            const reservedProducts = updateStock({
-              accion: "take",
-              idAlmacen: idOrigen,
+        const validatedQuan = validateQuantities();
+        validatedQuan
+          .then((res) => {
+            const transferObj = {
+              idOrigen: idOrigen,
+              idDestino: idDestino,
+              idUsuario: userId,
               productos: selectedProducts,
-              detalle: `SSNTR-${nt.data.data.idCreado}`,
-            });
-            reservedProducts
-              .then((res) => {
-                setIsAlertSec(false);
-                setAlert("Traspaso creado correctamente");
-                setIsAlert(true);
-                setTimeout(() => {
-                  navigate("/principal");
-                }, 1500);
+              movil: 1,
+              transito: 0,
+            };
+            setAlertSec("Creando traspaso");
+            const newTransfer = createTransfer(transferObj);
+            newTransfer
+              .then((nt) => {
+                const reservedProducts = updateStock({
+                  accion: "take",
+                  idAlmacen: idOrigen,
+                  productos: selectedProducts,
+                  detalle: `SSNTR-${nt.data.data.idCreado}`,
+                });
+                reservedProducts
+                  .then((res) => {
+                    setIsAlertSec(false);
+                    setAlert("Traspaso creado correctamente");
+                    setIsAlert(true);
+                    setTimeout(() => {
+                      navigate("/principal");
+                    }, 1500);
+                  })
+                  .catch((error) => {
+                    setIsAlertSec(false);
+                    setAlert("Error al actualizar");
+                    setIsAlert(true);
+                  });
               })
               .catch((error) => {
                 setIsAlertSec(false);
-                setAlert("Error al actualizar");
+                setAlert("Error al crear el traspaso");
                 setIsAlert(true);
               });
           })
-          .catch((error) => {
+          .catch((err) => {
             setIsAlertSec(false);
-            setAlert("Error al crear el traspaso");
+            setAlert(
+              "La cantidad de un producto seleccionado no se encuentra disponible"
+            );
             setIsAlert(true);
           });
       })
@@ -174,6 +185,23 @@ export default function FormRouteTransfer() {
       }, 1000);
     });
   }
+
+  function validateQuantities() {
+    var errCount = 0;
+    return new Promise((resolve, reject) => {
+      for (const product of selectedProducts) {
+        if (product.cant_Actual < product.cantProducto) {
+          errCount += 1;
+        }
+      }
+      if (errCount == 0) {
+        resolve(true);
+      } else {
+        reject(false);
+      }
+    });
+  }
+
   return (
     <div>
       <div className="formLabel">SOLICITAR TRASPASO A AGENCIA MOVIL</div>

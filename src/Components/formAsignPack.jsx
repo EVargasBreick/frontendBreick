@@ -112,9 +112,9 @@ export default function FormAsignPack() {
           setIsAlertSec(true);
           setTimeout(() => {
             window.location.reload();
-          }, 1000);
+          }, 5000);
         });
-      }, 3100);
+      }, 10000);
     });
   }
   return (

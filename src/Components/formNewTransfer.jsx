@@ -11,7 +11,7 @@ import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
 import { getStores } from "../services/storeServices";
 import { getProductsWithStock } from "../services/productServices";
-import { createTransfer } from "../services/transferServices";
+import { createTransfer, deleteTransfer } from "../services/transferServices";
 import { sendOrderEmail, updateStock } from "../services/orderServices";
 import { dateString } from "../services/dateServices";
 import { OrderNote } from "./orderNote";
@@ -173,71 +173,89 @@ export default function FormNewTransfer() {
     const zeroValidated = validateZero();
     zeroValidated
       .then((validated) => {
-        const transferObj = {
-          idOrigen: idOrigen,
-          idDestino: idDestino,
-          idUsuario: userId,
-          productos: selectedProducts,
-          transito: 0,
-        };
-        setAlertSec("Creando traspaso");
-        const newTransfer = createTransfer(transferObj);
-        newTransfer
-          .then((nt) => {
-            const reservedProducts = updateStock({
-              accion: "take",
-              idAlmacen: idOrigen,
+        const quantitiesValidated = validateQuantities();
+        quantitiesValidated
+          .then((res) => {
+            const transferObj = {
+              idOrigen: idOrigen,
+              idDestino: idDestino,
+              idUsuario: userId,
               productos: selectedProducts,
-              detalle: `SSNTR-${nt.data.data.idCreado}`,
-            });
-            reservedProducts
-              .then((res) => {
-                console.log("New Transfer", nt);
-                const emailBody = {
-                  codigoPedido: nt.data.data.idCreado,
-                  correoUsuario: userEmail,
-                  fecha: dateString(),
-                  email: [userEmail],
-                  tipo: "Traspaso",
-                  header: "Traspaso Creado",
-                };
-                const emailSent = sendOrderEmail(emailBody);
-                emailSent
-                  .then((response) => {
-                    const origenArray = nombreOrigen.split(" ");
-                    const outputOrigen = origenArray.slice(1).join(" ");
-                    const destinoArray = nombreDestino.split(" ");
-                    const outputDestino = destinoArray.slice(1).join(" ");
-                    const orderObj = [
-                      {
-                        rePrint: false,
-                        fechaSolicitud: dateString(),
-                        id: nt.data.data.idCreado,
-                        usuario: user,
-                        notas: "",
-                        productos: productsArray,
-                        origen: outputOrigen,
-                        destino: outputDestino,
-                      },
-                    ];
-                    setProductList(orderObj);
-                    setIsAlertSec(false);
-                    setAlert("Traspaso Creado correctamente");
-                    setIsAlert(true);
+              transito: 0,
+            };
+            setAlertSec("Creando traspaso");
+            const newTransfer = createTransfer(transferObj);
+            newTransfer
+              .then((nt) => {
+                const reservedProducts = updateStock({
+                  accion: "take",
+                  idAlmacen: idOrigen,
+                  productos: selectedProducts,
+                  detalle: `SSNTR-${nt.data.data.idCreado}`,
+                });
+                reservedProducts
+                  .then((res) => {
+                    console.log("New Transfer", nt);
+                    const emailBody = {
+                      codigoPedido: nt.data.data.idCreado,
+                      correoUsuario: userEmail,
+                      fecha: dateString(),
+                      email: [userEmail],
+                      tipo: "Traspaso",
+                      header: "Traspaso Creado",
+                    };
+                    const emailSent = sendOrderEmail(emailBody);
+                    emailSent
+                      .then((response) => {
+                        const origenArray = nombreOrigen.split(" ");
+                        const outputOrigen = origenArray.slice(1).join(" ");
+                        const destinoArray = nombreDestino.split(" ");
+                        const outputDestino = destinoArray.slice(1).join(" ");
+                        const orderObj = [
+                          {
+                            rePrint: false,
+                            fechaSolicitud: dateString(),
+                            id: nt.data.data.idCreado,
+                            usuario: user,
+                            notas: "",
+                            productos: productsArray,
+                            origen: outputOrigen,
+                            destino: outputDestino,
+                          },
+                        ];
+                        setProductList(orderObj);
+                        setIsAlertSec(false);
+                        setAlert("Traspaso Creado correctamente");
+                        setIsAlert(true);
+                      })
+                      .catch((error) => {
+                        console.log("Error al enviar el correo", error);
+                      });
                   })
                   .catch((error) => {
-                    console.log("Error al enviar el correo", error);
+                    const deleted = deleteTransfer(nt.data.data.idCreado);
+                    deleted
+                      .then((res) => {
+                        setIsAlertSec(false);
+                        setAlert("Error al actualizar", error);
+                        setIsAlert(true);
+                      })
+                      .catch((error) => {
+                        console.log("Error al borrar el traspaso", error);
+                      });
                   });
               })
               .catch((error) => {
                 setIsAlertSec(false);
-                setAlert("Error al actualizar", error);
+                setAlert(`Error al crear el traspaso`);
                 setIsAlert(true);
               });
           })
-          .catch((error) => {
+          .catch((err) => {
             setIsAlertSec(false);
-            setAlert(`Error al crear el traspaso`);
+            setAlert(
+              "La cantidad de un producto seleccionado no se encuentra disponible"
+            );
             setIsAlert(true);
           });
       })
@@ -266,6 +284,24 @@ export default function FormNewTransfer() {
       }, 1000);
     });
   }
+
+  function validateQuantities() {
+    console.log("validando cantidades");
+    var errCount = 0;
+    return new Promise((resolve, reject) => {
+      for (const product of selectedProducts) {
+        if (product.cant_Actual < product.cantProducto) {
+          errCount += 1;
+        }
+      }
+      if (errCount == 0) {
+        resolve(true);
+      } else {
+        reject(false);
+      }
+    });
+  }
+
   function filterProducts(value) {
     setFiltered(value);
     const newList = auxProducts.filter(

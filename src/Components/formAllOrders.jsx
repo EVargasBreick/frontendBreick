@@ -18,6 +18,9 @@ import { OrderPDF } from "./orderPDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { dateString } from "../services/dateServices";
 import { getProducts } from "../services/productServices";
+import { rePrintTransferOrder } from "../services/printServices";
+import { OrderNote } from "./orderNote";
+import ReactToPrint from "react-to-print";
 export default function FormAllOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
@@ -47,6 +50,9 @@ export default function FormAllOrders() {
   const [totalMuestra, setTotalMuestra] = useState("");
   const [auxPedidosList, setAuxPedidosList] = useState([]);
   const [filter, setFilter] = useState("");
+  const componentRef = useRef();
+  const buttonRef = useRef();
+  const [isPrint, setIsPrint] = useState(false);
   const meses = [
     "Enero",
     "Febrero",
@@ -79,6 +85,11 @@ export default function FormAllOrders() {
     setIsAlert(false);
     setIsLoading(false);
   };
+  useEffect(() => {
+    if (isPrint) {
+      buttonRef.current.click();
+    }
+  }, [isPrint]);
   function setOrderDetails(stringPedido) {
     setProductDetail(null);
     setProductTable([]);
@@ -189,34 +200,7 @@ export default function FormAllOrders() {
       });
     });
   }
-  function approveOrder(idPedido) {
-    if (selectedOrder !== "") {
-      setIsLoading(true);
-      const approvedOrder = approveOrderFromId(idPedido);
-      approvedOrder
-        .then(() => {
-          setAlert("Orden aprobada!");
-          setIsAlert(true);
 
-          setTimeout(() => {
-            window.location.reload();
-            setIsLoading(false);
-          }, 2000);
-        })
-        .catch(() => {
-          setAlert("Error al aprobar la orden");
-          setIsAlert(true);
-
-          setTimeout(() => {
-            navigate("/principal");
-            setIsLoading(false);
-          }, 2000);
-        });
-    } else {
-      setAlert("Por favor, seleccione un pedido");
-      setIsAlert(true);
-    }
-  }
   function handleAlert(mensaje, bool) {
     setAlert(mensaje);
     setIsAlert(bool);
@@ -237,6 +221,30 @@ export default function FormAllOrders() {
     );
     setPedidosList(filtered);
   }
+
+  function rePrint() {
+    const details = rePrintTransferOrder(selectedOrder, "P");
+    details.then((dt) => {
+      console.log("Detalles", dt);
+      const list = [
+        {
+          fechaSolicitud: fechaCrea,
+          id: selectedOrder,
+          usuario: vendedor,
+          productos: dt.data,
+          notas: dt.data[0].notas,
+          rePrint: true,
+          razonSocial: dt.data[0].razonSocial,
+          zona: dt.data[0].zona,
+          origen: dt.data[0].origen,
+          destino: dt.data[0].destino,
+        },
+      ];
+      setProductList(list);
+      setIsPrint(true);
+    });
+  }
+
   return (
     <div>
       <Modal show={isAlert} onHide={handleClose}>
@@ -349,7 +357,7 @@ export default function FormAllOrders() {
                           {product.nombreProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {product.precioDeFabrica + " Bs."}
+                          {product?.precioDeFabrica + " Bs."}
                         </td>
                         <td className="tableColumnSmall">
                           {product.cantidadProducto}
@@ -413,53 +421,64 @@ export default function FormAllOrders() {
           <Form.Control value={notas} disabled as="textarea" rows={3} />
         </div>
       </div>
-      <div className="secondHalf">
-        <div className="formLabel">EXPORTAR PEDIDO</div>
-        <Form>
-          <Form.Group className="halfRadio" controlId="productDisccount">
-            <div className="buttonsLarge">
-              <Dropdown className="yellowDrop">
-                <Dropdown.Toggle
-                  variant="success"
-                  className="yellowDropOp"
-                  id="dropdown-basic"
-                  style={{ color: "white", backgroundColor: "#5cb8b2" }}
-                >
-                  {"Generar nota"}
-                </Dropdown.Toggle>
+      {selectedOrder != "" ? (
+        <div className="secondHalf">
+          <div className="formLabel">EXPORTAR PEDIDO</div>
+          <Form>
+            <Form.Group className="halfRadio" controlId="productDisccount">
+              <div className="buttonsLarge">
+                <Dropdown className="yellowDrop">
+                  <Dropdown.Toggle
+                    variant="success"
+                    className="yellowDropOp"
+                    id="dropdown-basic"
+                    style={{ color: "white", backgroundColor: "#5cb8b2" }}
+                  >
+                    {"Generar nota"}
+                  </Dropdown.Toggle>
 
-                <Dropdown.Menu className="yellowDropOp" variant="warning">
-                  <Dropdown.Item
-                    variant="warning"
-                    onClick={() => {
-                      selectedOrder !== ""
-                        ? ExportToExcel(
-                            productTable,
-                            productDetail,
-                            codigoPedido,
-                            "pedido"
-                          )
-                        : handleAlert("Por favor, seleccione un pedido", true);
-                    }}
-                  >
-                    {"En Excel"}
-                  </Dropdown.Item>
-                  <Dropdown.Item
-                    variant="warning"
-                    onClick={() => {
-                      selectedOrder !== ""
-                        ? handlePdf()
-                        : handleAlert("Por favor, seleccione un pedido", true);
-                    }}
-                  >
-                    {"En PDF"}
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          </Form.Group>
-        </Form>
-      </div>
+                  <Dropdown.Menu className="yellowDropOp" variant="warning">
+                    <Dropdown.Item
+                      variant="warning"
+                      onClick={() => {
+                        selectedOrder !== ""
+                          ? ExportToExcel(
+                              productTable,
+                              productDetail,
+                              codigoPedido,
+                              "pedido"
+                            )
+                          : handleAlert(
+                              "Por favor, seleccione un pedido",
+                              true
+                            );
+                      }}
+                    >
+                      {"En Excel"}
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      variant="warning"
+                      onClick={() => {
+                        selectedOrder !== ""
+                          ? handlePdf()
+                          : handleAlert(
+                              "Por favor, seleccione un pedido",
+                              true
+                            );
+                      }}
+                    >
+                      {"En PDF"}
+                    </Dropdown.Item>
+                    <Dropdown.Item variant="warning" onClick={() => rePrint()}>
+                      {"En Rollo"}
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </Form.Group>
+          </Form>
+        </div>
+      ) : null}
       {isPdf ? (
         <PDFDownloadLink
           document={
@@ -473,6 +492,28 @@ export default function FormAllOrders() {
         >
           <Button ref={pdfRef} className="hiddenButton"></Button>
         </PDFDownloadLink>
+      ) : null}
+
+      {isPrint ? (
+        <div>
+          <div hidden>
+            <OrderNote productList={productList} ref={componentRef} />
+          </div>
+          <ReactToPrint
+            trigger={() => (
+              <Button
+                variant="warning"
+                className="yellowLarge"
+                ref={buttonRef}
+                hidden
+              >
+                Imprimir ordenes
+              </Button>
+            )}
+            content={() => componentRef.current}
+            onAfterPrint={() => window.location.reload()}
+          />
+        </div>
       ) : null}
     </div>
   );

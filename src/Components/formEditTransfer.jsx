@@ -231,35 +231,41 @@ export default function FormEditTransfer() {
                         console.log("Devuelto");
                         console.log("Sacando Stock", selectedProducts);
                         setTimeout(() => {
-                          const updateToTake = updateStock({
-                            accion: "take",
-                            idAlmacen: transferOrigin,
-                            productos: selectedProducts,
-                            detalle: `SSETR-${selectedTransfer.idTraspaso}`,
-                          });
-                          updateToTake
-                            .then((res) => {
-                              console.log("Retirado");
-                              setTimeout(() => {
-                                setAlertSec(
-                                  "Traspaso actualizado, recargando..."
-                                );
-                                window.location.reload();
-                              }, 6000);
-                            })
-                            .catch((err) => {
-                              console.log(
-                                "Error al actualizar nuevas cantidades "
-                              );
+                          if (res) {
+                            const updateToTake = updateStock({
+                              accion: "take",
+                              idAlmacen: transferOrigin,
+                              productos: selectedProducts,
+                              detalle: `SSETR-${selectedTransfer.idTraspaso}`,
                             });
-                        }, 5000);
+                            updateToTake
+                              .then((res) => {
+                                console.log("Retirado");
+                                setTimeout(() => {
+                                  setAlertSec(
+                                    "Traspaso actualizado, recargando..."
+                                  );
+                                  window.location.reload();
+                                }, 2000);
+                              })
+                              .catch((err) => {
+                                setAlertSec(
+                                  "Error al actualizar las nuevas cantidades",
+                                  err
+                                );
+                                setTimeout(() => {
+                                  setIsAlertSec(false);
+                                }, 3000);
+                              });
+                          }
+                        }, 10000);
                       })
                       .catch((err) => {
                         console.log("Error al actualizar");
                       });
                   })
                   .catch((err) => {
-                    setAlertSec("Error al editar el traspaso", err);
+                    setAlertSec("Error al editar productos del traspaso:", err);
                     setTimeout(() => {
                       setIsAlertSec(false);
                     }, 5000);

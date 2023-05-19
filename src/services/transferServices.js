@@ -176,6 +176,21 @@ const acceptTransferById = (id) => {
   });
 };
 
+const deleteTransfer = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .delete(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/borrar?id=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export {
   createTransfer,
   transferList,
@@ -188,4 +203,5 @@ export {
   updateProductTransfer,
   transitTransfer,
   acceptTransferById,
+  deleteTransfer,
 };
