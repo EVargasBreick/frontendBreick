@@ -17,7 +17,7 @@ import { Button, Form, Table } from "react-bootstrap";
 import { getProductsWithStock } from "../services/productServices";
 import { dateString } from "../services/dateServices";
 import LoadingModal from "./Modals/loadingModal";
-import { updateStock } from "../services/orderServices";
+import { updateMultipleStock, updateStock } from "../services/orderServices";
 export default function FormEditTransfer() {
   const [userId, setUserId] = useState("");
   const [tList, setTList] = useState([]);
@@ -221,46 +221,46 @@ export default function FormEditTransfer() {
                 updated
                   .then((up) => {
                     console.log("Devolviendo stock", transferProductList);
-                    const updateToreturn = updateStock({
+                    const updateToreturn = {
                       accion: "add",
                       idAlmacen: transferOrigin,
                       productos: transferProductList,
                       detalle: `DSETR-${selectedTransfer.idTraspaso}`,
-                    });
-                    updateToreturn
-                      .then((res) => {
-                        console.log("Devuelto");
-                        console.log("Sacando Stock", selectedProducts);
-                        setTimeout(() => {
-                          if (res) {
-                            const updateToTake = updateStock({
-                              accion: "take",
-                              idAlmacen: transferOrigin,
-                              productos: selectedProducts,
-                              detalle: `SSETR-${selectedTransfer.idTraspaso}`,
-                            });
-                            updateToTake
-                              .then((res) => {
-                                console.log("Retirado");
-                                setTimeout(() => {
-                                  setAlertSec(
-                                    "Traspaso actualizado, recargando..."
-                                  );
-                                  window.location.reload();
-                                }, 2000);
-                              })
-                              .catch((err) => {
-                                setAlertSec(err.response.data.message);
-                                setTimeout(() => {
-                                  setIsAlertSec(false);
-                                }, 3000);
-                              });
-                          }
-                        }, 10000);
-                      })
-                      .catch((err) => {
-                        console.log("Error al actualizar");
-                      });
+
+                    };
+                    const updateToTake = {
+                      accion: "take",
+                      idAlmacen: transferOrigin,
+                      productos: selectedProducts,
+                      detalle: `SSETR-${selectedTransfer.idTraspaso}`,
+                    };
+
+                    const updateMultipleStocks = updateMultipleStock([
+                      updateToreturn,
+                      updateToTake,
+                    ]);
+
+                    console.log("Sacando Stock", selectedProducts);
+                    setTimeout(() => {
+                      updateMultipleStocks
+                        .then((res) => {
+                          console.log("Retirado");
+                          setTimeout(() => {
+                            setAlertSec("Traspaso actualizado, recargando...");
+                            window.location.reload();
+                          }, 2000);
+                        })
+                        .catch((err) => {
+                          setAlertSec(
+                            "Error al actualizar las nuevas cantidades",
+                            err
+                          );
+                          setTimeout(() => {
+                            setIsAlertSec(false);
+                          }, 3000);
+                        });
+                    }, 10000);
+
                   })
                   .catch((err) => {
                     setAlertSec("Error al editar productos del traspaso:", err);
