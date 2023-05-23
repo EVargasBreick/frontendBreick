@@ -233,8 +233,9 @@ export default function FormRouteSale() {
         "all"
       );
       disponibles.then((fetchedAvailable) => {
-        setAvailable(fetchedAvailable.data);
-        setAuxProducts(fetchedAvailable.data);
+        const filtered = fetchedAvailable.data.filter((fa) => fa.activo === 1);
+        setAvailable(filtered);
+        setAuxProducts(filtered);
       });
       const suc = getBranchesPs();
       suc.then((resp) => {
@@ -734,7 +735,7 @@ export default function FormRouteSale() {
                 setIsAlertSec(true);
               })
               .catch((err) => {
-                setAlert("Error al actualizar el stock", err);
+                setAlert(err.response.data.message);
                 const deletedInvoice = deleteInvoice(createdId);
                 deletedInvoice.then((rs) => {
                   const deletedSale = deleteSale(idVenta);

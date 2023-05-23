@@ -159,7 +159,7 @@ export default function FormUpdateProducts() {
             setIsAlert(true);
             setTimeout(() => {
               window.location.reload();
-            }, 1500);
+            }, 5000);
           });
         })
         .catch((err) => {

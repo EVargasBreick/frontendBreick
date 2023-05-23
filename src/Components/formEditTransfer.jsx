@@ -73,7 +73,8 @@ export default function FormEditTransfer() {
     const prods = getProductsWithStock(storeId, "all");
     prods.then((pr) => {
       console.log("Flag 1");
-      setStockList(pr.data);
+      const filtered = pr.data.filter((pd) => pd.activo === 1);
+      setStockList(filtered);
       const details = transferProducts(transferId);
       details.then((res) => {
         console.log("Detalles traspaso", res);
@@ -249,10 +250,7 @@ export default function FormEditTransfer() {
                                 }, 2000);
                               })
                               .catch((err) => {
-                                setAlertSec(
-                                  "Error al actualizar las nuevas cantidades",
-                                  err
-                                );
+                                setAlertSec(err.response.data.message);
                                 setTimeout(() => {
                                   setIsAlertSec(false);
                                 }, 3000);

@@ -424,7 +424,6 @@ function SaleModal(
   function savingInvoice(e) {
     console.log("Dentro del debounce");
     e.preventDefault(e);
-
     const saved = saveInvoice(
       "-",
       "-",

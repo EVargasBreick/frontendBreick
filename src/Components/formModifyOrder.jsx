@@ -145,9 +145,12 @@ export default function FormModifyOrders() {
       JSON.parse(Cookies.get("userAuth")).idUsuario
     );
     disponibles.then((fetchedAvailable) => {
-      setAvailable(fetchedAvailable.data.data);
-      setAuxProducts(fetchedAvailable.data.data);
-      setAuxAva(fetchedAvailable.data.data);
+      const filtered = fetchedAvailable.data.data.filter(
+        (product) => product.activo === 1
+      );
+      setAvailable(filtered);
+      setAuxProducts(filtered);
+      setAuxAva(filtered);
     });
   }, []);
   useEffect(() => {
@@ -636,7 +639,7 @@ export default function FormModifyOrders() {
                     setIsAlertSec(false);
                   }, 5000);
                 });
-            }, 5000);
+            }, 10000);
           })
           .catch((error) => {
             setIsAlertSec(true);

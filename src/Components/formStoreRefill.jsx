@@ -222,7 +222,7 @@ export default function FormStoreRefill() {
                   })
                   .catch((error) => {
                     setIsAlertSec(false);
-                    setAlert("Error al actualizar");
+                    setAlert(error.response.data.message);
                     console.log("Error", error);
                     setIsAlert(true);
                   });

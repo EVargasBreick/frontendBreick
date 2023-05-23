@@ -121,7 +121,7 @@ export default function FormNewOrder() {
       );
       disponibles.then((fetchedAvailable) => {
         const filtered = fetchedAvailable.data.data.filter(
-          (product) => product.cant_Actual > 0
+          (product) => product.cant_Actual > 0 && product.activo === 1
         );
         console.log("Productos disponibles", filtered);
         setAvailable(filtered);

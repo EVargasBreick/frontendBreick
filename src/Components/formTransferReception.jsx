@@ -138,6 +138,7 @@ export default function FormTransferReception() {
           idAlmacen: transferDetails.idOrigen,
           productos: lessProducts,
         };
+        setAlertSec("Devolviendo stock faltante");
         const returned = updateStock(returnBody);
         returned.then(() => {
           const addBody = {
@@ -147,6 +148,7 @@ export default function FormTransferReception() {
             detalle: `RPRTR-${transferDetails.idTraspaso}`,
           };
           setTimeout(() => {
+            setAlertSec("Actualizando stock de agencia");
             const added = updateStock(addBody);
             added.then((res) => {
               const accepted = acceptTransferById(transferDetails.idTraspaso);
