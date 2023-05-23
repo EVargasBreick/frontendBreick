@@ -7,7 +7,7 @@ import loading2 from "../assets/loading2.gif";
 import { getOnlyStores } from "../services/storeServices";
 import { getPacks } from "../services/packServices";
 import { getCurrentStockStore } from "../services/stockServices";
-import { updateStock } from "../services/orderServices";
+import { updateMultipleStock, updateStock } from "../services/orderServices";
 
 export default function FormAsignPack() {
   // Listas cargadas en render
@@ -71,7 +71,7 @@ export default function FormAsignPack() {
 
     setProductList(prodList);
   }
-  function asignPack() {
+  async function asignPack() {
     setAlertSec("Asignando pack");
     setIsAlertSec(true);
     const selectedProducts = [];
@@ -88,34 +88,40 @@ export default function FormAsignPack() {
       productos: selectedProducts,
       detalle: `SPPACK-${selectedPackId}`,
     };
-    const updatedForTake = updateStock(objProdsTake);
-    updatedForTake.then((resp) => {
-      const found = productList.find(
-        (pl) => (pl.idPack = selectedPackId)
-      ).idPackProd;
+    const found = productList.find(
+      (pl) => (pl.idPack = selectedPackId)
+    ).idPackProd;
 
-      const objProdsAdd = {
-        accion: "add",
-        idAlmacen: selectedStoreId,
-        productos: [
-          {
-            idProducto: found,
-            cantProducto: cantPack,
-          },
-        ],
-        detalle: `ACPACK-${selectedPackId}`,
-      };
+    const objProdsAdd = {
+      accion: "add",
+      idAlmacen: selectedStoreId,
+      productos: [
+        {
+          idProducto: found,
+          cantProducto: cantPack,
+        },
+      ],
+      detalle: `ACPACK-${selectedPackId}`,
+    };
+    // const updatedForTake = updateStock(objProdsTake);
+    const updateMultiple = await updateMultipleStock([
+      objProdsTake,
+      objProdsAdd,
+    ]);
+
+    if (updateMultiple.response.status === 200) {
+      setAlertSec("Pack asignado correctamente");
+      setIsAlertSec(true);
       setTimeout(() => {
-        const updatedForAdd = updateStock(objProdsAdd);
-        updatedForAdd.then((res) => {
-          setAlertSec("Pack asignado correctamente");
-          setIsAlertSec(true);
-          setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-        });
-      }, 10000);
-    });
+        window.location.reload();
+      }, 5000);
+    } else {
+      setAlertSec("Error al asignar pack");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
+    }
   }
   return (
     <div>

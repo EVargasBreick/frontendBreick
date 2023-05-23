@@ -9,6 +9,7 @@ import {
   getOrderProdList,
   getUserOrderList,
   updateDbOrder,
+  updateMultipleStock,
   updateOrderProduct,
   updateStock,
 } from "../services/orderServices";
@@ -581,62 +582,54 @@ export default function FormModifyOrders() {
           productos: auxSelectedProds,
           detalle: `DSEPD-${idPedido}`,
         };
-        const updatedStock = updateStock(toUpdateTakes);
-        updatedStock
+        const toUpdateAdds = {
+          accion: "take",
+          idAlmacen: userStore,
+          productos: selectedProds,
+          detalle: `SSEPD-${idPedido}`,
+        };
+        // const updatedStock = updateStock(toUpdateTakes);
+        // const updatedStockThen = updateStock(toUpdateAdds);
+
+        const updateMultiple = updateMultipleStock([
+          toUpdateTakes,
+          toUpdateAdds,
+        ]);
+
+        updateMultiple
           .then((res) => {
-            setTimeout(() => {
-              const toUpdateAdds = {
-                accion: "take",
-                idAlmacen: userStore,
-                productos: selectedProds,
-                detalle: `SSEPD-${idPedido}`,
+            const toAddProducts = {
+              idPedido: idPedido,
+              productos: objProductsAdded,
+            };
+            const addedProds = addProductToOrder(toAddProducts);
+            addedProds.then((added) => {
+              const toUpdateProducts = {
+                idPedido: idPedido,
+                productos: objProductsUpdated,
               };
-              const updatedStockThen = updateStock(toUpdateAdds);
-              updatedStockThen
-                .then((res) => {
-                  const toAddProducts = {
-                    idPedido: idPedido,
-                    productos: objProductsAdded,
-                  };
-                  const addedProds = addProductToOrder(toAddProducts);
-                  addedProds.then((added) => {
-                    const toUpdateProducts = {
-                      idPedido: idPedido,
-                      productos: objProductsUpdated,
-                    };
-                    const updatedProds = updateOrderProduct(toUpdateProducts);
-                    updatedProds.then((res) => {
-                      const objDeletedProds = {
-                        productos: arrProductsDeleted,
-                      };
-                      const deletedProds = deleteProductOrder(objDeletedProds);
-                      deletedProds.then((res) => {
-                        const updOrder = updateDbOrder(objUpdateOrder);
-                        updOrder
-                          .then((upo) => {
-                            setTimeout(() => {
-                              setAlertSec("Pedido actualizado correctamente");
-                              setIsAlertSec(true);
-                              window.location.reload();
-                            }, 5000);
-                          })
-                          .catch((error) => {
-                            console.log(error);
-                          });
-                      });
+              const updatedProds = updateOrderProduct(toUpdateProducts);
+              updatedProds.then((res) => {
+                const objDeletedProds = {
+                  productos: arrProductsDeleted,
+                };
+                const deletedProds = deleteProductOrder(objDeletedProds);
+                deletedProds.then((res) => {
+                  const updOrder = updateDbOrder(objUpdateOrder);
+                  updOrder
+                    .then((upo) => {
+                      setTimeout(() => {
+                        setAlertSec("Pedido actualizado correctamente");
+                        setIsAlertSec(true);
+                        window.location.reload();
+                      }, 5000);
+                    })
+                    .catch((error) => {
+                      console.log(error);
                     });
-                  });
-                })
-                .catch((error) => {
-                  setIsAlertSec(true);
-                  setIsAlertSec(
-                    "Error al actualizar el pedido, revise stocks por favor"
-                  );
-                  setTimeout(() => {
-                    setIsAlertSec(false);
-                  }, 5000);
                 });
-            }, 5000);
+              });
+            });
           })
           .catch((error) => {
             setIsAlertSec(true);

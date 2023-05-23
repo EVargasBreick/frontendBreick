@@ -7,7 +7,7 @@ import loading2 from "../assets/loading2.gif";
 import { getOnlyStores } from "../services/storeServices";
 import { getPacks } from "../services/packServices";
 import { getCurrentStockStore } from "../services/stockServices";
-import { updateStock } from "../services/orderServices";
+import { updateMultipleStock, updateStock } from "../services/orderServices";
 
 export default function FormRetirePack() {
   // Listas cargadas en render
@@ -104,28 +104,34 @@ export default function FormRetirePack() {
         productos: prodPack,
         detalle: `DCPACK-${selectedPackId}`,
       };
-      const updatedForTake = updateStock(objProdsTake);
-      updatedForTake.then((resp) => {
+      const objProdsAdd = {
+        accion: "add",
+        idAlmacen: selectedStoreId,
+        productos: selectedProducts,
+        detalle: `DVPACK-${selectedPackId}`,
+      };
+
+      // const updatedForTake = updateStock(objProdsTake);
+      // const updatedForAdd = updateStock(objProdsAdd);
+
+      const updateMultiple = updateMultipleStock([objProdsTake, objProdsAdd]);
+
+      updateMultiple.then((res) => {
         setTimeout(() => {
-          const objProdsAdd = {
-            accion: "add",
-            idAlmacen: selectedStoreId,
-            productos: selectedProducts,
-            detalle: `DVPACK-${selectedPackId}`,
-          };
-          const updatedForAdd = updateStock(objProdsAdd);
-          updatedForAdd.then((res) => {
+          if (res) {
+            setAlertSec("Pack retirado correctamente");
+            setIsAlertSec(true);
             setTimeout(() => {
-              if (res) {
-                setAlertSec("Pack retirado correctamente");
-                setIsAlertSec(true);
-                setTimeout(() => {
-                  window.location.reload();
-                }, 2000);
-              }
-            }, 3100);
-          });
-        }, 10000);
+              window.location.reload();
+            }, 2000);
+          }else{
+            setAlertSec("Error al retirar pack");
+            setIsAlertSec(true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }
+        }, 3100);
       });
     }
   }

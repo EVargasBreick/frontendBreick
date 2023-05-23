@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import { Button, Form, Modal, Table } from "react-bootstrap";
 import "../styles/formLayouts.css";
 import { logRejected } from "../services/rejectedServices";
-import { updateStock } from "../services/orderServices";
+import { updateMultipleStock, updateStock } from "../services/orderServices";
 import { dateString } from "../services/dateServices";
 import LoadingModal from "./Modals/loadingModal";
 export default function FormTransferReception() {
@@ -132,33 +132,37 @@ export default function FormTransferReception() {
         intId: transferDetails.idTraspaso,
       };
       const logged = logRejected(body);
-      logged.then(() => {
+      logged.then(async () => {
         const returnBody = {
           accion: "add",
           idAlmacen: transferDetails.idOrigen,
           productos: lessProducts,
         };
-        const returned = updateStock(returnBody);
-        returned.then(() => {
-          const addBody = {
-            accion: "add",
-            idAlmacen: storeId,
-            productos: transferProucts,
-            detalle: `RPRTR-${transferDetails.idTraspaso}`,
-          };
-          setTimeout(() => {
-            const added = updateStock(addBody);
-            added.then((res) => {
-              const accepted = acceptTransferById(transferDetails.idTraspaso);
-              accepted.then((acc) => {
-                setAlertSec("Traspaso aceptado correctamente");
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1500);
-              });
-            });
-          }, 10000);
-        });
+        const addBody = {
+          accion: "add",
+          idAlmacen: storeId,
+          productos: transferProucts,
+          detalle: `RPRTR-${transferDetails.idTraspaso}`,
+        };
+        // const returned = await updateStock(returnBody);
+        // const added = await updateStock(addBody);
+
+        const updateMultiple = await updateMultipleStock([returnBody, addBody]);
+
+        const accepted = await acceptTransferById(transferDetails.idTraspaso);
+        await Promise.all([updateMultiple, accepted])
+          .then((res) => {
+            setAlertSec("Traspaso aceptado correctamente");
+            setTimeout(() => {
+              window.location.reload();
+            }, 3000);
+          })
+          .catch((err) => {
+            setAlertSec("Error al aceptar traspaso");
+            setTimeout(() => {
+              window.location.reload();
+            }, 3000);
+          });
       });
     } else {
       const addBody = {

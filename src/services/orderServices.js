@@ -181,6 +181,20 @@ const updateStock = debounce(
   { leading: true }
 );
 
+const updateMultipleStock = debounce(
+  async (updateObj) => {
+    const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/updatetransaction`;
+    const response = await axios.put(url, updateObj);
+    if (response.status === 200) {
+      return { response };
+    } else {
+      throw new Error(`Invalid response status code: ${response.status}`);
+    }
+  },
+  3000,
+  { leading: true }
+);
+
 const deleteOrder = (id) => {
   return new Promise((resolve, reject) => {
     axios
@@ -406,4 +420,5 @@ export {
   ordersToReady,
   updateReady,
   getAllOrderList,
+  updateMultipleStock
 };
