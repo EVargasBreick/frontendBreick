@@ -138,6 +138,7 @@ export default function FormTransferReception() {
           idAlmacen: transferDetails.idOrigen,
           productos: lessProducts,
         };
+
         const addBody = {
           accion: "add",
           idAlmacen: storeId,
@@ -163,6 +164,7 @@ export default function FormTransferReception() {
               window.location.reload();
             }, 3000);
           });
+
       });
     } else {
       const addBody = {

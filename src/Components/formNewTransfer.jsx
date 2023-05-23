@@ -50,7 +50,9 @@ export default function FormNewTransfer() {
         "all"
       );
       prods.then((product) => {
-        const available = product.data.filter((prod) => prod.cant_Actual > 0);
+        const available = product.data.filter(
+          (prod) => prod.cant_Actual > 0 && prod.activo === 1
+        );
         console.log("disponibles", available);
         setProductos(available);
         setAuxProducts(available);
@@ -237,7 +239,8 @@ export default function FormNewTransfer() {
                     deleted
                       .then((res) => {
                         setIsAlertSec(false);
-                        setAlert("Error al actualizar", error);
+                        console.log("test test");
+                        setAlert(error.response.data.message);
                         setIsAlert(true);
                       })
                       .catch((error) => {

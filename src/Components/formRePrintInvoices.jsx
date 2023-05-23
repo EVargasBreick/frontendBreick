@@ -407,6 +407,7 @@ export default function FormRePrintInvoices() {
                 descuentoCalculado: fullInvData.descuentoCalculado,
                 totalDescontado: fullInvData.montoFacturar,
               }}
+              invoiceNumber={fullInvData.nroFactura}
               giftCard={fullInvData.vale}
               isOrder={true}
             />
@@ -438,6 +439,7 @@ export default function FormRePrintInvoices() {
                 descuentoCalculado: fullInvData.descuentoCalculado,
                 totalDescontado: fullInvData.montoFacturar,
               }}
+              invoiceNumber={fullInvData.nroFactura}
               giftCard={fullInvData.vale}
               isOrder={true}
             />
