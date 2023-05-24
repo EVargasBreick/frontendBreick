@@ -567,7 +567,7 @@ export default function FormNewSale() {
                 setIsAlertSec(false);
               })
               .catch((err) => {
-                setAlert("Error al actualizar el stock", err);
+                setAlert(err);
                 setIsAlertSec(false);
                 const deletedInvoice = deleteInvoice(createdId);
                 deletedInvoice.then((rs) => {

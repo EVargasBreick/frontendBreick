@@ -202,6 +202,7 @@ export default function FormStoreRefill() {
                     });
                     setIsAlertSec(false);
                     setAlert("Traspaso creado correctamente");
+                    console.log("Traspaso creado correctamente");
                     const origenArray = nombreOrigen.split(" ");
                     const outputOrigen = origenArray.slice(1).join(" ");
                     const destinoArray = nombreDestino.split(" ");
@@ -222,7 +223,8 @@ export default function FormStoreRefill() {
                   })
                   .catch((error) => {
                     setIsAlertSec(false);
-                    setAlert("Error al actualizar");
+                    console.log("Error recibido", error);
+                    setAlert(JSON.stringify(error));
                     console.log("Error", error);
                     setIsAlert(true);
                   });

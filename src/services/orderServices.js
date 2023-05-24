@@ -169,13 +169,19 @@ const availabilityInterval = () => {
 
 const updateStock = debounce(
   async (updateObj) => {
-    const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/update`;
-    const response = await axios.put(url, updateObj);
-    if (response.status === 200) {
-      return { response };
-    } else {
-      throw new Error(`Invalid response status code: ${response.status}`);
-    }
+    return new Promise(async (resolve, reject) => {
+      const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/update`;
+      const response = await axios.put(url, updateObj);
+      console.log("Response de update stock", response);
+      if (response.data.code === 200) {
+        resolve(response);
+      } else {
+        const errorMessage = response.data.error.includes("stock_nonnegative")
+          ? "Una de las cantidades solicitadas ya no se encuentra disponible, recargue e intente nuevamente"
+          : "Error desconocido al actualizar stocks";
+        reject(errorMessage);
+      }
+    });
   },
   3000,
   { leading: true }
@@ -183,13 +189,18 @@ const updateStock = debounce(
 
 const updateMultipleStock = debounce(
   async (updateObj) => {
-    const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/updatetransaction`;
-    const response = await axios.put(url, updateObj);
-    if (response.status === 200) {
-      return { response };
-    } else {
-      throw new Error(`Invalid response status code: ${response.status}`);
-    }
+    return new Promise(async (resolve, reject) => {
+      const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/updatetransaction`;
+      const response = await axios.put(url, updateObj);
+      if (response.data.code === 200) {
+        resolve(response);
+      } else {
+        const errorMessage = response.data.error.includes("stock_nonnegative")
+          ? "Una de las cantidades solicitadas ya no se encuentra disponible, recargue e intente nuevamente"
+          : "Error desconocido al actualizar stocks";
+        reject(errorMessage);
+      }
+    });
   },
   3000,
   { leading: true }
@@ -420,5 +431,5 @@ export {
   ordersToReady,
   updateReady,
   getAllOrderList,
-  updateMultipleStock
+  updateMultipleStock,
 };

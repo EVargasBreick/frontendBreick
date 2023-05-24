@@ -249,10 +249,7 @@ export default function FormEditTransfer() {
                           }, 2000);
                         })
                         .catch((err) => {
-                          setAlertSec(
-                            "Error al actualizar las nuevas cantidades",
-                            err
-                          );
+                          setAlertSec(err);
                           setTimeout(() => {
                             setIsAlertSec(false);
                           }, 3000);
