@@ -202,6 +202,7 @@ export default function FormStoreRefill() {
                     });
                     setIsAlertSec(false);
                     setAlert("Traspaso creado correctamente");
+                    console.log("Traspaso creado correctamente");
                     const origenArray = nombreOrigen.split(" ");
                     const outputOrigen = origenArray.slice(1).join(" ");
                     const destinoArray = nombreDestino.split(" ");
