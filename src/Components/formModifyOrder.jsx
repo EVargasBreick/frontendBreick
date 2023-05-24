@@ -625,7 +625,7 @@ export default function FormModifyOrders() {
                         setAlertSec("Pedido actualizado correctamente");
                         setIsAlertSec(true);
                         window.location.reload();
-                      }, 5000);
+                      }, 8000);
                     })
                     .catch((error) => {
                       console.log(error);
@@ -709,6 +709,18 @@ export default function FormModifyOrders() {
       setIsAlert(true);
     }
   }
+
+  function updateStockState() {
+    const disponibles = availableProducts(
+      JSON.parse(Cookies.get("userAuth")).idUsuario
+    );
+    disponibles.then((fetchedAvailable) => {
+      setAvailable(fetchedAvailable.data.data);
+      setAuxProducts(fetchedAvailable.data.data);
+      setAuxAva(fetchedAvailable.data.data);
+    });
+  }
+
   function cancelDiscounts() {
     setSelectedProds(auxProds);
     setDiscModal(false);

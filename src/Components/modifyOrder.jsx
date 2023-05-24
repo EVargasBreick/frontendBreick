@@ -14,9 +14,8 @@ export default function ModifyOrder() {
 
     if (user) {
       if (
-        JSON.parse(Cookies.get("userAuth")).rol <= 10 ||
-        (JSON.parse(Cookies.get("userAuth")).rol == 10 &&
-          JSON.parse(Cookies.get("userAuth")).idDepto != 1)
+        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 10
       ) {
       } else {
         navigate("/principal");
