@@ -440,6 +440,8 @@ function SaleModal(
     });
   }
   async function invoiceProcess(idFactura, idVenta, objStock) {
+    let showError = 0;
+
     setIdFactura(idFactura);
     setAlertSec("Generando información de última factura");
     setIsAlertSec(true);
@@ -485,11 +487,22 @@ function SaleModal(
             caja: pointOfSale,
           };
           const comprobante = SoapInvoice(cufObj);
+          showError += 1;
+          console.log(
+            "🚀 ~ file: saleModal.js:492 ~ xmlRes.then ~ showError:",
+            showError
+          );
           comprobante
             .then((res) => {
               console.log(
                 "Resultado de la validacion del comprobante",
                 res.response.data
+              );
+              showError += 1;
+
+              console.log(
+                "🚀 ~ file: saleModal.js:515 ~ intervalId ~ showError:",
+                showError
               );
               xml2js.parseString(res.response.data, (err, result) => {
                 setApprovedId(result.SalidaTransaccion.Transaccion[0].ID[0]);
@@ -506,6 +519,7 @@ function SaleModal(
                 var count = 0;
                 let intervalId = setInterval(function () {
                   const transaccion = SoapInvoiceTransaction(transacObj);
+
                   transaccion
                     .then((resp) => {
                       console.log(
@@ -586,28 +600,30 @@ function SaleModal(
                           }
                         });
                       } else {
-                        const reverted = rollbackPurchase(
-                          idFactura,
-                          idVenta,
-                          objStock
-                        );
-                        reverted.then((res) => {
-                          const errorInvoice =
-                            resp.response.data
-                              .SalidaTransaccionBoliviaResponse[0]
-                              .SalidaTransaccionBoliviaResult[0]
-                              .TransaccionSalidaUnificada[0].Errores[0].Error[0]
-                              .Descripcion[0];
-                          setIsAlertSec(false);
-                          setTransactionObject("");
-                          setAlert(
-                            `Error al obtener la factura, intente nuevamente, ${JSON.stringify(
-                              errorInvoice
-                            )}`
+                        if (showError < 2) {
+                          const reverted = rollbackPurchase(
+                            idFactura,
+                            idVenta,
+                            objStock
                           );
-                          setIsAlert(true);
-                          clearInterval(intervalId);
-                        });
+                          reverted.then((res) => {
+                            const errorInvoice =
+                              resp.response.data
+                                .SalidaTransaccionBoliviaResponse[0]
+                                .SalidaTransaccionBoliviaResult[0]
+                                .TransaccionSalidaUnificada[0].Errores[0]
+                                .Error[0].Descripcion[0];
+                            setIsAlertSec(false);
+                            setTransactionObject("");
+                            setAlert(
+                              `Error al obtener la factura, intente nuevamente, ${JSON.stringify(
+                                errorInvoice
+                              )}`
+                            );
+                            setIsAlert(true);
+                            clearInterval(intervalId);
+                          });
+                        }
                       }
                     })
                     .catch((error) => {
@@ -643,26 +659,30 @@ function SaleModal(
               });
             })
             .catch((err) => {
-              const reverted = rollbackPurchase(idFactura, idVenta, objStock);
-              reverted.then((res) => {
-                setIsAlertSec(false);
-                setTransactionObject("");
-                setAlert("Error procesar el comprobante, intente nuevamente");
-                setIsAlert(true);
-              });
+              if (showError < 2) {
+                const reverted = rollbackPurchase(idFactura, idVenta, objStock);
+                reverted.then((res) => {
+                  setIsAlertSec(false);
+                  setTransactionObject("");
+                  setAlert("Error procesar el comprobante, intente nuevamente");
+                  setIsAlert(true);
+                });
+              }
             });
         });
       })
       .catch((err) => {
-        const reverted = rollbackPurchase(idFactura, idVenta, objStock);
-        reverted.then((res) => {
-          setIsAlertSec(false);
-          setAlert(
-            "Error al obtener el ultimo numero de comprobante, intente nuevamente"
-          );
-          setIsAlert(true);
-          console.log("Error al obtener el id", err);
-        });
+        if (showError < 2) {
+          const reverted = rollbackPurchase(idFactura, idVenta, objStock);
+          reverted.then((res) => {
+            setIsAlertSec(false);
+            setAlert(
+              "Error al obtener el ultimo numero de comprobante, intente nuevamente"
+            );
+            setIsAlert(true);
+            console.log("Error al obtener el id", err);
+          });
+        }
       });
   }
 
