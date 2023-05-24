@@ -155,18 +155,18 @@ export default function FormAllOrders() {
           const found = allProducts.find(
             (item) => item.nombreProducto === pr.nombreProducto
           );
-          sumatoria += found.precioDeFabrica * pr.cantidadProducto;
+          sumatoria += found?.precioDeFabrica * pr.cantidadProducto;
           setTotalMuestra(sumatoria);
           const total =
             res.data.data[0].tipo === "normal"
               ? pr.totalProd
-              : found.precioDeFabrica * pr.cantidadProducto;
+              : found?.precioDeFabrica * pr.cantidadProducto;
 
           //console.log("Found", found);
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,
-            precio: pr.precioDeFabrica?.toFixed(2),
+            precio: pr?.precioDeFabrica?.toFixed(2),
             total: total?.toFixed(2),
             "descuento calculado": pr.descuentoProducto?.toFixed(2),
           };
@@ -350,7 +350,7 @@ export default function FormAllOrders() {
                     const total =
                       tipo === "normal"
                         ? product.totalProd
-                        : found.precioDeFabrica * product.cantidadProducto;
+                        : found?.precioDeFabrica * product.cantidadProducto;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumn">

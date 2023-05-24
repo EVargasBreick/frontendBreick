@@ -192,9 +192,13 @@ export default function FormNewSale() {
         "all"
       );
       disponibles.then((fetchedAvailable) => {
-        console.log("Fetched ", fetchedAvailable);
-        setAvailable(fetchedAvailable.data);
-        setAuxProducts(fetchedAvailable.data);
+        console.log(
+          "Fetched ",
+          fetchedAvailable.data.filter((fa) => fa.activo === 1)
+        );
+        const filtered = fetchedAvailable.data.filter((fa) => fa.activo === 1);
+        setAvailable(filtered);
+        setAuxProducts(filtered);
       });
     }
   }, []);

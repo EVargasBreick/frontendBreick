@@ -223,8 +223,7 @@ export default function FormStoreRefill() {
                   })
                   .catch((error) => {
                     setIsAlertSec(false);
-                    console.log("Error recibido", error);
-                    setAlert(JSON.stringify(error));
+                    setAlert(error.response.data.message);
                     console.log("Error", error);
                     setIsAlert(true);
                   });

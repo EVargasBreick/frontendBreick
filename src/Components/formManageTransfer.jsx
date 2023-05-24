@@ -108,7 +108,7 @@ export default function FormManageTransfer() {
         setIsAlertSec(true);
         setTimeout(() => {
           window.location.reload(false);
-        }, 1000);
+        }, 5000);
       });
     });
   }

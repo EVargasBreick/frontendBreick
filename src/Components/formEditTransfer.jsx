@@ -73,7 +73,8 @@ export default function FormEditTransfer() {
     const prods = getProductsWithStock(storeId, "all");
     prods.then((pr) => {
       console.log("Flag 1");
-      setStockList(pr.data);
+      const filtered = pr.data.filter((pd) => pd.activo === 1);
+      setStockList(filtered);
       const details = transferProducts(transferId);
       details.then((res) => {
         console.log("Detalles traspaso", res);
@@ -225,6 +226,7 @@ export default function FormEditTransfer() {
                       idAlmacen: transferOrigin,
                       productos: transferProductList,
                       detalle: `DSETR-${selectedTransfer.idTraspaso}`,
+
                     };
                     const updateToTake = {
                       accion: "take",
@@ -255,6 +257,7 @@ export default function FormEditTransfer() {
                           }, 3000);
                         });
                     }, 10000);
+
                   })
                   .catch((err) => {
                     setAlertSec("Error al editar productos del traspaso:", err);

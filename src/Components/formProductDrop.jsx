@@ -11,7 +11,7 @@ export default function FormProductDrop() {
   const [productList, setProductList] = useState([]);
   const [auxproductList, setauxProductList] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState({});
+  const [selectedProduct, setSelectedProduct] = useState([]);
   const [motivo, setMotivo] = useState("");
   const [alert, setAlert] = useState("");
   const [isAlert, setIsAlert] = useState(false);
@@ -20,6 +20,8 @@ export default function FormProductDrop() {
   const [isError, setIsError] = useState(false);
   const [storeId, setStoreId] = useState("");
   const [userId, setUserid] = useState("");
+  const [detalleMotivo, setDetalleMotivo] = useState("");
+
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -56,7 +58,7 @@ export default function FormProductDrop() {
       cantProducto: 0,
       cant_Actual: prod.cant_Actual,
     };
-    setSelectedProduct(prodObj);
+    setSelectedProduct([...selectedProduct, prodObj]);
     setProductList(auxproductList);
   }
   const handleClose = () => {
@@ -64,8 +66,9 @@ export default function FormProductDrop() {
     setIsError(false);
   };
 
-  function changeQuantity(value) {
-    const aux = selectedProduct;
+  function changeQuantity(value, index, sp) {
+    console.log("Selected product", sp);
+    const aux = sp;
     const prodObj = {
       nombreProducto: aux.nombreProducto,
       codInterno: aux.codInterno,
@@ -73,7 +76,10 @@ export default function FormProductDrop() {
       cantProducto: value,
       cant_Actual: aux.cant_Actual,
     };
-    setSelectedProduct(prodObj);
+    console.log("Cambiado", prodObj);
+    let auxSelected = [...selectedProduct];
+    auxSelected[index] = prodObj;
+    setSelectedProduct(auxSelected);
   }
 
   function dropProduct() {
@@ -90,11 +96,11 @@ export default function FormProductDrop() {
         setAlertSec("Dando de baja...");
         setIsAlertSec(true);
         const objBaja = {
-          motivo: motivo,
+          motivo: `${motivo} - ${detalleMotivo}`,
           fechaBaja: dateString(),
           idUsuario: userId,
           idAlmacen: storeId,
-          productos: [selectedProduct],
+          productos: selectedProduct,
         };
         const bajaRegistrada = registerDrop(objBaja);
         bajaRegistrada.then((res) => {
@@ -102,7 +108,7 @@ export default function FormProductDrop() {
           const objStock = {
             accion: "take",
             idAlmacen: storeId,
-            productos: [selectedProduct],
+            productos: selectedProduct,
             detalle: `SPRBJ-${idBaja}`,
           };
           const updatedStock = updateStock(objStock);
@@ -180,21 +186,25 @@ export default function FormProductDrop() {
               </tr>
             </thead>
             <tbody className="tableRow">
-              <tr>
-                <td>{selectedProduct?.codInterno}</td>
-                <td>{selectedProduct?.nombreProducto}</td>
-                <td style={{ width: "15%" }}>
-                  {
-                    <Form.Control
-                      value={selectedProduct.cantProducto}
-                      onChange={(e) => changeQuantity(e.target.value)}
-                    />
-                  }
-                </td>
-                <td>
-                  {selectedProduct?.cant_Actual - selectedProduct?.cantProducto}
-                </td>
-              </tr>
+              {selectedProduct.map((sp, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{sp?.codInterno}</td>
+                    <td>{sp?.nombreProducto}</td>
+                    <td style={{ width: "15%" }}>
+                      {
+                        <Form.Control
+                          value={sp.cantProducto}
+                          onChange={(e) =>
+                            changeQuantity(e.target.value, index, sp)
+                          }
+                        />
+                      }
+                    </td>
+                    <td>{sp?.cant_Actual - sp?.cantProducto}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </Table>
           <Form.Label>Motivo de la baja</Form.Label>
@@ -213,7 +223,26 @@ export default function FormProductDrop() {
             <option value={"Producto roto"}>Producto roto</option>
             <option value={"Producto derretido"}>Producto derretido</option>
             <option value={"Devolucion a fabrica"}>Devolución a fábrica</option>
+            <option value={"Armardo de Pack"}>Armado de Pack</option>
           </Form.Select>
+
+          {motivo != "" ? (
+            <div>
+              <Form.Label>Detalle del motivo(opcional)</Form.Label>
+              <div>
+                <Form.Control
+                  className="columnForm"
+                  type="text"
+                  onChange={(e) => setDetalleMotivo(e.target.value)}
+                  maxLength={150}
+                />
+                <div style={{ textAlign: "start" }}>{`${
+                  150 - detalleMotivo.length
+                } caracteres restantes`}</div>
+              </div>
+            </div>
+          ) : null}
+
           <Button
             className="yellowLarge"
             variant="warning"
