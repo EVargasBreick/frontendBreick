@@ -247,6 +247,26 @@ function getInvoiceToRePrint(idAgencia, pdv, nroFactura) {
   });
 }
 
+async function fullInvoiceProcess(body) {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/emizor/facturar`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+const debouncedFullInvoiceProcess = debounce(fullInvoiceProcess, 30000, {
+  leading: true,
+});
+
 export {
   createInvoice,
   deleteInvoice,
@@ -257,4 +277,5 @@ export {
   invoiceUpdate,
   logIncompleteInvoice,
   getInvoiceToRePrint,
+  debouncedFullInvoiceProcess,
 };

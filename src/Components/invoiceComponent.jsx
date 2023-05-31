@@ -33,7 +33,7 @@ export const InvoiceComponent = React.forwardRef(
       return result;
     }
     console.log("invoice", invoice.nroFactura);
-    const inum = isOrder ? invoiceNumber : invoice?.nroFactura;
+    const inum = invoiceNumber;
     return (
       <div ref={ref} className="invoicePage">
         <div style={{ pageBreakAfter: "always" }}>
@@ -51,7 +51,7 @@ export const InvoiceComponent = React.forwardRef(
           <div>ORIGINAL</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
-          <div>{`NIT ${invoice?.nitEmpresa}`}</div>
+          <div>{`NIT ${process.env.REACT_APP_NIT_EMPRESA}`}</div>
           <div>{`FACTURA Nº ${inum}`}</div>
           <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
           <div className="simpleSeparator"></div>

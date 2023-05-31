@@ -428,6 +428,16 @@ export default function FormNewOrder() {
     }, 200);
   }
 
+  function validateQuantities() {
+    var errorList = 0;
+    for (const product of selectedProds) {
+      if (product.cantProducto > product.cant_Actual) {
+        errorList += 1;
+      }
+    }
+    return errorList;
+  }
+
   const asyncSetAva = (array) => {
     return new Promise((resolve) => {
       setAvailable(array);
@@ -471,7 +481,10 @@ export default function FormNewOrder() {
         const newOrder = createOrder(objPedido);
         newOrder
           .then((res) => {
-            console.log("respuesta de creacion del pedido", res);
+            console.log(
+              "respuesta de creacion del pedido",
+              res.data.data.idCreado
+            );
             const idPedidoCreado = res.data.data.idCreado;
             const stockObject = {
               accion: "take",
@@ -509,11 +522,15 @@ export default function FormNewOrder() {
                 });
               })
               .catch((error) => {
-                console.log(
-                  "Algun producto no cuenta con el stock seleccionado"
-                );
-                setAlert("Algun producto no cuenta con el stock seleccionado");
-                setIsAlert(true);
+                const deleted = deleteOrder(idPedidoCreado);
+                deleted.then((res) => {
+                  setisLoading(false);
+                  setAlertSec(error);
+                  setIsAlertSec(true);
+                  setTimeout(() => {
+                    setIsAlertSec(false);
+                  }, 5000);
+                });
               });
           })
           .catch((error) => {
@@ -556,6 +573,7 @@ export default function FormNewOrder() {
           const newOrder = createOrder(objPedido);
           newOrder
             .then((res) => {
+              console.log("Respuesta de creacion", res.data.data.idCreado);
               const idPedidoCreado = res.data.data.idCreado;
               const codPedido = getOrderList(res.data.data.idCreado);
               const stockObject = {
@@ -593,11 +611,10 @@ export default function FormNewOrder() {
                   });
                 })
                 .catch((error) => {
-                  const deleted = deleteOrder(res.data.data.idCreado);
+                  const deleted = deleteOrder(idPedidoCreado);
                   deleted.then((res) => {
-                    setAlertSec(
-                      "Alguno de los productos no cuenta con la cantidad solicitada en stock, se le asignó la cantidad disponible, adicionalmente, se retiraron productos con disponibilidad cero."
-                    );
+                    setisLoading(false);
+                    setAlertSec(error);
                     setIsAlertSec(true);
                     setTimeout(() => {
                       setIsAlertSec(false);
@@ -620,21 +637,30 @@ export default function FormNewOrder() {
   }
 
   function validateProductLen() {
-    console.log("Es interior", isInterior);
-    if (selectedClient != "") {
-      if (selectedProds.length > 0) {
-        setAuxProds(selectedProds);
-        if (tipo == "normal") {
-          processDiscounts();
+    const validated = validateQuantities();
+    if (validated === 0) {
+      console.log("Es interior", isInterior);
+      if (selectedClient != "") {
+        if (selectedProds.length > 0) {
+          setAuxProds(selectedProds);
+          if (tipo == "normal") {
+            processDiscounts();
+          } else {
+            saveSampleAndTransfer();
+          }
         } else {
-          saveSampleAndTransfer();
+          setAlert("Seleccione al menos un producto por favor");
+          setIsAlert(true);
         }
       } else {
-        setAlert("Seleccione al menos un producto por favor");
+        setAlert("Seleccione un cliente por favor");
+
         setIsAlert(true);
       }
     } else {
-      setAlert("Seleccione un cliente por favor");
+      setAlert(
+        "Una de las cantidades seleccionadas no se encuentra disponible"
+      );
 
       setIsAlert(true);
     }

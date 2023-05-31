@@ -1,5 +1,31 @@
 import xml2js from "xml2js";
 
+function formatInvoiceProducts(products) {
+  const detalleArray = [];
+  for (const product of products) {
+    const prodObj = {
+      codigoActividadSin: 107900,
+      codigoProductoSin: 99100,
+      codigoProducto: product.codInterno,
+      descripcion: product.nombreProducto,
+      cantidad: parseFloat(parseFloat(product.cantProducto).toFixed(2)),
+      unidadMedida: product.codigoUnidad,
+      precioUnitario: parseFloat(
+        parseFloat(product.precioDeFabrica).toFixed(2)
+      ),
+      montoDescuento: 0,
+      subTotal:
+        product.totalProd != undefined
+          ? parseFloat(parseFloat(product.totalProd).toFixed(2))
+          : parseFloat(parseFloat(product.total).toFixed(2)),
+      numeroSerie: "",
+      numeroImei: "",
+    };
+    detalleArray.push(prodObj);
+  }
+  return detalleArray;
+}
+
 function generateInvoiceJson(data) {
   console.log("Descuento en funcion bien adentro", data.descuento);
   const detalleArray = [];
@@ -122,4 +148,4 @@ function convertJsonToXml(json) {
   const xml = builder.buildObject(json);
   return xml;
 }
-export { generateInvoiceJson, convertJsonToXml };
+export { generateInvoiceJson, convertJsonToXml, formatInvoiceProducts };

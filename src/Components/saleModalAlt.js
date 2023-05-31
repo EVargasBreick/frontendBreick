@@ -1,6 +1,6 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Button, Form, Image } from "react-bootstrap";
+import { Modal, Button, Form, Image, FormControl } from "react-bootstrap";
 import InvoicePDF from "./invoicePDF";
 import QrComponent from "./qrComponent";
 import loading2 from "../assets/loading2.gif";
@@ -19,14 +19,19 @@ import { jsPDF } from "jspdf";
 import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
 import {
+  debouncedFullInvoiceProcess,
   deleteInvoice,
+  fullInvoiceProcess,
   invoiceUpdate,
   logIncompleteInvoice,
 } from "../services/invoiceServices";
 import { deleteSale } from "../services/saleServices";
 import Cookies from "js-cookie";
 import { debounce } from "lodash";
-function SaleModal(
+import { formatInvoiceProducts } from "../Xml/invoiceFormat";
+import { updateClientEmail } from "../services/clientServices";
+import { v4 as uuidv4 } from "uuid";
+function SaleModalAlt(
   {
     datos,
     show,
@@ -71,6 +76,11 @@ function SaleModal(
     aPagar,
     setAPagar,
     isRoute,
+    saleBody,
+    invoiceBody,
+    updateStockBody,
+    emailCliente,
+    clientId,
   },
   ref
 ) {
@@ -105,12 +115,16 @@ function SaleModal(
   const [transactionObject, setTransactionObject] = useState("");
   const [isLogged, setIsLogged] = useState(false);
   const [isEmailModal, setIsEmailModal] = useState(false);
-  const [clientEmail, setClientEmail] = useState("");
+  const [clientEmail, setClientEmail] = useState(emailCliente);
   const [transactionId, setTransactionId] = useState("");
   const [invoiceNubmer, setInvoiceNumber] = useState("");
   const [invObj, setInvObj] = useState({});
   const [idFactura, setIdFactura] = useState("");
   const [noFactura, setNoFactura] = useState("");
+  const [isEmailValid, setIsEmailValid] = useState(false);
+  const [auxClientEmail] = useState(emailCliente);
+  const [isNewEmail, setIsNewEmail] = useState(false);
+  const [altCuf, setaltCuf] = useState("");
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -334,7 +348,7 @@ function SaleModal(
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
-            handleSave(e);
+            invoicingProcess();
           }
         } else {
           if (tipoPago == 2 || tipoPago == 10) {
@@ -342,7 +356,7 @@ function SaleModal(
               setAlert("Ingrese valores válidos para la tarjeta por favor");
               setIsAlert(true);
             } else {
-              handleSave(e);
+              invoicingProcess();
             }
           }
           if (tipoPago == 4) {
@@ -354,7 +368,7 @@ function SaleModal(
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
-                handleSave(e);
+                invoicingProcess();
               }
             }
           }
@@ -366,7 +380,7 @@ function SaleModal(
             tipoPago == 8 ||
             tipoPago == 9
           ) {
-            handleSave(e);
+            invoicingProcess();
           }
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");
@@ -407,295 +421,166 @@ function SaleModal(
       resolve(true);
     });
   }
-  const childFunction = (idFactura, idVenta, objStock) => {
-    invoiceProcess(idFactura, idVenta, objStock);
-  };
-  React.useImperativeHandle(ref, () => ({
-    childFunction,
-  }));
-  const debauncedSaving = debounce(savingInvoice, 30000, { leading: true });
 
-  function handleSave(e) {
-    setIsSaleModal(false);
-    console.log("Guardando 1");
-    debauncedSaving(e);
+  function handleEmail(value) {
+    setClientEmail(value);
+    setIsEmailValid(true);
   }
 
-  function savingInvoice(e) {
-    console.log("Dentro del debounce");
-    e.preventDefault(e);
-    const saved = saveInvoice(
-      "-",
-      "-",
-      "-",
-      "-",
-      "-",
-      "-",
-      ofp,
-      giftCard,
-      aPagar
-    );
-    saved.then((res) => {
+  function validateEmail() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (clientEmail === "") {
+      return true;
+    } else {
+      if (!emailRegex.test(clientEmail)) {
+        setIsEmailValid(false);
+        return false;
+      } else {
+        setIsEmailValid(true);
+        return true;
+      }
+    }
+  }
+
+  function saveNewEmail(cuf) {
+    if (clientEmail != auxClientEmail) {
+      setIsNewEmail(true);
+      setaltCuf(cuf);
+    } else {
+      setCuf(cuf);
+    }
+  }
+
+  async function invoicingProcess() {
+    const uniqueId = uuidv4();
+
+    const emailValidated = validateEmail();
+    if (emailValidated) {
+      setAlertSec("Obteniendo datos de factura");
       setIsAlertSec(true);
-    });
-  }
-  async function invoiceProcess(idFactura, idVenta, objStock) {
-    let showError = 0;
-    setIdFactura(idFactura);
-    setAlertSec("Generando información de última factura");
-    setIsAlertSec(true);
-    const lastIdObj = {
-      nit: invoice.nitEmpresa,
-      puntoDeVentaId: branchInfo.nro,
-      tipoComprobante: 1,
-      caja: pointOfSale,
-    };
-    console.log("Last id obj", lastIdObj);
-    const newId = getInvoiceNumber(lastIdObj);
-    newId
-      .then((res) => {
-        setInvoiceId(res.response.data + 1);
-        const nextId = res.response.data + 1;
-        setAlertSec(`Última factura: ${res.response.data}`);
-        setTimeout(() => {
-          setAlertSec("Generando Codigo Único de Facturación");
-        }, 1500);
-        const xmlRes = structureXml(
-          selectedProducts,
-          branchInfo,
-          tipoPago == 4 ? 1 : tipoPago,
-          totalDescontado,
-          descuentoCalculado,
-          invoice,
-          res.response.data + 1,
-          `${cardNumbersA}00000000${cardNumbersB}`,
-          userName,
-          tipoDocumento,
-          pointOfSale,
-          giftCard
-        );
-        console.log("Productos seleccionados", selectedProducts);
-        xmlRes.then((resp) => {
-          const lineal = resp.replace(/ {4}|[\t\n\r]/gm, "");
-          const cufObj = {
-            nit: invoice.nitEmpresa,
-            idSucursal: branchInfo.nro,
-            tipoComprobante: 1,
-            formatoId: process.env.REACT_APP_FORMATO_ID,
-            XML: lineal,
-            caja: pointOfSale,
-          };
-          const comprobante = SoapInvoice(cufObj);
-          showError += 1;
-          console.log(
-            "🚀 ~ file: saleModal.js:492 ~ xmlRes.then ~ showError:",
-            showError
-          );
-          comprobante
-            .then((res) => {
-              console.log(
-                "Resultado de la validacion del comprobante",
-                res.response.data
-              );
-              showError += 1;
-
-              console.log(
-                "🚀 ~ file: saleModal.js:515 ~ intervalId ~ showError:",
-                showError
-              );
-              xml2js.parseString(res.response.data, (err, result) => {
-                setApprovedId(result.SalidaTransaccion.Transaccion[0].ID[0]);
-                setTransactionId(result.SalidaTransaccion.Transaccion[0].ID[0]);
-                const transacObj = {
-                  nit: invoice.nitEmpresa,
-                  id: result.SalidaTransaccion.Transaccion[0].ID[0],
-                };
-
-                setTransactionObject(transacObj);
-                const idTransaccion =
-                  result.SalidaTransaccion.Transaccion[0].ID[0];
-                var intento = 1;
-                var maxIntentos = 10;
-                var count = 0;
-                const updateBodyInit = {
-                  nroFactura: nextId,
-                  cuf: "",
-                  cufd: "",
-                  autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
-                  fe: "",
-                  nroTransaccion: idTransaccion,
-                  idFactura: idFactura,
-                };
-                const updatedMedium = updateInvoiceProcess(updateBodyInit);
-                console.log("Updateado", updatedMedium);
-                let intervalId = setInterval(function () {
-                  const transaccion = SoapInvoiceTransaction(transacObj);
-                  transaccion
-                    .then((resp) => {
-                      console.log(
-                        "Respuesta de la transaccion",
-                        resp.response.data.SalidaTransaccionBoliviaResponse[0]
-                          .SalidaTransaccionBoliviaResult[0]
-                      );
-                      const invoiceState =
-                        resp.response.data.SalidaTransaccionBoliviaResponse[0]
-                          .SalidaTransaccionBoliviaResult[0].Transaccion[0]
-                          .Estado[0];
-                      const invocieResponse =
-                        resp.response.data.SalidaTransaccionBoliviaResponse[0]
-                          .SalidaTransaccionBoliviaResult[0]
-                          .TransaccionSalidaUnificada[0];
-                      if (invoiceState == "Transacción Exitosa") {
-                        console.log("Count", count);
-                        const numFac = invocieResponse.NumeroFactura[0];
-                        setNoFactura(numFac);
-                        const idTrac = idTransaccion;
-                        const updateBodyInit = {
-                          nroFactura: numFac,
-                          cuf: "",
-                          cufd: "",
-                          autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
-                          fe: "",
-                          nroTransaccion: idTrac,
-                          idFactura: idFactura,
-                        };
-                        const updated = updateInvoiceProcess(updateBodyInit);
-                        updated.then((res) => {
-                          if (invocieResponse?.CUF[0].length > 10) {
-                            setAlertSec("Generando Factura");
-                            const resCuf = invocieResponse.CUF[0];
-                            const resCufd = invocieResponse.CUFD[0];
-                            const aut = invocieResponse.Autorizacion[0];
-                            const fe = invocieResponse.FECHAEMISION[0];
-                            invoice.nroFactura = numFac;
-                            invoice.cuf = resCuf;
-
-                            console.log("Venta registrada");
-                            const updateBody = {
-                              nroFactura: numFac,
-                              cuf: resCuf,
-                              cufd: resCufd,
-                              autorizacion: aut,
-                              fe: fe,
-                              nroTransaccion: idTrac,
-                              idFactura: idFactura,
-                            };
-                            const updated = updateInvoiceProcess(updateBody);
-                            updated.then((res) => {
-                              console.log("Factura actualizada");
-                              clearInterval(intervalId);
-                              setCuf(resCuf);
-                            });
-                          } else {
-                            if (intento == maxIntentos) {
-                              setIsAlertSec(false);
-                              setIsAlert(false);
-                              setAlert(
-                                "Error al obtener el codigo unico de facturación, intente nuevamente"
-                              );
-                              const obj = {
-                                nroFactura: numFac,
-                                idSucursal: 0,
-                                puntoDeVenta: 0,
-                                nroTransaccion: idTransaccion,
-                                idgencia: userStore,
-                              };
-                              setInvObj(obj);
-
-                              clearInterval(intervalId);
-                              setIsEmailModal(true);
-                            } else {
-                              intento += 1;
-                            }
-                          }
-                        });
-                      } else {
-                        if (showError < 2) {
-                          const reverted = rollbackPurchase(
-                            idFactura,
-                            idVenta,
-                            objStock
-                          );
-                          reverted.then((res) => {
-                            const errorInvoice =
-                              resp.response.data
-                                .SalidaTransaccionBoliviaResponse[0]
-                                .SalidaTransaccionBoliviaResult[0]
-                                .TransaccionSalidaUnificada[0].Errores[0]
-                                .Error[0].Descripcion[0];
-                            setIsAlertSec(false);
-                            setTransactionObject("");
-                            setAlert(
-                              `Error al obtener la factura, intente nuevamente, ${JSON.stringify(
-                                errorInvoice
-                              )}`
-                            );
-                            setIsAlert(true);
-                            clearInterval(intervalId);
-                          });
-                        }
-                      }
-                    })
-                    .catch((error) => {
-                      const updateBodyInit = {
-                        nroFactura: nextId,
-                        cuf: "",
-                        cufd: "",
-                        autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
-                        fe: "",
-                        nroTransaccion: idTransaccion,
-                        idFactura: idFactura,
-                      };
-                      const updated = updateInvoiceProcess(updateBodyInit);
-                      updated.then((res) => {
-                        setIsAlertSec(false);
-                        setIsAlert(false);
-                        setAlert(
-                          "Error al obtener el codigo unico de facturación, intente nuevamente"
-                        );
-                        const obj = {
-                          nroFactura: nextId,
-                          idSucursal: 0,
-                          puntoDeVenta: 0,
-                          nroTransaccion: idTransaccion,
-                          idgencia: userStore,
-                        };
-                        setInvObj(obj);
-                        clearInterval(intervalId);
-                        setIsEmailModal(true);
-                      });
-                    });
-                }, 10000);
-              });
-            })
-            .catch((err) => {
-              if (showError < 2) {
-                const reverted = rollbackPurchase(idFactura, idVenta, objStock);
-                reverted.then((res) => {
-                  setIsAlertSec(false);
-                  setTransactionObject("");
-                  setAlert("Error procesar el comprobante, intente nuevamente");
-                  setIsAlert(true);
-                });
-              }
-            });
-        });
-      })
-      .catch((err) => {
-        if (showError < 2) {
-          const reverted = rollbackPurchase(idFactura, idVenta, objStock);
-          reverted.then((res) => {
-            setIsAlertSec(false);
-            setAlert(
-              "Error al obtener el ultimo numero de comprobante, intente nuevamente"
+      const storeInfo = {
+        nroSucursal: branchInfo.nro,
+        puntoDeVenta: pointOfSale,
+      };
+      const nroTarjeta = `${cardNumbersA}00000000${cardNumbersB}`;
+      const productos = formatInvoiceProducts(selectedProducts);
+      const emizorBody = {
+        numeroFactura: 0,
+        nombreRazonSocial: datos.razonSocial,
+        codigoPuntoVenta: parseInt(pointOfSale),
+        fechaEmision: "",
+        cafc: "",
+        codigoExcepcion: 0,
+        descuentoAdicional: parseFloat(
+          parseFloat(
+            parseFloat(descuentoCalculado).toFixed(2) + parseFloat(giftCard)
+          ).toFixed(2)
+        ),
+        montoGiftCard: 0,
+        codigoTipoDocumentoIdentidad: tipoDocumento,
+        numeroDocumento: datos.nit == 0 ? 1000001 : datos.nit,
+        complemento: "",
+        codigoCliente: `'${clientId}'`,
+        codigoMetodoPago: tipoPago,
+        numeroTarjeta: nroTarjeta.length == 16 ? nroTarjeta : "",
+        montoTotal: parseFloat(
+          parseFloat(totalDescontado - giftCard).toFixed(2)
+        ),
+        codigoMoneda: 1,
+        tipoCambio: 1,
+        montoTotalMoneda: parseFloat(
+          parseFloat(totalDescontado - giftCard).toFixed(2)
+        ),
+        usuario: userName,
+        emailCliente: clientEmail,
+        telefonoCliente: "",
+        extras: { facturaTicket: uniqueId },
+        codigoLeyenda: 5282,
+        montoTotalSujetoIva: parseFloat(
+          parseFloat(parseFloat(totalDescontado) - giftCard).toFixed(2)
+        ),
+        tipoCambio: 1,
+        detalles: productos,
+      };
+      const composedBody = {
+        venta: saleBody,
+        invoice: invoiceBody,
+        emizor: emizorBody,
+        stock: updateStockBody,
+        storeInfo: storeInfo,
+      };
+      try {
+        const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
+        console.log("Respuesta de la fac", invocieResponse);
+        if (invocieResponse.data.code === 200) {
+          const parsed = JSON.parse(invocieResponse.data.data).data.data;
+          console.log("Datos recibidos", parsed);
+          if (parsed.emission_type_code === 0) {
+            setNoFactura(parsed.numeroFactura);
+            saveNewEmail(parsed.cuf);
+          } else {
+            console.log("Factura fuera de linea", parsed.shortLink);
+            setNoFactura(parsed.numeroFactura);
+            downloadAndPrintFile(parsed.shortLink, parsed.numeroFactura);
+            setAlertSec(
+              "El servicio del SIN se encuentra no disponible, puede escanear el qr de esta nota para ir a su factura en las siguientes horas, muchas gracias"
             );
+            setIsAlertSec(true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+          }
+        } else {
+          if (invocieResponse.data.code === 500) {
+            setIsAlertSec(false);
+            setAlert(`${invocieResponse.data.message}`);
             setIsAlert(true);
-            console.log("Error al obtener el id", err);
-          });
+          } else {
+            const error = JSON.parse(invocieResponse.data.error).data.errors[0];
+            console.log("Error", error);
+            setIsAlertSec(false);
+            setAlert(`${invocieResponse.data.message} : ${error}`);
+            setIsAlert(true);
+          }
         }
-      });
+      } catch (error) {
+        console.log("Error al facturar ", error);
+      }
+    } else {
+    }
   }
 
+  const downloadAndPrintFile = async (url, numeroFactura) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const urlObject = URL.createObjectURL(blob);
+
+    const newWindow = window.open(urlObject);
+
+    if (newWindow) {
+      newWindow.onload = () => {
+        URL.revokeObjectURL(urlObject);
+        newWindow.print();
+        // Optional: Close the window after printing
+        // newWindow.close();
+      };
+    } else {
+      // Prompt the user to enable pop-ups manually
+      window.alert(
+        "Por favor, habilite las ventanas emergentes para imprimir el archivo automáticamente"
+      );
+    }
+
+    const link = document.createElement("a");
+    link.href = urlObject;
+    link.download = `factura-${numeroFactura}-${datos.nit}.pdf`; // Set the desired filename and extension
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    return newWindow;
+  };
   function logInnvoice() {
     setAlertSec("Registrando factura para impresion posterior");
     setIsAlertSec(true);
@@ -725,39 +610,6 @@ function SaleModal(
       });
   }
 
-  async function updateInvoiceProcess(updateBody) {
-    const updateInvoice = invoiceUpdate(updateBody);
-    return updateInvoice
-      .then((inv) => {
-        return new Promise((resolve) => resolve(true));
-      })
-      .catch((err) => {
-        console.log("Error al actualizar la factura", err);
-      });
-  }
-
-  function rollbackPurchase(idFactura, idVenta, objStock) {
-    return new Promise((resolve) => {
-      const deletedInvoice = deleteInvoice(idFactura);
-      deletedInvoice.then((rs) => {
-        const deletedSale = deleteSale(idVenta);
-        deletedSale.then((res) => {
-          console.log("Borrados");
-          console.log("Devolviendo Stock");
-          setIsAlertSec(false);
-          const returned = updateStock(objStock);
-          setIsAlertSec(false);
-          returned
-            .then((res) => {
-              resolve(res);
-            })
-            .catch((err) => {
-              console.log("Error al devolver el stock", err);
-            });
-        });
-      });
-    });
-  }
   function handleClose() {
     setDescuento(0);
     setIsInvoice(false);
@@ -795,7 +647,7 @@ function SaleModal(
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.addPage();
     pdf.addImage(dataCopy, "PNG", 0, 0, pdfWidth, pdfHeightCopy);
-    pdf.save(`factura-${invoiceId}-${invoice.nitCliente}.pdf`);
+    pdf.save(`factura-${noFactura}-${datos.nit}.pdf`);
     setIsSaved(true);
   };
 
@@ -811,6 +663,32 @@ function SaleModal(
     pdf.save("nota_entrega.pdf");
   };
 
+  function saveEmail() {
+    setIsNewEmail(false);
+    const updatedEmail = updateClientEmail({
+      idClient: clientId,
+      mail: clientEmail,
+    });
+    updatedEmail
+      .then((res) => {
+        setAlertSec("Correo guardado correctamente");
+        setIsAlertSec(true);
+        setTimeout(() => {
+          setCuf(altCuf);
+          setIsAlertSec(false);
+        }, 3000);
+      })
+      .catch((err) => {
+        setAlert("Error al guardar el correo");
+        setIsAlert(true);
+      });
+  }
+
+  function cancelEmail() {
+    setCuf(altCuf);
+    setIsNewEmail(false);
+  }
+
   return (
     <div>
       <Modal show={isAlertSec}>
@@ -819,6 +697,32 @@ function SaleModal(
         </Modal.Header>
         <Modal.Body>
           <Image src={loading2} style={{ width: "5%" }} />
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={isNewEmail}>
+        <Modal.Header closeButton>
+          <Modal.Title>{`Desea guardar siguiente el correo ingresado? ${clientEmail}`}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{ justifyContent: "space-evenly", display: "flex" }}>
+            <Button
+              variant="success"
+              onClick={() => {
+                saveEmail();
+              }}
+            >
+              Si
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                cancelEmail();
+              }}
+            >
+              No
+            </Button>
+          </div>
         </Modal.Body>
       </Modal>
 
@@ -836,7 +740,7 @@ function SaleModal(
               value={clientEmail}
               type="text"
               placeholder="Ingrese correo"
-              onChange={(e) => setClientEmail(e.target.value)}
+              onChange={(e) => handleEmail(e.target.value)}
             />
           </Form>
         </Modal.Body>
@@ -875,7 +779,11 @@ function SaleModal(
                     branchInfo={branchInfo}
                     selectedProducts={selectedProducts}
                     cuf={cuf}
-                    invoice={invoice}
+                    invoice={{
+                      nitCliente: datos.nit,
+                      razonSocial: datos.razonSocial,
+                      nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
+                    }}
                     paymentData={{
                       tipoPago: stringPago,
                       cancelado: cancelado,
@@ -893,6 +801,7 @@ function SaleModal(
                       totalDescontado: totalDescontado - giftCard,
                     }}
                     giftCard={giftCard}
+                    invoiceNumber={noFactura}
                   />
                 </Button>
               </div>
@@ -913,7 +822,11 @@ function SaleModal(
                   branchInfo={branchInfo}
                   selectedProducts={selectedProducts}
                   cuf={cuf}
-                  invoice={invoice}
+                  invoice={{
+                    nitCliente: datos.nit,
+                    razonSocial: datos.razonSocial,
+                    nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
+                  }}
                   paymentData={{
                     tipoPago: stringPago,
                     cancelado: cancelado,
@@ -930,13 +843,18 @@ function SaleModal(
                       : descuentoFactura,
                     totalDescontado: totalDescontado - giftCard,
                   }}
+                  invoiceNumber={noFactura}
                 />
                 <InvoiceComponentCopy
                   ref={componentCopyRef}
                   branchInfo={branchInfo}
                   selectedProducts={selectedProducts}
                   cuf={cuf}
-                  invoice={invoice}
+                  invoice={{
+                    nitCliente: datos.nit,
+                    razonSocial: datos.razonSocial,
+                    nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
+                  }}
                   paymentData={{
                     tipoPago: stringPago,
                     cancelado: cancelado,
@@ -953,6 +871,7 @@ function SaleModal(
                       : descuentoFactura,
                     totalDescontado: totalDescontado - giftCard,
                   }}
+                  invoiceNumber={noFactura}
                 />
               </div>
             </div>
@@ -1043,7 +962,33 @@ function SaleModal(
             )} Bs.`}</div>
           </div>
           <div className="modalRows">
-            <div className="modalLabel"> pago:</div>
+            <div className="modalLabel">
+              {" "}
+              {auxClientEmail === ""
+                ? "Ingrese correo del cliente:"
+                : "Correo del cliente:"}
+            </div>
+            <div className="modalData">
+              {" "}
+              <Form>
+                <Form.Control
+                  disabled={auxClientEmail !== ""}
+                  type="mail"
+                  value={clientEmail}
+                  isInvalid={!isEmailValid && auxClientEmail === ""}
+                  onChange={(e) => handleEmail(e.target.value)}
+                />
+              </Form>
+              <span style={{ color: "red", fontSize: "smaller" }}>
+                {!isEmailValid && auxClientEmail === ""
+                  ? "Ingrese un correo válido o deje el espacio vacio"
+                  : ""}
+              </span>
+            </div>
+          </div>
+
+          <div className="modalRows">
+            <div className="modalLabel"> Tipo de pago:</div>
             <div className="modalData">
               <Form>
                 <Form.Select
@@ -1358,4 +1303,4 @@ function SaleModal(
     </div>
   );
 }
-export default React.forwardRef(SaleModal);
+export default React.forwardRef(SaleModalAlt);
