@@ -130,7 +130,7 @@ function SaleModalAlt(
       navigator.userAgent
     );
   }
-
+  const uniqueId = uuidv4();
   const isMobile = isMobileDevice();
   useEffect(() => {
     console.log("Is mobile", isMobile);
@@ -452,8 +452,7 @@ function SaleModalAlt(
   }
 
   async function invoicingProcess() {
-    const uniqueId = uuidv4();
-
+    console.log("Unique id", uniqueId);
     const emailValidated = validateEmail();
     if (emailValidated) {
       setAlertSec("Obteniendo datos de factura");
@@ -480,7 +479,7 @@ function SaleModalAlt(
         codigoTipoDocumentoIdentidad: tipoDocumento,
         numeroDocumento: datos.nit == 0 ? 1000001 : datos.nit,
         complemento: "",
-        codigoCliente: `'${clientId}'`,
+        codigoCliente: `${clientId}`,
         codigoMetodoPago: tipoPago,
         numeroTarjeta: nroTarjeta.length == 16 ? nroTarjeta : "",
         montoTotal: parseFloat(

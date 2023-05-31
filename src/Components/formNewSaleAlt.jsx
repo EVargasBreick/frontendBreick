@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
+
 import {
   createSale,
   deleteSale,
