@@ -515,8 +515,21 @@ function SaleModalAlt(
         if (invocieResponse.data.code === 200) {
           const parsed = JSON.parse(invocieResponse.data.data).data.data;
           console.log("Datos recibidos", parsed);
-          setNoFactura(parsed.numeroFactura);
-          saveNewEmail(parsed.cuf);
+          if (parsed.emission_type_code === 0) {
+            setNoFactura(parsed.numeroFactura);
+            saveNewEmail(parsed.cuf);
+          } else {
+            console.log("Factura fuera de linea", parsed.shortLink);
+            setNoFactura(parsed.numeroFactura);
+            downloadAndPrintFile(parsed.shortLink, parsed.numeroFactura);
+            setAlertSec(
+              "El servicio del SIN se encuentra no disponible, puede escanear el qr de esta nota para ir a su factura en las siguientes horas, muchas gracias"
+            );
+            setIsAlertSec(true);
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+          }
         } else {
           if (invocieResponse.data.code === 500) {
             setIsAlertSec(false);
@@ -537,6 +550,37 @@ function SaleModalAlt(
     }
   }
 
+  const downloadAndPrintFile = async (url, numeroFactura) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const urlObject = URL.createObjectURL(blob);
+
+    const newWindow = window.open(urlObject);
+
+    if (newWindow) {
+      newWindow.onload = () => {
+        URL.revokeObjectURL(urlObject);
+        newWindow.print();
+        // Optional: Close the window after printing
+        // newWindow.close();
+      };
+    } else {
+      // Prompt the user to enable pop-ups manually
+      window.alert(
+        "Por favor, habilite las ventanas emergentes para imprimir el archivo automáticamente"
+      );
+    }
+
+    const link = document.createElement("a");
+    link.href = urlObject;
+    link.download = `factura-${numeroFactura}-${datos.nit}.pdf`; // Set the desired filename and extension
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    return newWindow;
+  };
   function logInnvoice() {
     setAlertSec("Registrando factura para impresion posterior");
     setIsAlertSec(true);
