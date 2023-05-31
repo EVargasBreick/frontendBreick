@@ -515,7 +515,7 @@ function SaleModalAlt(
         if (invocieResponse.data.code === 200) {
           const parsed = JSON.parse(invocieResponse.data.data).data.data;
           console.log("Datos recibidos", parsed);
-          if (parsed.emission_type_code === 0) {
+          if (parsed.emission_type_code === 1) {
             setNoFactura(parsed.numeroFactura);
             saveNewEmail(parsed.cuf);
           } else {
