@@ -48,6 +48,7 @@ import AllOrders from "./Components/allOrders";
 import RePrintInvoices from "./Components/rePrintInvoices";
 import EntryReport from "./Components/entryReport";
 import LoggedStockReport from "./Components/loggedStockReport";
+import NewSaleAlt from "./Components/newSaleAlt";
 
 function App() {
   return (
@@ -397,6 +398,14 @@ function App() {
               element={
                 <RequireAuth>
                   <LoggedStockReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/ventas/agencia"
+              element={
+                <RequireAuth>
+                  <NewSaleAlt />
                 </RequireAuth>
               }
             />

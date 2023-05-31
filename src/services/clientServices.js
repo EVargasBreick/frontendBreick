@@ -401,6 +401,22 @@ const numberOfClients = () => {
   });
 };
 
+const updateClientEmail = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client/mail`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   verifyClientEmail,
   verifyClientPhone,
@@ -419,4 +435,5 @@ export {
   updateContact,
   numberOfClients,
   createClientPos,
+  updateClientEmail,
 };
