@@ -104,15 +104,24 @@ export default function FormCancelInvoiceAlt() {
     try {
       const cancelar = await emizorService.anularFactura(invoice.cuf, motivo);
       console.log("cancelar", cancelar);
+      setAlert("Factura Anulada");
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
     } catch (error) {
-      const errors = error.response?.data?.data?.data?.errors;
+      const errors = error.response?.data?.data?.data?.errors ?? [
+        "Error al anular factura",
+      ];
       console.log("TCL: cancelInvoice -> errors", errors);
-      //   show in setAlert all errors with a map and a \n after each error
       setAlert(
         errors.map((err) => {
           return err + "\n";
         })
       );
+
+      setTimeout(() => {
+        setIsAlert(false);
+      }, 3000);
     }
   }
 
