@@ -15,6 +15,7 @@ import loading2 from "../assets/loading2.gif";
 import { CancelInvoice } from "../Xml/cancelInvoice";
 import { updateStock } from "../services/orderServices";
 import { getMobileSalePoints } from "../services/storeServices";
+import { emizorService } from "../services/emizorService";
 
 export default function FormCancelInvoiceAlt() {
   const [userStore, setUserStore] = useState("");
@@ -95,60 +96,24 @@ export default function FormCancelInvoiceAlt() {
     );
     setFacturas([...newList]);
   }
-  function cancelInvoice(invoice) {
+  async function cancelInvoice(invoice) {
     setIsAlert(true);
     setAlert("Anulando Factura");
-    console.log("Datos factura", invoice);
-    const cancelObj = {
-      transaccionId: invoice.nroTransaccion,
-      puntoDeVentaId: invoice.idImpuestos,
-      numeroComprobante: parseInt(invoice.nroFactura),
-      tipoComprobante: process.env.REACT_APP_COMPRAVENTA,
-      motivoAnulacion: motivo,
-      nit: parseInt(process.env.REACT_APP_NIT_EMPRESA),
-      caja: pointOfSale,
-    };
-    console.log("Anulando factura", cancelObj);
-    const canceled = CancelInvoice(cancelObj);
-    canceled
-      .then((cld) => {
-        console.log("Cancelada", cld);
-        const mensaje =
-          cld.response.data.AnularComprobanteResponse[0]
-            .AnularComprobanteResult[0];
-        if (
-          mensaje.includes("Anulación confirmada del comprobante") ||
-          mensaje.includes("se encuentra anulado")
-        ) {
-          const products = allFacts.filter(
-            (af) => af.idFactura == invoice.idFactura
-          );
-          console.log("Selected invoice", selectedInvoice);
-          const returnToStock = updateStock({
-            accion: "add",
-            idAlmacen: selectedInvoice.idAgencia,
-            productos: products,
-            detalle: `ANFAC-${invoice.idFactura}`,
-          });
-          console.log("Updateando stock", products);
-          returnToStock.then((returned) => {
-            const anulada = cancelInvoiceUpdate(invoice.idFactura);
-            anulada
-              .then((an) => {
-                setAlert("Factura anulada");
-                setTimeout(() => {
-                  window.location.reload(false);
-                }, 5000);
-              })
-              .catch((err) => {
-                console.log("Error al anular en sistema breick", err);
-              });
-          });
-        }
-      })
-      .catch((err) => {
-        console.log("Error al anular en sistema de impuestos", err);
-      });
+    console.log("Datos factura anulando", invoice);
+    console.log("Datos factura anulando", motivo);
+    try {
+      const cancelar = await emizorService.anularFactura(invoice.cuf, motivo);
+      console.log("cancelar", cancelar);
+    } catch (error) {
+      const errors = error.response?.data?.data?.data?.errors;
+      console.log("TCL: cancelInvoice -> errors", errors);
+      //   show in setAlert all errors with a map and a \n after each error
+      setAlert(
+        errors.map((err) => {
+          return err + "\n";
+        })
+      );
+    }
   }
 
   function handleSuc(nroPuntoDeVenta) {
