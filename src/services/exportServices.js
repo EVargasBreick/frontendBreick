@@ -63,9 +63,43 @@ function ExportGeneralSalesReport(objReporte, totales, search, sorted) {
     resolve(true);
   });
 }
+
+const downloadAndPrintFile = async (url, numeroFactura, nit) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const urlObject = URL.createObjectURL(blob);
+
+  const newWindow = window.open(urlObject);
+
+  if (newWindow) {
+    newWindow.onload = () => {
+      URL.revokeObjectURL(urlObject);
+      newWindow.print();
+      // Optional: Close the window after printing
+      // newWindow.close();
+    };
+  } else {
+    // Prompt the user to enable pop-ups manually
+    window.alert(
+      "Por favor, habilite las ventanas emergentes para imprimir el archivo automáticamente"
+    );
+  }
+
+  const link = document.createElement("a");
+  link.href = urlObject;
+  link.download = `factura-${numeroFactura}-${nit}.pdf`; // Set the desired filename and extension
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  return newWindow;
+};
+
 export {
   ExportToExcel,
   ExportTemplate,
   ExportPastReport,
   ExportGeneralSalesReport,
+  downloadAndPrintFile,
 };

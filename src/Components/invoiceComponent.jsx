@@ -159,7 +159,7 @@ export const InvoiceComponent = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${cuf}&numero=${inum}`}
+              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${process.env.REACT_APP_NIT_EMPRESA}&cuf=${cuf}&numero=${inum}`}
               size={100}
             />
           </div>
@@ -206,7 +206,7 @@ export const InvoiceComponent = React.forwardRef(
             <div>COPIA</div>
             <div className="simpleSeparator"></div>
             <div className="textWithLine"></div>
-            <div>{`NIT ${invoice?.nitEmpresa}`}</div>
+            <div>{`NIT ${process.env.REACT_APP_NIT_EMPRESA}`}</div>
             <div>{`FACTURA Nº ${inum}`}</div>
             <div className="cufWidth">{`CUF: ${formattedCuf(cuf)}`}</div>
             <div className="simpleSeparator"></div>
@@ -317,7 +317,7 @@ export const InvoiceComponent = React.forwardRef(
             </div>
             <div>
               <QrComponent
-                datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${cuf}&numero=${inum}`}
+                datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${process.env.REACT_APP_NIT_EMPRESA}&cuf=${cuf}&numero=${inum}`}
                 size={170}
               />
             </div>
