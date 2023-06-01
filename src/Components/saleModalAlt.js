@@ -121,7 +121,7 @@ function SaleModalAlt(
   const [invObj, setInvObj] = useState({});
   const [idFactura, setIdFactura] = useState("");
   const [noFactura, setNoFactura] = useState("");
-  const [isEmailValid, setIsEmailValid] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(true);
   const [auxClientEmail] = useState(emailCliente);
   const [isNewEmail, setIsNewEmail] = useState(false);
   const [altCuf, setaltCuf] = useState("");
@@ -543,9 +543,10 @@ function SaleModalAlt(
           }
         }
       } catch (error) {
-        console.log("Error al facturar ", error);
+        setIsAlertSec(false);
+        setAlert("Error al facturar ", error);
+        setIsAlert(true);
       }
-    } else {
     }
   }
 
@@ -1272,6 +1273,7 @@ function SaleModalAlt(
                   : descuentoFactura,
                 totalDescontado: totalDescontado - giftCard,
               }}
+              invoiceNumber={noFactura}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -1295,6 +1297,7 @@ function SaleModalAlt(
                   : descuentoFactura,
                 totalDescontado: totalDescontado - giftCard,
               }}
+              invoiceNumber={noFactura}
             />
           </div>
         </div>

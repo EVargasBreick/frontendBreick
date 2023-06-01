@@ -50,6 +50,8 @@ import EntryReport from "./Components/entryReport";
 import LoggedStockReport from "./Components/loggedStockReport";
 import NewSaleAlt from "./Components/newSaleAlt";
 import CancelInvoiceAlt from "./Components/cancelInvoiceAlt";
+import RouteSaleAlt from "./Components/routeSaleAlt";
+import InvoiceOrdersAlt from "./Components/invoiceOrdersAlt";
 
 function App() {
   return (
@@ -415,6 +417,22 @@ function App() {
               element={
                 <RequireAuth>
                   <NewSaleAlt />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/ventas/rutas"
+              element={
+                <RequireAuth>
+                  <RouteSaleAlt />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/pedidos/facturacion"
+              element={
+                <RequireAuth>
+                  <InvoiceOrdersAlt />
                 </RequireAuth>
               }
             />
