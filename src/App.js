@@ -49,6 +49,7 @@ import RePrintInvoices from "./Components/rePrintInvoices";
 import EntryReport from "./Components/entryReport";
 import LoggedStockReport from "./Components/loggedStockReport";
 import NewSaleAlt from "./Components/newSaleAlt";
+import CancelInvoiceAlt from "./Components/cancelInvoiceAlt";
 import RouteSaleAlt from "./Components/routeSaleAlt";
 import InvoiceOrdersAlt from "./Components/invoiceOrdersAlt";
 
@@ -264,6 +265,14 @@ function App() {
               element={
                 <RequireAuth>
                   <CancelInvoice />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturasAnular"
+              element={
+                <RequireAuth>
+                  <CancelInvoiceAlt />
                 </RequireAuth>
               }
             />
