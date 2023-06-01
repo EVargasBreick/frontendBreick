@@ -33,6 +33,10 @@ export default function FormCancelInvoiceAlt() {
   const [sucList, setSucList] = useState([]);
   const [selectedSuc, setSelectedSuc] = useState("");
   const [usuAct, setUsuact] = useState("");
+
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
+
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -60,6 +64,32 @@ export default function FormCancelInvoiceAlt() {
       });
     }
   }, []);
+
+  //   filter by dates
+  useEffect(() => {
+    if (dateStart && dateEnd) {
+      const filtered = allFacts.filter((fact) => {
+        const dateParts = fact.fechaHora.split(" ").shift().split("/");
+        const date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+        const startDateParts = dateStart.split("-");
+        const startDate = new Date(
+          startDateParts[0],
+          startDateParts[1] - 1,
+          startDateParts[2]
+        );
+        const endDateParts = dateEnd.split("-");
+        const endDate = new Date(
+          endDateParts[0],
+          endDateParts[1] - 1,
+          endDateParts[2]
+        );
+        return date >= startDate && date <= endDate;
+      });
+      setFacturas(filtered);
+    } else {
+      setFacturas(allFacts);
+    }
+  }, [dateStart, dateEnd]);
 
   function getInvoices(UsuarioAct, PuntoDeVentas) {
     const facturas = getStoreInvoices(
@@ -222,6 +252,30 @@ export default function FormCancelInvoiceAlt() {
               onChange={(e) => filterById(e.target.value)}
             />
           </Form.Group>
+
+          <div className="d-xl-flex justify-content-center m-1">
+            <Form.Group className="w-auto m-2">
+              <Form.Label>Fecha Inicio</Form.Label>
+              <Form.Control
+                type="date"
+                value={dateStart}
+                onChange={(e) => setDateStart(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="w-auto m-2">
+              <Form.Label>Fecha Fin</Form.Label>
+              <Form.Control
+                type="date"
+                value={dateEnd}
+                onChange={(e) => setDateEnd(e.target.value)}
+              />
+            </Form.Group>
+          </div>
+          <Form.Text className="text-white">
+            Seleccione ambas fechas para filtrar por rango de fechas
+          </Form.Text>
+
           <div className="formLabel"></div>
           {isSudo ? (
             <Form.Group>
