@@ -1023,24 +1023,9 @@ export default function FormRouteSaleAlt() {
                 fechaCrea: dateString(),
                 fechaActualizacion: dateString(),
                 montoTotal: parseFloat(totalPrevio).toFixed(2),
-                descCalculado: parseFloat(
-                  parseFloat(giftCard) +
-                    parseFloat(totalPrevio) -
-                    (selectedProducts.reduce((accumulator, object) => {
-                      return accumulator + parseFloat(object.total);
-                    }, 0) *
-                      (100 - descuento)) /
-                      100
-                ).toFixed(2),
+                descCalculado: parseFloat(totalDesc).toFixed(2),
                 descuento: descuento,
-                montoFacturar: parseFloat(
-                  -giftCard +
-                    (selectedProducts.reduce((accumulator, object) => {
-                      return accumulator + parseFloat(object.total);
-                    }, 0) *
-                      (100 - descuento)) /
-                      100
-                ).toFixed(2),
+                montoFacturar: parseFloat(totalPrevio - totalDesc).toFixed(2),
                 idPedido: "",
                 idFactura: 0,
               },
@@ -1056,45 +1041,15 @@ export default function FormRouteSaleAlt() {
               razonSocial: clientes[0].razonSocial,
               tipoPago: tipoPago,
               pagado: cancelado,
-              cambio:
-                cancelado -
-                parseFloat(
-                  -giftCard +
-                    (selectedProducts.reduce((accumulator, object) => {
-                      return accumulator + parseFloat(object.total);
-                    }, 0) *
-                      (100 - descuento)) /
-                      100
-                ).toFixed(2),
+              cambio: parseFloat(cambio).toFixed(2),
               nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
               cuf: "",
               importeBase: parseFloat(
-                parseFloat(cancelado).toFixed(2) -
-                  parseFloat(
-                    cancelado -
-                      parseFloat(
-                        -giftCard +
-                          (selectedProducts.reduce((accumulator, object) => {
-                            return accumulator + parseFloat(object.total);
-                          }, 0) *
-                            (100 - descuento)) /
-                            100
-                      ).toFixed(2)
-                  ).toFixed(2)
+                parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)
               ).toFixed(2),
               debitoFiscal: parseFloat(
                 (parseFloat(cancelado).toFixed(2) -
-                  parseFloat(
-                    cancelado -
-                      parseFloat(
-                        -giftCard +
-                          (selectedProducts.reduce((accumulator, object) => {
-                            return accumulator + parseFloat(object.total);
-                          }, 0) *
-                            (100 - descuento)) /
-                            100
-                      ).toFixed(2)
-                  ).toFixed(2)) *
+                  parseFloat(cambio).toFixed(2)) *
                   0.13
               ).toFixed(2),
               desembolsada: 0,

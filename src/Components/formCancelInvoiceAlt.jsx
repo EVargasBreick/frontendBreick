@@ -68,7 +68,7 @@ export default function FormCancelInvoiceAlt() {
   //   filter by dates
   useEffect(() => {
     if (dateStart && dateEnd) {
-      const filtered = allFacts.filter((fact) => {
+      const filtered = auxFac.filter((fact) => {
         const dateParts = fact.fechaHora.split(" ").shift().split("/");
         const date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
         const startDateParts = dateStart.split("-");
@@ -242,40 +242,6 @@ export default function FormCancelInvoiceAlt() {
       <div className="formLabel">ANULAR FACTURAS</div>
       <div>
         <Form>
-          <Form.Group>
-            <Form.Label>
-              Filtrar por número de factura - Razón Social - Nit
-            </Form.Label>
-            <Form.Control
-              type="text"
-              value={filter}
-              onChange={(e) => filterById(e.target.value)}
-            />
-          </Form.Group>
-
-          <div className="d-xl-flex justify-content-center m-1">
-            <Form.Group className="w-auto m-2">
-              <Form.Label>Fecha Inicio</Form.Label>
-              <Form.Control
-                type="date"
-                value={dateStart}
-                onChange={(e) => setDateStart(e.target.value)}
-              />
-            </Form.Group>
-
-            <Form.Group className="w-auto m-2">
-              <Form.Label>Fecha Fin</Form.Label>
-              <Form.Control
-                type="date"
-                value={dateEnd}
-                onChange={(e) => setDateEnd(e.target.value)}
-              />
-            </Form.Group>
-          </div>
-          <Form.Text className="text-white">
-            Seleccione ambas fechas para filtrar por rango de fechas
-          </Form.Text>
-
           <div className="formLabel"></div>
           {isSudo ? (
             <Form.Group>
@@ -294,6 +260,43 @@ export default function FormCancelInvoiceAlt() {
                 })}
               </Form.Select>
             </Form.Group>
+          ) : null}
+          {selectedSuc !== "" || !isSudo ? (
+            <div>
+              {" "}
+              <Form.Group>
+                <Form.Label>
+                  Filtrar por número de factura - Razón Social - Nit
+                </Form.Label>
+                <Form.Control
+                  type="text"
+                  value={filter}
+                  onChange={(e) => filterById(e.target.value)}
+                />
+              </Form.Group>
+              <div className="d-xl-flex justify-content-center m-1">
+                <Form.Group className="w-auto m-2">
+                  <Form.Label>Fecha Inicio</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={dateStart}
+                    onChange={(e) => setDateStart(e.target.value)}
+                  />
+                </Form.Group>
+
+                <Form.Group className="w-auto m-2">
+                  <Form.Label>Fecha Fin</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={dateEnd}
+                    onChange={(e) => setDateEnd(e.target.value)}
+                  />
+                </Form.Group>
+              </div>
+              <Form.Text className="text-white">
+                Seleccione ambas fechas para filtrar por rango de fechas
+              </Form.Text>
+            </div>
           ) : null}
         </Form>
       </div>
