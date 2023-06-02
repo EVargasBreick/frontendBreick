@@ -31,6 +31,7 @@ import { debounce } from "lodash";
 import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
+import { emizorService } from "../services/emizorService";
 function SaleModalAlt(
   {
     datos,
@@ -178,11 +179,11 @@ function SaleModalAlt(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-            (
-              cancelado -
-              (total * (1 - datos.descuento / 100) - giftCard)
-            ).toFixed()
-          )
+          (
+            cancelado -
+            (total * (1 - datos.descuento / 100) - giftCard)
+          ).toFixed()
+        )
     );
   }, [cancelado]);
 
@@ -543,6 +544,15 @@ function SaleModalAlt(
           }
         }
       } catch (error) {
+        if (error.code === 'ERR_NETWORK') {
+          setAlert("Error de conexión, espere 40 segundos e intente nuevamente");
+          setTimeout(async () => {
+            const getInovice = await emizorService.getFactura(uniqueId);
+            console.log("TCL: invoicingProcess -> getInovice", getInovice)
+            await downloadAndPrintFile(getInovice.data.cufd, getInovice.data.nroFactura, getInovice.data.nitCliente);
+          }
+            , 30000);
+        }
         setIsAlertSec(false);
         setAlert("Error al facturar ", error);
         setIsAlert(true);
@@ -1056,11 +1066,10 @@ function SaleModalAlt(
               </div>
               <div className="modalRows">
                 <div className="modalLabel"> Cambio:</div>
-                <div className="modalData">{`${
-                  cancelado - totalDescontado < 0
-                    ? " Ingrese un monto igual o superior"
-                    : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
-                } `}</div>
+                <div className="modalData">{`${cancelado - totalDescontado < 0
+                  ? " Ingrese un monto igual o superior"
+                  : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
+                  } `}</div>
               </div>
             </div>
           ) : tipoPago == 2 ? (
@@ -1164,14 +1173,13 @@ function SaleModalAlt(
               </div>
               <div className="modalRows">
                 <div className="modalLabel"> A pagar en efectivo:</div>
-                <div className="modalData">{`${
-                  datos.total - giftCard < 0
-                    ? "El valor del Vale es mayor al monto de la compra"
-                    : `${parseFloat(
-                        parseFloat(-giftCard) +
-                          total * (1 - datos.descuento / 100)
-                      ).toFixed(2)} Bs.`
-                } `}</div>
+                <div className="modalData">{`${datos.total - giftCard < 0
+                  ? "El valor del Vale es mayor al monto de la compra"
+                  : `${parseFloat(
+                    parseFloat(-giftCard) +
+                    total * (1 - datos.descuento / 100)
+                  ).toFixed(2)} Bs.`
+                  } `}</div>
               </div>
               {1 > 0 ? (
                 <div>
@@ -1193,17 +1201,16 @@ function SaleModalAlt(
                   </div>
                   <div className="modalRows">
                     <div className="modalLabel"> Cambio:</div>
-                    <div className="modalData">{`${
-                      cancelado -
-                        (total * (1 - datos.descuento / 100) - giftCard) <
+                    <div className="modalData">{`${cancelado -
+                      (total * (1 - datos.descuento / 100) - giftCard) <
                       0
-                        ? "Ingrese un monto mayor"
-                        : `${(
-                            cancelado -
-                            totalDesc +
-                            parseFloat(giftCard)
-                          ).toFixed(2)} Bs.`
-                    } `}</div>
+                      ? "Ingrese un monto mayor"
+                      : `${(
+                        cancelado -
+                        totalDesc +
+                        parseFloat(giftCard)
+                      ).toFixed(2)} Bs.`
+                      } `}</div>
                   </div>
                 </div>
               ) : null}
