@@ -11,4 +11,10 @@ export const emizorService = {
         const response = await emizorInstance.delete(url);
         return response.data;
     },
+
+    async getFactura(uniqueCode) {
+        const url = `/emizor/facuradb/${uniqueCode}`;
+        const response = await emizorInstance.get(url);
+        return response.data;
+    }
 };     
