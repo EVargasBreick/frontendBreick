@@ -125,6 +125,7 @@ function SaleModalAlt(
   const [auxClientEmail] = useState(emailCliente);
   const [isNewEmail, setIsNewEmail] = useState(false);
   const [altCuf, setaltCuf] = useState("");
+  const [leyenda, setLeyenda] = useState("");
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -477,7 +478,7 @@ function SaleModalAlt(
         ),
         montoGiftCard: 0,
         codigoTipoDocumentoIdentidad: tipoDocumento,
-        numeroDocumento: datos.nit == 0 ? 1000001 : datos.nit,
+        numeroDocumento: datos.nit == 0 ? "1000001" : `${datos.nit}`,
         complemento: "",
         codigoCliente: `${clientId}`,
         codigoMetodoPago: tipoPago,
@@ -494,7 +495,7 @@ function SaleModalAlt(
         emailCliente: clientEmail,
         telefonoCliente: "",
         extras: { facturaTicket: uniqueId },
-        codigoLeyenda: 5282,
+        codigoLeyenda: 0,
         montoTotalSujetoIva: parseFloat(
           parseFloat(parseFloat(totalDescontado) - giftCard).toFixed(2)
         ),
@@ -517,6 +518,7 @@ function SaleModalAlt(
           if (parsed.emission_type_code === 1) {
             setNoFactura(parsed.numeroFactura);
             saveNewEmail(parsed.cuf);
+            setLeyenda(invocieResponse.data.leyenda);
           } else {
             console.log("Factura fuera de linea", parsed.shortLink);
             setNoFactura(parsed.numeroFactura);
@@ -802,6 +804,7 @@ function SaleModalAlt(
                     }}
                     giftCard={giftCard}
                     invoiceNumber={noFactura}
+                    leyenda={leyenda}
                   />
                 </Button>
               </div>
@@ -843,7 +846,7 @@ function SaleModalAlt(
                       : descuentoFactura,
                     totalDescontado: totalDescontado - giftCard,
                   }}
-                  invoiceNumber={noFactura}
+                  leyenda={leyenda}
                 />
                 <InvoiceComponentCopy
                   ref={componentCopyRef}
@@ -872,6 +875,7 @@ function SaleModalAlt(
                     totalDescontado: totalDescontado - giftCard,
                   }}
                   invoiceNumber={noFactura}
+                  leyenda={leyenda}
                 />
               </div>
             </div>
@@ -1274,6 +1278,7 @@ function SaleModalAlt(
                 totalDescontado: totalDescontado - giftCard,
               }}
               invoiceNumber={noFactura}
+              leyenda={leyenda}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -1298,6 +1303,7 @@ function SaleModalAlt(
                 totalDescontado: totalDescontado - giftCard,
               }}
               invoiceNumber={noFactura}
+              leyenda={leyenda}
             />
           </div>
         </div>
