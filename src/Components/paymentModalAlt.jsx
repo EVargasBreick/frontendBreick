@@ -89,6 +89,7 @@ export default function PaymentModalAlt({
   const uniqueId = uuidv4();
   const [isNewEmail, setIsNewEmail] = useState(false);
   const [altCuf, setaltCuf] = useState("");
+  const [leyenda, setLeyenda] = useState("");
   useEffect(() => {
     const otrosPagos = otherPaymentsList();
     otrosPagos
@@ -395,7 +396,7 @@ export default function PaymentModalAlt({
         descuentoAdicional: totales.descuentoCalculado,
         montoGiftCard: 0,
         codigoTipoDocumentoIdentidad: totales.tipoDocumento,
-        numeroDocumento: cliente.nit == 0 ? 1000001 : cliente.nit,
+        numeroDocumento: cliente.nit == 0 ? "1000001" : `${cliente.nit}`,
         complemento: "",
         codigoCliente: `${totales.idCliente}`,
         codigoMetodoPago: tipoPago,
@@ -412,7 +413,7 @@ export default function PaymentModalAlt({
         emailCliente: totales.correo,
         telefonoCliente: "",
         extras: { facturaTicket: uniqueId },
-        codigoLeyenda: 5282,
+        codigoLeyenda: 0,
         montoTotalSujetoIva: parseFloat(
           parseFloat(parseFloat(totales.montoFacturar) - giftCard).toFixed(2)
         ),
@@ -445,6 +446,7 @@ export default function PaymentModalAlt({
               setAlertSec("Gracias por su compra!");
               setNoFactura(parsed.numeroFactura);
               saveNewEmail(parsed.cuf);
+              setLeyenda(invocieResponse.data.leyenda);
               setIsAlertSec(true);
               setTimeout(() => {
                 setIsAlertSec(false);
@@ -818,7 +820,7 @@ export default function PaymentModalAlt({
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.addPage();
     pdf.addImage(dataCopy, "PNG", 0, 0, pdfWidth, pdfHeightCopy);
-    pdf.save(`factura-${noFactura}-${invoice.nitCliente}.pdf`);
+    pdf.save(`factura-${noFactura}-${cliente.nit}.pdf`);
   };
 
   function saveEmail() {
@@ -924,6 +926,7 @@ export default function PaymentModalAlt({
                   isOrder={true}
                   invoiceNumber={noFactura}
                   orderDetails={orderDetails}
+                  leyenda={leyenda}
                 />
               </Button>
             </div>
@@ -1154,6 +1157,7 @@ export default function PaymentModalAlt({
               isOrder={true}
               invoiceNumber={noFactura}
               orderDetails={orderDetails}
+              leyenda={leyenda}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -1179,6 +1183,7 @@ export default function PaymentModalAlt({
               isOrder={true}
               invoiceNumber={noFactura}
               orderDetails={orderDetails}
+              leyenda={leyenda}
             />
           </div>
         </div>

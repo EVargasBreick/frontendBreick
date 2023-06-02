@@ -17,10 +17,10 @@ export const InvoiceComponent = React.forwardRef(
       isOrder,
       invoiceNumber,
       orderDetails,
+      leyenda,
     },
     ref
   ) => {
-    console.log("Invoice recibido", invoice);
     const convertido = convertToText(totalsData?.totalDescontado);
     const splittedDate = isOrder
       ? paymentData.fechaHora.split(" ")
@@ -32,7 +32,6 @@ export const InvoiceComponent = React.forwardRef(
       const result = cuf.match(regex).join(" ");
       return result;
     }
-    console.log("invoice", invoice.nroFactura);
     const inum = invoiceNumber;
     return (
       <div ref={ref} className="invoicePage">
@@ -165,10 +164,7 @@ export const InvoiceComponent = React.forwardRef(
           </div>
           <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
           <div className="simpleSeparator"></div>
-          <div>
-            {" "}
-            {`Ley Nº 453: El proveedor debe brindar atención sin discriminación, con respeto, calidez y cordialidad a los usuarios`}
-          </div>
+          <div> {leyenda}</div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>
           <div className="simpleSeparator"></div>
@@ -323,10 +319,7 @@ export const InvoiceComponent = React.forwardRef(
             </div>
             <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
             <div className="simpleSeparator"></div>
-            <div>
-              {" "}
-              {`Ley Nº 453: El proveedor debe brindar atención sin discriminación, con respeto, calidez y cordialidad a los usuarios`}
-            </div>
+            <div> {leyenda}</div>
             <div className="simpleSeparator"></div>
             <div className="textWithLine"></div>
             <div className="simpleSeparator"></div>
