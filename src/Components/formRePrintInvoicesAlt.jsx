@@ -104,6 +104,8 @@ export default function FormRePrintInvoicesAlt() {
                 console.log("error: ", error);
               });
           }}
+          className="yellow"
+          variant="warning"
         >
           Reimprimir factura
         </Button>
