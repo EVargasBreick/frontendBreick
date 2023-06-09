@@ -257,7 +257,8 @@ async function fullInvoiceProcess(body) {
       .then((response) => {
         resolve(response);
       })
-      .catch((error) => {
+      .catch(async (error) => {
+        debouncedFullInvoiceProcess.cancel();
         reject(error);
       });
   });
