@@ -138,7 +138,7 @@ export default function FormRePrintInvoicesAlt() {
               Buscar Factura(s)
             </Button>
             <Button
-              type="button"
+              type="reset"
               variant="warning"
               onClick={(e) => clearData(e)}
             >
@@ -146,7 +146,6 @@ export default function FormRePrintInvoicesAlt() {
             </Button>
           </div>
         </Form>
-        {/* FORM if rows show filter dates */}
         {(rows.length > 0 || (dateEnd && dateStart)) && (
           <Form>
             <div className="d-xl-flex justify-content-center p-3">
