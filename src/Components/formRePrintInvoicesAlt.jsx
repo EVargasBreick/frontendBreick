@@ -78,6 +78,9 @@ export default function FormRePrintInvoicesAlt() {
     e.preventDefault();
     setNit("");
     setNitError("");
+    setFacturas([]);
+    setFacturasAux([]);
+    setDateStart("");
   };
 
   const rows = facturas.map((factura, index) => (
