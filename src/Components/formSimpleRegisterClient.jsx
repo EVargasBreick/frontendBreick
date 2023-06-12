@@ -303,11 +303,17 @@ export default function FormSimpleRegisterClient(props) {
           </Button>
         </Modal.Footer>
       </Modal>
-      <div className="createContainer">
-        <div className="clientData">
-          <div className="division">
-            <div className="line">Datos del cliente</div>
-            <Form>
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault();
+          verifyInputs();
+        }}
+      >
+        <div className="createContainer">
+          <div className="clientData">
+            <div className="division">
+              <div className="line">Datos del cliente</div>
+
               <Form.Group className="completeHalf" controlId="productName">
                 <Form.Label>NIT/CI*</Form.Label>
                 <Form.Control
@@ -328,7 +334,6 @@ export default function FormSimpleRegisterClient(props) {
                   onChange={(e) => {
                     setRazonSocial(e.target.value);
                   }}
-                  onKeyDown={(e) => (e.key === "Enter" ? verifyInputs() : null)}
                 />
 
                 <Form.Label>Tipo Documento</Form.Label>
@@ -348,13 +353,12 @@ export default function FormSimpleRegisterClient(props) {
               <Form.Group className="completeHalf" controlId="comName">
                 <Form.Label>Correo electronico</Form.Label>
                 <Form.Control
-                  type="text"
+                  type="email"
                   placeholder="email"
                   value={correo}
                   onChange={(e) => {
                     setCorreo(e.target.value);
                   }}
-                  onKeyDown={(e) => (e.key === "Enter" ? verifyInputs() : null)}
                 />
               </Form.Group>
 
@@ -367,28 +371,26 @@ export default function FormSimpleRegisterClient(props) {
                   id="custom-switch"
                 />
               </Form.Group>
-            </Form>
+            </div>
+            <div className="secondHalf">
+              <div className="buttons">
+                <Button
+                  disabled={isButton}
+                  variant="warning"
+                  className="cyanLarge"
+                  type="submit"
+                >
+                  {isLoading ? (
+                    <Image src={loading2} style={{ width: "5%" }} />
+                  ) : (
+                    "Registrar Cliente"
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="secondHalf">
-        <div className="buttons">
-          <Button
-            disabled={isButton}
-            variant="warning"
-            className="cyanLarge"
-            onClick={() => {
-              verifyInputs();
-            }}
-          >
-            {isLoading ? (
-              <Image src={loading2} style={{ width: "5%" }} />
-            ) : (
-              "Registrar Cliente"
-            )}
-          </Button>
-        </div>
-      </div>
+      </Form>
     </div>
   );
 }

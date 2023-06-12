@@ -25,14 +25,14 @@ export const emizorService = {
     },
 
     async downloadFactura(link, filename) {
-        fetch(link, {
+        await fetch(link, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/pdf',
             },
         })
             .then((response) => response.blob())
-            .then((blob) => {
+            .then(async (blob) => {
                 // Create blob link to download
                 const url = window.URL.createObjectURL(
                     new Blob([blob]),
@@ -45,13 +45,13 @@ export const emizorService = {
                 );
 
                 // Append to html link element page
-                document.body.appendChild(link);
+                await document.body.appendChild(link);
 
                 // Start download
-                link.click();
+                await link.click();
 
                 // Clean up and remove the link
-                link.parentNode.removeChild(link);
+                await link.parentNode.removeChild(link);
             });
 
     }
