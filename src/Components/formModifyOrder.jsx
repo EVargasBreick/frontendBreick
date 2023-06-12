@@ -117,6 +117,7 @@ export default function FormModifyOrders() {
   const [originalProducts, setOriginalProducts] = useState();
   const [auxPedidosList, setAuxPedidosList] = useState([]);
   const [filter, setFilter] = useState("");
+  const [creatorStore, setCreatorStore] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -283,6 +284,7 @@ export default function FormModifyOrders() {
 
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
+      console.log("Almacen del usuario", res.data.data[0].idAlmacen);
       setSelectedProds([]);
       console.log("order details", res.data.data);
       const dl = productsDiscount(res.data.data[0].idUsuarioCrea);
@@ -324,8 +326,8 @@ export default function FormModifyOrders() {
       setTotalFacturar(res.data.data[0].montoTotal);
       setUsuarioCrea(res.data.data[0].idUsuarioCrea);
       setCodigoPedido(res.data.data[0].codigoPedido);
+      setCreatorStore(res.data.data[0].idAlmacen);
       const prodList = getOrderProdList(stringParts[0]);
-
       prodList.then((res) => {
         res.data.data.map((prod) => {
           const objProd = {
@@ -486,7 +488,7 @@ export default function FormModifyOrders() {
 
       const objProdsDelete = {
         accion: "add",
-        idAlmacen: userStore,
+        idAlmacen: creatorStore,
         productos: auxSelectedProds,
         detalle: `DPCPD-${idPedido}`,
       };
@@ -581,13 +583,13 @@ export default function FormModifyOrders() {
         setIsAlertSec(true);
         const toUpdateTakes = {
           accion: "add",
-          idAlmacen: userStore,
+          idAlmacen: creatorStore,
           productos: auxSelectedProds,
           detalle: `DSEPD-${idPedido}`,
         };
         const toUpdateAdds = {
           accion: "take",
-          idAlmacen: userStore,
+          idAlmacen: creatorStore,
           productos: selectedProds,
           detalle: `SSEPD-${idPedido}`,
         };
@@ -631,10 +633,8 @@ export default function FormModifyOrders() {
                       console.log(error);
                     });
                 });
-
               });
             });
-
           })
           .catch((error) => {
             setIsAlertSec(true);

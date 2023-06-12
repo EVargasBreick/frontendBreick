@@ -18,6 +18,7 @@ export default function NewSale() {
         JSON.parse(Cookies.get("userAuth")).rol == 9 ||
         JSON.parse(Cookies.get("userAuth")).rol == 6
       ) {
+        navigate("/ventas/agencia");
       } else {
         navigate("/principal");
       }

@@ -36,14 +36,14 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       icon={<Image src={Map} className="compIcon"></Image>}
     >
       <MenuItem
-        onClick={() => redirectOnClick("/ventaAgencia")}
+        onClick={() => redirectOnClick("/ventas/agencia")}
         className="menuItem"
       >
         <Image src={Invoice} className="icon"></Image>
         Ventas Agencia
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/facturas/anular")}
+        onClick={() => redirectOnClick("/facturasanular")}
         className="menuItem"
       >
         {" "}
@@ -58,7 +58,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       </MenuItem>
       {isInterior ? (
         <MenuItem
-          onClick={() => redirectOnClick("/pedidos/facturar")}
+          onClick={() => redirectOnClick("/pedidos/facturacion")}
           className="menuItem"
         >
           <Image src={Invoice} className="icon"></Image>Facturar Pedidos

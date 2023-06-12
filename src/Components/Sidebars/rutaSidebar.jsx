@@ -9,6 +9,7 @@ import Client from "../../assets/client.png";
 import Invoice from "../../assets/invoice.png";
 import ReturnWare from "../../assets/returnWare.png";
 import cancelInvoice from "../../assets/cancelInvoice.png";
+import Cross from "../../assets/cross.png";
 import Book from "../../assets/book.png";
 export default function RutaSidebar({
   toggleSub,
@@ -32,11 +33,18 @@ export default function RutaSidebar({
           Facturas
       </MenuItem>*/}
       <MenuItem
-        onClick={() => redirectOnClick("/ventas/ruta")}
+        onClick={() => redirectOnClick("/ventas/rutas")}
         className="menuItem"
       >
         <Image src={Invoice} className="icon"></Image>
         Ventas Ruta
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspaso")}
+        className="menuItem"
+      >
+        <Image src={ReturnWare} className="icon inverted"></Image>
+        Traspaso entre agencias
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso/recepcion")}
@@ -44,6 +52,12 @@ export default function RutaSidebar({
       >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Recepcion traspasos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/productos/baja")}
+        className="menuItem"
+      >
+        <Image src={Cross} className="icon"></Image>Baja Productos
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/regCliente")}

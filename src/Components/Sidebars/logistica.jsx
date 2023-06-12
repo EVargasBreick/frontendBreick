@@ -38,14 +38,14 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={Check} className="icon"></Image>Aprobar Pedido
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/pedidos/facturar")}
+        onClick={() => redirectOnClick("/pedidos/facturacion")}
         className="menuItem"
       >
         <Image src={Invoice} className="icon"></Image>Facturar Pedidos
       </MenuItem>
       <MenuItem
         className="menuItem"
-        onClick={() => redirectOnClick("/facturas/anular")}
+        onClick={() => redirectOnClick("/facturasanular")}
       >
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas

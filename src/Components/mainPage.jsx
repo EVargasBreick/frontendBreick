@@ -42,7 +42,7 @@ export default function MainPage() {
     console.log("Rol", JSON.parse(Cookies.get("userAuth")).rol);
     if (user) {
       if (JSON.parse(Cookies.get("userAuth")).rol == 2) {
-        navigate("/ventaAgencia");
+        navigate("/ventas/agencia");
       }
       if (JSON.parse(Cookies.get("userAuth")).rol == 3) {
         navigate("/regPedido");

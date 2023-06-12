@@ -70,8 +70,6 @@ function SaleModalAlt(
     setTotalFacturar,
     setTotalDesc,
     setTotalPrevio,
-    giftCard,
-    setGiftCard,
     ofp,
     setOfp,
     aPagar,
@@ -127,6 +125,8 @@ function SaleModalAlt(
   const [isNewEmail, setIsNewEmail] = useState(false);
   const [altCuf, setaltCuf] = useState("");
   const [leyenda, setLeyenda] = useState("");
+  const [urlSin, setUrlSin] = useState("");
+  const [giftCard, setGiftCard] = useState(0);
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -180,11 +180,11 @@ function SaleModalAlt(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-          (
-            cancelado -
-            (total * (1 - datos.descuento / 100) - giftCard)
-          ).toFixed()
-        )
+            (
+              cancelado -
+              (total * (1 - datos.descuento / 100) - giftCard)
+            ).toFixed()
+          )
     );
   }, [cancelado]);
 
@@ -463,6 +463,8 @@ function SaleModalAlt(
         nroSucursal: branchInfo.nro,
         puntoDeVenta: pointOfSale,
       };
+      const descAdicional =
+        parseFloat(descuentoCalculado) + parseFloat(giftCard);
       const nroTarjeta = `${cardNumbersA}00000000${cardNumbersB}`;
       const productos = formatInvoiceProducts(selectedProducts);
       const emizorBody = {
@@ -472,11 +474,7 @@ function SaleModalAlt(
         fechaEmision: "",
         cafc: "",
         codigoExcepcion: 0,
-        descuentoAdicional: parseFloat(
-          parseFloat(
-            parseFloat(descuentoCalculado).toFixed(2) + parseFloat(giftCard)
-          ).toFixed(2)
-        ),
+        descuentoAdicional: parseFloat(descAdicional.toFixed(2)),
         montoGiftCard: 0,
         codigoTipoDocumentoIdentidad: tipoDocumento,
         numeroDocumento: datos.nit == 0 ? "1000001" : `${datos.nit}`,
@@ -520,6 +518,7 @@ function SaleModalAlt(
             setNoFactura(parsed.numeroFactura);
             saveNewEmail(parsed.cuf);
             setLeyenda(invocieResponse.data.leyenda);
+            setUrlSin(parsed.urlSin);
           } else {
             console.log("Factura fuera de linea", parsed.shortLink);
             setNoFactura(parsed.numeroFactura);
@@ -538,22 +537,36 @@ function SaleModalAlt(
             setAlert(`${invocieResponse.data.message}`);
             setIsAlert(true);
           } else {
-            const error = JSON.parse(invocieResponse.data.error).data.errors[0];
+            const error = JSON.parse(invocieResponse.data.error);
             console.log("Error", error);
+            const errors = error.data?.errors;
+            console.log("TCL: cancelInvoice -> errors", errors);
+            for (let key in errors) {
+              if (errors.hasOwnProperty(key)) {
+                console.log(key + ": " + errors[key]);
+              }
+            }
+            console.log("Test", errors.codigoCliente);
+            setAlert("Test error");
             setIsAlertSec(false);
-            setAlert(`${invocieResponse.data.message} : ${error}`);
             setIsAlert(true);
+            //setAlert(`${invocieResponse.data.message} : ${error}`);
           }
         }
       } catch (error) {
-        if (error.code === 'ERR_NETWORK') {
-          setAlert("Error de conexión, espere 40 segundos e intente nuevamente");
+        if (error.code === "ERR_NETWORK") {
+          setAlert(
+            "Error de conexión, espere 40 segundos e intente nuevamente"
+          );
           setTimeout(async () => {
             const getInovice = await emizorService.getFactura(uniqueId);
-            console.log("TCL: invoicingProcess -> getInovice", getInovice)
-            await downloadAndPrintFile(getInovice.data.cufd, getInovice.data.nroFactura, getInovice.data.nitCliente);
-          }
-            , 30000);
+            console.log("TCL: invoicingProcess -> getInovice", getInovice);
+            await downloadAndPrintFile(
+              getInovice.data.cufd,
+              getInovice.data.nroFactura,
+              getInovice.data.nitCliente
+            );
+          }, 30000);
         }
         setIsAlertSec(false);
         setAlert("Error al facturar ", error);
@@ -815,6 +828,7 @@ function SaleModalAlt(
                     giftCard={giftCard}
                     invoiceNumber={noFactura}
                     leyenda={leyenda}
+                    urlSin={urlSin}
                   />
                 </Button>
               </div>
@@ -856,7 +870,9 @@ function SaleModalAlt(
                       : descuentoFactura,
                     totalDescontado: totalDescontado - giftCard,
                   }}
+                  invoiceNumber={noFactura}
                   leyenda={leyenda}
+                  urlSin={urlSin}
                 />
                 <InvoiceComponentCopy
                   ref={componentCopyRef}
@@ -886,6 +902,7 @@ function SaleModalAlt(
                   }}
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
+                  urlSin={urlSin}
                 />
               </div>
             </div>
@@ -1070,10 +1087,11 @@ function SaleModalAlt(
               </div>
               <div className="modalRows">
                 <div className="modalLabel"> Cambio:</div>
-                <div className="modalData">{`${cancelado - totalDescontado < 0
-                  ? " Ingrese un monto igual o superior"
-                  : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
-                  } `}</div>
+                <div className="modalData">{`${
+                  cancelado - totalDescontado < 0
+                    ? " Ingrese un monto igual o superior"
+                    : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
+                } `}</div>
               </div>
             </div>
           ) : tipoPago == 2 ? (
@@ -1177,13 +1195,14 @@ function SaleModalAlt(
               </div>
               <div className="modalRows">
                 <div className="modalLabel"> A pagar en efectivo:</div>
-                <div className="modalData">{`${datos.total - giftCard < 0
-                  ? "El valor del Vale es mayor al monto de la compra"
-                  : `${parseFloat(
-                    parseFloat(-giftCard) +
-                    total * (1 - datos.descuento / 100)
-                  ).toFixed(2)} Bs.`
-                  } `}</div>
+                <div className="modalData">{`${
+                  datos.total - giftCard < 0
+                    ? "El valor del Vale es mayor al monto de la compra"
+                    : `${parseFloat(
+                        parseFloat(-giftCard) +
+                          total * (1 - datos.descuento / 100)
+                      ).toFixed(2)} Bs.`
+                } `}</div>
               </div>
               {1 > 0 ? (
                 <div>
@@ -1205,16 +1224,17 @@ function SaleModalAlt(
                   </div>
                   <div className="modalRows">
                     <div className="modalLabel"> Cambio:</div>
-                    <div className="modalData">{`${cancelado -
-                      (total * (1 - datos.descuento / 100) - giftCard) <
+                    <div className="modalData">{`${
+                      cancelado -
+                        (total * (1 - datos.descuento / 100) - giftCard) <
                       0
-                      ? "Ingrese un monto mayor"
-                      : `${(
-                        cancelado -
-                        totalDesc +
-                        parseFloat(giftCard)
-                      ).toFixed(2)} Bs.`
-                      } `}</div>
+                        ? "Ingrese un monto mayor"
+                        : `${(
+                            cancelado -
+                            totalDesc +
+                            parseFloat(giftCard)
+                          ).toFixed(2)} Bs.`
+                    } `}</div>
                   </div>
                 </div>
               ) : null}
@@ -1286,6 +1306,7 @@ function SaleModalAlt(
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}
+              urlSin={urlSin}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -1311,6 +1332,7 @@ function SaleModalAlt(
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}
+              urlSin={urlSin}
             />
           </div>
         </div>

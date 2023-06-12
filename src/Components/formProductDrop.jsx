@@ -123,6 +123,12 @@ export default function FormProductDrop() {
     }
   }
 
+  function deleteProduct(index) {
+    const auxArray = [...selectedProduct];
+    auxArray.splice(index, 1);
+    setSelectedProduct(auxArray);
+  }
+
   return (
     <div>
       <Modal show={isAlert} onHide={handleClose}>
@@ -179,6 +185,7 @@ export default function FormProductDrop() {
           <Table>
             <thead className="tableHeader">
               <tr>
+                <th></th>
                 <th>Cod Interno</th>
                 <th>Producto</th>
                 <th>Cantidad</th>
@@ -189,6 +196,14 @@ export default function FormProductDrop() {
               {selectedProduct.map((sp, index) => {
                 return (
                   <tr key={index}>
+                    <td>
+                      <Button
+                        variant="danger"
+                        onClick={() => deleteProduct(index)}
+                      >
+                        X
+                      </Button>
+                    </td>
                     <td>{sp?.codInterno}</td>
                     <td>{sp?.nombreProducto}</td>
                     <td style={{ width: "15%" }}>
