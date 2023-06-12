@@ -92,22 +92,19 @@ export default function FormRePrintInvoicesAlt() {
       <td className="tableColumnSmall">{factura.importeBase} Bs.</td>
       <td className="tableColumnSmall">
         <Button
-          onClick={() => {
-            setLoading(true);
-            console.log("factura: ", factura);
-            emizorService
-              .downloadFactura(
+          onClick={async () => {
+            try {
+              await setLoading(true);
+              console.log("factura: ", factura);
+              await emizorService.downloadFactura(
                 factura.cufd,
                 `${factura.nitCliente}-${factura.razonSocial}`
-              )
-              .then((response) => {
-                console.log("response: ", response);
-                setLoading(false);
-              })
-              .catch((error) => {
-                setLoading(false);
-                console.log("error: ", error);
-              });
+              );
+            } catch (error) {
+              console.log("error: ", error);
+            } finally {
+              setLoading(false);
+            }
           }}
           className="yellow"
           variant="warning"
