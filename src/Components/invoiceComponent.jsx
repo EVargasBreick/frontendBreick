@@ -18,6 +18,7 @@ export const InvoiceComponent = React.forwardRef(
       invoiceNumber,
       orderDetails,
       leyenda,
+      urlSin,
     },
     ref
   ) => {
@@ -158,7 +159,11 @@ export const InvoiceComponent = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${process.env.REACT_APP_NIT_EMPRESA}&cuf=${cuf}&numero=${inum}`}
+              datos={
+                urlSin
+                  ? urlSin
+                  : `https://siat.impuestos.gob.bo/consulta/QR?nit=${process.env.REACT_APP_NIT_EMPRESA}&cuf=${cuf}&numero=${inum}`
+              }
               size={100}
             />
           </div>
@@ -313,7 +318,11 @@ export const InvoiceComponent = React.forwardRef(
             </div>
             <div>
               <QrComponent
-                datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${process.env.REACT_APP_NIT_EMPRESA}&cuf=${cuf}&numero=${inum}`}
+                datos={
+                  urlSin
+                    ? urlSin
+                    : `https://siat.impuestos.gob.bo/consulta/QR?nit=${process.env.REACT_APP_NIT_EMPRESA}&cuf=${cuf}&numero=${inum}`
+                }
                 size={170}
               />
             </div>

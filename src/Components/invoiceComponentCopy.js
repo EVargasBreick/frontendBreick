@@ -16,6 +16,7 @@ export const InvoiceComponentCopy = React.forwardRef(
       invoiceNumber,
       orderDetails,
       leyenda,
+      urlSin,
     },
     ref
   ) => {
@@ -159,7 +160,11 @@ export const InvoiceComponentCopy = React.forwardRef(
           </div>
           <div>
             <QrComponent
-              datos={`https://siat.impuestos.gob.bo/consulta/QR?nit=${invoice.nitEmpresa}&cuf=${cuf}&numero=${inum}`}
+              datos={
+                urlSin
+                  ? urlSin
+                  : `https://siat.impuestos.gob.bo/consulta/QR?nit=${process.env.REACT_APP_NIT_EMPRESA}&cuf=${cuf}&numero=${inum}`
+              }
               size={170}
             />
           </div>
