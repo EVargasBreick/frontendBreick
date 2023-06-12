@@ -52,6 +52,7 @@ import NewSaleAlt from "./Components/newSaleAlt";
 import CancelInvoiceAlt from "./Components/cancelInvoiceAlt";
 import RouteSaleAlt from "./Components/routeSaleAlt";
 import InvoiceOrdersAlt from "./Components/invoiceOrdersAlt";
+import RePrintInvoicesAlt from "./Components/rePrintInvoicesAlt";
 
 function App() {
   return (
@@ -401,6 +402,14 @@ function App() {
               element={
                 <RequireAuth>
                   <RePrintInvoices />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturasReimprimir"
+              element={
+                <RequireAuth>
+                  <RePrintInvoicesAlt />
                 </RequireAuth>
               }
             />

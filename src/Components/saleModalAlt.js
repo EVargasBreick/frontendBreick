@@ -532,6 +532,8 @@ function SaleModalAlt(
             }, 5000);
           }
         } else {
+          await debouncedFullInvoiceProcess.cancel();
+          console.log("Cancel debounced")
           if (invocieResponse.data.code === 500) {
             setIsAlertSec(false);
             setAlert(`${invocieResponse.data.message}`);
@@ -568,6 +570,7 @@ function SaleModalAlt(
             );
           }, 30000);
         }
+        await debouncedFullInvoiceProcess.cancel();
         setIsAlertSec(false);
         setAlert("Error al facturar ", error);
         setIsAlert(true);
