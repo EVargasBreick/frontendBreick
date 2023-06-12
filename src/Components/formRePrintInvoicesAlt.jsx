@@ -7,13 +7,14 @@ export default function FormRePrintInvoicesAlt() {
   const [nit, setNit] = useState("");
   const [nitError, setNitError] = useState("");
   const [facturas, setFacturas] = useState([]);
+  const [facturasAux, setFacturasAux] = useState([]);
   const [loading, setLoading] = useState(false);
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
     if (dateStart && dateEnd) {
-      const filtered = facturas.filter((fact) => {
+      const filtered = facturasAux.filter((fact) => {
         var dateString = fact.fechaHora;
         var dateParts = dateString.split(" ");
         var date = dateParts[0].split("/");
@@ -58,6 +59,7 @@ export default function FormRePrintInvoicesAlt() {
         .then((response) => {
           console.log("response: ", response);
           setFacturas(response.data);
+          setFacturasAux(response.data);
           setLoading(false);
         })
         .catch((error) => {
@@ -145,7 +147,7 @@ export default function FormRePrintInvoicesAlt() {
           </div>
         </Form>
         {/* FORM if rows show filter dates */}
-        {rows.length > 0 && (
+        {(rows.length > 0 || (dateEnd && dateStart)) && (
           <Form>
             <div className="d-xl-flex justify-content-center p-3">
               <Form.Group className="p-2" controlId="dateField1">
