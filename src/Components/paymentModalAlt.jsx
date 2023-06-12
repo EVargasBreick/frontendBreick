@@ -90,6 +90,7 @@ export default function PaymentModalAlt({
   const [isNewEmail, setIsNewEmail] = useState(false);
   const [altCuf, setaltCuf] = useState("");
   const [leyenda, setLeyenda] = useState("");
+  const [urlSin, setUrlSin] = useState("");
   useEffect(() => {
     const otrosPagos = otherPaymentsList();
     otrosPagos
@@ -927,6 +928,7 @@ export default function PaymentModalAlt({
                   invoiceNumber={noFactura}
                   orderDetails={orderDetails}
                   leyenda={leyenda}
+                  urlSin={urlSin}
                 />
               </Button>
             </div>
@@ -1158,6 +1160,7 @@ export default function PaymentModalAlt({
               invoiceNumber={noFactura}
               orderDetails={orderDetails}
               leyenda={leyenda}
+              urlSin={urlSin}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -1184,6 +1187,7 @@ export default function PaymentModalAlt({
               invoiceNumber={noFactura}
               orderDetails={orderDetails}
               leyenda={leyenda}
+              urlSin={urlSin}
             />
           </div>
         </div>

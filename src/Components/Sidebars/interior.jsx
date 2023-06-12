@@ -36,7 +36,7 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
     >
       <div className="menuItem">Agencias</div>
       <MenuItem
-        onClick={() => redirectOnClick("/ventaAgencia")}
+        onClick={() => redirectOnClick("/ventas/agencia")}
         className="menuItem"
       >
         <Image src={Invoice} className="icon"></Image>
@@ -105,7 +105,7 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         <Image src={appBooking} className="icon"></Image>Alistar Pedidos
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/pedidos/facturar")}
+        onClick={() => redirectOnClick("/pedidos/facturacion")}
         className="menuItem"
       >
         <Image src={Invoice} className="icon"></Image>Facturar Pedidos
@@ -119,7 +119,7 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
       </MenuItem>
       <MenuItem
         className="menuItem"
-        onClick={() => redirectOnClick("/facturas/anular")}
+        onClick={() => redirectOnClick("/facturasanular")}
       >
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas

@@ -2,23 +2,16 @@ import React from "react";
 import Display from "./display";
 import Sidebar from "./sidebar";
 import "../styles/generalStyle.css";
-import FormNewSale from "./formNewSale";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-export default function NewSale() {
+import FormRePrintInvoicesAlt from "./formRePrintInvoicesAlt";
+export default function RePrintInvoicesAlt() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 2 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 9 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 6
-      ) {
-        navigate("/ventas/agencia");
+      if (JSON.parse(Cookies.get("userAuth")).rol < 12) {
       } else {
         navigate("/principal");
       }
@@ -35,7 +28,7 @@ export default function NewSale() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormNewSale />
+          <FormRePrintInvoicesAlt />
         </div>
       </div>
     </div>
