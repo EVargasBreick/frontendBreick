@@ -533,7 +533,7 @@ function SaleModalAlt(
           }
         } else {
           await debouncedFullInvoiceProcess.cancel();
-          console.log("Cancel debounced")
+          console.log("Cancel debounced");
           if (invocieResponse.data.code === 500) {
             setIsAlertSec(false);
             setAlert(`${invocieResponse.data.message}`);
@@ -543,14 +543,22 @@ function SaleModalAlt(
             console.log("Error", error);
             const errors = error.data?.errors;
             console.log("TCL: cancelInvoice -> errors", errors);
+            setIsAlertSec(false);
+            var errorList = [];
             for (let key in errors) {
               if (errors.hasOwnProperty(key)) {
                 console.log(key + ": " + errors[key]);
+                errorList.push(`${errors[key]}.\n`);
               }
             }
-            console.log("Test", errors.codigoCliente);
-            setAlert("Test error");
-            setIsAlertSec(false);
+            setAlert("Error al facturar\n", errorList);
+            console.log("Lista de errores", errorList);
+            setAlert(
+              "Error al facturar:\n" +
+                errorList.map((item) => {
+                  return item + `\n`;
+                })
+            );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
           }
