@@ -53,6 +53,7 @@ import CancelInvoiceAlt from "./Components/cancelInvoiceAlt";
 import RouteSaleAlt from "./Components/routeSaleAlt";
 import InvoiceOrdersAlt from "./Components/invoiceOrdersAlt";
 import RePrintInvoicesAlt from "./Components/rePrintInvoicesAlt";
+import MarkdownsReport from "./Components/markdownsReport";
 
 function App() {
   return (
@@ -242,6 +243,14 @@ function App() {
               element={
                 <RequireAuth>
                   <SalesReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/bajas/general"
+              element={
+                <RequireAuth>
+                  <MarkdownsReport />
                 </RequireAuth>
               }
             />
