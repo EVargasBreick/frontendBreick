@@ -4,6 +4,7 @@ import { Button, Form, Table } from "react-bootstrap";
 import { getStores } from "../services/storeServices";
 import { reportService } from "../services/reportServices";
 import { Loader } from "./loader/Loader";
+import { generateExcel } from "../services/utils";
 
 export default function BodyMarkdownsReport() {
   const [dateStart, setDateStart] = useState("");
@@ -47,26 +48,28 @@ export default function BodyMarkdownsReport() {
     setLoading(false);
   }
 
+
+
   const rows = reports.map((report, index) => (
     <tr key={index} className="tableRow">
+      <td className="tableColumnSmall">{report.idBaja}</td>
       <td className="tableColumnSmall">{report.codInterno}</td>
       <td className="tableColumnSmall">{report.nombreProducto}</td>
       <td className="tableColumnSmall">{report.cantProducto}</td>
       <td className="tableColumnSmall">{report.motivo}</td>
       <td className="tableColumnSmall">{report.fechaBaja}</td>
 
-      <td className="tableColumnSmall">
+      {/* <td className="tableColumnSmall">
         <Button className="yellow" variant="warning">
           Ver Detalles
         </Button>
-      </td>
+      </td> */}
     </tr>
   ));
 
   return (
     <section>
       <p className="formLabel">REPORTE GENERAL DE BAJAS</p>
-      <p className="formLabel">Seleccione rango de fechas</p>
       <Form
         className="d-flex justify-content-center p-3 flex-column gap-3"
         onSubmit={handleSubmit}
@@ -89,7 +92,7 @@ export default function BodyMarkdownsReport() {
             })}
           </Form.Control>
         </Form.Group>
-
+        <Form.Label>Seleccione rango de fechas</Form.Label>
         <div className="d-xl-flex justify-content-center gap-3">
           <Form.Group className="flex-grow-1" controlId="dateField1">
             <Form.Label>Fecha Inicio:</Form.Label>
@@ -112,21 +115,30 @@ export default function BodyMarkdownsReport() {
         </div>
 
         <Button className="reportButton " variant="success" type="submit">
-          Buscar
+          Generar Reporte
         </Button>
       </Form>
+
+      {reports.length > 0 && (
+        <Button variant="success" onClick={() => {
+          generateExcel(reports, `Reporte de Bajas ${dateStart} - ${dateEnd}`)
+        }}>
+          Exportar a excel
+        </Button>
+      )}
 
       <div className="d-flex justify-content-center">
         <div className="tableOne">
           <Table striped bordered responsive>
             <thead>
               <tr className="tableHeader">
+                <th className="tableColumn">ID Baja</th>
                 <th className="tableColumn">Codigo Interno</th>
                 <th className="tableColumn">Nombre del Producto</th>
                 <th className="tableColumn">Cantidad del Producto</th>
                 <th className="tableColumn">Motivo</th>
                 <th className="tableColumn">Fecha de Baja</th>
-                <th className="tableColumn">Acciones</th>
+                {/* <th className="tableColumn">Acciones</th> */}
               </tr>
             </thead>
             <tbody>{rows}</tbody>
