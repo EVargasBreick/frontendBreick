@@ -10,6 +10,7 @@ export default function BodyMarkdownsReport() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
   const [idAgencia, setIdAgencia] = useState("");
+  const [idBaja, setIdBaja] = useState("");
   const [almacen, setAlmacen] = useState([]);
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
@@ -22,19 +23,20 @@ export default function BodyMarkdownsReport() {
   }, []);
 
   useEffect(() => {
-    if (dateStart && dateEnd && idAgencia) {
+    if (((dateStart && dateEnd) || idBaja) && idAgencia) {
       setLoading(true);
       const data = reportService.getMarkdownsReport(
         idAgencia,
-        dateStart.replace(/-/g, "/"),
-        dateEnd.replace(/-/g, "/")
+        dateStart,
+        dateEnd,
+        idBaja
       );
       data.then((data) => {
         setReports(data);
         setLoading(false);
       });
     }
-  }, [dateStart, dateEnd]);
+  }, [dateStart, dateEnd, idBaja]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -42,13 +44,12 @@ export default function BodyMarkdownsReport() {
     const data = await reportService.getMarkdownsReport(
       idAgencia,
       dateStart,
-      dateEnd
+      dateEnd,
+      idBaja
     );
     setReports(data);
     setLoading(false);
   }
-
-
 
   const rows = reports.map((report, index) => (
     <tr key={index} className="tableRow">
@@ -92,6 +93,18 @@ export default function BodyMarkdownsReport() {
             })}
           </Form.Control>
         </Form.Group>
+        <p className="formLabel">FILTROS- NO OBLIGATORIOS</p>
+
+        <Form.Group>
+          <Form.Label>Filtrar por ID Baja</Form.Label>
+          <Form.Control
+            type="number"
+            placeholder="ID Baja"
+            value={idBaja}
+            onChange={(e) => setIdBaja(e.target.value)}
+          />
+        </Form.Group>
+
         <Form.Label>Seleccione rango de fechas</Form.Label>
         <div className="d-xl-flex justify-content-center gap-3">
           <Form.Group className="flex-grow-1" controlId="dateField1">
@@ -120,9 +133,15 @@ export default function BodyMarkdownsReport() {
       </Form>
 
       {reports.length > 0 && (
-        <Button variant="success" onClick={() => {
-          generateExcel(reports, `Reporte de Bajas ${dateStart} - ${dateEnd}`)
-        }}>
+        <Button
+          variant="success"
+          onClick={() => {
+            generateExcel(
+              reports,
+              `Reporte de Bajas ${dateStart} - ${dateEnd}`
+            );
+          }}
+        >
           Exportar a excel
         </Button>
       )}

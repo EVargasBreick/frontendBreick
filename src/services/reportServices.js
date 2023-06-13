@@ -101,12 +101,14 @@ const reportInstance = axios.create({
 });
 
 export const reportService = {
-  async getMarkdownsReport(idAgencia, startDate = null, endDate = null) {
+  async getMarkdownsReport(idAgencia, startDate = null, endDate = null, idBaja = null) {
     const url = `/reportes/bajas/general`;
     const params = {
       idAgencia,
       startDate,
       endDate,
+      idBaja,
+      
     };
     const response = await reportInstance.get(url, { params });
     return response.data;
