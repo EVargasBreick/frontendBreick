@@ -62,6 +62,12 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       >
         <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
       </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/bajas/general")}
+        className="menuItem"
+      >
+        <Image src={Hand} className="icon"></Image>Reporte libro de bajas
+      </MenuItem>
       {/*
       <MenuItem>
         <Image src={Ticket} className="icon"></Image>Reporte facturados por

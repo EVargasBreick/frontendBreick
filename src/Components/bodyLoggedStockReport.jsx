@@ -108,6 +108,8 @@ export default function BodyLoggedStockReport() {
     });
   }
 
+  
+
   return (
     <div>
       <div className="formLabel">REPORTE DE MOVIMIENTOS DE KARDEX</div>

@@ -96,6 +96,25 @@ const entryReport = () => {
   });
 };
 
+const reportInstance = axios.create({
+  baseURL: `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}`,
+});
+
+export const reportService = {
+  async getMarkdownsReport(idAgencia, startDate = null, endDate = null, idBaja = null) {
+    const url = `/reportes/bajas/general`;
+    const params = {
+      idAgencia,
+      startDate,
+      endDate,
+      idBaja,
+      
+    };
+    const response = await reportInstance.get(url, { params });
+    return response.data;
+  }
+}
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
