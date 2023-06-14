@@ -100,8 +100,8 @@ export default function FormProductUpdate() {
       </div>
 
       <div className="formLabel">Detalles producto seleccionado</div>
-      <UpdateFormAlt props={product}/>
-      
+      {product.idProducto && <UpdateFormAlt props={product} />}
+
       {loading && <Loader />}
     </div>
   );
