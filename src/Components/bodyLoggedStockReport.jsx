@@ -108,6 +108,8 @@ export default function BodyLoggedStockReport() {
     });
   }
 
+  
+
   return (
     <div>
       <div className="formLabel">REPORTE DE MOVIMIENTOS DE KARDEX</div>
@@ -193,10 +195,11 @@ export default function BodyLoggedStockReport() {
                       <td>{td.cantidadProducto}</td>
                       <td>{td.accion === "+" ? "Ingreso" : "Salida"}</td>
                       <td>
-                        {
-                          codeList.find((cl) => cl.codigo === codigo)
-                            .descripcion
-                        }
+                        {codeList.find((cl) => cl.codigo === codigo)
+                          ?.descripcion
+                          ? codeList.find((cl) => cl.codigo === codigo)
+                              .descripcion
+                          : "Descripción no disponible"}
                       </td>
                       <td>{id}</td>
                       <td>{td.fechaHora}</td>

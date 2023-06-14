@@ -124,7 +124,7 @@ export default function FormRePrintInvoicesAlt() {
             <Form.Label>NIT Cliente:</Form.Label>
             <Form.Control
               type="text"
-              placeholder="1818915"
+              placeholder="nit"
               value={nit}
               onChange={handleNitChange}
               isInvalid={nitError.length > 0}

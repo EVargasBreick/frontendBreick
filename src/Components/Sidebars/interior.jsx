@@ -24,6 +24,7 @@ import Load from "../../assets/load.png";
 import Star from "../../assets/star.png";
 import Chocolate from "../../assets/chocolate.png";
 import Map from "../../assets/Map.png";
+import Lines from "../../assets/lines.png";
 export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
   return (
     <SubMenu
@@ -149,6 +150,13 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         className="menuItem"
       >
         <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/stock")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Reporte Movimientos Kardex
       </MenuItem>
     </SubMenu>
   );
