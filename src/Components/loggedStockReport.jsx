@@ -13,7 +13,10 @@ export default function LoggedStockReport() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol == 3) {
+      if (
+        JSON.parse(Cookies.get("userAuth")).rol == 3 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 11
+      ) {
         navigate("/principal");
       } else {
       }

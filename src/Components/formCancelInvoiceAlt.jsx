@@ -33,7 +33,6 @@ export default function FormCancelInvoiceAlt() {
   const [sucList, setSucList] = useState([]);
   const [selectedSuc, setSelectedSuc] = useState("");
   const [usuAct, setUsuact] = useState("");
-
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
 
@@ -130,14 +129,27 @@ export default function FormCancelInvoiceAlt() {
     setIsAlert(true);
     setAlert("Anulando Factura");
     console.log("Datos factura anulando", invoice);
-    console.log("Datos factura anulando", motivo);
     try {
       const cancelar = await emizorService.anularFactura(invoice.cuf, motivo);
       console.log("cancelar", cancelar);
-      setAlert("Factura Anulada");
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000);
+      try {
+        const products = allFacts.filter(
+          (af) => af.idFactura == invoice.idFactura
+        );
+        const returnToStock = await updateStock({
+          accion: "add",
+          idAlmacen: selectedInvoice.idAgencia,
+          productos: products,
+          detalle: `ANFAC-${invoice.idFactura}`,
+        });
+        console.log("Stock retornado", returnToStock);
+        setAlert("Factura Anulada");
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      } catch (error) {
+        setAlert("Error al devolver stock");
+      }
     } catch (error) {
       const errors = error.response?.data?.data?.data?.errors ?? [
         "Error al anular factura",

@@ -35,6 +35,8 @@ export default function FormInvoiceOrderAlt() {
   const [idString, setIdString] = useState("");
   const [notas, setNotas] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
+  const [userList, setUserList] = useState([]);
+  const [bulkList, setBulkList] = useState([]);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
@@ -44,6 +46,14 @@ export default function FormInvoiceOrderAlt() {
     list
       .then((res) => {
         console.log("Res", res);
+        let uniqueArray = res.data.data.reduce((acc, curr) => {
+          if (!acc.find((obj) => obj.usuario === curr.usuario)) {
+            acc.push(curr);
+          }
+          return acc;
+        }, []);
+        setUserList(uniqueArray);
+        console.log("Array unico", uniqueArray);
         setOrderList(res.data.data);
         setAuxOrderList(res.data.data);
       })
@@ -86,9 +96,38 @@ export default function FormInvoiceOrderAlt() {
       }
     }
   }
+
   function clearDate() {
     setOrderList(auxOrderList);
   }
+
+  function filterByUser(value) {
+    if (value === "Limpiar") {
+      setOrderList(auxOrderList);
+    } else {
+      const newList = auxOrderList.filter((dt) => dt.usuario === value); //
+      setOrderList([...newList]);
+    }
+  }
+
+  function handleChecks(value, index) {
+    console.log("Checked", value);
+    if (!bulkList.includes(value)) {
+      setBulkList([...bulkList, value]);
+    } else {
+      const indexOf = bulkList.indexOf(value);
+      const baux = [...bulkList];
+      baux.splice(indexOf, 1);
+      setBulkList(baux);
+    }
+  }
+
+  function bulkInvoicing() {}
+
+  useEffect(() => {
+    console.log("Bulk list", bulkList);
+  }, [bulkList]);
+
   function invoiceProcess(id) {
     const idString = currentData.find((cd) => cd.idPedido == id).idString;
     const note = currentData.find((cd) => cd.idPedido == id).notas;
@@ -198,12 +237,24 @@ export default function FormInvoiceOrderAlt() {
           <Form.Label className="lowerLabel">
             Filtrar por Codigo Pedido o Nit
           </Form.Label>
+
           <Form.Control
             type="text"
             onChange={(e) => {
               setSearch(e.target.value);
             }}
           />
+          <Form.Label className="lowerLabel">Filtrar por Usuario</Form.Label>
+          <Form.Select onChange={(e) => filterByUser(e.target.value)}>
+            <option value={"Limpiar"}>Seleccione un usuario / Limpiar</option>
+            {userList.map((ul, index) => {
+              return (
+                <option key={index} value={ul.usuario}>
+                  {ul.usuario}
+                </option>
+              );
+            })}
+          </Form.Select>
         </Form>
         <div className="invoiceButtonGroup">
           <div>
@@ -216,6 +267,7 @@ export default function FormInvoiceOrderAlt() {
               Limpiar
             </Button>
           </div>
+          <div></div>
         </div>
       </div>
       <div className="invoiceListCointainer">
@@ -232,6 +284,7 @@ export default function FormInvoiceOrderAlt() {
                 <th>Descuento</th>
                 <th>Total Facturar</th>
                 <th></th>
+                <th>{`Selec. \nMúltiple`}</th>
               </tr>
             </thead>
             <tbody className="tableRow">
@@ -250,14 +303,39 @@ export default function FormInvoiceOrderAlt() {
                       <Button
                         variant="success"
                         onClick={() => invoiceProcess(ol.idPedido)}
+                        disabled={bulkList.length > 0}
                       >
                         Facturar
                       </Button>
+                    </td>
+
+                    <td>
+                      <Form.Check
+                        value={ol.idPedido}
+                        onChange={(e) => handleChecks(e.target.value, index)}
+                      />
                     </td>
                   </tr>
                 );
               })}
             </tbody>
+            <tfoot className="tableRow">
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td colSpan={2}>
+                  {bulkList.length > 0 ? (
+                    <Button variant="success">Facturar Todo</Button>
+                  ) : null}
+                </td>
+              </tr>
+            </tfoot>
           </Table>
         </div>
         <Pagination
