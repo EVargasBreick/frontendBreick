@@ -1,5 +1,9 @@
 import axios from "axios";
 
+const productsInstance = axios.create({
+  baseURL: `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos`,
+});
+
 const getProducts = (id) => {
   return new Promise((resolve, reject) => {
     axios
@@ -72,6 +76,8 @@ const productsDiscount = (id) => {
         resolve(response);
       });
   });
+
+
 };
 
 const updateForMissing = (selectedProds, faltantes) => {
@@ -132,14 +138,14 @@ const updateForMissing = (selectedProds, faltantes) => {
       prod.tipoProducto == 1
         ? tradicionales.push(auxObj)
         : prod.tipoProducto == 2
-        ? pascua.push(auxObj)
-        : prod.tipoProducto == 3
-        ? navidad.push(auxObj)
-        : prod.tipoProducto == 4
-        ? halloween.push(auxObj)
-        : prod.tipoProducto == 5
-        ? sinDesc.push(auxObj)
-        : especiales.push(auxObj);
+          ? pascua.push(auxObj)
+          : prod.tipoProducto == 3
+            ? navidad.push(auxObj)
+            : prod.tipoProducto == 4
+              ? halloween.push(auxObj)
+              : prod.tipoProducto == 5
+                ? sinDesc.push(auxObj)
+                : especiales.push(auxObj);
       modifiedProds.push(auxObj);
     }
   });
@@ -311,6 +317,13 @@ const productOrigin = () => {
       });
   });
 };
+
+export const productsService = {
+  async getAllProducts() {
+    const response = await productsInstance.get("/all");
+    return response.data;
+  }
+}
 
 export {
   getProducts,

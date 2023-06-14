@@ -1,60 +1,84 @@
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { Button, Form, Table, Image, Modal } from "react-bootstrap";
-import { getProductsWithStock } from "../services/productServices";
+import {
+  getProductsWithStock,
+  productsService,
+} from "../services/productServices";
+import { Loader } from "./loader/Loader";
+import UpdateFormAlt from "./formProductUpdateAlt";
 export default function FormProductUpdate() {
   const [productList, setProductList] = useState([]);
   const [userId, setUserid] = useState("");
   const [storeId, setStoreId] = useState("");
 
   const [search, setSearch] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState("Seleccione un producto");
+  const [selectedProduct, setSelectedProduct] = useState(
+    "Seleccione un producto"
+  );
+  const [product, setProduct] = useState({});
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const UsuarioAct = Cookies.get("userAuth");
-    if (UsuarioAct) {
-      const idAlmacen = JSON.parse(Cookies.get("userAuth")).idAlmacen;
-      setUserid(JSON.parse(Cookies.get("userAuth")).idUsuario);
-      setStoreId(idAlmacen);
-      console.log("Id almacen", idAlmacen);
-      const prods = getProductsWithStock(idAlmacen, "all");
-      prods.then((product) => {
-        setProductList(product.data);
-      });
-    }
-    console.log("Length", JSON.stringify(selectedProduct).length);
+    setLoading(true);
+    const data = productsService.getAllProducts();
+    data.then((res) => {
+      setProductList(res);
+      setLoading(false);
+    });
   }, []);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    console.log("Producto seleccionado", selectedProduct);
-  }
+  useEffect(() => {
+    if (selectedProduct != "Seleccione un producto") {
+      setLoading(true);
+      const product = productList.find(
+        (prod) => prod.idProducto == selectedProduct
+      );
+      setLoading(false);
+    }
+  }, [selectedProduct]);
+
+  useEffect(() => {
+    console.log("producto", product);
+  }, [product]);
 
   function filterProducts(value) {
     setSearch(value);
-    const newList = productList.filter(
+    const newList = productList?.filter(
       (dt) =>
         dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
         dt.codInterno.toString().includes(value.toString()) ||
         dt.codigoBarras.toString().includes(value.toString())
     );
-    setSelectedProduct(newList[0]?.idProducto);
+    setProduct(newList[0] || []);
+    setSelectedProduct(newList[0]?.idProducto ?? "Seleccione un producto");
   }
 
   return (
     <div>
       <div className="formLabel">ACTUALIZAR PRODUCTOS</div>
       <div>
-        <Form onSubmit={() => filterProducts(search)}>
+        <Form
+          onSubmit={(event) => {
+            event.preventDefault();
+            filterProducts(search);
+          }}
+        >
           <Form.Label>Lista de Productos</Form.Label>
           <Form.Group className="columnForm">
             <Form.Select
               className="mediumForm"
-              onChange={(e) => setSelectedProduct(e.target.value)}
+              onChange={(e) => {
+                setSelectedProduct(e.target.value);
+                setProduct(
+                  productList.find((prod) => prod.idProducto == e.target.value)
+                );
+              }}
               value={selectedProduct}
             >
               <option>Seleccione un producto</option>
-              {productList.map((pl, index) => {
+              {productList?.map((pl, index) => {
                 return (
                   <option value={pl.idProducto} key={index}>
                     {pl.nombreProducto}
@@ -76,6 +100,9 @@ export default function FormProductUpdate() {
       </div>
 
       <div className="formLabel">Detalles producto seleccionado</div>
+      <UpdateFormAlt props={product}/>
+      
+      {loading && <Loader />}
     </div>
   );
 }
