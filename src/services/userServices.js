@@ -71,10 +71,10 @@ const structureUser = (
   const tipoUsuario = corpArray.includes(categoria)
     ? 1
     : categoria == 4
-    ? 4
-    : departamento == 1
-    ? 2
-    : 3;
+      ? 4
+      : departamento == 1
+        ? 2
+        : 3;
 
   var userObject = {
     nombre: nombre,
@@ -131,6 +131,24 @@ const userBasic = () => {
       });
   });
 };
+
+const userInstance = axios.create({
+  baseURL: `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/user`,
+});
+
+export const userService = {
+  async changePassword(originalPassword, newPassword, idUser) {
+    const data = {
+      originalPassword,
+      newPassword,
+      idUser,
+    };
+    const response = await userInstance.post("/changePassword", data);
+    return response.data;
+  },
+};
+
+
 export {
   controlUserInput,
   verifySamePassword,

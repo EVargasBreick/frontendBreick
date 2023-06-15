@@ -10,10 +10,13 @@ import Cookies from "js-cookie";
 import { useState } from "react";
 import { useContext } from "react";
 import { UserContext } from "../Context/UserContext";
+import ChangePasswordModal from "./Modals/ChangePasswordModal";
 export default function CurrentUser() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const { setIsAuth, setuserData } = useContext(UserContext);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
 
@@ -35,23 +38,36 @@ export default function CurrentUser() {
     navigate("/");
   }
   return (
-    <Dropdown>
-      <Dropdown.Toggle
-        variant="light"
-        id="dropdown-basic"
-        className="dropButton"
-      >
-        {userName}
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item
-          onClick={() => {
-            logOut();
-          }}
+    <>
+      <Dropdown>
+        <Dropdown.Toggle
+          variant="light"
+          id="dropdown-basic"
+          className="dropButton"
         >
-          Cerrar Sesión
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
+          {userName}
+        </Dropdown.Toggle>
+        <Dropdown.Menu>
+          <Dropdown.Item
+            onClick={() => {
+              logOut();
+            }}
+          >
+            Cerrar Sesión
+          </Dropdown.Item>
+          <Dropdown.Item
+            onClick={() => {
+              setShowChangePasswordModal(true);
+            }}
+          >
+            Cambiar Contraseña
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
+      <ChangePasswordModal
+        show={showChangePasswordModal}
+        handleClose={() => setShowChangePasswordModal(false)}
+      />
+    </>
   );
 }
