@@ -54,6 +54,7 @@ import RouteSaleAlt from "./Components/routeSaleAlt";
 import InvoiceOrdersAlt from "./Components/invoiceOrdersAlt";
 import RePrintInvoicesAlt from "./Components/rePrintInvoicesAlt";
 import MarkdownsReport from "./Components/markdownsReport";
+import ProductUpdate from "./Components/productUpdate";
 
 function App() {
   return (
@@ -395,6 +396,14 @@ function App() {
               element={
                 <RequireAuth>
                   <ProductDrop />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/productos/actualizar"
+              element={
+                <RequireAuth>
+                  <ProductUpdate />
                 </RequireAuth>
               }
             />
