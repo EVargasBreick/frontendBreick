@@ -19,6 +19,7 @@ export default function FormProductUpdate() {
   const [product, setProduct] = useState({});
 
   const [loading, setLoading] = useState(false);
+  const [getProducts, setGetProducts] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -27,7 +28,7 @@ export default function FormProductUpdate() {
       setProductList(res);
       setLoading(false);
     });
-  }, []);
+  }, [getProducts]);
 
   useEffect(() => {
     if (selectedProduct != "Seleccione un producto") {
@@ -100,7 +101,13 @@ export default function FormProductUpdate() {
       </div>
 
       <div className="formLabel">Detalles producto seleccionado</div>
-      {product.idProducto && <UpdateFormAlt props={product} />}
+      {product.idProducto && (
+        <UpdateFormAlt
+          setProductList={setProductList}
+          props={product}
+          setGetProducts={setGetProducts}
+        />
+      )}
 
       {loading && <Loader />}
     </div>

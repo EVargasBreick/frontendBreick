@@ -322,6 +322,10 @@ export const productsService = {
   async getAllProducts() {
     const response = await productsInstance.get("/all");
     return response.data;
+  },
+  async updateProduct(id, body) {
+    const response = await productsInstance.put(`/editar/${id}`, body);
+    return response.data;
   }
 }
 
