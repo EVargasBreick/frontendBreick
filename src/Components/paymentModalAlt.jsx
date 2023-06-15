@@ -481,10 +481,12 @@ export default function PaymentModalAlt({
           }
         } else {
           if (invocieResponse.data.code === 500) {
+            await debouncedFullInvoiceProcess.cancel();
             setIsAlertSec(false);
             setAlert(`${invocieResponse.data.message}`);
             setIsAlert(true);
           } else {
+            await debouncedFullInvoiceProcess.cancel();
             const error = JSON.parse(invocieResponse.data.error).data.errors[0];
             console.log("Error", error);
             setIsAlertSec(false);
@@ -493,6 +495,7 @@ export default function PaymentModalAlt({
           }
         }
       } catch (error) {
+        await debouncedFullInvoiceProcess.cancel();
         setIsAlertSec(false);
         setAlert("Error al facturar ", error);
         setIsAlert(true);

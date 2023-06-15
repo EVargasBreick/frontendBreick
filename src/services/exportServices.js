@@ -96,10 +96,32 @@ const downloadAndPrintFile = async (url, numeroFactura, nit) => {
   return newWindow;
 };
 
+const downloadOnlyFile = async (url, numeroFactura, nit) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+
+  const link = document.createElement("a");
+  const urlObject = URL.createObjectURL(blob);
+  link.href = urlObject;
+  link.download = `factura-${numeroFactura}-${nit}.pdf`; // Set the desired filename and extension
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+
+  // Delay the resolution of the promise using setTimeout
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      URL.revokeObjectURL(urlObject);
+      document.body.removeChild(link);
+      resolve();
+    }, 5000); // Adjust the delay time as needed
+  });
+};
 export {
   ExportToExcel,
   ExportTemplate,
   ExportPastReport,
   ExportGeneralSalesReport,
   downloadAndPrintFile,
+  downloadOnlyFile,
 };
