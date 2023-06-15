@@ -53,6 +53,16 @@
   background-color: white;
 }
 
+.tableFooterAlt {
+  color: #6a4593;
+  text-align: start;
+  border-color: #6a4593;
+  border-width: 2px;
+  background-color: white;
+  position: sticky;
+  bottom: 0;
+}
+
 .tableColumn {
   width: 18%;
   padding-left: 1%;

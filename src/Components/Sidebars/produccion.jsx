@@ -7,6 +7,7 @@ import File1 from "../../assets/file2b.png";
 import NewFile from "../../assets/newFile.png";
 import Image from "react-bootstrap/Image";
 import Prod from "../../assets/prod.png";
+import newOrder from "../../assets/newOrder.png";
 import { useNavigate } from "react-router-dom";
 import "../../styles/generalStyle.css";
 
@@ -31,6 +32,12 @@ export default function Produccion({
       >
         <Image src={File1} className="icon"></Image>
         Crear Producto
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/productos/actualizar")}
+        className="menuItem"
+      >
+        <Image src={newOrder} className="icon"></Image>Editar Producto
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/cargarProductos")}
