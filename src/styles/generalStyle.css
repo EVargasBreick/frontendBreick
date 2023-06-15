@@ -210,7 +210,7 @@
 .invoiceTable {
   display: block;
   overflow-x: scroll;
-  max-height: 500px;
+  max-height: 800px;
 }
 .invoiceListContainer {
   padding-bottom: 5%;

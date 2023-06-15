@@ -58,6 +58,7 @@ export default function FormInvoiceOrderAlt() {
       const pdve = Cookies.get("pdv");
       console.log("Punto de venta", pdve);
       setUserName(JSON.parse(UsuarioAct).usuario);
+      setIdAlmacen(JSON.parse(UsuarioAct).idAlmacen);
       const PuntoDeVentas = pdve != undefined ? pdve : 0;
       setPdv(PuntoDeVentas);
     }
@@ -66,8 +67,13 @@ export default function FormInvoiceOrderAlt() {
       const sucursales = resp.data;
       console.log("Sucursales", sucursales);
       console.log("Id almacen", idAlmacen);
-      const sucur = sucursales.find((sc) => idAlmacen == sc.idAgencia)
-        ? sucursales.find((sc) => idAlmacen == sc.idAgencia)
+
+      const sucur = sucursales.find(
+        (sc) => JSON.parse(UsuarioAct).idAlmacen == sc.idAgencia
+      )
+        ? sucursales.find(
+            (sc) => JSON.parse(UsuarioAct).idAlmacen == sc.idAgencia
+          )
         : sucursales.find((sc) => "AL001" == sc.idAgencia);
       console.log("Sucur", sucur);
       const branchData = {
@@ -104,13 +110,15 @@ export default function FormInvoiceOrderAlt() {
   function filter() {
     if (dateFilter.length > 0 && search.length > 0) {
       const spplited = dateFilter.split("-");
-      var dia = spplited[2] > 9 ? spplited[2] : spplited[2].substring(1, 2);
-      var mes = spplited[1] > 9 ? spplited[1] : spplited[1].substring(1, 2);
+      console.log("Spplited", spplited);
+      var dia = spplited[2];
+      var mes = spplited[1];
       var año = spplited[0];
       const reformated = `${dia}/${mes}/${año}`;
+      console.log("Reformated", reformated);
       const newList = auxOrderList.filter(
         (dt) =>
-          dt.fechaCrea.substring(0, 9).includes(reformated) &&
+          dt.fechaCrea.includes(reformated) &&
           (dt.idString.toLowerCase().includes(search.toLowerCase()) ||
             dt.nit.includes(search))
       ); //
@@ -118,12 +126,14 @@ export default function FormInvoiceOrderAlt() {
     } else {
       if (dateFilter.length > 0) {
         const spplited = dateFilter.split("-");
-        var dia = spplited[2] > 9 ? spplited[2] : spplited[2].substring(1, 2);
-        var mes = spplited[1] > 9 ? spplited[1] : spplited[1].substring(1, 2);
+        console.log("Spplited", spplited);
+        var dia = spplited[2];
+        var mes = spplited[1];
         var año = spplited[0];
         const reformated = `${dia}/${mes}/${año}`;
+        console.log("Reformated", reformated);
         const newList = auxOrderList.filter((dt) =>
-          dt.fechaCrea.substring(0, 9).includes(reformated)
+          dt.fechaCrea.includes(reformated)
         ); //
         setOrderList([...newList]);
       } else {
@@ -145,7 +155,7 @@ export default function FormInvoiceOrderAlt() {
     if (value === "Limpiar") {
       setOrderList(auxOrderList);
     } else {
-      const newList = auxOrderList.filter((dt) => dt.usuario === value); //
+      const newList = orderList.filter((dt) => dt.usuario === value); //
       setOrderList([...newList]);
     }
   }
@@ -282,7 +292,6 @@ export default function FormInvoiceOrderAlt() {
           nit: tot.nit,
           razonSocial: tot.razonSocial,
         };
-        setIdAlmacen(tot.idAlmacen);
         setTotales(totis);
         setCliente({
           nit: tot.nit,
@@ -427,9 +436,14 @@ export default function FormInvoiceOrderAlt() {
   }
 
   function validateFormOfPayment(e) {
+    console.log("Id almacen", idAlmacen);
     e.preventDefault();
     if (tipoPago === "") {
       setAlert("Por favor seleccione un tipo de pago general");
+      setIsAlert(true);
+      setTimeout(() => {
+        setIsAlert(false);
+      }, 5000);
     } else {
       bulkInvoicing();
     }
@@ -566,8 +580,8 @@ export default function FormInvoiceOrderAlt() {
                 <th>Total</th>
                 <th>Descuento</th>
                 <th>Total Facturar</th>
-                <th></th>
-                <th>{`Selec. \nMúltiple`}</th>
+                <th>Facturar</th>
+                <th style={{ maxWidth: "5vw" }}>{`Selec. \nMúltiple`}</th>
               </tr>
             </thead>
             <tbody className="tableRow">
@@ -592,7 +606,12 @@ export default function FormInvoiceOrderAlt() {
                       </Button>
                     </td>
 
-                    <td>
+                    <td
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
                       <Form.Check
                         value={ol.idPedido}
                         onChange={(e) => handleChecks(e.target.value, index)}
@@ -602,7 +621,7 @@ export default function FormInvoiceOrderAlt() {
                 );
               })}
             </tbody>
-            <tfoot className="tableRow">
+            <tfoot className="tableFooterAlt">
               <tr>
                 <td></td>
                 <td></td>

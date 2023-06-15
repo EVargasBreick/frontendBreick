@@ -114,7 +114,7 @@ const downloadOnlyFile = async (url, numeroFactura, nit) => {
       URL.revokeObjectURL(urlObject);
       document.body.removeChild(link);
       resolve();
-    }, 4000); // Adjust the delay time as needed
+    }, 1000); // Adjust the delay time as needed
   });
 };
 export {
