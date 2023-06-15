@@ -1,18 +1,27 @@
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import { Button, Form, Modal, Table } from "react-bootstrap";
+import { Button, Form, Image, Modal, Table } from "react-bootstrap";
 import { dateString } from "../services/dateServices";
+import loading2 from "../assets/loading2.gif";
 import {
   orderDetailsInvoice,
   orderToInvoiceList,
+  updateInvoicedOrder,
 } from "../services/orderServices";
 import Cookies from "js-cookie";
 import "../styles/generalStyle.css";
 import Pagination from "./pagination";
 import PaymentModal from "./paymentModal";
 import PaymentModalAlt from "./paymentModalAlt";
-
+import { getBranchesPs } from "../services/storeServices";
+import { formatInvoiceProducts } from "../Xml/invoiceFormat";
+import { v4 as uuidv4 } from "uuid";
+import { debouncedFullInvoiceProcess } from "../services/invoiceServices";
+import {
+  downloadAndPrintFile,
+  downloadOnlyFile,
+} from "../services/exportServices";
 export default function FormInvoiceOrderAlt() {
   const [isAlert, setIsAlert] = useState(false);
   const [alert, setAlert] = useState("");
@@ -32,14 +41,45 @@ export default function FormInvoiceOrderAlt() {
   const [isInvoice, setIsInvoice] = useState(false);
   const [idAlmacen, setIdAlmacen] = useState("");
   const [userRol, setUserRol] = useState("");
+  const [userName, setUserName] = useState("");
   const [idString, setIdString] = useState("");
   const [notas, setNotas] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [userList, setUserList] = useState([]);
   const [bulkList, setBulkList] = useState([]);
+  const [isBulkModal, setIsBulkModal] = useState(false);
+  const [tipoPago, setTipoPago] = useState("");
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const [pdv, setPdv] = useState("");
+  const [branchInfo, setBranchInfo] = useState({});
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
+    if (UsuarioAct) {
+      const pdve = Cookies.get("pdv");
+      console.log("Punto de venta", pdve);
+      setUserName(JSON.parse(UsuarioAct).usuario);
+      const PuntoDeVentas = pdve != undefined ? pdve : 0;
+      setPdv(PuntoDeVentas);
+    }
+    const suc = getBranchesPs();
+    suc.then((resp) => {
+      const sucursales = resp.data;
+      console.log("Sucursales", sucursales);
+      console.log("Id almacen", idAlmacen);
+      const sucur = sucursales.find((sc) => idAlmacen == sc.idAgencia)
+        ? sucursales.find((sc) => idAlmacen == sc.idAgencia)
+        : sucursales.find((sc) => "AL001" == sc.idAgencia);
+      console.log("Sucur", sucur);
+      const branchData = {
+        nombre: sucur.nombre,
+        dir: sucur.direccion,
+        tel: sucur.telefono,
+        ciudad: sucur.ciudad,
+        nro: sucur.idImpuestos,
+      };
+      console.log("Branch data", branchData);
+      setBranchInfo(branchData);
+    });
     const user = JSON.parse(UsuarioAct);
     const idDepto = user.idDepto;
     const list = orderToInvoiceList(idDepto);
@@ -122,7 +162,77 @@ export default function FormInvoiceOrderAlt() {
     }
   }
 
-  function bulkInvoicing() {}
+  async function bulkInvoicing() {
+    setIsBulkModal(false);
+    console.log("Bulk", bulkList);
+    for (let i = 0; i < bulkList.length; i++) {
+      setAlert(`Procesando pedido nro ${bulkList[i]}`);
+      setIsAlert(true);
+      console.log("En iteracion nro", i);
+      const idFactura = bulkList[i];
+      console.log("Id entrando", idFactura);
+      try {
+        const os = await orderDetailsInvoice(idFactura);
+        console.log("detallitos", os);
+        const details = os.data.response;
+        var saleProducts = [];
+        details.forEach((dt) => {
+          const saleObj = {
+            nombreProducto: dt.nombreProducto,
+            idProducto: dt.idProducto,
+            cantProducto: dt.cantidadProducto,
+            total: dt.cantidadProducto * dt.precioDeFabrica,
+            descuentoProd: dt.descuentoProducto,
+            codInterno: dt.codInterno,
+            codigoUnidad: dt.codigoUnidad,
+            precioDeFabrica: dt.precioDeFabrica,
+          };
+          saleProducts.push(saleObj);
+        });
+        const tot = os.data.response[0];
+        console.log("Totales", tot);
+        var totis = {
+          idUsuarioCrea: tot.idUsuarioCrea,
+          idCliente: tot.idCliente,
+          fechaCrea: dateString(),
+          fechaActualizacion: dateString(),
+          montoTotal: tot.montoFacturar,
+          descuento: tot.descuento,
+          descuentoCalculado: tot.descuentoCalculado,
+          montoFacturar: tot.montoTotal,
+          idPedido: tot.idPedido,
+          idAlmacen: tot.idAlmacen,
+          correo: tot.correo,
+          tipoDocumento: tot.tipoDocumento,
+        };
+        const client = {
+          nit: tot.nit,
+          razonSocial: tot.razonSocial,
+        };
+        try {
+          console.log("Before invoicingProcess");
+          await invoicingProcess(totis, saleProducts, client);
+          console.log("After invoicingProcess");
+          if (i === bulkList.length - 1) {
+            setAlert("Pedidos facturados y facturas descargadas correctamente");
+            setTimeout(() => {
+              window.location.reload();
+            }, 5000);
+          }
+        } catch (err) {
+          console.log("Error 1", err);
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
+        }
+      } catch (err) {
+        console.log("Error 2", err);
+        setTimeout(() => {
+          window.location.reload();
+        }, 5000);
+      }
+    }
+  }
 
   useEffect(() => {
     console.log("Bulk list", bulkList);
@@ -153,7 +263,6 @@ export default function FormInvoiceOrderAlt() {
           };
           saleProducts.push(saleObj);
         });
-
         setSelectedProducts(saleProducts);
         const tot = os.data.response[0];
         console.log("Totales", tot);
@@ -170,6 +279,8 @@ export default function FormInvoiceOrderAlt() {
           idAlmacen: tot.idAlmacen,
           correo: tot.correo,
           tipoDocumento: tot.tipoDocumento,
+          nit: tot.nit,
+          razonSocial: tot.razonSocial,
         };
         setIdAlmacen(tot.idAlmacen);
         setTotales(totis);
@@ -184,22 +295,194 @@ export default function FormInvoiceOrderAlt() {
         console.log("Error al recibir los datos de la factura", err);
       });
   }
+
+  async function invoicingProcess(totales, products, cliente) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const uniqueId = uuidv4();
+        const storeInfo = {
+          nroSucursal: branchInfo.nro,
+          puntoDeVenta: pdv,
+        };
+        const productos = formatInvoiceProducts(products);
+        const saleBody = {
+          pedido: {
+            idUsuarioCrea: totales.idUsuarioCrea,
+            idCliente: totales.idCliente,
+            fechaCrea: dateString(),
+            fechaActualizacion: dateString(),
+            montoTotal: totales.montoTotal,
+            descCalculado: totales.descuentoCalculado,
+            descuento: totales.descuento,
+            montoFacturar: totales.montoFacturar,
+            idPedido: totales.idPedido,
+            idFactura: 0,
+          },
+          productos: products,
+        };
+        const invoiceBody = {
+          idCliente: totales.idCliente,
+          nroFactura: 0,
+          idSucursal: branchInfo.nro,
+          nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
+          fechaHora: dateString(),
+          nitCliente: cliente.nit,
+          razonSocial: cliente.razonSocial,
+          tipoPago: tipoPago,
+          pagado: totales.montoFacturar,
+          cambio: 0,
+          nroTarjeta: ``,
+          cuf: "",
+          importeBase: parseFloat(totales.montoFacturar).toFixed(2),
+          debitoFiscal: parseFloat(totales.montoFacturar * 0.13).toFixed(2),
+          desembolsada: 0,
+          autorizacion: `${dateString()}-${0}-${idAlmacen}`,
+          cufd: "",
+          fechaEmision: "",
+          nroTransaccion: 0,
+          idOtroPago: 0,
+          vale: 0,
+          aPagar: 1,
+          puntoDeVenta: pdv,
+          idAgencia: idAlmacen,
+        };
+        const emizorBody = {
+          numeroFactura: 0,
+          nombreRazonSocial: cliente.razonSocial,
+          codigoPuntoVenta: parseInt(pdv),
+          fechaEmision: "",
+          cafc: "",
+          codigoExcepcion: 0,
+          descuentoAdicional: totales.descuentoCalculado,
+          montoGiftCard: 0,
+          codigoTipoDocumentoIdentidad: totales.tipoDocumento,
+          numeroDocumento: cliente.nit == 0 ? "1000001" : `${cliente.nit}`,
+          complemento: "",
+          codigoCliente: `${totales.idCliente}`,
+          codigoMetodoPago: tipoPago,
+          numeroTarjeta: "",
+          montoTotal: parseFloat(totales.montoFacturar).toFixed(2),
+          codigoMoneda: 1,
+          tipoCambio: 1,
+          montoTotalMoneda: parseFloat(totales.montoFacturar.toFixed(2)),
+          usuario: userName,
+          emailCliente: totales.correo,
+          telefonoCliente: "",
+          extras: { facturaTicket: uniqueId },
+          codigoLeyenda: 0,
+          montoTotalSujetoIva: parseFloat(
+            parseFloat(totales.montoFacturar)
+          ).toFixed(2),
+          tipoCambio: 1,
+          detalles: productos,
+        };
+        const updateStockBody = {
+          idAlmacen: idAlmacen,
+          productos: [],
+        };
+        const composedBody = {
+          venta: saleBody,
+          invoice: invoiceBody,
+          emizor: emizorBody,
+          stock: updateStockBody,
+          storeInfo: storeInfo,
+        };
+        try {
+          const invocieResponse = await debouncedFullInvoiceProcess(
+            composedBody
+          );
+          console.log("Respuesta de la fac", invocieResponse);
+          if (invocieResponse.data.code === 200) {
+            const fecha = dateString();
+            const parsed = JSON.parse(invocieResponse.data.data).data.data;
+            console.log("Datos recibidos", parsed);
+            const updated = updateInvoicedOrder(totales.idPedido, fecha);
+            updated.then(async (res) => {
+              try {
+                console.log("antes de la descarga");
+                await downloadOnlyFile(
+                  parsed.shortLink,
+                  parsed.numeroFactura,
+                  cliente.nit
+                );
+                await debouncedFullInvoiceProcess.cancel();
+                console.log("despues de la descarga");
+                setTimeout(() => {
+                  resolve(true);
+                }, 3000); // Resolve the promise when the process is successful
+              } catch (err) {
+                reject(err); // Reject the promise if there's an error during the download
+              }
+            });
+          } else {
+            reject("Invoice response code is not 200"); // Reject the promise if the invoice response code is not 200
+          }
+        } catch (error) {
+          reject(error); // Reject the promise if there's an error during the invoicing process
+        }
+      } catch (error) {
+        reject(false);
+      }
+    });
+  }
+
+  function validateFormOfPayment(e) {
+    e.preventDefault();
+    if (tipoPago === "") {
+      setAlert("Por favor seleccione un tipo de pago general");
+    } else {
+      bulkInvoicing();
+    }
+  }
+
   const handleClose = () => {
     setIsAlert(false);
   };
   return (
     <div>
-      <Modal show={isAlert} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Mensaje del Sistema</Modal.Title>
+      <Modal show={isAlert}>
+        <Modal.Header>
+          <Modal.Title>{alert}</Modal.Title>
         </Modal.Header>
-        <Modal.Body>{alert}</Modal.Body>
+        <Modal.Body>
+          <Image src={loading2} style={{ width: "5%" }} />
+        </Modal.Body>
+      </Modal>
+      <Modal show={isBulkModal} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Tipo de pago</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Select
+              onChange={(e) => setTipoPago(e.target.value)}
+              value={tipoPago}
+            >
+              <option>Seleccione tipo de pago</option>
+              <option value="3">Cheque</option>
+              <option value="6">Pago Posterior</option>
+              <option value="7">Transferencia</option>
+              <option value="8">Deposito en cuenta</option>
+              <option value="9">Transferencia Swift</option>
+            </Form.Select>
+          </Form>
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={handleClose}>
-            Cerrar
+          <Button variant="warning" onClick={(e) => validateFormOfPayment(e)}>
+            Facturar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              setIsBulkModal(false);
+            }}
+          >
+            {" "}
+            Cancelar
           </Button>
         </Modal.Footer>
       </Modal>
+
       {isInvoice ? (
         <div>
           <PaymentModalAlt
@@ -331,7 +614,12 @@ export default function FormInvoiceOrderAlt() {
                 <td></td>
                 <td colSpan={2}>
                   {bulkList.length > 0 ? (
-                    <Button variant="success">Facturar Todo</Button>
+                    <Button
+                      variant="success"
+                      onClick={(e) => setIsBulkModal(true)}
+                    >
+                      Facturar Todo
+                    </Button>
                   ) : null}
                 </td>
               </tr>
