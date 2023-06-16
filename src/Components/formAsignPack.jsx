@@ -109,7 +109,7 @@ export default function FormAsignPack() {
       objProdsAdd,
     ]);
 
-    if (updateMultiple.response.status === 200) {
+    if (updateMultiple.data.code === 200) {
       setAlertSec("Pack asignado correctamente");
       setIsAlertSec(true);
       setTimeout(() => {
