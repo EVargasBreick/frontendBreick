@@ -277,6 +277,8 @@ export default function FormModifyOrders() {
     setHalloween([]);
     setEspeciales([]);
     setSinDesc([]);
+    setAuxSelectedProds([]);
+
     const stringParts = stringPedido.split("|");
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
