@@ -136,7 +136,10 @@ export default function FormModifyOrders() {
         "and estado!='2' and facturado=0 and listo=0"
       );
       listaPedidos.then((res) => {
-        console.log("Lista de pedidos", res);
+        const userAlm = JSON.parse(UsuarioAct).idAlmacen;
+        const filtered = res.data.data.filter(
+          (listItem) => listItem.idAlmacen === userAlm
+        );
         setPedidosList(res.data.data);
         setAuxPedidosList(res.data.data);
       });

@@ -454,6 +454,7 @@
   position: sticky;
   top: 0;
   vertical-align: top;
+  z-index: 100;
   background-color: #5cb8b2;
   color: white;
   text-align: center;
