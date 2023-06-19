@@ -140,8 +140,8 @@ export default function FormModifyOrders() {
         const filtered = res.data.data.filter(
           (listItem) => listItem.idAlmacen === userAlm
         );
-        setPedidosList(res.data.data);
-        setAuxPedidosList(res.data.data);
+        setPedidosList(filtered);
+        setAuxPedidosList(filtered);
       });
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
     }
@@ -281,7 +281,9 @@ export default function FormModifyOrders() {
     setEspeciales([]);
     setSinDesc([]);
     setAuxSelectedProds([]);
-
+    setUserRol("");
+    setAuxOrder([]);
+    setFechaPedido("");
     const stringParts = stringPedido.split("|");
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
