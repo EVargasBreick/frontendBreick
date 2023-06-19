@@ -224,6 +224,7 @@ export default function FormProductDrop() {
                           <Form.Control
                             value={sp.cantProducto}
                             type="number"
+                            required
                             min={0}
                             max={sp?.cant_Actual}
                             onChange={(e) =>
