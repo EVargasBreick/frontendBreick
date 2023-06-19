@@ -58,8 +58,14 @@ export default function FormProductDrop() {
       cantProducto: 0,
       cant_Actual: prod.cant_Actual,
     };
-    setSelectedProduct([...selectedProduct, prodObj]);
-    setProductList(auxproductList);
+    if (selectedProduct.find((sp) => sp.idProducto == prodId)) {
+      setIsError(true);
+      setAlert("El producto ya esta en la lista");
+      setIsAlert(true);
+    } else {
+      setSelectedProduct([...selectedProduct, prodObj]);
+      setProductList(auxproductList);
+    }
   }
   const handleClose = () => {
     setIsAlert(false);
