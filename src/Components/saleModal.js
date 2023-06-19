@@ -323,7 +323,6 @@ function SaleModal(
   }
   function validateFormOfPayment(e) {
     e.preventDefault();
-    console.log("Tipo de pago", tipoPago);
     return new Promise((resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
@@ -368,15 +367,7 @@ function SaleModal(
           ) {
             handleSave(e);
           }
-          if (tipoPago == 5) {
-            console.log("Ofp", ofp);
-            if (ofp === 0) {
-              setAlert("Especifique el otro tipo de pago");
-              setIsAlert(true);
-            } else {
-              handleSave(e);
-            }
-          }
+
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");
             setIsAlertSec(true);
