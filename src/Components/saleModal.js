@@ -360,7 +360,6 @@ function SaleModal(
           }
           if (
             tipoPago == 3 ||
-            tipoPago == 5 ||
             tipoPago == 6 ||
             tipoPago == 7 ||
             tipoPago == 8 ||
@@ -368,6 +367,7 @@ function SaleModal(
           ) {
             handleSave(e);
           }
+
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");
             setIsAlertSec(true);

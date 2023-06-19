@@ -376,13 +376,21 @@ function SaleModalAlt(
           }
           if (
             tipoPago == 3 ||
-            tipoPago == 5 ||
             tipoPago == 6 ||
             tipoPago == 7 ||
             tipoPago == 8 ||
             tipoPago == 9
           ) {
             invoicingProcess();
+          }
+          if (tipoPago == 5) {
+            console.log("Ofp", ofp);
+            if (ofp === 0) {
+              setAlert("Especifique el otro tipo de pago");
+              setIsAlert(true);
+            } else {
+              invoicingProcess();
+            }
           }
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");
@@ -745,7 +753,7 @@ function SaleModalAlt(
     const pdfWidth = 70;
     const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("nota_entrega.pdf");
+    pdf.save(`nota_entrega_${dropId}.pdf`);
   };
 
   function saveEmail() {
@@ -979,7 +987,12 @@ function SaleModalAlt(
                 </button>
               )}
               content={() => dropRef.current}
-              onAfterPrint={() => window.location.reload()}
+              onAfterPrint={() => {
+                handleDownloadPdfDrop();
+                setTimeout(() => {
+                  window.location.reload();
+                }, 3000);
+              }}
             />
             <Button>
               <DropComponent
@@ -987,8 +1000,8 @@ function SaleModalAlt(
                 branchInfo={branchInfo}
                 selectedProducts={selectedProducts}
                 cliente={{
-                  nit: invoice.nitCliente,
-                  razonSocial: invoice.razonSocial,
+                  nit: datos.nit,
+                  razonSocial: datos.razonSocial,
                 }}
                 dropId={dropId}
               />
@@ -1010,8 +1023,8 @@ function SaleModalAlt(
             branchInfo={branchInfo}
             selectedProducts={selectedProducts}
             cliente={{
-              nit: invoice.nitCliente,
-              razonSocial: invoice.razonSocial,
+              nit: datos.nit,
+              razonSocial: datos.razonSocial,
             }}
             dropId={dropId}
           />
@@ -1310,16 +1323,14 @@ function SaleModalAlt(
                 <div className="modalLabel"> Motivo de la Baja:</div>
                 <div className="modalData">
                   {
-                    <Form className="cardLayout">
-                      <Form.Select onChange={(e) => setMotivo(e.target.value)}>
-                        <option>Seleccione Motivo</option>
-                        <option value="socio">Socio</option>
-                        <option value="vale">Vale</option>
-                        <option value="promo">Promoción</option>
-                        <option value="muestra">Muestra</option>
-                        <option value="muestra">Venta en línea</option>
-                      </Form.Select>
-                    </Form>
+                    <Form.Select onChange={(e) => setMotivo(e.target.value)}>
+                      <option>Seleccione Motivo</option>
+                      <option value="socio">Socio</option>
+                      <option value="vale">Vale</option>
+                      <option value="promo">Promoción</option>
+                      <option value="muestra">Muestra</option>
+                      <option value="muestra">Venta en línea</option>
+                    </Form.Select>
                   }
                 </div>
               </div>

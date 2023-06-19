@@ -58,8 +58,14 @@ export default function FormProductDrop() {
       cantProducto: 0,
       cant_Actual: prod.cant_Actual,
     };
-    setSelectedProduct([...selectedProduct, prodObj]);
-    setProductList(auxproductList);
+    if (selectedProduct.find((sp) => sp.idProducto == prodId)) {
+      setIsError(true);
+      setAlert("El producto ya esta en la lista");
+      setIsAlert(true);
+    } else {
+      setSelectedProduct([...selectedProduct, prodObj]);
+      setProductList(auxproductList);
+    }
   }
   const handleClose = () => {
     setIsAlert(false);
@@ -114,6 +120,7 @@ export default function FormProductDrop() {
           const updatedStock = updateStock(objStock);
           updatedStock.then((response) => {
             setAlertSec("Baja registrada correctamente");
+            debugger;
             setTimeout(() => {
               window.location.reload();
             }, 1500);
@@ -182,89 +189,98 @@ export default function FormProductDrop() {
       <div className="formLabel">Detalles producto seleccionado</div>
       {JSON.stringify(selectedProduct).length > 2 ? (
         <div>
-          <Table>
-            <thead className="tableHeader">
-              <tr>
-                <th></th>
-                <th>Cod Interno</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Restante</th>
-              </tr>
-            </thead>
-            <tbody className="tableRow">
-              {selectedProduct.map((sp, index) => {
-                return (
-                  <tr key={index}>
-                    <td>
-                      <Button
-                        variant="danger"
-                        onClick={() => deleteProduct(index)}
-                      >
-                        X
-                      </Button>
-                    </td>
-                    <td>{sp?.codInterno}</td>
-                    <td>{sp?.nombreProducto}</td>
-                    <td style={{ width: "15%" }}>
-                      {
-                        <Form.Control
-                          value={sp.cantProducto}
-                          onChange={(e) =>
-                            changeQuantity(e.target.value, index, sp)
-                          }
-                        />
-                      }
-                    </td>
-                    <td>{sp?.cant_Actual - sp?.cantProducto}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-          <Form.Label>Motivo de la baja</Form.Label>
-          <Form.Select
-            className="columnForm"
-            onChange={(e) => setMotivo(e.target.value)}
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              dropProduct();
+            }}
           >
-            <option value={""}>Seleccione un motivo</option>
-            <option value={"Presentación mala de empaque/ envoltura"}>
-              Presentación mala de empaque/ envoltura
-            </option>
-            <option value={"Producto vencido"}>Producto vencido</option>
-            <option value={"Producto con afloramiento de manteca"}>
-              Producto con afloramiento de manteca
-            </option>
-            <option value={"Producto roto"}>Producto roto</option>
-            <option value={"Producto derretido"}>Producto derretido</option>
-            <option value={"Devolucion a fabrica"}>Devolución a fábrica</option>
-            <option value={"Armardo de Pack"}>Armado de Pack</option>
-          </Form.Select>
+            <Table>
+              <thead className="tableHeader">
+                <tr>
+                  <th></th>
+                  <th>Cod Interno</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Restante</th>
+                </tr>
+              </thead>
+              <tbody className="tableRow">
+                {selectedProduct.map((sp, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>
+                        <Button
+                          variant="danger"
+                          onClick={() => deleteProduct(index)}
+                        >
+                          X
+                        </Button>
+                      </td>
+                      <td>{sp?.codInterno}</td>
+                      <td>{sp?.nombreProducto}</td>
+                      <td style={{ width: "15%" }}>
+                        {
+                          <Form.Control
+                            value={sp.cantProducto}
+                            type="number"
+                            required
+                            min={0}
+                            max={sp?.cant_Actual}
+                            onChange={(e) =>
+                              changeQuantity(e.target.value, index, sp)
+                            }
+                          />
+                        }
+                      </td>
+                      <td>{sp?.cant_Actual - sp?.cantProducto}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
+            <Form.Label>Motivo de la baja</Form.Label>
+            <Form.Select
+              className="columnForm"
+              onChange={(e) => setMotivo(e.target.value)}
+            >
+              <option value={""}>Seleccione un motivo</option>
+              <option value={"Presentación mala de empaque/ envoltura"}>
+                Presentación mala de empaque/ envoltura
+              </option>
+              <option value={"Producto vencido"}>Producto vencido</option>
+              <option value={"Producto con afloramiento de manteca"}>
+                Producto con afloramiento de manteca
+              </option>
+              <option value={"Producto roto"}>Producto roto</option>
+              <option value={"Producto derretido"}>Producto derretido</option>
+              <option value={"Devolucion a fabrica"}>
+                Devolución a fábrica
+              </option>
+              <option value={"Armardo de Pack"}>Armado de Pack</option>
+            </Form.Select>
 
-          {motivo != "" ? (
-            <div>
-              <Form.Label>Detalle del motivo(opcional)</Form.Label>
+            {motivo != "" ? (
               <div>
-                <Form.Control
-                  className="columnForm"
-                  type="text"
-                  onChange={(e) => setDetalleMotivo(e.target.value)}
-                  maxLength={150}
-                />
-                <div style={{ textAlign: "start" }}>{`${
-                  150 - detalleMotivo.length
-                } caracteres restantes`}</div>
+                <Form.Label>Detalle del motivo(opcional)</Form.Label>
+                <div>
+                  <Form.Control
+                    className="columnForm"
+                    type="text"
+                    onChange={(e) => setDetalleMotivo(e.target.value)}
+                    maxLength={150}
+                  />
+                  <div style={{ textAlign: "start" }}>{`${
+                    150 - detalleMotivo.length
+                  } caracteres restantes`}</div>
+                </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          <Button
-            className="yellowLarge"
-            variant="warning"
-            onClick={() => dropProduct()}
-          >
-            Dar de baja
-          </Button>
+            <Button type="submit" className="yellowLarge" variant="warning">
+              Dar de baja
+            </Button>
+          </Form>
         </div>
       ) : null}
     </div>

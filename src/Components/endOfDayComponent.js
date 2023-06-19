@@ -48,6 +48,10 @@ export const EndOfDayComponent = React.forwardRef(
                 <td className="totalsData">{`${totales.cln} Bs`}</td>
               </tr>
               <tr>
+                <td className="totals">Intercambio de servicios</td>
+                <td className="totalsData">{`${totales.intercambio} Bs`}</td>
+              </tr>
+              <tr>
                 <td className="totals">Vales</td>
                 <td className="totalsData">{`${totales.vales} Bs`}</td>
               </tr>
