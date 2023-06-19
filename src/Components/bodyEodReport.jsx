@@ -37,6 +37,7 @@ export default function BodyEodReport() {
   const [qr, setQr] = useState(0);
   const [qhantuy, setQhantuy] = useState(0);
   const [cln, setCln] = useState(0);
+  const [intercambio, setIntercambio] = useState(0);
   const [firstInv, setFirstInv] = useState("");
   const [lastInv, setLastInv] = useState("");
   const [numberInv, setNumberInv] = useState("");
@@ -154,9 +155,26 @@ export default function BodyEodReport() {
         const qrTot = otros.find((ot) => ot.idOtroPago == 1);
         const qhantuyTot = otros.find((ot) => ot.idOtroPago == 2);
         const clnTot = otros.find((ot) => ot.idOtroPago == 3);
-        qrTot ? setQr(qrTot.totalPagado) : setQr(0);
-        qhantuyTot ? setQhantuy(qhantuyTot.totalPagado) : setQhantuy(0);
-        clnTot ? setCln(clnTot.totalPagado) : setCln(0);
+        const intTot = otros.find((ot) => ot.idOtroPago == 4);
+        qrTot
+          ? setQr(parseFloat(qrTot.totalPagado - qrTot.totalCambio))
+          : setQr(0);
+        qhantuyTot
+          ? setQhantuy(
+              parseFloat(qhantuyTot.totalPagado) -
+                parseFloat(qhantuyTot.totalCambio)
+            )
+          : setQhantuy(0);
+        clnTot
+          ? setCln(
+              parseFloat(clnTot.totalPagado) - parseFloat(clnTot.totalCambio)
+            )
+          : setCln(0);
+        intTot
+          ? setIntercambio(
+              parseFloat(intTot.totalPagado) - parseFloat(intTot.totalCambio)
+            )
+          : setIntercambio(0);
       }
       const totalTarjeta =
         (tarjeta ? tarjeta.totalPagado : 0) +
@@ -314,6 +332,12 @@ export default function BodyEodReport() {
               </tr>
               <tr className="tableRow">
                 <th className="headerCol" colSpan={2}>
+                  Intercambio de servicios
+                </th>
+                <td>{intercambio.toFixed(2)} Bs</td>
+              </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
                   Vales
                 </th>
                 <td>{vale.toFixed(2)} Bs</td>
@@ -360,7 +384,8 @@ export default function BodyEodReport() {
                     parseFloat(posterior.toFixed(2)) +
                     parseFloat(cheque.toFixed(2)) +
                     parseFloat(deposito.toFixed(2)) +
-                    parseFloat(swift.toFixed(2))
+                    parseFloat(swift.toFixed(2)) +
+                    parseFloat(intercambio.toFixed(2))
                   ).toFixed(2)}
                   Bs
                 </td>
@@ -400,6 +425,7 @@ export default function BodyEodReport() {
                     deposito: deposito.toFixed(2),
                     swift: swift.toFixed(2),
                     cheque: cheque.toFixed(2),
+                    intercambio: intercambio.toFixed(2),
                     total: (
                       parseFloat(efectivo.toFixed(2)) +
                       parseFloat(tarjeta.toFixed(2)) +
@@ -411,7 +437,8 @@ export default function BodyEodReport() {
                       parseFloat(posterior.toFixed(2)) +
                       parseFloat(cheque.toFixed(2)) +
                       parseFloat(deposito.toFixed(2)) +
-                      parseFloat(swift.toFixed(2))
+                      parseFloat(swift.toFixed(2)) +
+                      parseFloat(intercambio.toFixed(2))
                     ).toFixed(2),
                   }}
                   usuario={userName}

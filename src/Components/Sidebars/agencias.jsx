@@ -50,7 +50,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/facturas/reimprimir")}
+        onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
       >
         {" "}

@@ -376,13 +376,21 @@ function SaleModalAlt(
           }
           if (
             tipoPago == 3 ||
-            tipoPago == 5 ||
             tipoPago == 6 ||
             tipoPago == 7 ||
             tipoPago == 8 ||
             tipoPago == 9
           ) {
             invoicingProcess();
+          }
+          if (tipoPago == 5) {
+            console.log("Ofp", ofp);
+            if (ofp === 0) {
+              setAlert("Especifique el otro tipo de pago");
+              setIsAlert(true);
+            } else {
+              invoicingProcess();
+            }
           }
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");

@@ -323,6 +323,7 @@ function SaleModal(
   }
   function validateFormOfPayment(e) {
     e.preventDefault();
+    console.log("Tipo de pago", tipoPago);
     return new Promise((resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
@@ -360,13 +361,21 @@ function SaleModal(
           }
           if (
             tipoPago == 3 ||
-            tipoPago == 5 ||
             tipoPago == 6 ||
             tipoPago == 7 ||
             tipoPago == 8 ||
             tipoPago == 9
           ) {
             handleSave(e);
+          }
+          if (tipoPago == 5) {
+            console.log("Ofp", ofp);
+            if (ofp === 0) {
+              setAlert("Especifique el otro tipo de pago");
+              setIsAlert(true);
+            } else {
+              handleSave(e);
+            }
           }
           if (tipoPago == 11) {
             setAlertSec("Guardando baja");

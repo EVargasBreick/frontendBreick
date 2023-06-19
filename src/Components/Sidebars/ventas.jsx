@@ -107,7 +107,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         Retirar Packs
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/facturas/reimprimir")}
+        onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
       >
         {" "}
