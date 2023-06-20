@@ -7,6 +7,7 @@ import { set } from "lodash";
 export default function FormEditUserAgnecy() {
   const [agencies, setAgencies] = useState([]);
   const [selectedAgency, setSelectedAgency] = useState("");
+  const [actualAgency, setActualAgency] = useState("");
   const [usuario, setUsuario] = useState("");
 
   const [selectedUser, setSelectedUser] = useState("");
@@ -34,6 +35,9 @@ export default function FormEditUserAgnecy() {
       if (user) {
         setSelectedAgency(user.idAlmacen);
         setSelectedUser(user.idUsuario);
+        setActualAgency(
+          agencies.find((ag) => ag.idAgencia == selectedAgency).Nombre
+        );
       }
     });
   }, [usuario]);
@@ -49,6 +53,9 @@ export default function FormEditUserAgnecy() {
               value={selectedUser}
               onChange={(e) => {
                 setSelectedUser(e.target.value);
+                setUsuario(
+                  users.find((user) => user.idUsuario == e.target.value).nombre
+                );
               }}
             >
               <option>Seleccione Usuario</option>
@@ -70,6 +77,10 @@ export default function FormEditUserAgnecy() {
               placeholder="Buscar Usuario"
             />
           </Form.Group>
+        </div>
+
+        <div className="formLabel">
+          EL USUARIO ACTUAL ESTA EN: {actualAgency}
         </div>
 
         <Form.Group>
