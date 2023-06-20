@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { getStores } from "../services/storeServices";
 import { Loader } from "./loader/Loader";
 import { userService } from "../services/userServices";
 import { set } from "lodash";
+import { ConfirmModal } from "./Modals/confirmModal";
 export default function FormEditUserAgnecy() {
   const [agencies, setAgencies] = useState([]);
   const [selectedAgency, setSelectedAgency] = useState("");
@@ -14,18 +15,19 @@ export default function FormEditUserAgnecy() {
   const [users, setUsers] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     const stores = getStores();
     stores.then((store) => {
       setAgencies(store.data);
-      setLoading(false);
     });
 
     const users = userService.getAll("4,2");
     users.then((users) => {
       setUsers(users);
+      setLoading(false);
     });
   }, []);
 
@@ -40,10 +42,39 @@ export default function FormEditUserAgnecy() {
     });
   }, [usuario]);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowModal(true);
+  };
+
   return (
     <div>
+      <ConfirmModal
+        show={showModal}
+        title={"Confirmar edicion de usuario"}
+        text={"¿Esta seguro que desea cambiar la agencia del usuario?"}
+        handleCancel={() => setShowModal(false)}
+        handleSubmit={async () => {
+          setLoading(true);
+          setShowModal(false);
+          await userService.updateUser(selectedUser, {
+            idAlmacen: selectedAgency,
+          });
+          const stores = getStores();
+          stores.then((store) => {
+            setAgencies(store.data);
+          });
+          setActualAgency(selectedAgency);
+
+          const users = userService.getAll("4,2");
+          users.then((users) => {
+            setUsers(users);
+            setLoading(false);
+          });
+        }}
+      />
       <div className="formLabel">EDITAR AGENCIA DE USUARIO</div>
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <div className="d-xl-flex justify-content-center gap-3">
           <Form.Group className="flex-grow-1">
             <Form.Label>Seleccionar Usuario</Form.Label>
@@ -77,29 +108,42 @@ export default function FormEditUserAgnecy() {
           </Form.Group>
         </div>
 
-        <div className="formLabel">
-          EL USUARIO ACTUAL ESTA EN:{" "}
-          {agencies.find((ag) => ag.idAgencia == actualAgency).Nombre}
-        </div>
+        {selectedUser && (
+          <>
+            <div className="formLabel">
+              EL USUARIO ACTUAL ESTA EN:{" "}
+              {actualAgency ??
+                agencies?.find((ag) => ag?.idAgencia == actualAgency).Nombre}
+            </div>
+            <Form.Group>
+              <Form.Label>Agencia</Form.Label>
+              <Form.Select
+                value={selectedAgency}
+                onChange={(e) => {
+                  setSelectedAgency(e.target.value);
+                }}
+              >
+                <option>Seleccione Agencia</option>
+                {agencies.map((ag) => {
+                  return (
+                    <option value={ag.idAgencia} key={ag.idAgencia}>
+                      {ag.Nombre}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+          </>
+        )}
 
-        <Form.Group>
-          <Form.Label>Agencia</Form.Label>
-          <Form.Select
-            value={selectedAgency}
-            onChange={(e) => {
-              setSelectedAgency(e.target.value);
-            }}
-          >
-            <option>Seleccione Agencia</option>
-            {agencies.map((ag) => {
-              return (
-                <option value={ag.idAgencia} key={ag.idAgencia}>
-                  {ag.Nombre}
-                </option>
-              );
-            })}
-          </Form.Select>
-        </Form.Group>
+        <Button
+          disabled={!selectedUser || !selectedAgency}
+          className="m-5"
+          variant="warning"
+          type="submit"
+        >
+          Cambiar de Agencia
+        </Button>
       </Form>
 
       {loading && <Loader />}

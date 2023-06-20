@@ -159,6 +159,11 @@ export const userService = {
       }
     });
     return response.data;
+  },
+
+  async updateUser(userId, body) {
+    const response = await userInstance.put(`/update/${userId}`, body);
+    return response.data;
   }
 };
 
