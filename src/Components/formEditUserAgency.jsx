@@ -112,8 +112,10 @@ export default function FormEditUserAgnecy() {
           <>
             <div className="formLabel">
               EL USUARIO ACTUAL ESTA EN:{" "}
-              {actualAgency ??
-                agencies?.find((ag) => ag?.idAgencia == actualAgency).Nombre}
+              <span className="text-warning fs-2">
+                {actualAgency ??
+                  agencies?.find((ag) => ag?.idAgencia == actualAgency).Nombre}
+              </span>
             </div>
             <Form.Group>
               <Form.Label>Agencia</Form.Label>
