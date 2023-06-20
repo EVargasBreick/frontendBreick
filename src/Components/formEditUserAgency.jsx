@@ -35,9 +35,7 @@ export default function FormEditUserAgnecy() {
       if (user) {
         setSelectedAgency(user.idAlmacen);
         setSelectedUser(user.idUsuario);
-        setActualAgency(
-          agencies.find((ag) => ag.idAgencia == selectedAgency).Nombre
-        );
+        setActualAgency(user.idAlmacen);
       }
     });
   }, [usuario]);
@@ -80,7 +78,8 @@ export default function FormEditUserAgnecy() {
         </div>
 
         <div className="formLabel">
-          EL USUARIO ACTUAL ESTA EN: {actualAgency}
+          EL USUARIO ACTUAL ESTA EN:{" "}
+          {agencies.find((ag) => ag.idAgencia == actualAgency).Nombre}
         </div>
 
         <Form.Group>
