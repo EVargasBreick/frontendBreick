@@ -86,7 +86,7 @@ export default function FormEditUserAgnecy() {
       users.then((users) => {
         setUsers(users);
       });
-      setToastText("Usuario editado correctamente");
+      setToastText("Agencia de usuario editada correctamente");
       setToastType("success");
     } catch (error) {
       setToastText(error?.response?.data?.error ?? "Error al editar usuario");
