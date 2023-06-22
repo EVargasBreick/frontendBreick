@@ -59,6 +59,11 @@ export default function FormEditUserAgnecy() {
             setAgencies(agenciesAux.filter((ag) => !ag.Nombre.includes("-")));
           }
         }
+        else {
+          setSelectedAgency("");
+          setSelectedUser("");
+          setActualAgency("");
+        }
       });
     }
   }, [usuario]);
@@ -146,8 +151,6 @@ export default function FormEditUserAgnecy() {
               value={usuario}
               onChange={(e) => {
                 setUsuario(e.target.value);
-                console.log(e.target.value);
-                console.log(selectedUser);
               }}
               placeholder="Buscar Usuario"
             />
