@@ -8,6 +8,7 @@ import { ConfirmModal } from "./Modals/confirmModal";
 import ToastComponent from "./Modals/Toast";
 export default function FormEditUserAgnecy() {
   const [agencies, setAgencies] = useState([]);
+  const [agenciesAux, setAgenciesAux] = useState([]); //agencias auxiliares para filtrar por nombre
   const [selectedAgency, setSelectedAgency] = useState("");
   const [actualAgency, setActualAgency] = useState("");
   const [usuario, setUsuario] = useState("");
@@ -27,6 +28,7 @@ export default function FormEditUserAgnecy() {
     const stores = getStores();
     stores.then((store) => {
       setAgencies(store.data);
+      setAgenciesAux(store.data);
     });
 
     const users = userService.getAll("4,2");
@@ -43,6 +45,11 @@ export default function FormEditUserAgnecy() {
         setSelectedAgency(user.idAlmacen);
         setSelectedUser(user.idUsuario);
         setActualAgency(user.idAlmacen);
+        if (user.idAlmacen.includes("-")) {
+          setAgencies(agenciesAux.filter((ag) => ag.Nombre.includes("-")));
+        } else {
+          setAgencies(agenciesAux.filter((ag) => !ag.Nombre.includes("-")));
+        }
       }
     });
   }, [usuario]);
