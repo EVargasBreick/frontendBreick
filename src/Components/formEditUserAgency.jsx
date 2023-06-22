@@ -123,7 +123,8 @@ export default function FormEditUserAgnecy() {
               onChange={(e) => {
                 setSelectedUser(e.target.value);
                 setUsuario(
-                  users.find((user) => user.idUsuario == e.target.value).nombre
+                  users.find((user) => user.idUsuario == e.target.value)
+                    ?.nombre ?? ""
                 );
               }}
             >
