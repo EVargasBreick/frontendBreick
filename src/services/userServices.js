@@ -147,8 +147,8 @@ export const userService = {
     return response.data;
   },
 
-  async findUser(search) {
-    const response = await userInstance.get(`/find/${search}`);
+  async findUser(search, roles = null) {
+    const response = await userInstance.get(`/find/${search}?roles=${roles}`);
     return response.data;
   },
 
