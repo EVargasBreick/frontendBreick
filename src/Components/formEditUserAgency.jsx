@@ -5,6 +5,7 @@ import { Loader } from "./loader/Loader";
 import { userService } from "../services/userServices";
 import { set } from "lodash";
 import { ConfirmModal } from "./Modals/confirmModal";
+import ToastComponent from "./Modals/Toast";
 export default function FormEditUserAgnecy() {
   const [agencies, setAgencies] = useState([]);
   const [selectedAgency, setSelectedAgency] = useState("");
@@ -14,8 +15,12 @@ export default function FormEditUserAgnecy() {
   const [selectedUser, setSelectedUser] = useState("");
   const [users, setUsers] = useState([]);
 
+  const [toastText, setToastText] = useState("");
+  const [toastType, setToastType] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -42,9 +47,32 @@ export default function FormEditUserAgnecy() {
     });
   }, [usuario]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setShowModal(true);
+  const handleSubmit = async (e) => {
+    setLoading(true);
+    setShowModal(false);
+    try {
+      await userService.updateUser(selectedUser, {
+        idAlmacen: selectedAgency,
+      });
+      const stores = getStores();
+      stores.then((store) => {
+        setAgencies(store.data);
+      });
+      setActualAgency(selectedAgency);
+
+      const users = userService.getAll("4,2");
+      users.then((users) => {
+        setUsers(users);
+      });
+      setToastText("Usuario editado correctamente");
+      setToastType("success");
+    } catch (error) {
+      setToastText(error?.response?.data?.error ?? "Error al editar usuario");
+      setToastType("danger");
+    } finally {
+      setLoading(false);
+      setShowToast(true);
+    }
   };
 
   return (
@@ -54,27 +82,22 @@ export default function FormEditUserAgnecy() {
         title={"Confirmar edicion de usuario"}
         text={"¿Esta seguro que desea cambiar la agencia del usuario?"}
         handleCancel={() => setShowModal(false)}
-        handleSubmit={async () => {
-          setLoading(true);
-          setShowModal(false);
-          await userService.updateUser(selectedUser, {
-            idAlmacen: selectedAgency,
-          });
-          const stores = getStores();
-          stores.then((store) => {
-            setAgencies(store.data);
-          });
-          setActualAgency(selectedAgency);
-
-          const users = userService.getAll("4,2");
-          users.then((users) => {
-            setUsers(users);
-            setLoading(false);
-          });
-        }}
+        handleSubmit={handleSubmit}
+      />
+      <ToastComponent
+        show={showToast}
+        setShow={setShowToast}
+        autoclose={2}
+        text={toastText}
+        type={toastType}
       />
       <div className="formLabel">EDITAR AGENCIA DE USUARIO</div>
-      <Form onSubmit={handleSubmit}>
+      <Form
+        onSubmit={(e) => {
+          e.preventDefault();
+          setShowModal(true);
+        }}
+      >
         <div className="d-xl-flex justify-content-center gap-3">
           <Form.Group className="flex-grow-1">
             <Form.Label>Seleccionar Usuario</Form.Label>
@@ -147,7 +170,6 @@ export default function FormEditUserAgnecy() {
           Cambiar de Agencia
         </Button>
       </Form>
-
       {loading && <Loader />}
     </div>
   );
