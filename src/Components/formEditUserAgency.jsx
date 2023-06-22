@@ -47,7 +47,7 @@ export default function FormEditUserAgnecy() {
 
   useEffect(() => {
     if (usuario) {
-      const user = userService.findUser(usuario);
+      const user = userService.findUser(usuario, "4,2");
       user.then((user) => {
         if (user) {
           setSelectedAgency(user.idAlmacen);
@@ -140,11 +140,15 @@ export default function FormEditUserAgnecy() {
             </Form.Select>
           </Form.Group>
           <Form.Group className="flex-grow-1">
-            <Form.Label>Buscar Usuario</Form.Label>
+            <Form.Label>Buscar Usuario por NOMBRE o APELLIDO o C.I.</Form.Label>
             <Form.Control
               type="text"
               value={usuario}
-              onChange={(e) => setUsuario(e.target.value)}
+              onChange={(e) => {
+                setUsuario(e.target.value);
+                console.log(e.target.value);
+                console.log(selectedUser);
+              }}
               placeholder="Buscar Usuario"
             />
           </Form.Group>
