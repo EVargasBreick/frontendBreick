@@ -55,6 +55,7 @@ import InvoiceOrdersAlt from "./Components/invoiceOrdersAlt";
 import RePrintInvoicesAlt from "./Components/rePrintInvoicesAlt";
 import MarkdownsReport from "./Components/markdownsReport";
 import ProductUpdate from "./Components/productUpdate";
+import EditUserAgency from "./Components/editUserAgency";
 
 function App() {
   return (
@@ -156,6 +157,14 @@ function App() {
               element={
                 <RequireAuth>
                   <CreateUser />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/editarUsuario/agencia"
+              element={
+                <RequireAuth>
+                  <EditUserAgency />
                 </RequireAuth>
               }
             />
