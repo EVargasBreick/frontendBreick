@@ -25,33 +25,42 @@ export default function FormEditUserAgnecy() {
 
   useEffect(() => {
     setLoading(true);
-    const stores = getStores();
-    stores.then((store) => {
-      setAgencies(store.data);
-      setAgenciesAux(store.data);
-    });
+    try {
+      const stores = getStores();
+      stores.then((store) => {
+        setAgencies(store.data);
+        setAgenciesAux(store.data);
+      });
 
-    const users = userService.getAll("4,2");
-    users.then((users) => {
-      setUsers(users);
+      const users = userService.getAll("4,2");
+      users.then((users) => {
+        setUsers(users);
+      });
+    } catch (error) {
+      setToastText(error?.response?.data?.error ?? "Error al cargar agencias");
+      setToastType("danger");
+      setShowToast(true);
+    } finally {
       setLoading(false);
-    });
+    }
   }, []);
 
   useEffect(() => {
-    const user = userService.findUser(usuario);
-    user.then((user) => {
-      if (user) {
-        setSelectedAgency(user.idAlmacen);
-        setSelectedUser(user.idUsuario);
-        setActualAgency(user.idAlmacen);
-        if (user.idAlmacen.includes("-")) {
-          setAgencies(agenciesAux.filter((ag) => ag.Nombre.includes("-")));
-        } else {
-          setAgencies(agenciesAux.filter((ag) => !ag.Nombre.includes("-")));
+    if (usuario) {
+      const user = userService.findUser(usuario);
+      user.then((user) => {
+        if (user) {
+          setSelectedAgency(user.idAlmacen);
+          setSelectedUser(user.idUsuario);
+          setActualAgency(user.idAlmacen);
+          if (user.idAlmacen.includes("-")) {
+            setAgencies(agenciesAux.filter((ag) => ag.Nombre.includes("-")));
+          } else {
+            setAgencies(agenciesAux.filter((ag) => !ag.Nombre.includes("-")));
+          }
         }
-      }
-    });
+      });
+    }
   }, [usuario]);
 
   const handleSubmit = async (e) => {
@@ -109,6 +118,7 @@ export default function FormEditUserAgnecy() {
           <Form.Group className="flex-grow-1">
             <Form.Label>Seleccionar Usuario</Form.Label>
             <Form.Select
+              required
               value={selectedUser}
               onChange={(e) => {
                 setSelectedUser(e.target.value);
@@ -117,7 +127,7 @@ export default function FormEditUserAgnecy() {
                 );
               }}
             >
-              <option>Seleccione Usuario</option>
+              <option value={null}>Seleccione Usuario</option>
               {users.map((user) => {
                 return (
                   <option value={user.idUsuario} key={user.idUsuario}>
@@ -132,13 +142,14 @@ export default function FormEditUserAgnecy() {
             <Form.Label>Buscar Usuario</Form.Label>
             <Form.Control
               type="text"
+              value={usuario}
               onChange={(e) => setUsuario(e.target.value)}
               placeholder="Buscar Usuario"
             />
           </Form.Group>
         </div>
 
-        {selectedUser && (
+        {selectedUser && selectedUser !== "Seleccione Usuario" && (
           <>
             <div className="formLabel">
               EL USUARIO ACTUAL ESTA EN:{" "}
@@ -150,12 +161,13 @@ export default function FormEditUserAgnecy() {
             <Form.Group>
               <Form.Label>Agencia</Form.Label>
               <Form.Select
+                required
                 value={selectedAgency}
                 onChange={(e) => {
                   setSelectedAgency(e.target.value);
                 }}
               >
-                <option>Seleccione Agencia</option>
+                <option value={null}>Seleccione Agencia</option>
                 {agencies.map((ag) => {
                   return (
                     <option value={ag.idAgencia} key={ag.idAgencia}>
@@ -164,12 +176,22 @@ export default function FormEditUserAgnecy() {
                   );
                 })}
               </Form.Select>
+              {selectedAgency === "Seleccione Agencia" && (
+                <Form.Text className="text-info text-uppercase">
+                  Seleccione una agencia
+                </Form.Text>
+              )}
             </Form.Group>
           </>
         )}
 
         <Button
-          disabled={!selectedUser || !selectedAgency}
+          disabled={
+            !selectedUser ||
+            !selectedAgency ||
+            selectedAgency === "Seleccione Agencia" ||
+            selectedUser === "Seleccione Usuario"
+          }
           className="m-5"
           variant="warning"
           type="submit"
