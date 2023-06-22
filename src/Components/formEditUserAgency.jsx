@@ -42,6 +42,8 @@ export default function FormEditUserAgnecy() {
       setShowToast(true);
     } finally {
       setLoading(false);
+      console.log("agencias cargadas");
+      console.log(agencies);
     }
   }, []);
 
@@ -58,8 +60,7 @@ export default function FormEditUserAgnecy() {
           } else {
             setAgencies(agenciesAux.filter((ag) => !ag.Nombre.includes("-")));
           }
-        }
-        else {
+        } else {
           setSelectedAgency("");
           setSelectedUser("");
           setActualAgency("");
@@ -162,8 +163,11 @@ export default function FormEditUserAgnecy() {
             <div className="formLabel">
               EL USUARIO ACTUAL ESTA EN:{" "}
               <span className="text-warning fs-2">
-                {actualAgency ??
-                  agencies?.find((ag) => ag?.idAgencia == actualAgency).Nombre}
+                {actualAgency
+                  ? agencies
+                      ?.find((ag) => ag?.idAgencia == actualAgency)
+                      .Nombre.toUpperCase()
+                  : "SIN AGENCIA"}
               </span>
             </div>
             <Form.Group>
