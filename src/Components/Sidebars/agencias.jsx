@@ -16,6 +16,7 @@ import newClient from "../../assets/newClient.png";
 import Printer from "../../assets/printer.png";
 import "../../styles/generalStyle.css";
 import Cross from "../../assets/cross.png";
+import Hand from "../../assets/hand.png";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
   const [isInterior, setIsInterior] = useState(false);
   useEffect(() => {
@@ -56,6 +57,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
+
       {isInterior ? (
         <MenuItem
           onClick={() => redirectOnClick("/pedidos/facturacion")}
@@ -122,6 +124,12 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         <Image src={Book} className="icon"></Image>Reporte libro de ventas por
         producto
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/bajas/general")}
+        className="menuItem"
+      >
+        <Image src={Hand} className="icon"></Image>Reporte libro de bajas
       </MenuItem>
       {/*<MenuItem
         onClick={() => redirectOnClick("/reportes/log/kardex")}
