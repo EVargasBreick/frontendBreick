@@ -171,7 +171,7 @@ export default function FormEditUserAgnecy() {
               </span>
             </div>
             <Form.Group>
-              <Form.Label>Agencia</Form.Label>
+              <Form.Label> Seleccione la Agencia a la que se Cambiara</Form.Label>
               <Form.Select
                 required
                 value={selectedAgency}
