@@ -11,7 +11,7 @@ export const ConfirmModal = ({
   return (
     <Modal show={show} backdrop="static" keyboard={false}>
       <Modal.Header>
-        <Modal.Title>{title}n</Modal.Title>
+        <Modal.Title>{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body>{text}</Modal.Body>
       <Modal.Footer>
