@@ -56,6 +56,7 @@ import RePrintInvoicesAlt from "./Components/rePrintInvoicesAlt";
 import MarkdownsReport from "./Components/markdownsReport";
 import ProductUpdate from "./Components/productUpdate";
 import EditUserAgency from "./Components/editUserAgency";
+import AsignPackAlt from "./Components/asignPackAlt";
 
 function App() {
   return (
@@ -317,6 +318,14 @@ function App() {
               element={
                 <RequireAuth>
                   <AsignPack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packsAsignar"
+              element={
+                <RequireAuth>
+                  <AsignPackAlt />
                 </RequireAuth>
               }
             />
