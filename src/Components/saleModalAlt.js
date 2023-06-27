@@ -134,6 +134,7 @@ function SaleModalAlt(
   }
   const uniqueId = uuidv4();
   const isMobile = isMobileDevice();
+  console.log("Data del branch", branchInfo);
   useEffect(() => {
     console.log("Is mobile", isMobile);
     console.log("CUF guardado");

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 import BodyGroupedProductReport from "./bodyGroupedProductReport";
-export default function MarkdownsReport() {
+export default function GroupedProductReport() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");

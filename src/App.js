@@ -56,6 +56,7 @@ import RePrintInvoicesAlt from "./Components/rePrintInvoicesAlt";
 import MarkdownsReport from "./Components/markdownsReport";
 import ProductUpdate from "./Components/productUpdate";
 import EditUserAgency from "./Components/editUserAgency";
+import GroupedProductReport from "./Components/groupedProductReport";
 
 function App() {
   return (
@@ -469,6 +470,14 @@ function App() {
               element={
                 <RequireAuth>
                   <InvoiceOrdersAlt />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/agrupado/productos"
+              element={
+                <RequireAuth>
+                  <GroupedProductReport />
                 </RequireAuth>
               }
             />

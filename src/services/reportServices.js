@@ -122,7 +122,10 @@ export const reportService = {
     startDate = null,
     endDate = null,
     estado = null,
-    usuario = null
+    usuario = null,
+    tipo = null,
+    facturado = null,
+    notas = null
   ) {
     const url = `/reportes/productos/pedidos`;
     const params = {
@@ -131,6 +134,9 @@ export const reportService = {
       endDate,
       estado,
       usuario,
+      tipo,
+      facturado,
+      notas,
     };
     const response = await reportInstance.get(url, { params });
     return response.data;

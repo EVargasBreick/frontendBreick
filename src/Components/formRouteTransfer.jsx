@@ -105,68 +105,73 @@ export default function FormRouteTransfer() {
     setSelectedProducts(auxArray);
   }
   function registerTransfer() {
-    setAlertSec("Validando Traspaso");
-    setIsAlertSec(true);
-    const zeroValidated = validateZero();
-    zeroValidated
-      .then((validated) => {
-        const validatedQuan = validateQuantities();
-        validatedQuan
-          .then((res) => {
-            const transferObj = {
-              idOrigen: idOrigen,
-              idDestino: idDestino,
-              idUsuario: userId,
-              productos: selectedProducts,
-              movil: 1,
-              transito: 0,
-            };
-            setAlertSec("Creando traspaso");
-            const newTransfer = createTransfer(transferObj);
-            newTransfer
-              .then((nt) => {
-                const reservedProducts = updateStock({
-                  accion: "take",
-                  idAlmacen: idOrigen,
-                  productos: selectedProducts,
-                  detalle: `SSNTR-${nt.data.data.idCreado}`,
-                });
-                reservedProducts
-                  .then((res) => {
-                    setIsAlertSec(false);
-                    setAlert("Traspaso creado correctamente");
-                    setIsAlert(true);
-                    setTimeout(() => {
-                      navigate("/principal");
-                    }, 1500);
-                  })
-                  .catch((error) => {
-                    setIsAlertSec(false);
-                    setAlert("Error al actualizar");
-                    setIsAlert(true);
+    if (idOrigen !== idDestino) {
+      setAlertSec("Validando Traspaso");
+      setIsAlertSec(true);
+      const zeroValidated = validateZero();
+      zeroValidated
+        .then((validated) => {
+          const validatedQuan = validateQuantities();
+          validatedQuan
+            .then((res) => {
+              const transferObj = {
+                idOrigen: idOrigen,
+                idDestino: idDestino,
+                idUsuario: userId,
+                productos: selectedProducts,
+                movil: 1,
+                transito: 0,
+              };
+              setAlertSec("Creando traspaso");
+              const newTransfer = createTransfer(transferObj);
+              newTransfer
+                .then((nt) => {
+                  const reservedProducts = updateStock({
+                    accion: "take",
+                    idAlmacen: idOrigen,
+                    productos: selectedProducts,
+                    detalle: `SSNTR-${nt.data.data.idCreado}`,
                   });
-              })
-              .catch((error) => {
-                setIsAlertSec(false);
-                setAlert("Error al crear el traspaso");
-                setIsAlert(true);
-              });
-          })
-          .catch((err) => {
-            setIsAlertSec(false);
-            setAlert(
-              "La cantidad de un producto seleccionado no se encuentra disponible"
-            );
-            setIsAlert(true);
-          });
-      })
-      .catch((error) => {
-        setIsAlertSec(false);
-        setAlert(
-          "La cantidad de un producto seleccionado se encuentra en cero"
-        );
-        setIsAlert(true);
-      });
+                  reservedProducts
+                    .then((res) => {
+                      setIsAlertSec(false);
+                      setAlert("Traspaso creado correctamente");
+                      setIsAlert(true);
+                      setTimeout(() => {
+                        navigate("/principal");
+                      }, 1500);
+                    })
+                    .catch((error) => {
+                      setIsAlertSec(false);
+                      setAlert("Error al actualizar");
+                      setIsAlert(true);
+                    });
+                })
+                .catch((error) => {
+                  setIsAlertSec(false);
+                  setAlert("Error al crear el traspaso");
+                  setIsAlert(true);
+                });
+            })
+            .catch((err) => {
+              setIsAlertSec(false);
+              setAlert(
+                "La cantidad de un producto seleccionado no se encuentra disponible"
+              );
+              setIsAlert(true);
+            });
+        })
+        .catch((error) => {
+          setIsAlertSec(false);
+          setAlert(
+            "La cantidad de un producto seleccionado se encuentra en cero"
+          );
+          setIsAlert(true);
+        });
+    } else {
+      setAlert("El origen debe ser distinto al destino");
+      setIsAlert(true);
+    }
   }
   function validateZero() {
     var valQuan = true;
