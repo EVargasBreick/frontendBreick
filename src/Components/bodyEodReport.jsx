@@ -177,7 +177,7 @@ export default function BodyEodReport() {
           : setIntercambio(0);
       }
       const totalTarjeta =
-        (tarjeta ? tarjeta.totalPagado : 0) +
+        (tarjeta ? tarjeta.totalPagado - tarjeta.totalCambio : 0) +
         (mixto ? Math.abs(mixto.totalCambio) : 0);
       setTarjeta(totalTarjeta);
       const totalEfectivo =

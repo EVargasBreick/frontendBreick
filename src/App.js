@@ -57,6 +57,7 @@ import MarkdownsReport from "./Components/markdownsReport";
 import ProductUpdate from "./Components/productUpdate";
 import GroupedProductReport from "./Components/groupedProductReport";
 import AsignPackAlt from "./Components/asignPackAlt";
+import EditUserAgency from "./Components/editUserAgency";
 
 function App() {
   return (

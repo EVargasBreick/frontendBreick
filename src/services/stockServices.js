@@ -138,6 +138,21 @@ const getStockLogged = (body) => {
   });
 };
 
+const getProductsGroup = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/grupo/productos`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   getLogStockProduct,
   getLogStockStore,
@@ -148,4 +163,5 @@ export {
   logProductEntry,
   getStockCodes,
   getStockLogged,
+  getProductsGroup,
 };

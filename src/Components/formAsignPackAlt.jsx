@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Button, Table } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { getPacks } from "../services/packServices";
-import { getCurrentStockStore } from "../services/stockServices";
+import {
+  getCurrentStockStore,
+  getProductsGroup,
+} from "../services/stockServices";
 import { updateMultipleStock } from "../services/orderServices";
 import Cookies from "js-cookie";
 import { ConfirmModal } from "./Modals/confirmModal";
@@ -28,6 +31,7 @@ export default function FormAsignPack() {
   const [toastType, setToastType] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedPack, setSelectedPack] = useState("");
+  const [productGroupList, setProductGroupList] = useState([]);
 
   useEffect(() => {
     try {
@@ -45,6 +49,11 @@ export default function FormAsignPack() {
         setPacks(uniqueArray);
       });
       getStoreStock(userAlmacen);
+      const groupList = getProductsGroup();
+      groupList.then((res) => {
+        console.log("Respuesta de los grupos", res.data);
+        setProductGroupList(res.data);
+      });
     } catch (err) {
       setToastText("Error al cargar packs");
       setToastType("error");
@@ -66,23 +75,7 @@ export default function FormAsignPack() {
     setIsPack(true);
     setSelectedPackId(value);
     const prodList = allPacks.filter((pk) => pk.idPack == value);
-    console.log("TCL: selectPack -> prodList", prodList);
-    const grupoPRoductos = [
-      {
-        idProducto: 50,
-      },
-      {
-        idProducto: 53,
-      },
-    ];
-
-    prodList.map((pl) => {
-      const found = grupoPRoductos.find((gp) => gp.idProducto == pl.idProducto);
-      if (found) {
-        pl.isGrupo = true;
-        pl.idGrupo = found.idProducto;
-      }
-    });
+    console.log("Pack seleccionado", prodList);
     setProductList(prodList);
   }
   async function asignPack() {
@@ -137,6 +130,10 @@ export default function FormAsignPack() {
       setCantPack(0);
       setIsPack(false);
       setSelectedPack("");
+      setProductList([]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     }
   }
 
@@ -148,9 +145,21 @@ export default function FormAsignPack() {
     setShowModal(true);
   };
 
+  function handleProductChange(index, idProducto) {
+    if (productList[index].idProducto !== idProducto) {
+      const auxProdList = [...productList];
+      const found = productStock.find((ps) => ps.idProducto == idProducto);
+      auxProdList[index].idProducto = idProducto;
+      auxProdList[index].nombreProducto = found.nombreProducto;
+      auxProdList[index].precioDeFabrica = found.precioDeFabrica;
+      setProductList(auxProdList);
+      console.log("Cambiado");
+    }
+  }
+
   return (
     <div>
-      <div className="formLabel">Asignar Packs</div>
+      <div className="formLabel">Armar Packs</div>
       <ConfirmModal
         show={showModal}
         setShow={setShowModal}
@@ -185,16 +194,7 @@ export default function FormAsignPack() {
           })}
         </Form.Select>
       </Form>
-      <div>
-        <div className="formLabel">Cantidad de packs a armar</div>
-        <Form>
-          <Form.Control
-            type="Number"
-            onChange={(e) => setCantPack(e.target.value)}
-            value={cantPack}
-          />
-        </Form>
-      </div>
+
       <div className="formLabel">Detalles pack seleccionado</div>
       <div>
         {isAgency && isPack ? (
@@ -213,15 +213,41 @@ export default function FormAsignPack() {
                 </thead>
                 <tbody>
                   {productList.map((pl, index) => {
+                    const isInGroup = productGroupList.find(
+                      (pg) => pg.idProducto == pl.idProducto
+                    );
+                    const optionList = isInGroup
+                      ? productGroupList.filter(
+                          (pgl) => pgl.idGrupo == isInGroup?.idGrupo
+                        )
+                      : [];
                     return (
                       <tr key={index} className="tableRow">
                         <td>{index + 1}</td>
                         <td>
-                          {pl.isGrupo ? (
+                          {isInGroup ? (
                             <Form.Group>
-                              <Form.Select>
-                                <option value={"Tableta1"}>Tableta1</option>
-                                <option value={"Tableta2"}>Tableta 2</option>
+                              <Form.Select
+                                onChange={(e) =>
+                                  handleProductChange(index, e.target.value)
+                                }
+                              >
+                                <option value={pl.idProducto}>
+                                  {pl.nombreProducto}
+                                </option>
+
+                                {optionList.map((ol, index) => {
+                                  return pl.idProducto != ol.idProducto ? (
+                                    <option key={index} value={ol.idProducto}>
+                                      {
+                                        productStock.find(
+                                          (ps) =>
+                                            ps.idProducto === ol.idProducto
+                                        )?.nombreProducto
+                                      }
+                                    </option>
+                                  ) : null;
+                                })}
                               </Form.Select>
                             </Form.Group>
                           ) : (
@@ -251,9 +277,20 @@ export default function FormAsignPack() {
                   <tr></tr>
                 </tfoot>
               </Table>
-              <Button variant="warning" className="yellowLarge" type="submit">
-                Asignar Pack
-              </Button>
+              <div>
+                <div className="formLabel">Cantidad de packs a armar</div>
+
+                <Form.Control
+                  type="Number"
+                  onChange={(e) => setCantPack(e.target.value)}
+                  value={cantPack}
+                />
+              </div>
+              <div style={{ margin: "25px" }}>
+                <Button variant="warning" className="yellowLarge" type="submit">
+                  Asignar Pack
+                </Button>
+              </div>
             </Form>
           </div>
         ) : null}
