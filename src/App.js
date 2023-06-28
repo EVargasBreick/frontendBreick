@@ -58,6 +58,7 @@ import ProductUpdate from "./Components/productUpdate";
 import GroupedProductReport from "./Components/groupedProductReport";
 import AsignPackAlt from "./Components/asignPackAlt";
 import EditUserAgency from "./Components/editUserAgency";
+import RetirePackAlt from "./Components/retirePackAlt";
 
 function App() {
   return (
@@ -335,6 +336,14 @@ function App() {
               element={
                 <RequireAuth>
                   <RetirePack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packsretirar"
+              element={
+                <RequireAuth>
+                  <RetirePackAlt />
                 </RequireAuth>
               }
             />
