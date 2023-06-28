@@ -32,6 +32,7 @@ export default function FormAsignPack() {
   const [loading, setLoading] = useState(false);
   const [selectedPack, setSelectedPack] = useState("");
   const [productGroupList, setProductGroupList] = useState([]);
+  const [modalText, setModalText] = useState("");
 
   useEffect(() => {
     try {
@@ -139,9 +140,31 @@ export default function FormAsignPack() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    for (let i = 0; i < e.target.length - 1; i++) {
-      console.log(e.target[i].value);
-    }
+    setModalText(
+      <Table>
+        <thead className="tableHeader">
+          <tr>
+            <th>Nro</th>
+            <th>Producto</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {productList.map((pl, index) => {
+            return (
+              <tr key={index} className="tableRow">
+                <td>{index + 1}</td>
+                <td>{pl.nombreProducto}</td>
+                <td>{pl.cantProducto * cantPack}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          <tr></tr>
+        </tfoot>
+      </Table>
+    );
     setShowModal(true);
   };
 
@@ -163,8 +186,8 @@ export default function FormAsignPack() {
       <ConfirmModal
         show={showModal}
         setShow={setShowModal}
-        title={`Asignar ${cantPack} Pack(s)`}
-        text="¿Desea asignar el pack?"
+        title={`Asignar ${cantPack} Pack(s)?`}
+        text={modalText}
         handleSubmit={() => asignPack()}
         handleCancel={() => setShowModal(false)}
       />
