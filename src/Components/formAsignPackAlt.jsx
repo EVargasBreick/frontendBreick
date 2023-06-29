@@ -141,8 +141,6 @@ export default function FormAsignPack() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Cambiado", changed);
-
     const packsAll = await getPacks();
     const productOriginal = packsAll.data.filter(
       (pk) => pk.idPack == selectedPackId
