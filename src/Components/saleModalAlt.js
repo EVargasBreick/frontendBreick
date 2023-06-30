@@ -181,11 +181,11 @@ function SaleModalAlt(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-            (
-              cancelado -
-              (total * (1 - datos.descuento / 100) - giftCard)
-            ).toFixed()
-          )
+          (
+            cancelado -
+            (total * (1 - datos.descuento / 100) - giftCard)
+          ).toFixed()
+        )
     );
   }, [cancelado]);
 
@@ -367,7 +367,7 @@ function SaleModalAlt(
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
             } else {
-              if (cancelado <= totalDescontado - giftCard) {
+              if (cancelado < totalDescontado - giftCard) {
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
@@ -513,9 +513,8 @@ function SaleModalAlt(
           2
         ),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
-          invoiceBody.idAgencia
-        }`,
+        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${invoiceBody.idAgencia
+          }`,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -613,9 +612,9 @@ function SaleModalAlt(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-                errorList.map((item) => {
-                  return item + `\n`;
-                })
+              errorList.map((item) => {
+                return item + `\n`;
+              })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -1160,11 +1159,10 @@ function SaleModalAlt(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{`${
-                    cancelado - totalDescontado < 0
-                      ? " Ingrese un monto igual o superior"
-                      : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
-                  } `}</div>
+                  <div className="modalData">{`${cancelado - totalDescontado < 0
+                    ? " Ingrese un monto igual o superior"
+                    : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
+                    } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (
@@ -1272,16 +1270,15 @@ function SaleModalAlt(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> A pagar en efectivo:</div>
-                  <div className="modalData">{`${
-                    datos.total - giftCard < 0
-                      ? "El valor del Vale es mayor al monto de la compra"
-                      : `${parseFloat(
-                          parseFloat(-giftCard) +
-                            total * (1 - datos.descuento / 100)
-                        ).toFixed(2)} Bs.`
-                  } `}</div>
+                  <div className="modalData">{`${datos.total - giftCard <= 0
+                    ? "El valor del Vale es mayor al monto de la compra puede dar de baja"
+                    : `${parseFloat(
+                      parseFloat(-giftCard) +
+                      total * (1 - datos.descuento / 100)
+                    ).toFixed(2)} Bs.`
+                    } `}</div>
                 </div>
-                {1 > 0 ? (
+                {1 > 0 && datos.total - giftCard > 0 ? (
                   <div>
                     <div className="modalRows">
                       <div className="modalLabel"> Cancelado:</div>
@@ -1303,23 +1300,23 @@ function SaleModalAlt(
                     </div>
                     <div className="modalRows">
                       <div className="modalLabel"> Cambio:</div>
-                      <div className="modalData">{`${
-                        cancelado -
-                          (total * (1 - datos.descuento / 100) - giftCard) <
+                      <div className="modalData">{`${cancelado -
+                        (total * (1 - datos.descuento / 100) - giftCard) <
                         0
-                          ? "Ingrese un monto mayor"
-                          : `${(
-                              cancelado -
-                              totalDesc +
-                              parseFloat(giftCard)
-                            ).toFixed(2)} Bs.`
-                      } `}</div>
+                        ? "Ingrese un monto mayor"
+                        : `${(
+                          cancelado -
+                          totalDesc +
+                          parseFloat(giftCard)
+                        ).toFixed(2)} Bs.`
+                        } `}</div>
                     </div>
                   </div>
                 ) : null}
+
               </div>
             ) : null}
-            {tipoPago == 11 ? (
+            {tipoPago == 11 || 1 > 0 && datos.total - giftCard <= 0 ? (
               <div className="modalRows">
                 <div className="modalLabel"> Motivo de la Baja:</div>
                 <div className="modalData">
@@ -1339,7 +1336,11 @@ function SaleModalAlt(
           </Modal.Body>
           <Modal.Footer>
             <Button type="submit" variant="success">
-              Facturar
+              {
+                1 > 0 && datos.total - giftCard <= 0 ?
+                  "Dar de baja"
+                  : "Facturar"
+              }
             </Button>
             <Button type="reset" variant="danger" onClick={() => handleClose()}>
               {" "}
