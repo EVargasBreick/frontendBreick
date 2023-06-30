@@ -43,6 +43,8 @@ export default function FormRetirePackAlt() {
   const [toastText, setToastText] = useState("");
   const [toastType, setToastType] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [modalText, setModalText] = useState("");
   useEffect(() => {
     const ag = getOnlyStores();
     ag.then((age) => {
@@ -171,12 +173,50 @@ export default function FormRetirePackAlt() {
     }
   }
 
-  const handleSubmit = (e) => {
-    console.log("Test");
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    for (let i = 0; i < e.target.length - 1; i++) {
-      console.log(e.target[i].value);
-    }
+    const packsAll = await getPacks();
+    const productOriginal = packsAll.data.filter(
+      (pk) => pk.idPack == selectedPackId
+    );
+    const results = productList.filter(
+      ({ idProducto: id1 }) =>
+        !productOriginal.some(
+          ({ idProducto: id2 }) => id2.toString() === id1.toString()
+        )
+    );
+    setModalText(
+      <>
+        <Table>
+          <thead className="tableHeader">
+            <tr>
+              <th>Nro</th>
+              <th>Producto</th>
+              <th>Cantidad a reponer</th>
+            </tr>
+          </thead>
+          <tbody>
+            {productList.map((pl, index) => {
+              return (
+                <tr key={index} className="tableRow">
+                  <td>{index + 1}</td>
+                  <td>{pl.nombreProducto}</td>
+                  <td>{pl.cantProducto * cantPack}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr></tr>
+          </tfoot>
+        </Table>
+        {results.length > 0 ? (
+          <h2 className="text-danger">
+            Hubo cambios en los productos del pack original
+          </h2>
+        ) : null}
+      </>
+    );
     setShowModal(true);
   };
 
@@ -206,8 +246,8 @@ export default function FormRetirePackAlt() {
       <ConfirmModal
         show={showModal}
         setShow={setShowModal}
-        title={`Asignar ${cantPack} Pack(s)`}
-        text="¿Desea asignar el pack?"
+        title={`Desarmar ${cantPack} Pack(s)`}
+        text={modalText}
         handleSubmit={() => retirePack()}
         handleCancel={() => setShowModal(false)}
       />
