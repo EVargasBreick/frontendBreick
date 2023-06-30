@@ -362,7 +362,7 @@ function SaleModalAlt(
               invoicingProcess();
             }
           }
-          if (tipoPago == 4) {
+          if (tipoPago == 4 && cancelado >= totalDescontado - giftCard) {
             if (giftCard == 0) {
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
@@ -393,7 +393,7 @@ function SaleModalAlt(
               invoicingProcess();
             }
           }
-          if (tipoPago == 11) {
+          if (tipoPago == 11 || cancelado >= totalDescontado - giftCard) {
             setAlertSec("Guardando baja");
             setIsAlertSec(true);
 
@@ -1271,7 +1271,7 @@ function SaleModalAlt(
                 <div className="modalRows">
                   <div className="modalLabel"> A pagar en efectivo:</div>
                   <div className="modalData">{`${datos.total - giftCard <= 0
-                    ? "El valor del Vale es mayor al monto de la compra puede dar de baja"
+                    ? "Dando de baja el Vale"
                     : `${parseFloat(
                       parseFloat(-giftCard) +
                       total * (1 - datos.descuento / 100)
@@ -1316,7 +1316,7 @@ function SaleModalAlt(
 
               </div>
             ) : null}
-            {tipoPago == 11 || 1 > 0 && datos.total - giftCard <= 0 ? (
+            {tipoPago == 11? (
               <div className="modalRows">
                 <div className="modalLabel"> Motivo de la Baja:</div>
                 <div className="modalData">
