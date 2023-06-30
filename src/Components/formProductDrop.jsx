@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import loading2 from "../assets/loading2.gif";
 import { getProductsWithStock } from "../services/productServices";
@@ -7,6 +7,11 @@ import LoadingModal from "./Modals/loadingModal";
 import { dateString } from "../services/dateServices";
 import { registerDrop } from "../services/dropServices";
 import { updateStock } from "../services/orderServices";
+import { DropComponent } from "./dropComponent";
+import { getBranchesPs } from "../services/storeServices";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import ReactToPrint from "react-to-print";
 export default function FormProductDrop() {
   const [productList, setProductList] = useState([]);
   const [auxproductList, setauxProductList] = useState([]);
@@ -21,7 +26,11 @@ export default function FormProductDrop() {
   const [storeId, setStoreId] = useState("");
   const [userId, setUserid] = useState("");
   const [detalleMotivo, setDetalleMotivo] = useState("");
-
+  const [branchInfo, setBranchInfo] = useState({});
+  const [isDrop, setIsDrop] = useState(false);
+  const invoiceRef = useRef();
+  const dropRef = useRef();
+  const [dropId, setDropId] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -33,6 +42,25 @@ export default function FormProductDrop() {
       prods.then((product) => {
         setProductList(product.data);
         setauxProductList(product.data);
+      });
+      const suc = getBranchesPs();
+      suc.then((resp) => {
+        const sucursales = resp.data;
+        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+
+        const sucur =
+          sucursales.find((sc) => alm == sc.idAgencia) == undefined
+            ? sucursales.find((sc) => "AL001" == sc.idAgencia)
+            : sucursales.find((sc) => alm == sc.idAgencia);
+        console.log("Sucur", sucur);
+        const branchData = {
+          nombre: sucur.nombre,
+          dir: sucur.direccion,
+          tel: sucur.telefono,
+          ciudad: sucur.ciudad,
+          nro: sucur.idImpuestos,
+        };
+        setBranchInfo(branchData);
       });
     }
     console.log("Length", JSON.stringify(selectedProduct).length);
@@ -110,6 +138,7 @@ export default function FormProductDrop() {
         };
         const bajaRegistrada = registerDrop(objBaja);
         bajaRegistrada.then((res) => {
+          setDropId(res.data.id);
           const idBaja = res.data.id;
           const objStock = {
             accion: "take",
@@ -121,9 +150,7 @@ export default function FormProductDrop() {
           updatedStock.then((response) => {
             setAlertSec("Baja registrada correctamente");
             debugger;
-            setTimeout(() => {
-              window.location.reload();
-            }, 1500);
+            setIsDrop(true);
           });
         });
       }
@@ -135,6 +162,26 @@ export default function FormProductDrop() {
     auxArray.splice(index, 1);
     setSelectedProduct(auxArray);
   }
+
+  useEffect(() => {
+    if (isDrop) {
+      if (invoiceRef.current) {
+        invoiceRef.current.click();
+      }
+    }
+  }, [isDrop]);
+
+  const handleDownloadPdfDrop = async () => {
+    const element = dropRef.current;
+    const canvas = await html2canvas(element);
+    const data = canvas.toDataURL("image/png");
+    const pdf = new jsPDF();
+    const imgProperties = pdf.getImageProperties(data);
+    const pdfWidth = 70;
+    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`nota_entrega_${dropId}.pdf`);
+  };
 
   return (
     <div>
@@ -281,6 +328,36 @@ export default function FormProductDrop() {
               Dar de baja
             </Button>
           </Form>
+        </div>
+      ) : null}
+      {isDrop ? (
+        <div>
+          <ReactToPrint
+            trigger={() => (
+              <button ref={invoiceRef} hidden>
+                Print this out!
+              </button>
+            )}
+            content={() => dropRef.current}
+            onAfterPrint={() => {
+              handleDownloadPdfDrop();
+              setTimeout(() => {
+                window.location.reload();
+              }, 3000);
+            }}
+          />
+          <Button>
+            <DropComponent
+              ref={dropRef}
+              branchInfo={branchInfo}
+              selectedProducts={selectedProduct}
+              cliente={{
+                nit: "128153028",
+                razonSocial: "INCADEX S.R.L.",
+              }}
+              dropId={dropId}
+            />
+          </Button>
         </div>
       ) : null}
     </div>
