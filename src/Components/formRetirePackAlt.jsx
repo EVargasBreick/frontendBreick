@@ -43,6 +43,7 @@ export default function FormRetirePackAlt() {
   const [toastText, setToastText] = useState("");
   const [toastType, setToastType] = useState("");
   const [loading, setLoading] = useState(false);
+  const [changed, setChanged] = useState(false);
 
   const [modalText, setModalText] = useState("");
   useEffect(() => {
@@ -72,6 +73,32 @@ export default function FormRetirePackAlt() {
       })
       .catch((err) => {});
   }, []);
+  useEffect(() => {
+    try {
+      const packsAll = getPacks();
+      packsAll.then((res) => {
+        const productOriginal = res.data.filter(
+          (pk) => pk.idPack == selectedPackId
+        );
+        const results = productList.filter(
+          ({ idProducto: id1 }) =>
+            !productOriginal.some(
+              ({ idProducto: id2 }) => id2.toString() === id1.toString()
+            )
+        );
+        console.log("Resultados", results);
+        if (results.length > 0) {
+          setChanged(true);
+        } else {
+          setChanged(false);
+        }
+      });
+    } catch (err) {
+      setToastText("Error al cargar packs");
+      setToastType("danger");
+      setShowToast(true);
+    }
+  }, [productList]);
 
   const handleClose = () => {
     setIsAlert(false);
@@ -170,6 +197,7 @@ export default function FormRetirePackAlt() {
       auxProdList[index].precioDeFabrica = found.precioDeFabrica;
       setProductList(auxProdList);
       console.log("Cambiado");
+      setChanged(true);
     }
   }
 
@@ -219,6 +247,15 @@ export default function FormRetirePackAlt() {
     );
     setShowModal(true);
   };
+
+  async function restoreOriginalPack() {
+    const packsAll = await getPacks();
+    const productOriginal = packsAll.data.filter(
+      (pk) => pk.idPack == selectedPackId
+    );
+    setProductList(productOriginal);
+    setChanged(false);
+  }
 
   return (
     <div>
@@ -379,13 +416,21 @@ export default function FormRetirePackAlt() {
                       onChange={(e) => setCantPack(e.target.value)}
                     />
                   </div>
-                  <div style={{ margin: "25px" }}>
+                  <div className="my-2 d-flex gap-4">
                     <Button
                       variant="warning"
                       className="yellowLarge"
                       onClick={(e) => handleSubmit(e)}
                     >
                       Desarmar packs
+                    </Button>
+                    <Button
+                      onClick={restoreOriginalPack}
+                      className="btn btn-info  flex-grow-1"
+                      type="reset"
+                      disabled={!changed}
+                    >
+                      Restaurar a pack original
                     </Button>
                   </div>
                 </Form>
