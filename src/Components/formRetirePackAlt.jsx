@@ -419,7 +419,7 @@ export default function FormRetirePackAlt() {
                   <div className="my-2 d-flex gap-4">
                     <Button
                       variant="warning"
-                      className="yellowLarge"
+                      className="yellowLarge   flex-grow-1"
                       onClick={(e) => handleSubmit(e)}
                     >
                       Desarmar packs
