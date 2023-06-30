@@ -65,6 +65,33 @@ export default function FormAsignPack() {
     }
   }, []);
 
+  useEffect(() => {
+    try {
+      const packsAll = getPacks();
+      packsAll.then((res) => {
+        const productOriginal = res.data.filter(
+          (pk) => pk.idPack == selectedPackId
+        );
+        const results = productList.filter(
+          ({ idProducto: id1 }) =>
+            !productOriginal.some(
+              ({ idProducto: id2 }) => id2.toString() === id1.toString()
+            )
+        );
+        console.log("Resultados", results);
+        if (results.length > 0) {
+          setChanged(true);
+        } else {
+          setChanged(false);
+        }
+      });
+    } catch (err) {
+      setToastText("Error al cargar packs");
+      setToastType("danger");
+      setShowToast(true);
+    }
+  }, [productList]);
+
   function getStoreStock(value) {
     setSelectedStoreId(value);
     const stock = getCurrentStockStore(value);
@@ -200,6 +227,15 @@ export default function FormAsignPack() {
     }
   }
 
+  async function restoreOriginalPack() {
+    const packsAll = await getPacks();
+    const productOriginal = packsAll.data.filter(
+      (pk) => pk.idPack == selectedPackId
+    );
+    setProductList(productOriginal);
+    setChanged(false);
+  }
+
   return (
     <div>
       <div className="formLabel">Armar Packs</div>
@@ -329,9 +365,21 @@ export default function FormAsignPack() {
                   value={cantPack}
                 />
               </div>
-              <div style={{ margin: "25px" }}>
-                <Button variant="warning" className="yellowLarge" type="submit">
+              <div className="my-2 d-flex gap-4">
+                <Button
+                  variant="warning"
+                  className="yellowLarge flex-grow-1"
+                  type="submit"
+                >
                   Asignar Pack
+                </Button>
+                <Button
+                  onClick={restoreOriginalPack}
+                  className="btn btn-info  flex-grow-1"
+                  type="reset"
+                  disabled={!changed}
+                >
+                  Restaurar a pack original
                 </Button>
               </div>
             </Form>
