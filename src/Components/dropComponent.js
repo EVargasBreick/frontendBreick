@@ -3,6 +3,7 @@ import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
 import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
+
 export const DropComponent = React.forwardRef(
   ({ branchInfo, selectedProducts, cliente, dropId }, ref) => {
     console.log("Selectedproducts", selectedProducts);
