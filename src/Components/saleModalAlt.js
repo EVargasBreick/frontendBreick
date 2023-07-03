@@ -24,6 +24,7 @@ import {
   fullInvoiceProcess,
   invoiceUpdate,
   logIncompleteInvoice,
+  otherPaymentsList,
 } from "../services/invoiceServices";
 import { deleteSale } from "../services/saleServices";
 import Cookies from "js-cookie";
@@ -32,6 +33,8 @@ import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
 import { emizorService } from "../services/emizorService";
+import { TipoPagoComponent } from "./tipoPagoCOmponent";
+
 function SaleModalAlt(
   {
     datos,
@@ -127,6 +130,8 @@ function SaleModalAlt(
   const [leyenda, setLeyenda] = useState("");
   const [urlSin, setUrlSin] = useState("");
   const [giftCard, setGiftCard] = useState(0);
+  const [valeForm, setValeForm] = useState({});
+
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -1268,55 +1273,73 @@ function SaleModalAlt(
                     </Form>
                   </div>
                 </div>
-                <div className="modalRows">
-                  <div className="modalLabel"> A pagar en efectivo:</div>
-                  <div className="modalData">{`${datos.total - giftCard <= 0
-                    ? "Dando de baja el Vale"
-                    : `${parseFloat(
-                      parseFloat(-giftCard) +
-                      total * (1 - datos.descuento / 100)
-                    ).toFixed(2)} Bs.`
-                    } `}</div>
-                </div>
-                {1 > 0 && datos.total - giftCard > 0 ? (
-                  <div>
-                    <div className="modalRows">
-                      <div className="modalLabel"> Cancelado:</div>
-                      <div className="modalData">
-                        <Form>
-                          <Form.Control
-                            ref={canceledRef}
-                            value={cancelado}
-                            type="number"
-                            onChange={(e) => setCancelado(e.target.value)}
-                            onKeyDown={(e) =>
-                              e.key === "Enter"
-                                ? validateFormOfPayment(e)
-                                : null
-                            }
-                          />
-                        </Form>
+                {
+                  datos.total - giftCard <= 0 ?
+                    <div>
+                      <div className="modalRows">
+                        <div className="modalLabel"> Detalle:</div>
+                        <div className="modalData">{
+                          "Dando de baja el vale"
+                        }</div>
                       </div>
+
                     </div>
-                    <div className="modalRows">
-                      <div className="modalLabel"> Cambio:</div>
-                      <div className="modalData">{`${cancelado -
-                        (total * (1 - datos.descuento / 100) - giftCard) <
-                        0
-                        ? "Ingrese un monto mayor"
-                        : `${(
-                          cancelado -
-                          totalDesc +
-                          parseFloat(giftCard)
-                        ).toFixed(2)} Bs.`
-                        } `}</div>
-                    </div>
-                  </div>
-                ) : null}
+                    :
+                    // <>
+                    //   <div className="modalRows">
+                    //     <div className="modalLabel"> A pagar en efectivo:</div>
+                    //     <div className="modalData"> {parseFloat(
+                    //       parseFloat(-giftCard) +
+                    //       total * (1 - datos.descuento / 100)
+                    //     ).toFixed(2)} Bs.
+                    //     </div>
+                    //   </div>
+                    //   {1 > 0 && datos.total - giftCard > 0 ? (
+                    //     <div>
+                    //       <div className="modalRows">
+                    //         <div className="modalLabel"> Cancelado:</div>
+                    //         <div className="modalData">
+                    //           <Form>
+                    //             <Form.Control
+                    //               ref={canceledRef}
+                    //               value={cancelado}
+                    //               type="number"
+                    //               onChange={(e) => setCancelado(e.target.value)}
+                    //               onKeyDown={(e) =>
+                    //                 e.key === "Enter"
+                    //                   ? validateFormOfPayment(e)
+                    //                   : null
+                    //               }
+                    //             />
+                    //           </Form>
+                    //         </div>
+                    //       </div>
+                    //       <div className="modalRows">
+                    //         <div className="modalLabel"> Cambio:</div>
+                    //         <div className="modalData">{`${cancelado -
+                    //           (total * (1 - datos.descuento / 100) - giftCard) <
+                    //           0
+                    //           ? "Ingrese un monto mayor"
+                    //           : `${(
+                    //             cancelado -
+                    //             totalDesc +
+                    //             parseFloat(giftCard)
+                    //           ).toFixed(2)} Bs.`
+                    //           } `}</div>
+                    //       </div>
+                    //     </div>
+                    //   ) : null}
+                    // </>
+                    <TipoPagoComponent
+                      otherPayment={otherPayments}
+                      setValeForm={setValeForm}
+                      total={total}
+                      vale={giftCard} />
+                }
 
               </div>
             ) : null}
-            {tipoPago == 11? (
+            {tipoPago == 11 ? (
               <div className="modalRows">
                 <div className="modalLabel"> Motivo de la Baja:</div>
                 <div className="modalData">
