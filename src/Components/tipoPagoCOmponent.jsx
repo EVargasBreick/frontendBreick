@@ -19,7 +19,8 @@ export const TipoPagoComponent = ({
   const canceledRef = React.useRef(null);
 
   useEffect(() => {
-    setValeForm({ tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp });
+    setValeForm({ tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp, vale });
+    console.log("valeForm", { tipoPago, cancelado, cardNumbersA, cardNumbersB });
   }, [tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp]);
 
   function handleCardNumber(number, card) {

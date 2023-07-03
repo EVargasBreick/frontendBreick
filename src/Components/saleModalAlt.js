@@ -28,7 +28,7 @@ import {
 } from "../services/invoiceServices";
 import { deleteSale } from "../services/saleServices";
 import Cookies from "js-cookie";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
@@ -254,21 +254,18 @@ function SaleModalAlt(
         setCardNumbersB("");
         setOfp(0);
         setCancelado("");
-        setGiftCard(0);
         break;
       case "2":
         setStringPago("Tarjeta");
         setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
-        setGiftCard(0);
         break;
       case "3":
         setStringPago("Cheque");
         setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
-        setGiftCard(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
@@ -286,7 +283,6 @@ function SaleModalAlt(
         setCambio(0);
         setCardNumbersA("");
         setCardNumbersB("");
-        setGiftCard(0);
         break;
       case "6":
         setStringPago("Pago Posterior");
@@ -296,7 +292,6 @@ function SaleModalAlt(
         setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
-        setGiftCard(0);
         break;
       case "7":
         setStringPago("Transferencia");
@@ -352,6 +347,8 @@ function SaleModalAlt(
       setCardNumbersA(valeForm.cardNumbersA);
       setCardNumbersB(valeForm.cardNumbersB);
       setOfp(valeForm.ofp);
+      setGiftCard(valeForm.vale);
+      handleTipoPago(valeForm.tipoPago.toString());
     }
     return new Promise((resolve) => {
       if (tipoPago == 0) {
@@ -896,9 +893,11 @@ function SaleModalAlt(
                       tipoPago: stringPago,
                       cancelado: cancelado,
                       cambio:
-                        parseFloat(cancelado) -
-                        parseFloat(totalDescontado) +
-                        parseFloat(giftCard),
+                        !valeForm ? (
+                          parseFloat(cancelado) -
+                          parseFloat(totalDescontado) +
+                          parseFloat(giftCard))
+                          : 0,
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
