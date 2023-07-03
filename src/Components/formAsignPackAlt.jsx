@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Table } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { getPacks } from "../services/packServices";
@@ -12,6 +12,10 @@ import { ConfirmModal } from "./Modals/confirmModal";
 import ToastComponent from "./Modals/Toast";
 import { set } from "lodash";
 import { Loader } from "./loader/Loader";
+import { PackageDropComponent } from "./packacgeDropComponent";
+import { getBranchesPs } from "../services/storeServices";
+import { handleDownloadPdf } from "../services/utils";
+import ReactToPrint from "react-to-print";
 
 export default function FormAsignPack() {
   const [packs, setPacks] = useState([]);
@@ -34,6 +38,10 @@ export default function FormAsignPack() {
   const [productGroupList, setProductGroupList] = useState([]);
   const [modalText, setModalText] = useState("");
   const [changed, setChanged] = useState(false);
+  // ref
+  const dropRef = useRef();
+  const [branchInfo, setBranchInfo] = useState({});
+  const invoiceRef = useRef();
 
   useEffect(() => {
     try {
@@ -55,6 +63,26 @@ export default function FormAsignPack() {
       groupList.then((res) => {
         console.log("Respuesta de los grupos", res.data);
         setProductGroupList(res.data);
+      });
+
+      const suc = getBranchesPs();
+      suc.then((resp) => {
+        const sucursales = resp.data;
+        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+
+        const sucur =
+          sucursales.find((sc) => alm == sc.idAgencia) == undefined
+            ? sucursales.find((sc) => "AL001" == sc.idAgencia)
+            : sucursales.find((sc) => alm == sc.idAgencia);
+        console.log("Sucur", sucur);
+        const branchData = {
+          nombre: sucur.nombre,
+          dir: sucur.direccion,
+          tel: sucur.telefono,
+          ciudad: sucur.ciudad,
+          nro: sucur.idImpuestos,
+        };
+        setBranchInfo(branchData);
       });
     } catch (err) {
       setToastText("Error al cargar packs");
@@ -152,17 +180,17 @@ export default function FormAsignPack() {
       setToastText("Error al asignar pack");
       setToastType("danger");
     } finally {
-      getStoreStock(userAlmacen);
+      if (invoiceRef.current) {
+        invoiceRef.current.click();
+      }
+      // getStoreStock(userAlmacen);
       setShowModal(false);
       setLoading(false);
       setShowToast(true);
-      setCantPack(0);
-      setIsPack(false);
-      setSelectedPack("");
-      setProductList([]);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      // setCantPack(0);
+      // setIsPack(false);
+      // setSelectedPack("");
+      // setProductList([]);
     }
   }
 
@@ -391,6 +419,35 @@ export default function FormAsignPack() {
             </Form>
           </div>
         ) : null}
+        <>
+          <ReactToPrint
+            trigger={() => (
+              <button ref={invoiceRef} hidden>
+                Print this out!
+              </button>
+            )}
+            content={() => dropRef.current}
+            onAfterPrint={() => {
+              handleDownloadPdf(
+                `nota_de_aramdo: ${productList[0]?.nombrePack}`,
+                dropRef
+              );
+            }}
+          />
+          <Button className="visually-hidden">
+            <PackageDropComponent
+              ref={dropRef}
+              branchInfo={branchInfo}
+              selectedProducts={productList}
+              cliente={{
+                nit: "128153028",
+                razonSocial: "INCADEX S.R.L.",
+              }}
+              packName={productList[0]?.nombrePack}
+              cantPack={cantPack}
+            />
+          </Button>
+        </>
       </div>
       {loading && <Loader />}
     </div>

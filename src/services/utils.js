@@ -1,5 +1,7 @@
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 
 const generateExcel = (items, file_name) => {
     const worksheet = XLSX.utils.json_to_sheet(items);
@@ -18,5 +20,22 @@ const saveExcelFile = (buffer, fileName) => {
     });
     saveAs(data, fileName);
 };
+
+
+export const handleDownloadPdf = async (namePdf, ref) => {
+    const element = ref.current;
+    const canvas = await html2canvas(element);
+    const data = canvas.toDataURL("image/png");
+    const pdf = new jsPDF();
+    const imgProperties = pdf.getImageProperties(data);
+    const pdfWidth = 70;
+    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(namePdf);
+    setTimeout(() => {
+        window.location.reload();
+    }, 3000);
+};
+
 
 export { generateExcel };
