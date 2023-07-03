@@ -345,6 +345,14 @@ function SaleModalAlt(
   }
   function validateFormOfPayment(e) {
     e.preventDefault();
+    console.log("Tipo de pago", valeForm);
+    if (tipoPago == 4 && valeForm) {
+      setTipoPago(valeForm.tipoPago);
+      setCancelado(valeForm.cancelado);
+      setCardNumbersA(valeForm.cardNumbersA);
+      setCardNumbersB(valeForm.cardNumbersB);
+      setOfp(valeForm.ofp);
+    }
     return new Promise((resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
@@ -399,38 +407,40 @@ function SaleModalAlt(
             }
           }
           if (tipoPago == 11 || cancelado >= totalDescontado - giftCard) {
-            setAlertSec("Guardando baja");
-            setIsAlertSec(true);
+            if (!valeForm) {
+              setAlertSec("Guardando baja");
+              setIsAlertSec(true);
 
-            const objBaja = {
-              motivo: motivo,
-              fechaBaja: dateString(),
-              idUsuario: userId,
-              idAlmacen: userStore,
-              productos: selectedProducts,
-            };
-            const bajaRegistrada = registerDrop(objBaja);
-            bajaRegistrada
-              .then((res) => {
-                setDropId(res.data.id);
-                const objStock = {
-                  accion: "take",
-                  idAlmacen: userStore,
-                  productos: selectedProducts,
-                  detalle: `SPRBJ-${res.data.id}`,
-                };
-                const updatedStock = updateStock(objStock);
-                updatedStock
-                  .then((res) => {
-                    setIsDrop(true);
-                  })
-                  .catch((err) => {
-                    console.log("Error al updatear stock", err);
-                  });
-              })
-              .catch((err) => {
-                console.log("error al registrar la baja", err);
-              });
+              const objBaja = {
+                motivo: motivo,
+                fechaBaja: dateString(),
+                idUsuario: userId,
+                idAlmacen: userStore,
+                productos: selectedProducts,
+              };
+              const bajaRegistrada = registerDrop(objBaja);
+              bajaRegistrada
+                .then((res) => {
+                  setDropId(res.data.id);
+                  const objStock = {
+                    accion: "take",
+                    idAlmacen: userStore,
+                    productos: selectedProducts,
+                    detalle: `SPRBJ-${res.data.id}`,
+                  };
+                  const updatedStock = updateStock(objStock);
+                  updatedStock
+                    .then((res) => {
+                      setIsDrop(true);
+                    })
+                    .catch((err) => {
+                      console.log("Error al updatear stock", err);
+                    });
+                })
+                .catch((err) => {
+                  console.log("error al registrar la baja", err);
+                });
+            }
           }
         }
       }

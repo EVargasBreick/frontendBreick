@@ -11,7 +11,6 @@ export const TipoPagoComponent = ({
 }) => {
   const [tipoPago, setTipoPago] = useState(0);
   const [cancelado, setCancelado] = useState(0);
-  const [totalDescontado, setTotalDescontado] = useState(0);
   const [cardNumbersA, setCardNumbersA] = useState("");
   const [cardNumbersB, setCardNumbersB] = useState("");
   const numberBRef = React.useRef(null);
@@ -20,8 +19,8 @@ export const TipoPagoComponent = ({
   const canceledRef = React.useRef(null);
 
   useEffect(() => {
-    setValeForm({ tipoPago, cancelado, totalDescontado });
-  }, [tipoPago]);
+    setValeForm({ tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp });
+  }, [tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp]);
 
   function handleCardNumber(number, card) {
     if (card == "A") {
@@ -42,7 +41,6 @@ export const TipoPagoComponent = ({
     <Form
       onSubmit={(e) => {
         e.preventDefault();
-        setValeForm({ tipoPago, cancelado, totalDescontado });
       }}
     >
       <div className="modalRows">
