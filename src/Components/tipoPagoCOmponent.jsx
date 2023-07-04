@@ -11,6 +11,7 @@ export const TipoPagoComponent = ({
 }) => {
   const [tipoPago, setTipoPago] = useState(0);
   const [cancelado, setCancelado] = useState(0);
+  const [canceladoTarjeta, setCanceladoTarjeta] = useState(0); 
   const [cardNumbersA, setCardNumbersA] = useState("");
   const [cardNumbersB, setCardNumbersB] = useState("");
   const numberBRef = React.useRef(null);
@@ -20,7 +21,16 @@ export const TipoPagoComponent = ({
 
   useEffect(() => {
     setValeForm({ tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp, vale });
-    if (tipoPago === 2 || tipoPago === 3 || tipoPago === 5) {
+    if (
+      tipoPago === 2 ||
+      tipoPago === 3 ||
+      tipoPago === 5 ||
+      tipoPago === 6 ||
+      tipoPago === 7 ||
+      tipoPago === 8 ||
+      tipoPago === 9 ||
+      tipoPago === 10
+    ) {
       setCancelado(total - vale);
     }
   }, [tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp]);
@@ -168,10 +178,10 @@ export const TipoPagoComponent = ({
               <div>
                 <Form.Control
                   ref={canceledRef}
-                  value={cancelado}
+                  value={canceladoTarjeta}
+                  onChange={(e) => setCanceladoTarjeta(e.target.value)}
                   type="number"
                   min={0}
-                  onChange={(e) => setCancelado(e.target.value)}
                 />
               </div>
             </div>
@@ -179,8 +189,8 @@ export const TipoPagoComponent = ({
           <div className="modalRows">
             <div className="modalLabel"> A cobrar con tarjeta:</div>
             <div className="modalData">
-              {cancelado - (total - parseFloat(vale)) < 0
-                ? `${(-(cancelado - (total - parseFloat(vale)))).toFixed(
+              {canceladoTarjeta - (total - parseFloat(vale)) < 0
+                ? `${(-(canceladoTarjeta - (total - parseFloat(vale)))).toFixed(
                     2
                   )} Bs.`
                 : "No hay dinero a cobrar con tarjeta"}
