@@ -20,7 +20,7 @@ export const TipoPagoComponent = ({
 
   useEffect(() => {
     setValeForm({ tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp, vale });
-    if (tipoPago === 2 || tipoPago === 3) {
+    if (tipoPago === 2 || tipoPago === 3 || tipoPago === 5) {
       setCancelado(total - vale);
     }
   }, [tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp]);
