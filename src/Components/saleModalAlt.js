@@ -342,13 +342,14 @@ function SaleModalAlt(
     e.preventDefault();
     console.log("Tipo de pago", valeForm);
     if (tipoPago == 4 && valeForm) {
+      handleTipoPago(valeForm.tipoPago.toString());
+
       setTipoPago(valeForm.tipoPago);
       setCancelado(valeForm.cancelado);
       setCardNumbersA(valeForm.cardNumbersA);
       setCardNumbersB(valeForm.cardNumbersB);
       setOfp(valeForm.ofp);
       setGiftCard(valeForm.vale);
-      handleTipoPago(valeForm.tipoPago.toString());
     }
     return new Promise((resolve) => {
       if (tipoPago == 0) {
