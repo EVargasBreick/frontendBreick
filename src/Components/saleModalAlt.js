@@ -340,11 +340,10 @@ function SaleModalAlt(
   }
   function validateFormOfPayment(e) {
     e.preventDefault();
-    console.log("Tipo de pago", valeForm);
     if (tipoPago == 4 && valeForm) {
       handleTipoPago(valeForm.tipoPago.toString());
-
-      setTipoPago(valeForm.tipoPago);
+      console.log("Vale", valeForm);
+      setTipoPago(valeForm.tipoPago.toString());
       setCancelado(valeForm.cancelado);
       setCardNumbersA(valeForm.cardNumbersA);
       setCardNumbersB(valeForm.cardNumbersB);
