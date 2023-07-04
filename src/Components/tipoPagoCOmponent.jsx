@@ -8,10 +8,11 @@ export const TipoPagoComponent = ({
   total,
   setValeForm,
   otherPayment,
+  setVale,
 }) => {
   const [tipoPago, setTipoPago] = useState(0);
   const [cancelado, setCancelado] = useState(0);
-  const [canceladoTarjeta, setCanceladoTarjeta] = useState(0); 
+  const [canceladoTarjeta, setCanceladoTarjeta] = useState(0);
   const [cardNumbersA, setCardNumbersA] = useState("");
   const [cardNumbersB, setCardNumbersB] = useState("");
   const numberBRef = React.useRef(null);
@@ -21,6 +22,7 @@ export const TipoPagoComponent = ({
 
   useEffect(() => {
     setValeForm({ tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp, vale });
+    setVale(vale);
     if (
       tipoPago === 2 ||
       tipoPago === 3 ||

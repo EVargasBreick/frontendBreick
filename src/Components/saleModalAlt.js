@@ -1077,7 +1077,7 @@ function SaleModalAlt(
             <div className="modalRows">
               <div className="modalLabel"> Total a pagar:</div>
               <div className="modalData">{`${parseFloat(
-                totalDescontado
+                tipoPago == 4 ? total - giftCard : totalDescontado
               ).toFixed(2)} Bs.`}</div>
             </div>
             <div className="modalRows">
@@ -1343,6 +1343,7 @@ function SaleModalAlt(
                       otherPayment={otherPayments}
                       setValeForm={setValeForm}
                       total={total}
+                      setVale={setGiftCard}
                       vale={giftCard} />
                 }
 
