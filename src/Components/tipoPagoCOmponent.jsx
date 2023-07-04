@@ -20,12 +20,9 @@ export const TipoPagoComponent = ({
 
   useEffect(() => {
     setValeForm({ tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp, vale });
-    console.log("valeForm", {
-      tipoPago,
-      cancelado,
-      cardNumbersA,
-      cardNumbersB,
-    });
+    if (tipoPago === 2 || tipoPago === 3) {
+      setCancelado(total - vale);
+    }
   }, [tipoPago, cancelado, cardNumbersA, cardNumbersB, ofp]);
 
   function handleCardNumber(number, card) {
@@ -122,7 +119,6 @@ export const TipoPagoComponent = ({
                     type="number"
                     onChange={(e) => {
                       handleCardNumber(e.target.value, "B");
-                      setCancelado(Number(total - parseFloat(vale)));
                     }}
                     value={cardNumbersB}
                   ></Form.Control>
@@ -133,9 +129,7 @@ export const TipoPagoComponent = ({
           <div className="modalRows">
             <div className="modalLabel"> A cobrar con tarjeta:</div>
             <div className="modalData">
-              {`${(
-                Number(total - parseFloat(vale))
-              ).toFixed(2)} Bs.`}
+              {`${Number(total - parseFloat(vale)).toFixed(2)} Bs.`}
             </div>
           </div>
         </>
