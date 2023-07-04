@@ -329,7 +329,6 @@ function SaleModalAlt(
         break;
       case "11":
         setStringPago("Baja");
-        setDescuento(0);
         setCancelado(0);
         setOfp(0);
         setCambio(0);
@@ -404,11 +403,14 @@ function SaleModalAlt(
             setIsAlertSec(true);
 
             const objBaja = {
-              motivo: motivo,
+              motivo:
+                tipoPago == 4 && totalDescontado <= giftCard ? "vale" : motivo,
               fechaBaja: dateString(),
               idUsuario: userId,
               idAlmacen: userStore,
               productos: selectedProducts,
+              totalbaja: totalDescontado,
+              vale: giftCard,
             };
             const bajaRegistrada = registerDrop(objBaja);
             bajaRegistrada
@@ -1011,6 +1013,8 @@ function SaleModalAlt(
                   razonSocial: datos.razonSocial,
                 }}
                 dropId={dropId}
+                total={totalDescontado}
+                vale={giftCard}
               />
             </Button>
           </div>
@@ -1034,6 +1038,8 @@ function SaleModalAlt(
               razonSocial: datos.razonSocial,
             }}
             dropId={dropId}
+            total={totalDescontado}
+            vale={giftCard}
           />
         </div>
       ) : null}

@@ -228,6 +228,7 @@ export default function FormSimpleRegisterClient(props) {
                               });
                             })
                             .catch((err) => {
+                              console.log("Error al crear", err);
                               const errorMessage = err.response.data.message;
                               if (
                                 errorMessage.includes(

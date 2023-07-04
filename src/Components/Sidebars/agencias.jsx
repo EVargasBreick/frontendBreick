@@ -114,7 +114,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         {" "}
         <Image src={Star} className="icon inverted"></Image>
-        Asignar Packs
+        Armar Packs
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/packsretirar")}
@@ -122,7 +122,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         {" "}
         <Image src={HStar} className="icon inverted"></Image>
-        Retirar Packs
+        Desarmar Packs
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/reportes/ventas/cierre")}

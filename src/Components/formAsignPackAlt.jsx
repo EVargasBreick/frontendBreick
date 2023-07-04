@@ -429,7 +429,7 @@ export default function FormAsignPack() {
             content={() => dropRef.current}
             onAfterPrint={() => {
               handleDownloadPdf(
-                `nota_de_aramdo: ${productList[0]?.nombrePack}`,
+                `nota_de_armado: ${productList[0]?.nombrePack}`,
                 dropRef
               );
             }}
