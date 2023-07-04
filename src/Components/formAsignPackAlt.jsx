@@ -328,6 +328,10 @@ export default function FormAsignPack() {
                           (pgl) => pgl.idGrupo == isInGroup?.idGrupo
                         )
                       : [];
+                    const restante =
+                      productStock.find((ps) => pl.idProducto == ps.idProducto)
+                        .cantidad -
+                      pl.cantProducto * cantPack;
                     return (
                       <tr key={index} className="tableRow">
                         <td>{index + 1}</td>
@@ -370,11 +374,13 @@ export default function FormAsignPack() {
                             ).cantidad
                           }
                         </td>
-                        <td>
-                          {productStock.find(
-                            (ps) => pl.idProducto == ps.idProducto
-                          ).cantidad -
-                            pl.cantProducto * cantPack}
+                        <td
+                          style={{
+                            color: restante < 0 ? "red" : "",
+                            fontSize: restante < 0 ? "x-large" : "",
+                          }}
+                        >
+                          {restante}
                         </td>
                       </tr>
                     );
@@ -423,7 +429,7 @@ export default function FormAsignPack() {
             content={() => dropRef.current}
             onAfterPrint={() => {
               handleDownloadPdf(
-                `nota_de_aramdo: ${productList[0]?.nombrePack}`,
+                `nota_de_armado: ${productList[0]?.nombrePack}`,
                 dropRef
               );
             }}

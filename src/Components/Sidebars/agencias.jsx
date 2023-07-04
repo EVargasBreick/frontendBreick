@@ -17,6 +17,8 @@ import Printer from "../../assets/printer.png";
 import "../../styles/generalStyle.css";
 import Cross from "../../assets/cross.png";
 import Hand from "../../assets/hand.png";
+import Star from "../../assets/star.png";
+import HStar from "../../assets/hStar.png";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
   const [isInterior, setIsInterior] = useState(false);
   useEffect(() => {
@@ -105,6 +107,22 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsasignar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Star} className="icon inverted"></Image>
+        Armar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsretirar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Desarmar Packs
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/reportes/ventas/cierre")}

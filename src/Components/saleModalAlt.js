@@ -186,11 +186,11 @@ function SaleModalAlt(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-          (
-            cancelado -
-            (total * (1 - datos.descuento / 100) - giftCard)
-          ).toFixed()
-        )
+            (
+              cancelado -
+              (total * (1 - datos.descuento / 100) - giftCard)
+            ).toFixed()
+          )
     );
   }, [cancelado]);
 
@@ -329,7 +329,6 @@ function SaleModalAlt(
         break;
       case "11":
         setStringPago("Baja");
-        setDescuento(0);
         setCancelado(0);
         setOfp(0);
         setCambio(0);
@@ -372,7 +371,10 @@ function SaleModalAlt(
               invoicingProcess();
             }
           }
-          if (tipoPago == 4 && cancelado >= totalDescontado - giftCard) {
+          if (tipoPago == 4 && totalDescontado > giftCard) {
+            console.log(
+              "Solo deberia correr esto en caso de vale menor al total"
+            );
             if (giftCard == 0) {
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
@@ -403,18 +405,24 @@ function SaleModalAlt(
               invoicingProcess();
             }
           }
-          if (tipoPago == 11 || cancelado >= totalDescontado - giftCard) {
+          if (
+            tipoPago == 11 ||
+            (tipoPago == 4 && totalDescontado <= giftCard)
+          ) {
             if (!valeForm) {
               setAlertSec("Guardando baja");
               setIsAlertSec(true);
 
               const objBaja = {
-                motivo: motivo,
+                motivo:
+                tipoPago == 4 && totalDescontado <= giftCard ? "vale" : motivo,
                 fechaBaja: dateString(),
                 idUsuario: userId,
                 idAlmacen: userStore,
                 productos: selectedProducts,
-              };
+                totalbaja: totalDescontado,
+              vale: giftCard,
+            };
               const bajaRegistrada = registerDrop(objBaja);
               bajaRegistrada
                 .then((res) => {
@@ -525,8 +533,9 @@ function SaleModalAlt(
           2
         ),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${invoiceBody.idAgencia
-          }`,
+        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
+          invoiceBody.idAgencia
+        }`,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -624,9 +633,9 @@ function SaleModalAlt(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-              errorList.map((item) => {
-                return item + `\n`;
-              })
+                errorList.map((item) => {
+                  return item + `\n`;
+                })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -1018,6 +1027,8 @@ function SaleModalAlt(
                   razonSocial: datos.razonSocial,
                 }}
                 dropId={dropId}
+                total={totalDescontado}
+                vale={giftCard}
               />
             </Button>
           </div>
@@ -1041,6 +1052,8 @@ function SaleModalAlt(
               razonSocial: datos.razonSocial,
             }}
             dropId={dropId}
+            total={totalDescontado}
+            vale={giftCard}
           />
         </div>
       ) : null}
@@ -1173,10 +1186,11 @@ function SaleModalAlt(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{`${cancelado - totalDescontado < 0
-                    ? " Ingrese un monto igual o superior"
-                    : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
-                    } `}</div>
+                  <div className="modalData">{`${
+                    cancelado - totalDescontado < 0
+                      ? " Ingrese un monto igual o superior"
+                      : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
+                  } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (
@@ -1369,11 +1383,9 @@ function SaleModalAlt(
           </Modal.Body>
           <Modal.Footer>
             <Button type="submit" variant="success">
-              {
-                1 > 0 && datos.total - giftCard <= 0 ?
-                  "Dar de baja"
-                  : "Facturar"
-              }
+              {1 > 0 && datos.total - giftCard <= 0
+                ? "Dar de baja"
+                : "Facturar"}
             </Button>
             <Button type="reset" variant="danger" onClick={() => handleClose()}>
               {" "}

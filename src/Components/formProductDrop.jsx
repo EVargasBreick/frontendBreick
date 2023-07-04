@@ -85,6 +85,7 @@ export default function FormProductDrop() {
       idProducto: prod.idProducto,
       cantProducto: 0,
       cant_Actual: prod.cant_Actual,
+      precioDeFabrica: prod.precioDeFabrica,
     };
     if (selectedProduct.find((sp) => sp.idProducto == prodId)) {
       setIsError(true);
@@ -103,12 +104,15 @@ export default function FormProductDrop() {
   function changeQuantity(value, index, sp) {
     console.log("Selected product", sp);
     const aux = sp;
+    console.log("Test", parseFloat(aux.precioDeFabrica) * parseFloat(value));
     const prodObj = {
       nombreProducto: aux.nombreProducto,
       codInterno: aux.codInterno,
       idProducto: aux.idProducto,
       cantProducto: value,
       cant_Actual: aux.cant_Actual,
+      precioDeFabrica: aux.precioDeFabrica,
+      total: aux.precioDeFabrica * value,
     };
     console.log("Cambiado", prodObj);
     let auxSelected = [...selectedProduct];
@@ -135,6 +139,10 @@ export default function FormProductDrop() {
           idUsuario: userId,
           idAlmacen: storeId,
           productos: selectedProduct,
+          totalbaja: selectedProduct.reduce((accumulator, object) => {
+            return accumulator + object.total;
+          }, 0),
+          vale: 0,
         };
         const bajaRegistrada = registerDrop(objBaja);
         bajaRegistrada.then((res) => {
@@ -356,6 +364,9 @@ export default function FormProductDrop() {
                 razonSocial: "INCADEX S.R.L.",
               }}
               dropId={dropId}
+              total={selectedProduct.reduce((accumulator, object) => {
+                return accumulator + object.total;
+              }, 0)}
             />
           </Button>
         </div>

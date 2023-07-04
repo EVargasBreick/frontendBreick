@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Modal, Image, Table } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import "../styles/tableStyles.css";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
-import { getOnlyStores } from "../services/storeServices";
+import { getBranchesPs, getOnlyStores } from "../services/storeServices";
 import { getPacks } from "../services/packServices";
 import Cookies from "js-cookie";
 import {
@@ -15,6 +15,9 @@ import { updateMultipleStock, updateStock } from "../services/orderServices";
 import { ConfirmModal } from "./Modals/confirmModal";
 import ToastComponent from "./Modals/Toast";
 import { Loader } from "./loader/Loader";
+import { PackageDropComponent } from "./packacgeDropComponent";
+import ReactToPrint from "react-to-print";
+import { handleDownloadPdf } from "../services/utils";
 
 export default function FormRetirePackAlt() {
   // Listas cargadas en render
@@ -23,6 +26,7 @@ export default function FormRetirePackAlt() {
   const [allPacks, setAllPacks] = useState([]);
   const userAlmacen = JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
   const [productGroupList, setProductGroupList] = useState([]);
+  const [branchInfo, setBranchInfo] = useState({});
   // Listas y valores cargados manualmente
   const [selectedPackId, setSelectedPackId] = useState("");
   const [selectedStoreId, setSelectedStoreId] = useState("");
@@ -44,6 +48,8 @@ export default function FormRetirePackAlt() {
   const [toastType, setToastType] = useState("");
   const [loading, setLoading] = useState(false);
   const [changed, setChanged] = useState(false);
+  const dropRef = useRef();
+  const invoiceRef = useRef();
 
   const [modalText, setModalText] = useState("");
   useEffect(() => {
@@ -72,6 +78,25 @@ export default function FormRetirePackAlt() {
         setPacks(uniqueArray);
       })
       .catch((err) => {});
+    const suc = getBranchesPs();
+    suc.then((resp) => {
+      const sucursales = resp.data;
+      const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+
+      const sucur =
+        sucursales.find((sc) => alm == sc.idAgencia) == undefined
+          ? sucursales.find((sc) => "AL001" == sc.idAgencia)
+          : sucursales.find((sc) => alm == sc.idAgencia);
+      console.log("Sucur", sucur);
+      const branchData = {
+        nombre: sucur.nombre,
+        dir: sucur.direccion,
+        tel: sucur.telefono,
+        ciudad: sucur.ciudad,
+        nro: sucur.idImpuestos,
+      };
+      setBranchInfo(branchData);
+    });
   }, []);
   useEffect(() => {
     try {
@@ -173,9 +198,9 @@ export default function FormRetirePackAlt() {
           if (res) {
             setAlertSec("Pack retirado correctamente");
             setIsAlertSec(true);
-            setTimeout(() => {
-              window.location.reload();
-            }, 2000);
+            if (invoiceRef.current) {
+              invoiceRef.current.click();
+            }
           } else {
             setAlertSec("Error al retirar pack");
             setIsAlertSec(true);
@@ -439,7 +464,35 @@ export default function FormRetirePackAlt() {
           </div>
         </div>
       ) : null}
-
+      <>
+        <ReactToPrint
+          trigger={() => (
+            <button ref={invoiceRef} hidden>
+              Print this out!
+            </button>
+          )}
+          content={() => dropRef.current}
+          onAfterPrint={() => {
+            handleDownloadPdf(
+              `nota_de_desarmado: ${productList[0]?.nombrePack}`,
+              dropRef
+            );
+          }}
+        />
+        <Button className="visually-hidden">
+          <PackageDropComponent
+            ref={dropRef}
+            branchInfo={branchInfo}
+            selectedProducts={productList}
+            cliente={{
+              nit: "128153028",
+              razonSocial: "INCADEX S.R.L.",
+            }}
+            packName={productList[0]?.nombrePack}
+            cantPack={cantPack}
+          />
+        </Button>
+      </>
       {loading && <Loader />}
     </div>
   );
