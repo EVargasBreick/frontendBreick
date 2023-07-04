@@ -342,7 +342,7 @@ function SaleModalAlt(
     e.preventDefault();
     if (tipoPago == 4 && valeForm) {
       handleTipoPago(valeForm.tipoPago.toString());
-      console.log("Vale", valeForm);
+      console.log("Vale Form when is selected tipo 4", valeForm);
       setTipoPago(valeForm.tipoPago.toString());
       setCancelado(valeForm.cancelado);
       setCardNumbersA(valeForm.cardNumbersA);
