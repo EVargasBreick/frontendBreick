@@ -187,11 +187,11 @@ function SaleModalAlt(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-            (
-              cancelado -
-              (total * (1 - datos.descuento / 100) - giftCard)
-            ).toFixed()
-          )
+          (
+            cancelado -
+            (total * (1 - datos.descuento / 100) - giftCard)
+          ).toFixed()
+        )
     );
   }, [cancelado]);
 
@@ -356,8 +356,8 @@ function SaleModalAlt(
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          console.log("Cancelado", cancelado, totalDescontado);
-          if (cancelado == 0 || cancelado - (totalDescontado + giftCard) < 0) {
+          console.log("Cancelado", cancelado, totalDescontado, giftCard, voucher);
+          if (cancelado == 0 || (Number(cancelado) + Number(voucher)) - (totalDescontado + giftCard) < 0) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
@@ -536,9 +536,8 @@ function SaleModalAlt(
           2
         ),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
-          invoiceBody.idAgencia
-        }`,
+        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${invoiceBody.idAgencia
+          }`,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -638,9 +637,9 @@ function SaleModalAlt(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-                errorList.map((item) => {
-                  return item + `\n`;
-                })
+              errorList.map((item) => {
+                return item + `\n`;
+              })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -907,9 +906,9 @@ function SaleModalAlt(
                       tipoPago: stringPago,
                       cancelado: cancelado,
                       cambio: !valeForm
-                        ? parseFloat(cancelado) -
-                          parseFloat(totalDescontado) +
-                          parseFloat(giftCard)
+                        ? parseFloat(cancelado) + parseFloat(voucher) -(
+                        parseFloat(totalDescontado) +
+                        parseFloat(giftCard))
                         : 0,
                       fechaHora: fechaHora,
                     }}
@@ -1219,11 +1218,11 @@ function SaleModalAlt(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{`${
-                    cancelado - totalDescontado + voucher < 0
-                      ? " Ingrese un monto igual o superiore"
-                      : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
-                  } `}</div>
+                  <div className="modalData">{
+                    `${Number(cancelado) - Number(totalDescontado) + Number(voucher) < 0
+                      ? `Ingrese un monto igual o superiores al total`
+                      : `${(Number(cancelado) - Number(totalDescontado) + Number(voucher)).toFixed(2)} Bs.`
+                    } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (
