@@ -131,7 +131,8 @@ function SaleModalAlt(
   const [urlSin, setUrlSin] = useState("");
   const [giftCard, setGiftCard] = useState(0);
   const [valeForm, setValeForm] = useState({});
-
+  const [voucher, setVoucher] = useState(0);
+  const [isPya, setIsPya] = useState(false);
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -415,14 +416,16 @@ function SaleModalAlt(
 
               const objBaja = {
                 motivo:
-                tipoPago == 4 && totalDescontado <= giftCard ? "vale" : motivo,
+                  tipoPago == 4 && totalDescontado <= giftCard
+                    ? "vale"
+                    : motivo,
                 fechaBaja: dateString(),
                 idUsuario: userId,
                 idAlmacen: userStore,
                 productos: selectedProducts,
                 totalbaja: totalDescontado,
-              vale: giftCard,
-            };
+                vale: giftCard,
+              };
               const bajaRegistrada = registerDrop(objBaja);
               bajaRegistrada
                 .then((res) => {
@@ -544,6 +547,8 @@ function SaleModalAlt(
         aPagar: aPagar,
         puntoDeVenta: invoiceBody.puntoDeVenta,
         idAgencia: invoiceBody.idAgencia,
+        voucher: voucher,
+        pya: isPya,
       };
       const emizorBody = {
         numeroFactura: 0,
@@ -901,12 +906,11 @@ function SaleModalAlt(
                     paymentData={{
                       tipoPago: stringPago,
                       cancelado: cancelado,
-                      cambio:
-                        !valeForm ? (
-                          parseFloat(cancelado) -
+                      cambio: !valeForm
+                        ? parseFloat(cancelado) -
                           parseFloat(totalDescontado) +
-                          parseFloat(giftCard))
-                          : 0,
+                          parseFloat(giftCard)
+                        : 0,
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
@@ -1118,6 +1122,34 @@ function SaleModalAlt(
             </div>
 
             <div className="modalRows">
+              <div className="modalLabel">Pedidos Ya:</div>
+              <div className="modalData">
+                <Form.Check
+                  type="checkbox"
+                  value={isPya}
+                  onChange={() => {
+                    setIsPya(!isPya);
+                    setVoucher(0);
+                  }}
+                  checked={isPya}
+                />
+              </div>
+            </div>
+            {isPya ? (
+              <div className="modalRows">
+                <div className="modalLabel">Voucher Ped. Ya:</div>
+                <div className="modalData">
+                  <Form.Control
+                    type="number"
+                    value={voucher}
+                    disabled={!isPya}
+                    onChange={(e) => setVoucher(e.target.value)}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            <div className="modalRows">
               <div className="modalLabel"> Tipo de pago:</div>
               <div className="modalData">
                 <div>
@@ -1141,6 +1173,7 @@ function SaleModalAlt(
                 </div>
               </div>
             </div>
+
             {tipoPago == 5 ? (
               <div>
                 <div className="modalRows">
@@ -1187,8 +1220,8 @@ function SaleModalAlt(
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
                   <div className="modalData">{`${
-                    cancelado - totalDescontado < 0
-                      ? " Ingrese un monto igual o superior"
+                    cancelado - totalDescontado + voucher < 0
+                      ? " Ingrese un monto igual o superiore"
                       : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
                   } `}</div>
                 </div>
@@ -1296,71 +1329,67 @@ function SaleModalAlt(
                     </Form>
                   </div>
                 </div>
-                {
-                  datos.total - giftCard <= 0 ?
-                    <div>
-                      <div className="modalRows">
-                        <div className="modalLabel"> Detalle:</div>
-                        <div className="modalData">{
-                          "Dando de baja el vale"
-                        }</div>
-                      </div>
-
+                {datos.total - giftCard <= 0 ? (
+                  <div>
+                    <div className="modalRows">
+                      <div className="modalLabel"> Detalle:</div>
+                      <div className="modalData">{"Dando de baja el vale"}</div>
                     </div>
-                    :
-                    // <>
-                    //   <div className="modalRows">
-                    //     <div className="modalLabel"> A pagar en efectivo:</div>
-                    //     <div className="modalData"> {parseFloat(
-                    //       parseFloat(-giftCard) +
-                    //       total * (1 - datos.descuento / 100)
-                    //     ).toFixed(2)} Bs.
-                    //     </div>
-                    //   </div>
-                    //   {1 > 0 && datos.total - giftCard > 0 ? (
-                    //     <div>
-                    //       <div className="modalRows">
-                    //         <div className="modalLabel"> Cancelado:</div>
-                    //         <div className="modalData">
-                    //           <Form>
-                    //             <Form.Control
-                    //               ref={canceledRef}
-                    //               value={cancelado}
-                    //               type="number"
-                    //               onChange={(e) => setCancelado(e.target.value)}
-                    //               onKeyDown={(e) =>
-                    //                 e.key === "Enter"
-                    //                   ? validateFormOfPayment(e)
-                    //                   : null
-                    //               }
-                    //             />
-                    //           </Form>
-                    //         </div>
-                    //       </div>
-                    //       <div className="modalRows">
-                    //         <div className="modalLabel"> Cambio:</div>
-                    //         <div className="modalData">{`${cancelado -
-                    //           (total * (1 - datos.descuento / 100) - giftCard) <
-                    //           0
-                    //           ? "Ingrese un monto mayor"
-                    //           : `${(
-                    //             cancelado -
-                    //             totalDesc +
-                    //             parseFloat(giftCard)
-                    //           ).toFixed(2)} Bs.`
-                    //           } `}</div>
-                    //       </div>
-                    //     </div>
-                    //   ) : null}
-                    // </>
-                    <TipoPagoComponent
-                      otherPayment={otherPayments}
-                      setValeForm={setValeForm}
-                      total={total}
-                      setVale={setGiftCard}
-                      vale={giftCard} />
-                }
-
+                  </div>
+                ) : (
+                  // <>
+                  //   <div className="modalRows">
+                  //     <div className="modalLabel"> A pagar en efectivo:</div>
+                  //     <div className="modalData"> {parseFloat(
+                  //       parseFloat(-giftCard) +
+                  //       total * (1 - datos.descuento / 100)
+                  //     ).toFixed(2)} Bs.
+                  //     </div>
+                  //   </div>
+                  //   {1 > 0 && datos.total - giftCard > 0 ? (
+                  //     <div>
+                  //       <div className="modalRows">
+                  //         <div className="modalLabel"> Cancelado:</div>
+                  //         <div className="modalData">
+                  //           <Form>
+                  //             <Form.Control
+                  //               ref={canceledRef}
+                  //               value={cancelado}
+                  //               type="number"
+                  //               onChange={(e) => setCancelado(e.target.value)}
+                  //               onKeyDown={(e) =>
+                  //                 e.key === "Enter"
+                  //                   ? validateFormOfPayment(e)
+                  //                   : null
+                  //               }
+                  //             />
+                  //           </Form>
+                  //         </div>
+                  //       </div>
+                  //       <div className="modalRows">
+                  //         <div className="modalLabel"> Cambio:</div>
+                  //         <div className="modalData">{`${cancelado -
+                  //           (total * (1 - datos.descuento / 100) - giftCard) <
+                  //           0
+                  //           ? "Ingrese un monto mayor"
+                  //           : `${(
+                  //             cancelado -
+                  //             totalDesc +
+                  //             parseFloat(giftCard)
+                  //           ).toFixed(2)} Bs.`
+                  //           } `}</div>
+                  //       </div>
+                  //     </div>
+                  //   ) : null}
+                  // </>
+                  <TipoPagoComponent
+                    otherPayment={otherPayments}
+                    setValeForm={setValeForm}
+                    total={total}
+                    setVale={setGiftCard}
+                    vale={giftCard}
+                  />
+                )}
               </div>
             ) : null}
             {tipoPago == 11 ? (
