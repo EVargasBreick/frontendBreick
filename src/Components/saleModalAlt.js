@@ -410,7 +410,8 @@ function SaleModalAlt(
             tipoPago == 11 ||
             (tipoPago == 4 && totalDescontado <= giftCard)
           ) {
-            if (!valeForm) {
+            console.log("Entro aca");
+            if (!valeForm || tipoPago == 11) {
               setAlertSec("Guardando baja");
               setIsAlertSec(true);
 
