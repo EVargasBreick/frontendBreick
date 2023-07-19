@@ -191,14 +191,23 @@ const updateMultipleStock = debounce(
   async (updateObj) => {
     return new Promise(async (resolve, reject) => {
       const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/updatetransaction`;
-      const response = await axios.put(url, updateObj);
-      if (response.data.code === 200) {
-        resolve(response);
-      } else {
-        const errorMessage = response.data.error.includes("stock_nonnegative")
-          ? "Una de las cantidades solicitadas ya no se encuentra disponible, recargue e intente nuevamente"
-          : "Error desconocido al actualizar stocks";
-        reject(errorMessage);
+      try {
+        const response = await axios.put(url, updateObj);
+        console.log(
+          "respuesta de la actualizacion compuesta de stocks",
+          response
+        );
+        if (response.data.code === 200) {
+          resolve(response);
+        } else {
+          const errorMessage = response.data.error.includes("stock_nonnegative")
+            ? "Una de las cantidades solicitadas ya no se encuentra disponible, recargue e intente nuevamente"
+            : "Error desconocido al actualizar stocks";
+          reject(errorMessage);
+        }
+      } catch (err) {
+        console.log("respuesta de la actualizacion compuesta de stocks", err);
+        reject(err);
       }
     });
   },

@@ -34,7 +34,7 @@ export const OrderPDF = ({ detalle, productos, codigo }) => {
               textAlign: "center",
             }}
           >
-            {" Nota de Pedido "}
+            {" Nota de Entrega "}
           </Text>
         </View>
         <View
