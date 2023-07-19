@@ -98,7 +98,7 @@ export default function FormNewPack() {
       unidadDeMedida: "Unidad",
       tiempoDeVida: 1,
       activo: 1,
-      precioPDV: 0,
+      precioPDV: totalPack,
       cantDisplay: 0,
       aplicaDescuento: "No",
       tipoProducto: 5,
