@@ -16,6 +16,9 @@ import newClient from "../../assets/newClient.png";
 import Printer from "../../assets/printer.png";
 import "../../styles/generalStyle.css";
 import Cross from "../../assets/cross.png";
+import Hand from "../../assets/hand.png";
+import Star from "../../assets/star.png";
+import HStar from "../../assets/hStar.png";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
   const [isInterior, setIsInterior] = useState(false);
   useEffect(() => {
@@ -56,6 +59,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
+
       {isInterior ? (
         <MenuItem
           onClick={() => redirectOnClick("/pedidos/facturacion")}
@@ -105,6 +109,22 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         <Image src={Cross} className="icon"></Image>Baja Productos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/packsasignar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Star} className="icon inverted"></Image>
+        Armar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsretirar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Desarmar Packs
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/reportes/ventas/cierre")}
         className="menuItem"
       >
@@ -122,6 +142,12 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         <Image src={Book} className="icon"></Image>Reporte libro de ventas por
         producto
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/bajas/general")}
+        className="menuItem"
+      >
+        <Image src={Hand} className="icon"></Image>Reporte libro de bajas
       </MenuItem>
       {/*<MenuItem
         onClick={() => redirectOnClick("/reportes/log/kardex")}

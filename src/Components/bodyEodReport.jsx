@@ -34,6 +34,7 @@ export default function BodyEodReport() {
   const [transfer, setTransfer] = useState(0);
   const [deposito, setDeposito] = useState(0);
   const [swift, setSwift] = useState(0);
+  const [voucher, setVoucher] = useState(0);
   const [qr, setQr] = useState(0);
   const [qhantuy, setQhantuy] = useState(0);
   const [cln, setCln] = useState(0);
@@ -128,6 +129,7 @@ export default function BodyEodReport() {
     if (selectedDate == "") {
       setSelectedDate(current);
     }
+
     const report = getEndOfDayReport({
       idSucursal: idSucursal,
       idPuntoDeVenta: puntoDeVenta,
@@ -137,7 +139,12 @@ export default function BodyEodReport() {
     });
     report.then((rp) => {
       const data = rp.data;
-
+      console.log("data", rp.data);
+      const sum = data.reduce((accumulator, currentValue) => {
+        return accumulator + parseFloat(currentValue.totalVoucher);
+      }, 0);
+      console.log("Suma vouchers", sum);
+      setVoucher(sum);
       const efectivo = data.find((dt) => dt.tipoPago == 1);
       const tarjeta = data.find((dt) => dt.tipoPago == 2);
       const cheque = data.find((dt) => dt.tipoPago == 3);
@@ -157,41 +164,69 @@ export default function BodyEodReport() {
         const clnTot = otros.find((ot) => ot.idOtroPago == 3);
         const intTot = otros.find((ot) => ot.idOtroPago == 4);
         qrTot
-          ? setQr(parseFloat(qrTot.totalPagado - qrTot.totalCambio))
+          ? setQr(
+              parseFloat(
+                qrTot.totalPagado -
+                  qrTot.totalCambio -
+                  parseFloat(qrTot.totalVoucher)
+              )
+            )
           : setQr(0);
         qhantuyTot
           ? setQhantuy(
               parseFloat(qhantuyTot.totalPagado) -
-                parseFloat(qhantuyTot.totalCambio)
+                parseFloat(qhantuyTot.totalCambio) -
+                parseFloat(qhantuyTot.totalVoucher)
             )
           : setQhantuy(0);
         clnTot
           ? setCln(
-              parseFloat(clnTot.totalPagado) - parseFloat(clnTot.totalCambio)
+              parseFloat(clnTot.totalPagado) -
+                parseFloat(clnTot.totalCambio) -
+                parseFloat(clnTot.totalVoucher)
             )
           : setCln(0);
         intTot
           ? setIntercambio(
-              parseFloat(intTot.totalPagado) - parseFloat(intTot.totalCambio)
+              parseFloat(intTot.totalPagado) -
+                parseFloat(intTot.totalCambio) -
+                parseFloat(intTot.totalVoucher)
             )
           : setIntercambio(0);
       }
       const totalTarjeta =
-        (tarjeta ? tarjeta.totalPagado : 0) +
-        (mixto ? Math.abs(mixto.totalCambio) : 0);
+        (tarjeta
+          ? tarjeta.totalPagado -
+            tarjeta.totalCambio -
+            parseFloat(tarjeta.totalVoucher)
+          : 0) + (mixto ? Math.abs(mixto.totalCambio) : 0);
       setTarjeta(totalTarjeta);
       const totalEfectivo =
         (efectivo ? efectivo.totalPagado : 0) -
+        (efectivo ? efectivo.totalVoucher : 0) -
         (efectivo ? efectivo.totalCambio : 0) +
         (mixto ? mixto.totalPagado : 0) +
         ((pagadoVale ? pagadoVale.totalPagado : 0) -
-          (pagadoVale ? pagadoVale.totalCambio : 0));
+          (pagadoVale ? pagadoVale.totalCambio : 0) -
+          (pagadoVale ? pagadoVale.totalVoucher : 0));
       setEfectivo(totalEfectivo);
-      cheque ? setCheque(cheque.totalPagado) : setCheque(0);
-      posterior ? setPosterior(posterior.totalPagado) : setPosterior(0);
-      transfer ? setTransfer(transfer.totalPagado) : setTransfer(0);
-      deposito ? setDeposito(deposito.totalPagado) : setDeposito(0);
-      swift ? setSwift(swift.totalPagado) : setSwift(0);
+      cheque
+        ? setCheque(cheque.totalPagado - parseFloat(cheque.totalVoucher))
+        : setCheque(0);
+      posterior
+        ? setPosterior(
+            posterior.totalPagado - parseFloat(posterior.totalVoucher)
+          )
+        : setPosterior(0);
+      transfer
+        ? setTransfer(transfer.totalPagado - parseFloat(transfer.totalVoucher))
+        : setTransfer(0);
+      deposito
+        ? setDeposito(deposito.totalPagado - parseFloat(deposito.totalVoucher))
+        : setDeposito(0);
+      swift
+        ? setSwift(swift.totalPagado - parseFloat(swift.totalVoucher))
+        : setSwift(0);
 
       const details = firstAndLastReport({
         idSucursal: idSucursal,
@@ -366,6 +401,12 @@ export default function BodyEodReport() {
                 </th>
                 <td>{swift.toFixed(2)} Bs</td>
               </tr>
+              <tr className="tableRow">
+                <th className="headerCol" colSpan={2}>
+                  Voucher
+                </th>
+                <td>{voucher.toFixed(2)} Bs</td>
+              </tr>
             </tbody>
             <tfoot>
               <tr className="tableRow">
@@ -385,9 +426,10 @@ export default function BodyEodReport() {
                     parseFloat(cheque.toFixed(2)) +
                     parseFloat(deposito.toFixed(2)) +
                     parseFloat(swift.toFixed(2)) +
-                    parseFloat(intercambio.toFixed(2))
+                    parseFloat(intercambio.toFixed(2)) +
+                    parseFloat(voucher.toFixed(2))
                   ).toFixed(2)}
-                  Bs
+                  {` Bs`}
                 </td>
               </tr>
             </tfoot>
@@ -426,6 +468,7 @@ export default function BodyEodReport() {
                     swift: swift.toFixed(2),
                     cheque: cheque.toFixed(2),
                     intercambio: intercambio.toFixed(2),
+                    voucher: voucher.toFixed(2),
                     total: (
                       parseFloat(efectivo.toFixed(2)) +
                       parseFloat(tarjeta.toFixed(2)) +
@@ -438,7 +481,8 @@ export default function BodyEodReport() {
                       parseFloat(cheque.toFixed(2)) +
                       parseFloat(deposito.toFixed(2)) +
                       parseFloat(swift.toFixed(2)) +
-                      parseFloat(intercambio.toFixed(2))
+                      parseFloat(intercambio.toFixed(2)) +
+                      parseFloat(voucher.toFixed(2))
                     ).toFixed(2),
                   }}
                   usuario={userName}

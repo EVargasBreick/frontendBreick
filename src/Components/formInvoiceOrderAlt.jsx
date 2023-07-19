@@ -354,6 +354,8 @@ export default function FormInvoiceOrderAlt() {
           aPagar: 1,
           puntoDeVenta: pdv,
           idAgencia: idAlmacen,
+          voucher: 0,
+          pya: false,
         };
         const emizorBody = {
           numeroFactura: 0,

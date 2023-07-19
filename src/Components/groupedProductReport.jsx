@@ -3,21 +3,17 @@ import Display from "./display";
 import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
 import "../styles/generalStyle.css";
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import BodyLogKardex from "./bodyLogKardex";
-export default function LogKardexReport() {
+
+import BodyGroupedProductReport from "./bodyGroupedProductReport";
+export default function GroupedProductReport() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 9
-      ) {
+      if (JSON.parse(Cookies.get("userAuth")).rol <= 10) {
       } else {
         navigate("/principal");
       }
@@ -34,7 +30,7 @@ export default function LogKardexReport() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <BodyLogKardex />
+          <BodyGroupedProductReport />
         </div>
       </div>
     </div>

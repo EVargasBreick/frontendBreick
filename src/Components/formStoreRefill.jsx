@@ -160,97 +160,102 @@ export default function FormStoreRefill() {
     setSelectedProducts(auxArray);
   }
   function registerTransfer() {
-    setAlertSec("Validando Traspaso");
-    console.log("Is interior", isInterior);
-    setIsAlertSec(true);
-    const zeroValidated = validateZero();
-    zeroValidated
-      .then((validated) => {
-        const validatedQuant = validateQuantities();
-        validatedQuant
-          .then((res) => {
-            const transferObj = {
-              idOrigen: idOrigen,
-              idDestino: idDestino,
-              idUsuario: userId,
-              productos: selectedProducts,
-              movil: 1,
-              impreso: isInterior ? 1 : 0,
-              transito: 0,
-            };
+    if (idOrigen !== idDestino) {
+      setAlertSec("Validando Traspaso");
+      console.log("Is interior", isInterior);
+      setIsAlertSec(true);
+      const zeroValidated = validateZero();
+      zeroValidated
+        .then((validated) => {
+          const validatedQuant = validateQuantities();
+          validatedQuant
+            .then((res) => {
+              const transferObj = {
+                idOrigen: idOrigen,
+                idDestino: idDestino,
+                idUsuario: userId,
+                productos: selectedProducts,
+                movil: 1,
+                impreso: isInterior ? 1 : 0,
+                transito: 0,
+              };
 
-            setAlertSec("Creando traspaso");
+              setAlertSec("Creando traspaso");
 
-            const newTransfer = createTransfer(transferObj);
-            newTransfer
-              .then((nt) => {
-                const reservedProducts = updateStock({
-                  accion: "take",
-                  idAlmacen: idOrigen,
-                  productos: selectedProducts,
-                  detalle: `SSNTR-${nt.data.data.idCreado}`,
-                });
-                reservedProducts
-                  .then((res) => {
-                    const productsArray = selectedProducts.map((item) => {
-                      const obj = {
-                        codInterno: item.codInterno,
-                        nombreProducto: item.nombreProducto,
-                        cantidadProducto: item.cantProducto,
-                      };
-                      return obj;
-                    });
-                    setIsAlertSec(false);
-                    setAlert("Traspaso creado correctamente");
-                    console.log("Traspaso creado correctamente");
-                    const origenArray = nombreOrigen.split(" ");
-                    const outputOrigen = origenArray.slice(1).join(" ");
-                    const destinoArray = nombreDestino.split(" ");
-                    const outputDestino = destinoArray.slice(1).join(" ");
-                    const orderObj = [
-                      {
-                        rePrint: false,
-                        fechaSolicitud: dateString(),
-                        id: nt.data.data.idCreado,
-                        usuario: user,
-                        notas: "",
-                        productos: productsArray,
-                        origen: outputOrigen,
-                        destino: outputDestino,
-                      },
-                    ];
-                    setProductList(orderObj);
-                  })
-                  .catch((error) => {
-                    setIsAlertSec(false);
-                    setAlert(error.response.data.message);
-                    console.log("Error", error);
-                    setIsAlert(true);
+              const newTransfer = createTransfer(transferObj);
+              newTransfer
+                .then((nt) => {
+                  const reservedProducts = updateStock({
+                    accion: "take",
+                    idAlmacen: idOrigen,
+                    productos: selectedProducts,
+                    detalle: `SSNTR-${nt.data.data.idCreado}`,
                   });
-              })
-              .catch((error) => {
-                setIsAlertSec(false);
-                setAlert("Error al crear el traspaso", error);
-                setIsAlert(true);
-                console.log();
-              });
-          })
-          .catch((err) => {
-            setIsAlertSec(false);
-            setAlert(
-              "La cantidad de un producto seleccionado no se encuentra disponible"
-            );
-            setIsAlert(true);
-          });
-      })
+                  reservedProducts
+                    .then((res) => {
+                      const productsArray = selectedProducts.map((item) => {
+                        const obj = {
+                          codInterno: item.codInterno,
+                          nombreProducto: item.nombreProducto,
+                          cantidadProducto: item.cantProducto,
+                        };
+                        return obj;
+                      });
+                      setIsAlertSec(false);
+                      setAlert("Traspaso creado correctamente");
+                      console.log("Traspaso creado correctamente");
+                      const origenArray = nombreOrigen.split(" ");
+                      const outputOrigen = origenArray.slice(1).join(" ");
+                      const destinoArray = nombreDestino.split(" ");
+                      const outputDestino = destinoArray.slice(1).join(" ");
+                      const orderObj = [
+                        {
+                          rePrint: false,
+                          fechaSolicitud: dateString(),
+                          id: nt.data.data.idCreado,
+                          usuario: user,
+                          notas: "",
+                          productos: productsArray,
+                          origen: outputOrigen,
+                          destino: outputDestino,
+                        },
+                      ];
+                      setProductList(orderObj);
+                    })
+                    .catch((error) => {
+                      setIsAlertSec(false);
+                      setAlert(error.response.data.message);
+                      console.log("Error", error);
+                      setIsAlert(true);
+                    });
+                })
+                .catch((error) => {
+                  setIsAlertSec(false);
+                  setAlert("Error al crear el traspaso", error);
+                  setIsAlert(true);
+                  console.log();
+                });
+            })
+            .catch((err) => {
+              setIsAlertSec(false);
+              setAlert(
+                "La cantidad de un producto seleccionado no se encuentra disponible"
+              );
+              setIsAlert(true);
+            });
+        })
 
-      .catch((error) => {
-        setIsAlertSec(false);
-        setAlert(
-          "La cantidad de un producto seleccionado se encuentra en cero"
-        );
-        setIsAlert(true);
-      });
+        .catch((error) => {
+          setIsAlertSec(false);
+          setAlert(
+            "La cantidad de un producto seleccionado se encuentra en cero"
+          );
+          setIsAlert(true);
+        });
+    } else {
+      setAlert("El origen debe ser distinto al destino");
+      setIsAlert(true);
+    }
   }
   function validateZero() {
     var valQuan = true;
@@ -341,7 +346,7 @@ export default function FormStoreRefill() {
       <Form className="halfSelectors">
         <Form.Group className="mb-3 halfSelect" controlId="origin">
           <div className="formLabel">Origen</div>
-          <div>Almacen</div>
+          <div>{nombreOrigen}</div>
         </Form.Group>
 
         <Form.Group className="mb-3 halfSelect" controlId="destiny">

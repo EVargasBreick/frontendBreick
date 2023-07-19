@@ -385,6 +385,8 @@ export default function PaymentModalAlt({
         aPagar: aPagar,
         puntoDeVenta: pdv,
         idAgencia: userStore,
+        voucher: 0,
+        pya: false,
       };
 
       const emizorBody = {

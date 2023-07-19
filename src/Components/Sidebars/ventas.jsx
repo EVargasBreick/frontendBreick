@@ -90,28 +90,19 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={Star} className="icon inverted"></Image>
         Registrar Pack
       </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/packs/asignar")}
-        className="menuItem"
-      >
-        {" "}
-        <Image src={Star} className="icon inverted"></Image>
-        Asignar Packs
-      </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/packs/retirar")}
-        className="menuItem"
-      >
-        {" "}
-        <Image src={HStar} className="icon inverted"></Image>
-        Retirar Packs
-      </MenuItem>
+
       <MenuItem
         onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
       >
         {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/editarUsuario/agencia")}
+        className="menuItem"
+      >
+        <Image src={newClient} className="icon"></Image>Reasignar Agencias
       </MenuItem>
       {/*<div>En Desarrollo ...</div>
       <MenuItem>

@@ -55,6 +55,10 @@ import InvoiceOrdersAlt from "./Components/invoiceOrdersAlt";
 import RePrintInvoicesAlt from "./Components/rePrintInvoicesAlt";
 import MarkdownsReport from "./Components/markdownsReport";
 import ProductUpdate from "./Components/productUpdate";
+import GroupedProductReport from "./Components/groupedProductReport";
+import AsignPackAlt from "./Components/asignPackAlt";
+import EditUserAgency from "./Components/editUserAgency";
+import RetirePackAlt from "./Components/retirePackAlt";
 
 function App() {
   return (
@@ -156,6 +160,14 @@ function App() {
               element={
                 <RequireAuth>
                   <CreateUser />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/editarUsuario/agencia"
+              element={
+                <RequireAuth>
+                  <EditUserAgency />
                 </RequireAuth>
               }
             />
@@ -312,10 +324,26 @@ function App() {
               }
             />
             <Route
+              path="/packsAsignar"
+              element={
+                <RequireAuth>
+                  <AsignPackAlt />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/packs/retirar"
               element={
                 <RequireAuth>
                   <RetirePack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packsretirar"
+              element={
+                <RequireAuth>
+                  <RetirePackAlt />
                 </RequireAuth>
               }
             />
@@ -460,6 +488,14 @@ function App() {
               element={
                 <RequireAuth>
                   <InvoiceOrdersAlt />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/agrupado/productos"
+              element={
+                <RequireAuth>
+                  <GroupedProductReport />
                 </RequireAuth>
               }
             />

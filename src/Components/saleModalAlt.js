@@ -24,14 +24,17 @@ import {
   fullInvoiceProcess,
   invoiceUpdate,
   logIncompleteInvoice,
+  otherPaymentsList,
 } from "../services/invoiceServices";
 import { deleteSale } from "../services/saleServices";
 import Cookies from "js-cookie";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
 import { emizorService } from "../services/emizorService";
+import { TipoPagoComponent } from "./tipoPagoCOmponent";
+
 function SaleModalAlt(
   {
     datos,
@@ -127,6 +130,9 @@ function SaleModalAlt(
   const [leyenda, setLeyenda] = useState("");
   const [urlSin, setUrlSin] = useState("");
   const [giftCard, setGiftCard] = useState(0);
+  const [valeForm, setValeForm] = useState({});
+  const [voucher, setVoucher] = useState(0);
+  const [isPya, setIsPya] = useState(false);
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -134,6 +140,7 @@ function SaleModalAlt(
   }
   const uniqueId = uuidv4();
   const isMobile = isMobileDevice();
+  console.log("Data del branch", branchInfo);
   useEffect(() => {
     console.log("Is mobile", isMobile);
     console.log("CUF guardado");
@@ -180,11 +187,11 @@ function SaleModalAlt(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-            (
-              cancelado -
-              (total * (1 - datos.descuento / 100) - giftCard)
-            ).toFixed()
-          )
+          (
+            cancelado -
+            (total * (1 - datos.descuento / 100) - giftCard)
+          ).toFixed()
+        )
     );
   }, [cancelado]);
 
@@ -248,21 +255,18 @@ function SaleModalAlt(
         setCardNumbersB("");
         setOfp(0);
         setCancelado("");
-        setGiftCard(0);
         break;
       case "2":
         setStringPago("Tarjeta");
         setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
-        setGiftCard(0);
         break;
       case "3":
         setStringPago("Cheque");
         setCancelado(totalDescontado);
         setCambio(0);
         setOfp(0);
-        setGiftCard(0);
         setCardNumbersA("");
         setCardNumbersB("");
         break;
@@ -280,7 +284,6 @@ function SaleModalAlt(
         setCambio(0);
         setCardNumbersA("");
         setCardNumbersB("");
-        setGiftCard(0);
         break;
       case "6":
         setStringPago("Pago Posterior");
@@ -290,7 +293,6 @@ function SaleModalAlt(
         setOfp(0);
         setCardNumbersA("");
         setCardNumbersB("");
-        setGiftCard(0);
         break;
       case "7":
         setStringPago("Transferencia");
@@ -328,7 +330,6 @@ function SaleModalAlt(
         break;
       case "11":
         setStringPago("Baja");
-        setDescuento(0);
         setCancelado(0);
         setOfp(0);
         setCambio(0);
@@ -339,14 +340,24 @@ function SaleModalAlt(
   }
   function validateFormOfPayment(e) {
     e.preventDefault();
+    if (tipoPago == 4 && valeForm) {
+      handleTipoPago(valeForm.tipoPago.toString());
+      console.log("Vale Form when is selected tipo 4", valeForm);
+      setTipoPago(valeForm.tipoPago.toString());
+      setCancelado(valeForm.cancelado);
+      setCardNumbersA(valeForm.cardNumbersA);
+      setCardNumbersB(valeForm.cardNumbersB);
+      setOfp(valeForm.ofp);
+      setGiftCard(valeForm.vale);
+    }
     return new Promise((resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          console.log("Cancelado", cancelado, totalDescontado);
-          if (cancelado == 0 || cancelado - (totalDescontado + giftCard) < 0) {
+          console.log("Cancelado", cancelado, totalDescontado, giftCard, voucher);
+          if (cancelado == 0 || (Number(cancelado) + Number(voucher)) - (totalDescontado + giftCard) < 0) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
@@ -361,12 +372,15 @@ function SaleModalAlt(
               invoicingProcess();
             }
           }
-          if (tipoPago == 4) {
+          if (tipoPago == 4 && totalDescontado > giftCard) {
+            console.log(
+              "Solo deberia correr esto en caso de vale menor al total"
+            );
             if (giftCard == 0) {
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
             } else {
-              if (cancelado <= totalDescontado - giftCard) {
+              if (cancelado < totalDescontado - giftCard) {
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
@@ -392,39 +406,50 @@ function SaleModalAlt(
               invoicingProcess();
             }
           }
-          if (tipoPago == 11) {
-            setAlertSec("Guardando baja");
-            setIsAlertSec(true);
+          if (
+            tipoPago == 11 ||
+            (tipoPago == 4 && totalDescontado <= giftCard)
+          ) {
+            console.log("Entro aca");
+            if (!valeForm || tipoPago == 11) {
+              setAlertSec("Guardando baja");
+              setIsAlertSec(true);
 
-            const objBaja = {
-              motivo: motivo,
-              fechaBaja: dateString(),
-              idUsuario: userId,
-              idAlmacen: userStore,
-              productos: selectedProducts,
-            };
-            const bajaRegistrada = registerDrop(objBaja);
-            bajaRegistrada
-              .then((res) => {
-                setDropId(res.data.id);
-                const objStock = {
-                  accion: "take",
-                  idAlmacen: userStore,
-                  productos: selectedProducts,
-                  detalle: `SPRBJ-${res.data.id}`,
-                };
-                const updatedStock = updateStock(objStock);
-                updatedStock
-                  .then((res) => {
-                    setIsDrop(true);
-                  })
-                  .catch((err) => {
-                    console.log("Error al updatear stock", err);
-                  });
-              })
-              .catch((err) => {
-                console.log("error al registrar la baja", err);
-              });
+              const objBaja = {
+                motivo:
+                  tipoPago == 4 && totalDescontado <= giftCard
+                    ? "vale"
+                    : motivo,
+                fechaBaja: dateString(),
+                idUsuario: userId,
+                idAlmacen: userStore,
+                productos: selectedProducts,
+                totalbaja: totalDescontado,
+                vale: giftCard,
+              };
+              const bajaRegistrada = registerDrop(objBaja);
+              bajaRegistrada
+                .then((res) => {
+                  setDropId(res.data.id);
+                  const objStock = {
+                    accion: "take",
+                    idAlmacen: userStore,
+                    productos: selectedProducts,
+                    detalle: `SPRBJ-${res.data.id}`,
+                  };
+                  const updatedStock = updateStock(objStock);
+                  updatedStock
+                    .then((res) => {
+                      setIsDrop(true);
+                    })
+                    .catch((err) => {
+                      console.log("Error al updatear stock", err);
+                    });
+                })
+                .catch((err) => {
+                  console.log("error al registrar la baja", err);
+                });
+            }
           }
         }
       }
@@ -512,9 +537,8 @@ function SaleModalAlt(
           2
         ),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
-          invoiceBody.idAgencia
-        }`,
+        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${invoiceBody.idAgencia
+          }`,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -523,6 +547,8 @@ function SaleModalAlt(
         aPagar: aPagar,
         puntoDeVenta: invoiceBody.puntoDeVenta,
         idAgencia: invoiceBody.idAgencia,
+        voucher: voucher,
+        pya: isPya,
       };
       const emizorBody = {
         numeroFactura: 0,
@@ -612,9 +638,9 @@ function SaleModalAlt(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-                errorList.map((item) => {
-                  return item + `\n`;
-                })
+              errorList.map((item) => {
+                return item + `\n`;
+              })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -880,10 +906,11 @@ function SaleModalAlt(
                     paymentData={{
                       tipoPago: stringPago,
                       cancelado: cancelado,
-                      cambio:
-                        parseFloat(cancelado) -
+                      cambio: !valeForm
+                        ? parseFloat(cancelado) + parseFloat(voucher) -(
                         parseFloat(totalDescontado) +
-                        parseFloat(giftCard),
+                        parseFloat(giftCard))
+                        : 0,
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
@@ -1004,6 +1031,8 @@ function SaleModalAlt(
                   razonSocial: datos.razonSocial,
                 }}
                 dropId={dropId}
+                total={totalDescontado}
+                vale={giftCard}
               />
             </Button>
           </div>
@@ -1027,6 +1056,8 @@ function SaleModalAlt(
               razonSocial: datos.razonSocial,
             }}
             dropId={dropId}
+            total={totalDescontado}
+            vale={giftCard}
           />
         </div>
       ) : null}
@@ -1063,7 +1094,7 @@ function SaleModalAlt(
             <div className="modalRows">
               <div className="modalLabel"> Total a pagar:</div>
               <div className="modalData">{`${parseFloat(
-                totalDescontado
+                tipoPago == 4 ? total - giftCard : totalDescontado
               ).toFixed(2)} Bs.`}</div>
             </div>
             <div className="modalRows">
@@ -1091,6 +1122,34 @@ function SaleModalAlt(
             </div>
 
             <div className="modalRows">
+              <div className="modalLabel">Pedidos Ya:</div>
+              <div className="modalData">
+                <Form.Check
+                  type="checkbox"
+                  value={isPya}
+                  onChange={() => {
+                    setIsPya(!isPya);
+                    setVoucher(0);
+                  }}
+                  checked={isPya}
+                />
+              </div>
+            </div>
+            {isPya ? (
+              <div className="modalRows">
+                <div className="modalLabel">Voucher Ped. Ya:</div>
+                <div className="modalData">
+                  <Form.Control
+                    type="number"
+                    value={voucher}
+                    disabled={!isPya}
+                    onChange={(e) => setVoucher(e.target.value)}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            <div className="modalRows">
               <div className="modalLabel"> Tipo de pago:</div>
               <div className="modalData">
                 <div>
@@ -1114,6 +1173,7 @@ function SaleModalAlt(
                 </div>
               </div>
             </div>
+
             {tipoPago == 5 ? (
               <div>
                 <div className="modalRows">
@@ -1159,11 +1219,11 @@ function SaleModalAlt(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{`${
-                    cancelado - totalDescontado < 0
-                      ? " Ingrese un monto igual o superior"
-                      : `${(cancelado - totalDescontado).toFixed(2)} Bs.`
-                  } `}</div>
+                  <div className="modalData">{
+                    `${Number(cancelado) - Number(totalDescontado) + Number(voucher) < 0
+                      ? `Ingrese un monto igual o superiores al total`
+                      : `${(Number(cancelado) - Number(totalDescontado) + Number(voucher)).toFixed(2)} Bs.`
+                    } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (
@@ -1269,53 +1329,67 @@ function SaleModalAlt(
                     </Form>
                   </div>
                 </div>
-                <div className="modalRows">
-                  <div className="modalLabel"> A pagar en efectivo:</div>
-                  <div className="modalData">{`${
-                    datos.total - giftCard < 0
-                      ? "El valor del Vale es mayor al monto de la compra"
-                      : `${parseFloat(
-                          parseFloat(-giftCard) +
-                            total * (1 - datos.descuento / 100)
-                        ).toFixed(2)} Bs.`
-                  } `}</div>
-                </div>
-                {1 > 0 ? (
+                {datos.total - giftCard <= 0 ? (
                   <div>
                     <div className="modalRows">
-                      <div className="modalLabel"> Cancelado:</div>
-                      <div className="modalData">
-                        <Form>
-                          <Form.Control
-                            ref={canceledRef}
-                            value={cancelado}
-                            type="number"
-                            onChange={(e) => setCancelado(e.target.value)}
-                            onKeyDown={(e) =>
-                              e.key === "Enter"
-                                ? validateFormOfPayment(e)
-                                : null
-                            }
-                          />
-                        </Form>
-                      </div>
-                    </div>
-                    <div className="modalRows">
-                      <div className="modalLabel"> Cambio:</div>
-                      <div className="modalData">{`${
-                        cancelado -
-                          (total * (1 - datos.descuento / 100) - giftCard) <
-                        0
-                          ? "Ingrese un monto mayor"
-                          : `${(
-                              cancelado -
-                              totalDesc +
-                              parseFloat(giftCard)
-                            ).toFixed(2)} Bs.`
-                      } `}</div>
+                      <div className="modalLabel"> Detalle:</div>
+                      <div className="modalData">{"Dando de baja el vale"}</div>
                     </div>
                   </div>
-                ) : null}
+                ) : (
+                  // <>
+                  //   <div className="modalRows">
+                  //     <div className="modalLabel"> A pagar en efectivo:</div>
+                  //     <div className="modalData"> {parseFloat(
+                  //       parseFloat(-giftCard) +
+                  //       total * (1 - datos.descuento / 100)
+                  //     ).toFixed(2)} Bs.
+                  //     </div>
+                  //   </div>
+                  //   {1 > 0 && datos.total - giftCard > 0 ? (
+                  //     <div>
+                  //       <div className="modalRows">
+                  //         <div className="modalLabel"> Cancelado:</div>
+                  //         <div className="modalData">
+                  //           <Form>
+                  //             <Form.Control
+                  //               ref={canceledRef}
+                  //               value={cancelado}
+                  //               type="number"
+                  //               onChange={(e) => setCancelado(e.target.value)}
+                  //               onKeyDown={(e) =>
+                  //                 e.key === "Enter"
+                  //                   ? validateFormOfPayment(e)
+                  //                   : null
+                  //               }
+                  //             />
+                  //           </Form>
+                  //         </div>
+                  //       </div>
+                  //       <div className="modalRows">
+                  //         <div className="modalLabel"> Cambio:</div>
+                  //         <div className="modalData">{`${cancelado -
+                  //           (total * (1 - datos.descuento / 100) - giftCard) <
+                  //           0
+                  //           ? "Ingrese un monto mayor"
+                  //           : `${(
+                  //             cancelado -
+                  //             totalDesc +
+                  //             parseFloat(giftCard)
+                  //           ).toFixed(2)} Bs.`
+                  //           } `}</div>
+                  //       </div>
+                  //     </div>
+                  //   ) : null}
+                  // </>
+                  <TipoPagoComponent
+                    otherPayment={otherPayments}
+                    setValeForm={setValeForm}
+                    total={total}
+                    setVale={setGiftCard}
+                    vale={giftCard}
+                  />
+                )}
               </div>
             ) : null}
             {tipoPago == 11 ? (
@@ -1338,7 +1412,9 @@ function SaleModalAlt(
           </Modal.Body>
           <Modal.Footer>
             <Button type="submit" variant="success">
-              Facturar
+              {1 > 0 && datos.total - giftCard <= 0
+                ? "Dar de baja"
+                : "Facturar"}
             </Button>
             <Button type="reset" variant="danger" onClick={() => handleClose()}>
               {" "}

@@ -71,6 +71,14 @@ export const EndOfDayComponent = React.forwardRef(
                 <td className="totals">Transf Swift</td>
                 <td className="totalsData">{`${totales.swift} Bs`}</td>
               </tr>
+              <tr>
+                <td className="totals">-----------</td>
+                <td className="totalsData">----------</td>
+              </tr>
+              <tr>
+                <td className="totals">Voucher</td>
+                <td className="totalsData">{`${totales.voucher} Bs`}</td>
+              </tr>
             </tbody>
             <tfoot>
               <tr>

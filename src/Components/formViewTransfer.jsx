@@ -70,21 +70,21 @@ export default function FormViewTransfer() {
       setIdOrigen(tl.idOrigen);
       setIdDestino(tl.idDestino);
       setIdTraspaso(tl.idTraspaso);
-      setEstado(tl.estado);
+      setEstado(tl.estado === 1 || tl.listo === 1 ? 1 : 0);
       const detalleExcel = {
         codigoTraspaso: tl.nroOrden,
         solicitante: tl.correo,
         origen: tl.nombreOrigen,
         destino: tl.nombreDestino,
         fecha: tl.fechaCrea,
-        estado: tl.estado
-          ? "Pendiente"
-          : tl.estado === 1
-          ? "Aprobado"
-          : "Cancelado",
+        estado:
+          tl.estado === 0 && tl.listo === 0
+            ? "Pendiente"
+            : tl.estado === 1 || tl.listo === 1
+            ? "Aprobado"
+            : "Cancelado",
       };
       setDetalleExcel(detalleExcel);
-
       const productList = transferProducts(tl.idTraspaso);
       productList.then((pl) => {
         setProductos(pl.data.response);
@@ -96,7 +96,6 @@ export default function FormViewTransfer() {
 
   async function viewTransfer(tl) {
     await setTransfer(tl);
-
     setIsFormModal(true);
   }
   function filterOrders(value) {
@@ -261,16 +260,16 @@ export default function FormViewTransfer() {
                   <th className="tableColumnMedium">
                     <Badge
                       bg={
-                        tl.estado == 0
+                        tl.estado == 0 && tl.listo == 0
                           ? "warning"
-                          : tl.estado === 1
+                          : tl.estado === 1 || tl.listo == 1
                           ? "success"
                           : "danger"
                       }
                     >
-                      {tl.estado == 0
+                      {tl.estado == 0 && tl.listo == 0
                         ? "Pendiente"
-                        : tl.estado === 1
+                        : tl.estado == 1 || tl.listo == 1
                         ? "Aprobado"
                         : "Cancelado"}
                     </Badge>

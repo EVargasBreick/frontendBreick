@@ -146,6 +146,25 @@ export const userService = {
     const response = await userInstance.post("/changePassword", data);
     return response.data;
   },
+
+  async findUser(search, roles = null) {
+    const response = await userInstance.get(`/find/${search}?roles=${roles}`);
+    return response.data;
+  },
+
+  async getAll(roles = null) {
+    const response = await userInstance.get(`/all`, {
+      params: {
+        roles: roles
+      }
+    });
+    return response.data;
+  },
+
+  async updateUser(userId, body) {
+    const response = await userInstance.put(`/update/${userId}`, body);
+    return response.data;
+  }
 };
 
 
