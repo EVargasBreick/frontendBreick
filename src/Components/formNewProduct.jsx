@@ -76,7 +76,7 @@ export default function FormNewProduct() {
           unidadDeMedida: unidadMedida,
           tiempoDeVida: tiempoVida,
           activo: 1,
-          precioPDV: 0,
+          precioPDV: pdv,
           cantDisplay: 0,
           aplicaDescuento: tipo == 5 || tipo == 6 ? "No" : "Si",
           tipoProducto: tipo,
