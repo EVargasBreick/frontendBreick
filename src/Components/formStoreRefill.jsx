@@ -37,6 +37,7 @@ export default function FormStoreRefill() {
   const [nombreDestino, setNombreDestino] = useState();
   const componentRef = useRef();
   const buttonRef = useRef();
+  const productRef = useRef([]);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -70,6 +71,7 @@ export default function FormStoreRefill() {
         prods.then((product) => {
           setProductos(product.data);
           setAuxProducts(product.data);
+          productRef.current = product.data;
         });
       }
     }
@@ -79,6 +81,8 @@ export default function FormStoreRefill() {
   };
 
   function updateCurrentStock() {
+    setProductos([]);
+    setAuxProducts([]);
     const prods = getProductsWithStock("AL001", "all");
     prods.then((product) => {
       const available = product.data.filter((prod) => prod.cant_Actual > 0);
@@ -438,6 +442,9 @@ export default function FormStoreRefill() {
                     const cActual = auxProducts.find(
                       (ap) => ap.idProducto == product.idProducto
                     )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == product.idProducto
+                    )?.cant_Actual;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -476,7 +483,12 @@ export default function FormStoreRefill() {
                             </Form.Group>
                           </Form>
                         </td>
-                        <td className="tableColumnSmall">{cActual}</td>
+                        <td
+                          className="tableColumnSmall"
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                        >
+                          {cActual}
+                        </td>
                       </tr>
                     );
                   })}

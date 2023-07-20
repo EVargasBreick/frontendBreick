@@ -118,6 +118,7 @@ export default function FormModifyOrders() {
   const [auxPedidosList, setAuxPedidosList] = useState([]);
   const [filter, setFilter] = useState("");
   const [creatorStore, setCreatorStore] = useState("");
+  const productRef = useRef([]);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -156,8 +157,27 @@ export default function FormModifyOrders() {
       setAvailable(filtered);
       setAuxProducts(filtered);
       setAuxAva(filtered);
+      productRef.current = filtered;
     });
   }, []);
+
+  function updateCurrentStock() {
+    setAvailable([]);
+    setAuxAva([]);
+    setAuxProducts([]);
+    const disponibles = availableProducts(
+      JSON.parse(Cookies.get("userAuth")).idUsuario
+    );
+    disponibles.then((fetchedAvailable) => {
+      const filtered = fetchedAvailable.data.data.filter(
+        (product) => product.activo === 1
+      );
+      setAvailable(filtered);
+      setAuxProducts(filtered);
+      setAuxAva(filtered);
+    });
+  }
+
   useEffect(() => {
     if (flagDiscount) {
       processDiscounts();
@@ -604,8 +624,8 @@ export default function FormModifyOrders() {
         // const updatedStockThen = updateStock(toUpdateAdds);
 
         const updateMultiple = updateMultipleStock([
-          toUpdateTakes,
           toUpdateAdds,
+          toUpdateTakes,
         ]);
 
         updateMultiple
@@ -644,10 +664,11 @@ export default function FormModifyOrders() {
             });
           })
           .catch((error) => {
-            setIsAlertSec(true);
-            setIsAlertSec(
+            setAlertSec(
               "Error al actualizar el pedido, revise stocks por favor"
             );
+            updateCurrentStock();
+            console.log("Se llego aca");
             setTimeout(() => {
               setIsAlertSec(false);
             }, 5000);
@@ -972,6 +993,8 @@ export default function FormModifyOrders() {
                     <th className="tableColumnSmall">Codigo Producto</th>
                     <th className="tableColumn">Producto</th>
                     <th className="tableColumnSmall">Disponible</th>
+                    <th className="tableColumnSmall">Reservado</th>
+
                     <th className="tableColumnSmall">Precio</th>
                     <th className="tableColumnSmall">Cantidad</th>
                     <th className="tableColumnMedium">Total</th>
@@ -979,6 +1002,12 @@ export default function FormModifyOrders() {
                 </thead>
                 <tbody>
                   {selectedProds.map((product, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == product.idProducto
+                    )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == product.idProducto
+                    )?.cant_Actual;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -998,15 +1027,16 @@ export default function FormModifyOrders() {
                         <td className="tableColumn">
                           {product.nombreProducto}
                         </td>
-                        <td className="tableColumnSmall">
-                          {auxAva.find(
-                            (pr) => pr.idProducto === product.idProducto
-                          ) !== undefined
-                            ? auxAva.find(
-                                (pr) => pr.idProducto === product.idProducto
-                              ).cant_Actual
-                            : 0}
+                        <td
+                          className="tableColumnSmall"
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                        >
+                          {cActual}
                         </td>
+                        <td className="tableColumnSmall">
+                          {product.cantPrevia}
+                        </td>
+
                         <td className="tableColumnSmall">{`${product.precioDeFabrica} Bs.`}</td>
                         <td className="tableColumnSmall">
                           <Form>
