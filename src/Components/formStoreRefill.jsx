@@ -77,6 +77,17 @@ export default function FormStoreRefill() {
   const handleClose = () => {
     setIsAlert(false);
   };
+
+  function updateCurrentStock() {
+    const prods = getProductsWithStock("AL001", "all");
+    prods.then((product) => {
+      const available = product.data.filter((prod) => prod.cant_Actual > 0);
+      console.log("disponibles", available);
+      setProductos(available);
+      setAuxProducts(available);
+    });
+  }
+
   useEffect(() => {
     if (JSON.stringify(productList).length > 5) {
       console.log("Flag 2");
@@ -230,6 +241,7 @@ export default function FormStoreRefill() {
                     });
                 })
                 .catch((error) => {
+                  updateCurrentStock();
                   setIsAlertSec(false);
                   setAlert("Error al crear el traspaso", error);
                   setIsAlert(true);
@@ -423,6 +435,9 @@ export default function FormStoreRefill() {
                 </thead>
                 <tbody>
                   {selectedProducts.map((product, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == product.idProducto
+                    )?.cant_Actual;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -461,9 +476,7 @@ export default function FormStoreRefill() {
                             </Form.Group>
                           </Form>
                         </td>
-                        <td className="tableColumnSmall">
-                          {product.cant_Actual}
-                        </td>
+                        <td className="tableColumnSmall">{cActual}</td>
                       </tr>
                     );
                   })}

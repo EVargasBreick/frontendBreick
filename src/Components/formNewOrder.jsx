@@ -41,6 +41,7 @@ import {
 import ComplexDiscountTable from "./complexDiscountTable";
 import SimpleDiscountTable from "./simpleDiscountTable";
 import SpecialsTable from "./specialsTable";
+
 export default function FormNewOrder() {
   const [isClient, setIsClient] = useState(false);
   const [isProduct, setIsProduct] = useState(false);
@@ -99,6 +100,7 @@ export default function FormNewOrder() {
   const searchRef = useRef(null);
   const quantref = useRef(null);
   const prodTableRef = useRef(null);
+  const productRef = useRef([]);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -126,6 +128,7 @@ export default function FormNewOrder() {
         console.log("Productos disponibles", filtered);
         setAvailable(filtered);
         setAuxProducts(filtered);
+        productRef.current = filtered;
       });
       const dl = productsDiscount(
         JSON.parse(Cookies.get("userAuth")).idUsuario
@@ -144,6 +147,22 @@ export default function FormNewOrder() {
       }, 300000);*/
     }
   }, []);
+
+  function updateCurrentStock() {
+    setAvailable([]);
+    setAuxProducts([]);
+    const disponibles = availableProducts(
+      JSON.parse(Cookies.get("userAuth")).idUsuario
+    );
+    disponibles.then((fetchedAvailable) => {
+      const filtered = fetchedAvailable.data.data.filter(
+        (product) => product.cant_Actual > 0 && product.activo === 1
+      );
+      console.log("Productos disponibles", filtered);
+      setAvailable(filtered);
+      setAuxProducts(filtered);
+    });
+  }
 
   useEffect(() => {
     if (isQuantity) {
@@ -524,6 +543,7 @@ export default function FormNewOrder() {
               .catch((error) => {
                 const deleted = deleteOrder(idPedidoCreado);
                 deleted.then((res) => {
+                  updateCurrentStock();
                   setisLoading(false);
                   setAlertSec(error);
                   setIsAlertSec(true);
@@ -613,6 +633,7 @@ export default function FormNewOrder() {
                 .catch((error) => {
                   const deleted = deleteOrder(idPedidoCreado);
                   deleted.then((res) => {
+                    updateCurrentStock();
                     setisLoading(false);
                     setAlertSec(error);
                     setIsAlertSec(true);
@@ -979,6 +1000,12 @@ export default function FormNewOrder() {
                 </thead>
                 <tbody>
                   {[...selectedProds].map((sp, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == sp.idProducto
+                    )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == sp.idProducto
+                    )?.cant_Actual;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="smallTableColumn">
@@ -1015,7 +1042,12 @@ export default function FormNewOrder() {
                         <td className="smallTableColumn">
                           {sp.totalProd?.toFixed(2)}
                         </td>
-                        <td className="smallTableColumn">{sp.cant_Actual}</td>
+                        <td
+                          className="smallTableColumn"
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                        >
+                          {cActual}
+                        </td>
                       </tr>
                     );
                   })}
