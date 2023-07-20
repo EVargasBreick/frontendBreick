@@ -38,6 +38,8 @@ export default function FormNewTransfer() {
   const [nombreDestino, setNombreDestino] = useState();
   const componentRef = useRef();
   const buttonRef = useRef();
+  const productRef = useRef([]);
+
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -56,6 +58,7 @@ export default function FormNewTransfer() {
         console.log("disponibles", available);
         setProductos(available);
         setAuxProducts(available);
+        productRef.current = available;
       });
     }
     const stores = getStores();
@@ -89,6 +92,23 @@ export default function FormNewTransfer() {
       buttonRef.current.click();
     }
   }, [isPrint]);
+
+  function updateCurrentStock() {
+    setProductos([]);
+    setAuxProducts([]);
+    const UsuarioAct = Cookies.get("userAuth");
+
+    const prods = getProductsWithStock(JSON.parse(UsuarioAct).idAlmacen, "all");
+    prods.then((product) => {
+      const available = product.data.filter(
+        (prod) => prod.cant_Actual > 0 && prod.activo === 1
+      );
+      console.log("disponibles", available);
+      setProductos(available);
+      setAuxProducts(available);
+    });
+  }
+
   function prepareStoreId(id, action) {
     const idSub = id.split(" ");
     if (action === "origen") {
@@ -240,8 +260,11 @@ export default function FormNewTransfer() {
                       deleted
                         .then((res) => {
                           setIsAlertSec(false);
-                          console.log("test test");
-                          setAlert(error.response.data.message);
+                          console.log(res);
+                          updateCurrentStock();
+                          setAlert(
+                            "Hay producto(s) sin suficiente stock disponible"
+                          );
                           setIsAlert(true);
                         })
                         .catch((error) => {
@@ -256,6 +279,7 @@ export default function FormNewTransfer() {
                 });
             })
             .catch((err) => {
+              updateCurrentStock();
               setIsAlertSec(false);
               setAlert(
                 "La cantidad de un producto seleccionado no se encuentra disponible"
@@ -264,6 +288,7 @@ export default function FormNewTransfer() {
             });
         })
         .catch((error) => {
+          updateCurrentStock();
           setIsAlertSec(false);
           setAlert(
             "La cantidad de un producto seleccionado se encuentra en cero"
@@ -438,7 +463,14 @@ export default function FormNewTransfer() {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedProducts.map((product, index) => {
+                  {[...selectedProducts].map((product, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == product.idProducto
+                    )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == product.idProducto
+                    )?.cant_Actual;
+
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -477,8 +509,11 @@ export default function FormNewTransfer() {
                             </Form.Group>
                           </Form>
                         </td>
-                        <td className="tableColumnSmall">
-                          {product.cant_Actual}
+                        <td
+                          className="smallTableColumn"
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                        >
+                          {cActual}
                         </td>
                       </tr>
                     );
