@@ -34,6 +34,8 @@ export default function FormRouteTransfer() {
   const [nombreDestino, setNombreDestino] = useState();
   const componentRef = useRef();
   const buttonRef = useRef();
+  const productRef = useRef([]);
+
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -55,8 +57,22 @@ export default function FormRouteTransfer() {
     prods.then((product) => {
       setProductos(product.data);
       setAuxProducts(product.data);
+      productRef.current = product.data;
     });
   }, []);
+  function updateCurrentStock() {
+    console.log("updating");
+    setProductos([]);
+    setAuxProducts([]);
+    const prods = getProductsWithStock("AL001", "all");
+    console.log("prods", prods);
+    prods.then((product) => {
+      console.log("product", product);
+      setProductos(product.data);
+      setAuxProducts(product.data);
+      console.log(product.data);
+    });
+  }
   const handleClose = () => {
     setIsAlert(false);
   };
@@ -143,6 +159,7 @@ export default function FormRouteTransfer() {
                     })
                     .catch((error) => {
                       setIsAlertSec(false);
+                      updateCurrentStock();
                       setAlert("Error al actualizar");
                       setIsAlert(true);
                     });
@@ -154,6 +171,7 @@ export default function FormRouteTransfer() {
                 });
             })
             .catch((err) => {
+              updateCurrentStock();
               setIsAlertSec(false);
               setAlert(
                 "La cantidad de un producto seleccionado no se encuentra disponible"
@@ -162,6 +180,7 @@ export default function FormRouteTransfer() {
             });
         })
         .catch((error) => {
+          updateCurrentStock();
           setIsAlertSec(false);
           setAlert(
             "La cantidad de un producto seleccionado se encuentra en cero"
@@ -288,7 +307,15 @@ export default function FormRouteTransfer() {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedProducts.map((product, index) => {
+                  {[...selectedProducts].map((product, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == product.idProducto
+                    )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == product.idProducto
+                    )?.cant_Actual;
+
+                    console.log(cActual, refActual);
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -327,10 +354,13 @@ export default function FormRouteTransfer() {
                             </Form.Group>
                           </Form>
                         </td>
-                        <td className="tableColumnSmall">
+                        <td
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                          GclassName="tableColumnSmall"
+                        >
                           {product.codigoUnidad == "57"
-                            ? parseFloat(product.cant_Actual).toFixed(0)
-                            : parseFloat(product.cant_Actual).toFixed(3)}
+                            ? parseFloat(cActual).toFixed(0)
+                            : parseFloat(cActual).toFixed(3)}
                         </td>
                       </tr>
                     );
