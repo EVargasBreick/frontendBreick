@@ -390,7 +390,7 @@ export default function FormNewSaleAlt() {
     }
   }
   function changeQuantitiesModal(e) {
-    e.preventDefault();
+    // e.preventDefault();
     const index = selectedProducts.length - 1;
     const selectedProd = selectedProducts[index];
     changeQuantities(index, modalQuantity, selectedProd, false);
@@ -735,27 +735,30 @@ export default function FormNewSaleAlt() {
         </Modal.Body>
       </Modal>
       <Modal show={isQuantity}>
-        <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
-        <Modal.Body>
-          <div className="productModal">{currentProd.nombreProducto}</div>
-          <Form>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            changeQuantitiesModal(e.target[0].value);
+          }}
+        >
+          <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
+          <Modal.Body>
+            <div className="productModal">{currentProd.nombreProducto}</div>
             <Form.Control
               type="number"
               onChange={(e) => handleModalQuantity(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" ? changeQuantitiesModal(e) : null
-              }
+              required
               ref={quantref}
               value={modalQuantity}
-              min={0.01}
+              min={0}
             />
-          </Form>
-        </Modal.Body>
-        <Modal.Footer className="modalFooter">
-          <Button variant="success" onClick={(e) => changeQuantitiesModal(e)}>
-            Confirmar
-          </Button>
-        </Modal.Footer>
+          </Modal.Body>
+          <Modal.Footer className="modalFooter">
+            <Button variant="success" type="submit">
+              Confirmar
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
       {isInvoice ? (
         <div>
