@@ -1071,7 +1071,10 @@ export default function FormNewSaleAlt() {
         </Form>
       </div>
       <div>
-        <Form>
+        <Form onSubmit={(e) => {
+          e.preventDefault();
+          validateQuantities();
+        }}>
           {selectedProducts.length > 0 ? (
             <div className="tableOne">
               <Table>
@@ -1130,7 +1133,8 @@ export default function FormNewSaleAlt() {
                             className="smallInput"
                             type="number"
                             min="0"
-                            placeholder="0"
+                            required
+                            placeholder="Ingresar Valor"
                             value={sp.cantProducto}
                             onChange={(e) => {
                               changeQuantities(index, e.target.value, sp);
@@ -1196,7 +1200,8 @@ export default function FormNewSaleAlt() {
                   <Button
                     variant="warning"
                     className="yellowLarge"
-                    onClick={() => validateQuantities()}
+                    type="submit"
+                    // onClick={() => ()}
                   >
                     Ir A Facturar
                   </Button>
