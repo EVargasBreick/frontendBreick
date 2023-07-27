@@ -748,6 +748,7 @@ export default function FormNewSaleAlt() {
               type="number"
               onChange={(e) => handleModalQuantity(e.target.value)}
               required
+              step={"any"}
               ref={quantref}
               value={modalQuantity}
               min={0}
@@ -1133,6 +1134,7 @@ export default function FormNewSaleAlt() {
                             className="smallInput"
                             type="number"
                             min="0"
+                            step={"any"}
                             required
                             placeholder="Ingresar Valor"
                             value={sp.cantProducto}
