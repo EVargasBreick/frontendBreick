@@ -390,7 +390,7 @@ export default function FormNewSaleAlt() {
     }
   }
   function changeQuantitiesModal(e) {
-    e.preventDefault();
+    // e.preventDefault();
     const index = selectedProducts.length - 1;
     const selectedProd = selectedProducts[index];
     changeQuantities(index, modalQuantity, selectedProd, false);
@@ -735,27 +735,31 @@ export default function FormNewSaleAlt() {
         </Modal.Body>
       </Modal>
       <Modal show={isQuantity}>
-        <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
-        <Modal.Body>
-          <div className="productModal">{currentProd.nombreProducto}</div>
-          <Form>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            changeQuantitiesModal(e.target[0].value);
+          }}
+        >
+          <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
+          <Modal.Body>
+            <div className="productModal">{currentProd.nombreProducto}</div>
             <Form.Control
               type="number"
               onChange={(e) => handleModalQuantity(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" ? changeQuantitiesModal(e) : null
-              }
+              required
+              step={"any"}
               ref={quantref}
               value={modalQuantity}
-              min={0.01}
+              min={0}
             />
-          </Form>
-        </Modal.Body>
-        <Modal.Footer className="modalFooter">
-          <Button variant="success" onClick={(e) => changeQuantitiesModal(e)}>
-            Confirmar
-          </Button>
-        </Modal.Footer>
+          </Modal.Body>
+          <Modal.Footer className="modalFooter">
+            <Button variant="success" type="submit">
+              Confirmar
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
       {isInvoice ? (
         <div>
@@ -1068,7 +1072,10 @@ export default function FormNewSaleAlt() {
         </Form>
       </div>
       <div>
-        <Form>
+        <Form onSubmit={(e) => {
+          e.preventDefault();
+          validateQuantities();
+        }}>
           {selectedProducts.length > 0 ? (
             <div className="tableOne">
               <Table>
@@ -1127,7 +1134,9 @@ export default function FormNewSaleAlt() {
                             className="smallInput"
                             type="number"
                             min="0"
-                            placeholder="0"
+                            step={"any"}
+                            required
+                            placeholder="Ingresar Valor"
                             value={sp.cantProducto}
                             onChange={(e) => {
                               changeQuantities(index, e.target.value, sp);
@@ -1193,7 +1202,8 @@ export default function FormNewSaleAlt() {
                   <Button
                     variant="warning"
                     className="yellowLarge"
-                    onClick={() => validateQuantities()}
+                    type="submit"
+                    // onClick={() => ()}
                   >
                     Ir A Facturar
                   </Button>
