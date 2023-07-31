@@ -280,6 +280,7 @@ export default function FormProductDrop() {
                             value={sp.cantProducto}
                             type="number"
                             required
+                            step="any"
                             min={0}
                             max={sp?.cant_Actual}
                             onChange={(e) =>
