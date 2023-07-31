@@ -22,6 +22,7 @@ import { dateString } from "../services/dateServices";
 
 import ReactToPrint from "react-to-print";
 import { OrderNote } from "./orderNote";
+import { OrderPDFAlt } from "./OrderPDFAlt";
 export default function FormManageOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
@@ -528,7 +529,7 @@ export default function FormManageOrders() {
       {isPdf ? (
         <PDFDownloadLink
           document={
-            <OrderPDF
+            <OrderPDFAlt
               detalle={productDetail[0]}
               productos={productTable}
               codigo={codigoPedido}

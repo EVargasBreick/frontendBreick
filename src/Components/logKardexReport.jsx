@@ -16,7 +16,8 @@ export default function LogKardexReport() {
       if (
         JSON.parse(Cookies.get("userAuth")).rol == 7 ||
         JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 9
+        JSON.parse(Cookies.get("userAuth")).rol == 9 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 10
       ) {
       } else {
         navigate("/principal");

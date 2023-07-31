@@ -176,7 +176,7 @@ export default function FormStoreRefill() {
   }
   function registerTransfer() {
     if (idOrigen !== idDestino) {
-      setAlertSec("Validando Traspaso");
+      setAlertSec("Validando Traspasos");
       console.log("Is interior", isInterior);
       setIsAlertSec(true);
       const zeroValidated = validateZero();

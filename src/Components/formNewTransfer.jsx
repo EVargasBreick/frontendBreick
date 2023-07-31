@@ -199,12 +199,15 @@ export default function FormNewTransfer() {
           const quantitiesValidated = validateQuantities();
           quantitiesValidated
             .then((res) => {
+              console.log("Normal");
               const transferObj = {
                 idOrigen: idOrigen,
                 idDestino: idDestino,
                 idUsuario: userId,
                 productos: selectedProducts,
                 transito: 0,
+                movil: idOrigen === "AL001" ? 1 : 0,
+                impreso: idOrigen === "AL001" ? 0 : 1,
               };
               setAlertSec("Creando traspaso");
               const newTransfer = createTransfer(transferObj);
@@ -279,6 +282,7 @@ export default function FormNewTransfer() {
                 });
             })
             .catch((err) => {
+              console.log("Error");
               updateCurrentStock();
               setIsAlertSec(false);
               setAlert(
@@ -323,13 +327,22 @@ export default function FormNewTransfer() {
     var errCount = 0;
     return new Promise((resolve, reject) => {
       for (const product of selectedProducts) {
+        console.log(
+          "Product data",
+          product.cant_Actual,
+          "---",
+          product.cantProducto
+        );
         if (product.cant_Actual < product.cantProducto) {
+          console.log("Error");
           errCount += 1;
         }
       }
       if (errCount == 0) {
+        console.log("Resolviendo sin error");
         resolve(true);
       } else {
+        console.log("Resolviendo error");
         reject(false);
       }
     });

@@ -21,6 +21,8 @@ import { getProducts } from "../services/productServices";
 import { rePrintTransferOrder } from "../services/printServices";
 import { OrderNote } from "./orderNote";
 import ReactToPrint from "react-to-print";
+import { OrderPDFAlt } from "./OrderPDFAlt";
+
 export default function FormAllOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
@@ -482,7 +484,7 @@ export default function FormAllOrders() {
       {isPdf ? (
         <PDFDownloadLink
           document={
-            <OrderPDF
+            <OrderPDFAlt
               detalle={productDetail[0]}
               productos={productTable}
               codigo={codigoPedido}

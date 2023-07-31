@@ -624,8 +624,8 @@ export default function FormModifyOrders() {
         // const updatedStockThen = updateStock(toUpdateAdds);
 
         const updateMultiple = updateMultipleStock([
-          toUpdateAdds,
           toUpdateTakes,
+          toUpdateAdds,
         ]);
 
         updateMultiple
