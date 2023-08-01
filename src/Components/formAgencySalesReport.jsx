@@ -25,7 +25,13 @@ export default function FormSalesAgency() {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    const data = []; // TODO reportService.getReport(dateStart, dateEnd, );
+    const data = [
+      {
+        idAgencia: 1,
+        totalFacturado: 100,
+        totalAnulado: 10,
+      }
+    ]; // TODO reportService.getReport(dateStart, dateEnd, );
     setReports(data);
     setLoading(false);
   }
@@ -52,6 +58,7 @@ export default function FormSalesAgency() {
             <Form.Control
               type="date"
               value={dateStart}
+              required
               onChange={(e) => setDateStart(e.target.value)}
             />
           </Form.Group>
@@ -60,6 +67,7 @@ export default function FormSalesAgency() {
             <Form.Control
               type="date"
               value={dateEnd}
+              required
               onChange={(e) => setDateEnd(e.target.value)}
             />
           </Form.Group>

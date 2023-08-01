@@ -52,6 +52,7 @@ export default function FormSalesSeller() {
             <Form.Control
               type="date"
               value={dateStart}
+              required
               onChange={(e) => setDateStart(e.target.value)}
             />
           </Form.Group>
@@ -60,6 +61,7 @@ export default function FormSalesSeller() {
             <Form.Control
               type="date"
               value={dateEnd}
+              required
               onChange={(e) => setDateEnd(e.target.value)}
             />
           </Form.Group>
