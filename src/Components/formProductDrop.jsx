@@ -313,7 +313,6 @@ export default function FormProductDrop() {
               <option value={"Devolucion a fabrica"}>
                 Devolución a fábrica
               </option>
-              <option value={"Armardo de Pack"}>Armado de Pack</option>
             </Form.Select>
 
             {motivo != "" ? (

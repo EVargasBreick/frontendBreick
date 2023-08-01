@@ -1418,7 +1418,7 @@ function SaleModalAlt(
                     <Form.Select onChange={(e) => setMotivo(e.target.value)}>
                       <option>Seleccione Motivo</option>
                       <option value="socio">Socio</option>
-                      <option value="vale">Vale</option>
+
                       <option value="promo">Promoción</option>
                       <option value="muestra">Muestra</option>
                       <option value="muestra">Venta en línea</option>
