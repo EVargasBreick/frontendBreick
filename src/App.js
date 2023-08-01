@@ -60,6 +60,7 @@ import AsignPackAlt from "./Components/asignPackAlt";
 import EditUserAgency from "./Components/editUserAgency";
 import RetirePackAlt from "./Components/retirePackAlt";
 import SalesAgencyReport from "./Components/salesAgencyReport";
+import SalesSellerReport from "./Components/salesSellerReport";
 
 function App() {
   return (
@@ -505,6 +506,14 @@ function App() {
               element={
                 <RequireAuth>
                   <SalesAgencyReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/vendedor"
+              element={
+                <RequireAuth>
+                  <SalesSellerReport />
                 </RequireAuth>
               }
             />
