@@ -59,6 +59,7 @@ import GroupedProductReport from "./Components/groupedProductReport";
 import AsignPackAlt from "./Components/asignPackAlt";
 import EditUserAgency from "./Components/editUserAgency";
 import RetirePackAlt from "./Components/retirePackAlt";
+import SalesAgencyReport from "./Components/salesAgencyReport";
 
 function App() {
   return (
@@ -496,6 +497,14 @@ function App() {
               element={
                 <RequireAuth>
                   <GroupedProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/agencias"
+              element={
+                <RequireAuth>
+                  <SalesAgencyReport />
                 </RequireAuth>
               }
             />
