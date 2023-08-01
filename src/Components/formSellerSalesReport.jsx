@@ -10,11 +10,10 @@ export default function FormSalesSeller() {
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
 
-
   // useEffect(() => {
   //   if (dateStart && dateEnd) {
   //     setLoading(true);
-  //     const data = []; // TODO reportService.getMarkdownsReport(idAgencia, dateStart, dateEnd, idBaja);
+  //     const data = []; // TODO reportService.getReport(dateStart, dateEnd, );
 
   //     data.then((data) => {
   //       setReports(data);
@@ -26,7 +25,7 @@ export default function FormSalesSeller() {
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    const data = []; // TODO reportService.getMarkdownsReport(idAgencia, dateStart, dateEnd, idBaja);
+    const data = []; // TODO reportService.getReport(dateStart, dateEnd, );
     setReports(data);
     setLoading(false);
   }
