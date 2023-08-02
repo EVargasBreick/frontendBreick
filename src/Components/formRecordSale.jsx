@@ -37,6 +37,7 @@ import {
 import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import SaleModalAlt from "./saleModalAlt";
+import RecordModal from "./recordModal";
 
 export default function FormRecordSale() {
   const [isClient, setIsClient] = useState(false);
@@ -764,7 +765,7 @@ export default function FormRecordSale() {
       </Modal>
       {isInvoice ? (
         <div>
-          <SaleModalAlt
+          <RecordModal
             ref={saleModalRef}
             datos={{
               total: totalPrevio,
