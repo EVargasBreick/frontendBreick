@@ -714,7 +714,7 @@ export default function FormRecordSale() {
   }
   return (
     <div>
-      <div className="formLabel">VENTAS AGENCIA</div>
+      <div className="formLabel">FACTURAR CONSIGNACION</div>
       <Modal show={!isPoint}>
         <Modal.Header className="modalHeader">Seleccion de Caja</Modal.Header>
         <Modal.Body>
