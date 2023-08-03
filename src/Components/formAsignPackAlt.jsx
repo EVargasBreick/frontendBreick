@@ -38,10 +38,13 @@ export default function FormAsignPack() {
   const [productGroupList, setProductGroupList] = useState([]);
   const [modalText, setModalText] = useState("");
   const [changed, setChanged] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
   // ref
   const dropRef = useRef();
   const [branchInfo, setBranchInfo] = useState({});
   const invoiceRef = useRef();
+
+  const refRestante = useRef([]);
 
   useEffect(() => {
     try {
@@ -196,50 +199,66 @@ export default function FormAsignPack() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const packsAll = await getPacks();
-    const productOriginal = packsAll.data.filter(
-      (pk) => pk.idPack == selectedPackId
-    );
-    const results = productList.filter(
-      ({ idProducto: id1 }) =>
-        !productOriginal.some(
-          ({ idProducto: id2 }) => id2.toString() === id1.toString()
-        )
-    );
 
-    setModalText(
-      <>
-        <Table>
-          <thead className="tableHeader">
-            <tr>
-              <th>Nro</th>
-              <th>Producto</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productList.map((pl, index) => {
-              return (
-                <tr key={index} className="tableRow">
-                  <td>{index + 1}</td>
-                  <td>{pl.nombreProducto}</td>
-                  <td>{pl.cantProducto * cantPack}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            <tr></tr>
-          </tfoot>
-        </Table>
-        {results.length > 0 ? (
+    // if some in ref is negative show modal
+    const isNegative = refRestante.current.some((r) => r < 0);
+    if (isNegative) {
+      setShowButtons(false);
+      setModalText(
+        <>
           <h2 className="text-danger">
-            Hubo cambios en los productos del pack original
+            No hay suficiente stock para armar el pack, revise los productos
           </h2>
-        ) : null}
-      </>
-    );
-    setShowModal(true);
+        </>
+      );
+      setShowModal(true);
+    } else {
+      setShowButtons(true);
+      const packsAll = await getPacks();
+      const productOriginal = packsAll.data.filter(
+        (pk) => pk.idPack == selectedPackId
+      );
+      const results = productList.filter(
+        ({ idProducto: id1 }) =>
+          !productOriginal.some(
+            ({ idProducto: id2 }) => id2.toString() === id1.toString()
+          )
+      );
+
+      setModalText(
+        <>
+          <Table>
+            <thead className="tableHeader">
+              <tr>
+                <th>Nro</th>
+                <th>Producto</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productList.map((pl, index) => {
+                return (
+                  <tr key={index} className="tableRow">
+                    <td>{index + 1}</td>
+                    <td>{pl.nombreProducto}</td>
+                    <td>{pl.cantProducto * cantPack}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              <tr></tr>
+            </tfoot>
+          </Table>
+          {results.length > 0 ? (
+            <h2 className="text-danger">
+              Hubo cambios en los productos del pack original
+            </h2>
+          ) : null}
+        </>
+      );
+      setShowModal(true);
+    }
   };
 
   function handleProductChange(index, idProducto) {
@@ -268,6 +287,7 @@ export default function FormAsignPack() {
     <div>
       <div className="formLabel">Armar Packs</div>
       <ConfirmModal
+        isButtons={showButtons}
         show={showModal}
         setShow={setShowModal}
         title={`Asignar ${cantPack} Pack(s)?`}
@@ -332,6 +352,9 @@ export default function FormAsignPack() {
                       productStock.find((ps) => pl.idProducto == ps.idProducto)
                         .cantidad -
                       pl.cantProducto * cantPack;
+
+                    refRestante.current[index] = Number(restante);
+
                     return (
                       <tr key={index} className="tableRow">
                         <td>{index + 1}</td>
