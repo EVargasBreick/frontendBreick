@@ -225,39 +225,75 @@ export default function FormAsignPack() {
           )
       );
 
-      setModalText(
-        <>
-          <Table>
-            <thead className="tableHeader">
-              <tr>
-                <th>Nro</th>
-                <th>Producto</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productList.map((pl, index) => {
-                return (
-                  <tr key={index} className="tableRow">
-                    <td>{index + 1}</td>
-                    <td>{pl.nombreProducto}</td>
-                    <td>{pl.cantProducto * cantPack}</td>
+      const stock = getCurrentStockStore(selectedStoreId);
+      const lastCantidadList = [];
+      const updateCantidadList = [];
+      stock.then((st) => {
+        productList.forEach((pl) => {
+          const updateCantidad = st.data.find(
+            (ps) => pl.idProducto == ps.idProducto
+          ).cantidad;
+          const lastCantidad = productStock.find(
+            (ps) => pl.idProducto == ps.idProducto
+          ).cantidad;
+
+          updateCantidadList.push(updateCantidad);
+          lastCantidadList.push(lastCantidad);
+        });
+
+        setProductStock(st.data);
+
+        // if lastCantidadList is different from updateCantidadList show modal
+        const isDifferent = lastCantidadList.some(
+          (r, index) => r != updateCantidadList[index]
+        );
+        if (isDifferent) {
+          setShowButtons(false);
+          setModalText(
+            <>
+              <h2 className="text-danger">
+                Hubo cambios en el stock de los productos, revise los productos
+              </h2>
+            </>
+          );
+          setShowModal(true);
+        } else {
+          setShowButtons(true);
+          setModalText(
+            <>
+              <Table>
+                <thead className="tableHeader">
+                  <tr>
+                    <th>Nro</th>
+                    <th>Producto</th>
+                    <th>Total</th>
                   </tr>
-                );
-              })}
-            </tbody>
-            <tfoot>
-              <tr></tr>
-            </tfoot>
-          </Table>
-          {results.length > 0 ? (
-            <h2 className="text-danger">
-              Hubo cambios en los productos del pack original
-            </h2>
-          ) : null}
-        </>
-      );
-      setShowModal(true);
+                </thead>
+                <tbody>
+                  {productList.map((pl, index) => {
+                    return (
+                      <tr key={index} className="tableRow">
+                        <td>{index + 1}</td>
+                        <td>{pl.nombreProducto}</td>
+                        <td>{pl.cantProducto * cantPack}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr></tr>
+                </tfoot>
+              </Table>
+              {results.length > 0 ? (
+                <h2 className="text-danger">
+                  Hubo cambios en los productos del pack original
+                </h2>
+              ) : null}
+            </>
+          );
+          setShowModal(true);
+        }
+      });
     }
   };
 
