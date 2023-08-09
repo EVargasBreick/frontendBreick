@@ -12,6 +12,7 @@ import ReturnWare from "../../assets/returnWare.png";
 import Invoice from "../../assets/invoice.png";
 import cancelInvoice from "../../assets/cancelInvoice.png";
 import Cross from "../../assets/cross.png";
+import Lines from "../../assets/lines.png";
 import Printer from "../../assets/printer.png";
 import "../../styles/generalStyle.css";
 
@@ -106,6 +107,13 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/traspasos/agencia")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Ver Traspasos
       </MenuItem>
     </SubMenu>
   );

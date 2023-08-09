@@ -62,6 +62,7 @@ import RetirePackAlt from "./Components/retirePackAlt";
 import SalesAgencyReport from "./Components/salesAgencyReport";
 import SalesSellerReport from "./Components/salesSellerReport";
 import RecordSale from "./Components/RecordSale";
+import ViewTransferAgency from "./Components/viewTransferAgency";
 
 function App() {
   return (
@@ -523,6 +524,14 @@ function App() {
               element={
                 <RequireAuth>
                   <SalesSellerReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/traspasos/agencia"
+              element={
+                <RequireAuth>
+                  <ViewTransferAgency />
                 </RequireAuth>
               }
             />

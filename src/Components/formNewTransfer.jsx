@@ -208,6 +208,7 @@ export default function FormNewTransfer() {
                 transito: 0,
                 movil: idOrigen === "AL001" ? 1 : 0,
                 impreso: idOrigen === "AL001" ? 0 : 1,
+                listo: idOrigen === "AL001" || idDestino === "AL001" ? 0 : 1,
               };
               setAlertSec("Creando traspaso");
               const newTransfer = createTransfer(transferObj);
