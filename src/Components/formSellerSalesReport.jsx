@@ -3,6 +3,7 @@ import "../styles/formLayouts.css";
 import { Button, Form, Table } from "react-bootstrap";
 import { Loader } from "./loader/Loader";
 import { generateExcel } from "../services/utils";
+import { salesBySellerReport } from "../services/reportServices";
 
 export default function FormSalesSeller() {
   const [dateStart, setDateStart] = useState("");
@@ -10,29 +11,20 @@ export default function FormSalesSeller() {
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
 
-  // useEffect(() => {
-  //   if (dateStart && dateEnd) {
-  //     setLoading(true);
-  //     const data = []; // TODO reportService.getReport(dateStart, dateEnd, );
-
-  //     data.then((data) => {
-  //       setReports(data);
-  //       setLoading(false);
-  //     });
-  //   }
-  // }, [dateStart, dateEnd]);
-
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    const data = []; // TODO reportService.getReport(dateStart, dateEnd, );
-    setReports(data);
-    setLoading(false);
+    try {
+      const reportData = await salesBySellerReport(dateStart, dateEnd);
+      console.log("Reporte data", reportData);
+      setReports(reportData.data);
+      setLoading(false);
+    } catch (err) {}
   }
 
   const rows = reports.map((report, index) => (
     <tr key={index} className="tableRow">
-      <td className="tableColumnSmall">{report.idAgencia}</td>
+      <td className="tableColumnSmall">{report.nombreVendedor}</td>
       <td className="tableColumnSmall">{report.totalFacturado}</td>
       <td className="tableColumnSmall">{report.totalAnulado}</td>
     </tr>
@@ -93,7 +85,7 @@ export default function FormSalesSeller() {
           onClick={() => {
             generateExcel(
               reports,
-              `Reporte de Ventas de Agencias entre: ${dateStart} - ${dateEnd}`
+              `Reporte de Ventas por vendedor entre: ${dateStart} - ${dateEnd}`
             );
           }}
         >

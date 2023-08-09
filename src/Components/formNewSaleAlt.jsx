@@ -236,15 +236,24 @@ export default function FormNewSaleAlt() {
     setisLoading(true);
     const found = getClient(search);
     found.then((res) => {
-      console.log("Data", res.data.data);
-      setIsClient(true);
+      console.log("Data del cliente", res.data.data);
+      const cli = res.data.data;
       if (res.data.data.length > 0) {
-        if (res.data.data.length == 1) {
-          filterSelectedOnlyClient(res.data.data);
-          setClientEmail(res.data.data[0].correo);
+        setIsClient(true);
+        if (search == "0") {
+          const filtered = cli.find((cl) => cl.nit == "0");
+          console.log("filtered", filtered);
+          filterSelectedOnlyClient([filtered]);
+          setClientEmail(filtered.correo);
         } else {
-          setClientes(res.data.data);
+          if (res.data.data.length == 1) {
+            filterSelectedOnlyClient(res.data.data);
+            setClientEmail(res.data.data[0].correo);
+          } else {
+            setClientes(res.data.data);
+          }
         }
+
         setisLoading(false);
       } else {
         setIsClient(false);
@@ -1072,10 +1081,12 @@ export default function FormNewSaleAlt() {
         </Form>
       </div>
       <div>
-        <Form onSubmit={(e) => {
-          e.preventDefault();
-          validateQuantities();
-        }}>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            validateQuantities();
+          }}
+        >
           {selectedProducts.length > 0 ? (
             <div className="tableOne">
               <Table>

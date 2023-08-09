@@ -90,7 +90,22 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={Star} className="icon inverted"></Image>
         Registrar Pack
       </MenuItem>
-
+      <MenuItem
+        onClick={() => redirectOnClick("/packsasignar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Star} className="icon inverted"></Image>
+        Armar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsretirar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Desarmar Packs
+      </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
@@ -104,6 +119,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       >
         <Image src={newClient} className="icon"></Image>Reasignar Agencias
       </MenuItem>
+
       {/*<div>En Desarrollo ...</div>
       <MenuItem>
         <Image src={cancelSample} className="icon"></Image> Anular Muestras

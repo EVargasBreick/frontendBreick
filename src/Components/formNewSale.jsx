@@ -233,7 +233,7 @@ export default function FormNewSale() {
     setisLoading(true);
     const found = getClient(search);
     found.then((res) => {
-      console.log("Data", res.data.data);
+      console.log("Data del cliente", res.data.data);
       setIsClient(true);
       if (res.data.data.length > 0) {
         if (res.data.data.length == 1) {

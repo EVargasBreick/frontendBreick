@@ -1118,7 +1118,7 @@ function SaleModalAlt(
               <div className="modalData">
                 {" "}
                 <Form.Control
-                  disabled={auxClientEmail !== ""}
+                  disabled={auxClientEmail !== "" || datos.nit == "0"}
                   type="email"
                   value={clientEmail}
                   isInvalid={!isEmailValid && auxClientEmail === ""}

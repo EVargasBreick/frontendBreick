@@ -32,9 +32,11 @@ export default function Login() {
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
     if (isLogged !== undefined) {
+      console.log("Redireccionando");
       setIsAuth(true);
       navigate("/principal");
     } else {
+      console.log("No logged");
       setIsAuth(false);
     }
   }, []);

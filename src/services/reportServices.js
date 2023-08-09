@@ -143,6 +143,38 @@ export const reportService = {
   },
 };
 
+const salesByStoreReport = (startDate, endDate) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/totales/agencia?startDate='${startDate}'&endDate='${endDate}'`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+const salesBySellerReport = (startDate, endDate) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/totales/vendedor?startDate='${startDate}'&endDate='${endDate}'`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -150,4 +182,6 @@ export {
   firstAndLastReport,
   mainPageReport,
   entryReport,
+  salesByStoreReport,
+  salesBySellerReport,
 };

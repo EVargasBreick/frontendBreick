@@ -21,10 +21,12 @@ import appBooking from "../../assets/approveBook.png";
 import ReturnWare from "../../assets/returnWare.png";
 import Cross from "../../assets/cross.png";
 import Load from "../../assets/load.png";
-import Star from "../../assets/star.png";
+
 import Chocolate from "../../assets/chocolate.png";
 import Map from "../../assets/Map.png";
 import Lines from "../../assets/lines.png";
+import Star from "../../assets/star.png";
+import HStar from "../../assets/hStar.png";
 export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
   return (
     <SubMenu
@@ -42,6 +44,22 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
       >
         <Image src={Invoice} className="icon"></Image>
         Ventas Agencia
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsasignar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Star} className="icon inverted"></Image>
+        Armar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsretirar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Desarmar Packs
       </MenuItem>
       <div className="menuItem">Almacenes</div>
       <MenuItem
