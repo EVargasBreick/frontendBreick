@@ -7,21 +7,28 @@ export const ConfirmModal = ({
   handleCancel,
   title,
   text,
+  isButtons = true,
 }) => {
   return (
     <Modal show={show} backdrop="static" keyboard={false}>
       <Modal.Header>
         <Modal.Title>{title}</Modal.Title>
+        <Button variant="secondary" onClick={handleCancel}>
+          X
+        </Button>
+
       </Modal.Header>
       <Modal.Body>{text}</Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleCancel} autoFocus>
-          Cancelar
-        </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          Confirmar
-        </Button>
-      </Modal.Footer>
+      {isButtons && (
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancel} autoFocus>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSubmit}>
+            Confirmar
+          </Button>
+        </Modal.Footer>
+      )}
     </Modal>
   );
 };

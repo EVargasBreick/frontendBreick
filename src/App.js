@@ -61,6 +61,7 @@ import EditUserAgency from "./Components/editUserAgency";
 import RetirePackAlt from "./Components/retirePackAlt";
 import SalesAgencyReport from "./Components/salesAgencyReport";
 import SalesSellerReport from "./Components/salesSellerReport";
+import RecordSale from "./Components/RecordSale";
 
 function App() {
   return (
@@ -474,6 +475,14 @@ function App() {
               element={
                 <RequireAuth>
                   <NewSaleAlt />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturar-consignacion"
+              element={
+                <RequireAuth>
+                  <RecordSale />
                 </RequireAuth>
               }
             />
