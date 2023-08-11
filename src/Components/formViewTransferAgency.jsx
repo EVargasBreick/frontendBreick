@@ -59,7 +59,7 @@ export default function FormViewTransferAgency() {
               <th className="tableColumn">Fecha Solicitud</th>
               <th className="tableColumnMedium">Estado</th>
               <th className="tableColumnMedium">Listo</th>
-              <th className="tableColumnMedium">Transito</th>
+              <th className="tableColumnMedium">Recibido</th>
             </tr>
           </thead>
           <tbody>
