@@ -176,7 +176,7 @@ export default function FormAllOrders() {
         });
         setProductList(resp.data.data);
         const auxDetail = [...productDetail];
-        setProductDetail([...auxDetail, prodHeaderObj]);
+        setProductDetail([prodHeaderObj]);
         if (res.data.data[0].tipo !== "normal") {
           const prodHeaderObj = {
             vendedor: res.data.data[0].nombreVendedor,
