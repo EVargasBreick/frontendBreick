@@ -1132,33 +1132,7 @@ function RecordModal(
               </div>
             </div>
 
-            <div className="modalRows">
-              <div className="modalLabel">Pedidos Ya:</div>
-              <div className="modalData">
-                <Form.Check
-                  type="checkbox"
-                  value={isPya}
-                  onChange={() => {
-                    setIsPya(!isPya);
-                    setVoucher(0);
-                  }}
-                  checked={isPya}
-                />
-              </div>
-            </div>
-            {isPya ? (
-              <div className="modalRows">
-                <div className="modalLabel">Voucher Ped. Ya:</div>
-                <div className="modalData">
-                  <Form.Control
-                    type="number"
-                    value={voucher}
-                    disabled={!isPya}
-                    onChange={(e) => setVoucher(e.target.value)}
-                  />
-                </div>
-              </div>
-            ) : null}
+         
 
             <div className="modalRows">
               <div className="modalLabel"> Tipo de pago:</div>
@@ -1172,14 +1146,11 @@ function RecordModal(
                     <option value="1">Efectivo</option>
                     <option value="2">Tarjeta</option>
                     <option value="3">Cheque</option>
-                    {!isRoute ? <option value="4">Vales</option> : null}
                     <option value="5">Otros</option>
                     <option value="6">Pago Posterior</option>
                     <option value="7">Transferencia</option>
                     <option value="8">Deposito en cuenta</option>
                     <option value="9">Transferencia Swift</option>
-                    <option value="10">Efectivo - Tarjeta</option>
-                    <option value="11">Baja</option>
                   </Form.Select>
                 </div>
               </div>

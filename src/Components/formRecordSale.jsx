@@ -587,7 +587,7 @@ export default function FormRecordSale() {
         idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
-        nitCliente: clientes[0].nit,
+        nitCliente: clientes[0].nitCliente,
         razonSocial: clientes[0].razonSocial,
         tipoPago: tipoPago,
         pagado: cancelado,
@@ -769,7 +769,7 @@ export default function FormRecordSale() {
               total: totalPrevio,
               descuento,
               totalDescontado: totalFacturar,
-              nit: clientes[0].nit,
+              nit: clientes[0].nitCliente,
               razonSocial: clientes[0].razonSocial,
             }}
             show={true}
@@ -862,7 +862,7 @@ export default function FormRecordSale() {
               idSucursal: branchInfo.nro,
               nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
               fechaHora: dateString(),
-              nitCliente: clientes[0].nit,
+              nitCliente: clientes[0].nitCliente,
               razonSocial: clientes[0].razonSocial,
               tipoPago: tipoPago,
               pagado: cancelado,
