@@ -154,7 +154,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         className="menuItem"
       >
         <Image src={Lines} className="icon"></Image>
-        Ver Traspasos
+        Ver Info Traspasos
       </MenuItem>
       {/*<MenuItem
         onClick={() => redirectOnClick("/reportes/log/kardex")}

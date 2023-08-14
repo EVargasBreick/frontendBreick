@@ -134,7 +134,7 @@ export default function FormModifyOrders() {
       setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
       const listaPedidos = getUserOrderList(
         isSudo ? "" : JSON.parse(Cookies.get("userAuth")).idUsuario,
-        `and estado!='2' and facturado=0 and case when tipo='normal' then listo=0 or listo=1 when tipo='muestra' then listo=0 else listo=0  end 
+        `and estado!='2' and facturado=0 and case when tipo='normal' then (listo=0 or listo=1) when tipo='muestra' then listo=0 when tipo='consignacion' then listo=0 else (listo=1 or listo=0)  end 
         and TO_TIMESTAMP(a."fechaCrea", 'DD/MM/YYYY HH24:MI:SS') >= (CURRENT_DATE - INTERVAL '1 month')`
       );
       listaPedidos.then((res) => {

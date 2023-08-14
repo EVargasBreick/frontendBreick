@@ -70,7 +70,7 @@ export default function FormSalesSeller() {
           <Table striped bordered responsive>
             <thead>
               <tr className="tableHeader">
-                <th className="tableColumn">Agencias</th>
+                <th className="tableColumn">Vendedor</th>
                 <th className="tableColumn">Total Facturado</th>
                 <th className="tableColumn">Total Anulado</th>
               </tr>

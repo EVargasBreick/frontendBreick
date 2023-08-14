@@ -24,6 +24,7 @@ import {
   getOrderList,
   sendOrderEmail,
   updateStock,
+  updateVirtualStock,
 } from "../services/orderServices";
 import { useNavigate } from "react-router-dom";
 import { dateString } from "../services/dateServices";
@@ -101,6 +102,7 @@ export default function FormNewOrder() {
   const quantref = useRef(null);
   const prodTableRef = useRef(null);
   const productRef = useRef([]);
+  const [clientInfo, setClientInfo] = useState({});
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -212,6 +214,11 @@ export default function FormNewOrder() {
   function filterSelectedClient(id) {
     setSelectedClient(id);
     const searchObject = clientes.find((cli) => cli.idCliente === id);
+    console.log("cliente", searchObject);
+    setClientInfo({
+      idZona: searchObject.idZona,
+      nitCliente: searchObject.nit,
+    });
     const array = [];
     array.push(searchObject);
     setClientes(array);
@@ -395,7 +402,11 @@ export default function FormNewOrder() {
 
   function handleType(value) {
     setTipo(value);
-    if (value === "muestra" || value === "consignacion") {
+    if (
+      value === "muestra" ||
+      value === "consignacion" ||
+      value === "reserva"
+    ) {
       setDescuento(0);
       setIsDesc(true);
     } else {
@@ -514,6 +525,7 @@ export default function FormNewOrder() {
             const updatedStock = updateStock(stockObject);
             updatedStock
               .then((updatedRes) => {
+                console.log("Tipo", tipo);
                 const codPedido = getOrderList(res.data.data.idCreado);
                 codPedido.then((resp) => {
                   const emailBody = {
@@ -614,20 +626,54 @@ export default function FormNewOrder() {
                       tipo: "pedido",
                       header: "Pedido Creado",
                     };
-                    const emailSent = sendOrderEmail(emailBody);
-                    emailSent
-                      .then((response) => {
-                        setIsAlertSec(false);
-                        setAlert("Pedido Creado correctamente");
-                        setIsAlert(true);
-                        setTimeout(() => {
-                          window.location.reload();
-                          setisLoading(false);
-                        }, 3000);
-                      })
-                      .catch((error) => {
-                        console.log("Error al enviar el correo", error);
-                      });
+                    if (tipo == "consignacion") {
+                      console.log("Actualizando stock virtual");
+                      const virtualStockObject = {
+                        accion: "add",
+                        clientInfo: clientInfo,
+                        productos: selectedProds,
+                      };
+                      const updatedVirtual =
+                        updateVirtualStock(virtualStockObject);
+                      updatedVirtual
+                        .then((response) => {
+                          const emailSent = sendOrderEmail(emailBody);
+                          emailSent
+                            .then((response) => {
+                              setIsAlertSec(false);
+                              setAlert("Pedido Creado correctamente");
+                              setIsAlert(true);
+                              setTimeout(() => {
+                                window.location.reload();
+                                setisLoading(false);
+                              }, 3000);
+                            })
+                            .catch((error) => {
+                              console.log("Error al enviar el correo", error);
+                            });
+                        })
+                        .catch((err) => {
+                          console.log(
+                            "Error al actualizar el stock virtual",
+                            err
+                          );
+                        });
+                    } else {
+                      const emailSent = sendOrderEmail(emailBody);
+                      emailSent
+                        .then((response) => {
+                          setIsAlertSec(false);
+                          setAlert("Pedido Creado correctamente");
+                          setIsAlert(true);
+                          setTimeout(() => {
+                            window.location.reload();
+                            setisLoading(false);
+                          }, 4000);
+                        })
+                        .catch((error) => {
+                          console.log("Error al enviar el correo", error);
+                        });
+                    }
                   });
                 })
                 .catch((error) => {
@@ -1083,6 +1129,7 @@ export default function FormNewOrder() {
               <option value="normal">Normal</option>
               <option value="muestra">Muestra</option>
               <option value="consignacion">Consignación</option>
+              <option value="reserva">Reserva</option>
             </Form.Select>
           </Form.Group>
           <Form.Group>

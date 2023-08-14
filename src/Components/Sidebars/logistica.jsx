@@ -113,7 +113,7 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         className="menuItem"
       >
         <Image src={Lines} className="icon"></Image>
-        Ver Traspasos
+        Ver Info Traspasos
       </MenuItem>
     </SubMenu>
   );

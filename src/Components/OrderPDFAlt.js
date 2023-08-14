@@ -9,7 +9,7 @@ export const OrderPDFAlt = ({ detalle, productos, codigo }) => {
   let maxRows = 15;
   const numberOfPages = parseInt(productos.length / maxRows) + 1;
   console.log("Cantidad de paginas", numberOfPages);
-
+  console.log("detallitos", detalle);
   const ProductRows = (props) => {
     const i = props.i;
     const rows = [];
@@ -666,6 +666,39 @@ export const OrderPDFAlt = ({ detalle, productos, codigo }) => {
             }}
           >
             {" " + detalle.fechaCrea}
+          </Text>
+        </View>
+        <View style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+          <Text
+            style={{
+              border: "1px",
+              paddingRight: "2%",
+              fontSize: "12px",
+              width: "12%",
+              backgroundColor: "#5cb8b2",
+              color: "white",
+              paddingTop: "1%",
+              paddingBottom: "1%",
+              borderColor: "#45236b",
+            }}
+          >
+            {" Tipo: "}
+          </Text>
+          <Text
+            style={{
+              border: "1px",
+              fontSize: "12px",
+              paddingRight: "2%",
+              paddingLeft: "1%",
+              color: "#347571",
+              width: "88%",
+              backgroundColor: "white",
+              paddingTop: "1%",
+              paddingBottom: "1%",
+              borderColor: "#45236b",
+            }}
+          >
+            {" " + detalle.tipo}
           </Text>
         </View>
       </View>

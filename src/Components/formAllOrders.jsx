@@ -22,6 +22,7 @@ import { rePrintTransferOrder } from "../services/printServices";
 import { OrderNote } from "./orderNote";
 import ReactToPrint from "react-to-print";
 import { OrderPDFAlt } from "./OrderPDFAlt";
+import { toUpper } from "lodash";
 
 export default function FormAllOrders() {
   const [pedidosList, setPedidosList] = useState([]);
@@ -139,6 +140,7 @@ export default function FormAllOrders() {
           meses[currentDate[1] - 1] +
           " de " +
           currentDate[2],
+        tipo: toUpper(res.data.data[0].tipo),
       };
       setVendedor(res.data.data[0].nombreVendedor);
       setCliente(res.data.data[0].razonSocial);
@@ -193,6 +195,7 @@ export default function FormAllOrders() {
               meses[currentDate[1] - 1] +
               " de " +
               currentDate[2],
+            tipo: toUpper(res.data.data[0].tipo),
           };
           setProductDetail([...auxDetail, prodHeaderObj]);
         }
