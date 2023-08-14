@@ -771,6 +771,7 @@ export default function FormRecordSale() {
               totalDescontado: totalFacturar,
               nit: clientes[0].nitCliente,
               razonSocial: clientes[0].razonSocial,
+              idZona: clientes[0].idZona,
             }}
             show={true}
             setDescuento={setDescuento}

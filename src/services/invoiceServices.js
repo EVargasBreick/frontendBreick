@@ -264,9 +264,20 @@ async function fullInvoiceProcess(body) {
   });
 }
 
+async function fullInvoiceProcessConsignacion(body) {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/virtual/actualizar`;
+  const response = await axios.post(url, body);
+  return response;
+}
+
 const debouncedFullInvoiceProcess = debounce(fullInvoiceProcess, 30000, {
   leading: true,
 });
+
+const debouncedFullInvoiceProcessConsignacion = debounce(fullInvoiceProcessConsignacion, 30000, {
+  leading: true,
+});
+
 
 
 
@@ -281,4 +292,5 @@ export {
   logIncompleteInvoice,
   getInvoiceToRePrint,
   debouncedFullInvoiceProcess,
+  debouncedFullInvoiceProcessConsignacion
 };

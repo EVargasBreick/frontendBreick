@@ -20,6 +20,7 @@ import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
 import {
   debouncedFullInvoiceProcess,
+  debouncedFullInvoiceProcessConsignacion,
   deleteInvoice,
   fullInvoiceProcess,
   invoiceUpdate,
@@ -187,11 +188,11 @@ function RecordModal(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-            (
-              cancelado -
-              (total * (1 - datos.descuento / 100) - giftCard)
-            ).toFixed()
-          )
+          (
+            cancelado -
+            (total * (1 - datos.descuento / 100) - giftCard)
+          ).toFixed()
+        )
     );
   }, [cancelado]);
 
@@ -366,7 +367,7 @@ function RecordModal(
           if (
             cancelado == 0 ||
             Number(cancelado) + Number(voucher) - (totalDescontado + giftCard) <
-              0
+            0
           ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
@@ -497,6 +498,7 @@ function RecordModal(
   }
 
   async function invoicingProcess() {
+    console.log(datos)
     console.log("Sale body", saleBody.pedido);
     console.log("Unique id", uniqueId);
     const emailValidated = validateEmail();
@@ -547,9 +549,8 @@ function RecordModal(
           2
         ),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
-          invoiceBody.idAgencia
-        }`,
+        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${invoiceBody.idAgencia
+          }`,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -595,17 +596,30 @@ function RecordModal(
         tipoCambio: 1,
         detalles: productos,
       };
+      const clientInfo = {
+        idZona: datos.idZona,
+        nitCliente: datos.nit,
+      };
       const composedBody = {
         venta: saleBodyNew,
         invoice: invoiceBodyNew,
         emizor: emizorBody,
-        stock: updateStockBody,
+        stock: {
+          productos: [],
+          idAlmacen: updateStockBody.idAlmacen,
+        },
         storeInfo: storeInfo,
+        clientInfo: clientInfo,
+        productos: saleBody.productos,
+        accion: "take"
       };
+
       try {
         const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
+        const updateResponse = await debouncedFullInvoiceProcessConsignacion(composedBody);
+
         console.log("Respuesta de la fac", invocieResponse);
-        if (invocieResponse.data.code === 200) {
+        if (invocieResponse.data.code === 200 && updateResponse.data) {
           const parsed = JSON.parse(invocieResponse.data.data).data.data;
           console.log("Datos recibidos", parsed);
           if (parsed.emission_type_code === 1) {
@@ -649,9 +663,9 @@ function RecordModal(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-                errorList.map((item) => {
-                  return item + `\n`;
-                })
+              errorList.map((item) => {
+                return item + `\n`;
+              })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -919,8 +933,8 @@ function RecordModal(
                       cancelado: cancelado,
                       cambio: !valeForm
                         ? parseFloat(cancelado) +
-                          parseFloat(voucher) -
-                          (parseFloat(totalDescontado) + parseFloat(giftCard))
+                        parseFloat(voucher) -
+                        (parseFloat(totalDescontado) + parseFloat(giftCard))
                         : 0,
                       fechaHora: fechaHora,
                     }}
@@ -1132,7 +1146,7 @@ function RecordModal(
               </div>
             </div>
 
-         
+
 
             <div className="modalRows">
               <div className="modalLabel"> Tipo de pago:</div>
@@ -1201,18 +1215,17 @@ function RecordModal(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{`${
-                    Number(cancelado) -
-                      Number(totalDescontado) +
-                      Number(voucher) <
+                  <div className="modalData">{`${Number(cancelado) -
+                    Number(totalDescontado) +
+                    Number(voucher) <
                     0
-                      ? `Ingrese un monto igual o superiores al total`
-                      : `${(
-                          Number(cancelado) -
-                          Number(totalDescontado) +
-                          Number(voucher)
-                        ).toFixed(2)} Bs.`
-                  } `}</div>
+                    ? `Ingrese un monto igual o superiores al total`
+                    : `${(
+                      Number(cancelado) -
+                      Number(totalDescontado) +
+                      Number(voucher)
+                    ).toFixed(2)} Bs.`
+                    } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (
