@@ -76,8 +76,6 @@ const productsDiscount = (id) => {
         resolve(response);
       });
   });
-
-
 };
 
 const updateForMissing = (selectedProds, faltantes) => {
@@ -138,14 +136,14 @@ const updateForMissing = (selectedProds, faltantes) => {
       prod.tipoProducto == 1
         ? tradicionales.push(auxObj)
         : prod.tipoProducto == 2
-          ? pascua.push(auxObj)
-          : prod.tipoProducto == 3
-            ? navidad.push(auxObj)
-            : prod.tipoProducto == 4
-              ? halloween.push(auxObj)
-              : prod.tipoProducto == 5
-                ? sinDesc.push(auxObj)
-                : especiales.push(auxObj);
+        ? pascua.push(auxObj)
+        : prod.tipoProducto == 3
+        ? navidad.push(auxObj)
+        : prod.tipoProducto == 4
+        ? halloween.push(auxObj)
+        : prod.tipoProducto == 5
+        ? sinDesc.push(auxObj)
+        : especiales.push(auxObj);
       modifiedProds.push(auxObj);
     }
   });
@@ -326,8 +324,23 @@ export const productsService = {
   async updateProduct(id, body) {
     const response = await productsInstance.put(`/editar/${id}`, body);
     return response.data;
-  }
-}
+  },
+};
+
+const virtualProductStock = (idZona, nitCliente) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/stock/virtual?idZona=${idZona}&nitCliente=${nitCliente}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
 
 export {
   getProducts,
@@ -344,4 +357,5 @@ export {
   productOrigin,
   updateForMissingSample,
   setTotalProductsToZero,
+  virtualProductStock,
 };
