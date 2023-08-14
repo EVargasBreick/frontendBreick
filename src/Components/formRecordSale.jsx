@@ -999,6 +999,8 @@ export default function FormRecordSale() {
                 <th className="tableColumnSmall"></th>
                 <th className="tableColumn">Nit</th>
                 <th className="tableColumn">Razon Social</th>
+                <th className="tableColumn">Zona</th>
+                <th className="tableColumn">Departamento</th>
               </tr>
             </thead>
             <tbody>
@@ -1019,8 +1021,11 @@ export default function FormRecordSale() {
                         </Button>
                       </div>
                     </td>
-                    <td className="tableColumn">{client.nit}</td>
+                    <td className="tableColumn">{client.nitCliente}</td>
                     <td className="tableColumn">{client.razonSocial}</td>
+                    <td className="tableColumn">{client.zona}</td>
+                    <td className="tableColumn">{client.departamento}</td>
+
                   </tr>
                 );
               })}
