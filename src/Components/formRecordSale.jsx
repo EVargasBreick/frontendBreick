@@ -6,7 +6,10 @@ import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
 import { getClientConsigancion } from "../services/clientServices";
 import { useEffect } from "react";
-import { getProductsWithStock } from "../services/productServices";
+import {
+  getProductsConsignacion,
+  getProductsWithStock,
+} from "../services/productServices";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { dateString } from "../services/dateServices";
@@ -179,21 +182,9 @@ export default function FormRecordSale() {
         .catch((err) => {
           console.log("Otros pagos?", err);
         });
-      const disponibles = getProductsWithStock(
-        JSON.parse(Cookies.get("userAuth")).idAlmacen,
-        "all"
-      );
-      disponibles.then((fetchedAvailable) => {
-        console.log(
-          "Fetched ",
-          fetchedAvailable.data.filter((fa) => fa.activo === 1)
-        );
-        const filtered = fetchedAvailable.data.filter((fa) => fa.activo === 1);
-        setAvailable(filtered);
-        setAuxProducts(filtered);
-      });
     }
   }, []);
+
   useEffect(() => {
     function handleResize() {
       if (window.innerWidth < 700) {
@@ -218,20 +209,28 @@ export default function FormRecordSale() {
     }
   }, [isQuantity]);
 
-  function searchClient(e) {
-    e.preventDefault();
+  function searchClient() {
     setIsSelected(false);
     setClientes([]);
     setisLoading(true);
     const found = getClientConsigancion(search);
-    found.then((res) => {
+    found.then(async (res) => {
       console.log("Data", res.data);
       setIsClient(true);
       if (res.data.length > 0) {
-        if (res.length == 1) {
+        if (res.data.length == 1) {
           filterSelectedOnlyClient(res.data);
           setClientEmail(res.data[0].correo);
-          console.log("Correo", res.data);
+
+          const { data } = await getProductsConsignacion(
+            res.data[0].nitCliente,
+            res.data[0].idZona
+          );
+
+          const disponibles = JSON.parse(data);
+          const filtered = disponibles.filter((fa) => fa.activo === 1);
+          setAvailable(filtered);
+          setAuxProducts(filtered);
         } else {
           setClientes(res.data);
         }
@@ -966,7 +965,13 @@ export default function FormRecordSale() {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Form className="d-flex">
+      <Form
+        className="d-flex"
+        onSubmit={(e) => {
+          e.preventDefault();
+          searchClient();
+        }}
+      >
         <Form.Control
           ref={searchRef}
           type="search"
@@ -975,7 +980,6 @@ export default function FormRecordSale() {
           aria-label="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => (e.key === "Enter" ? searchClient(e) : null)}
         />
         <Button
           variant="warning"
@@ -1025,7 +1029,6 @@ export default function FormRecordSale() {
                     <td className="tableColumn">{client.razonSocial}</td>
                     <td className="tableColumn">{client.zona}</td>
                     <td className="tableColumn">{client.departamento}</td>
-
                   </tr>
                 );
               })}
