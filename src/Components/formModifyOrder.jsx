@@ -12,6 +12,7 @@ import {
   updateMultipleStock,
   updateOrderProduct,
   updateStock,
+  updateVirtualStock,
 } from "../services/orderServices";
 import loading2 from "../assets/loading2.gif";
 import { useNavigate } from "react-router-dom";
@@ -81,6 +82,8 @@ export default function FormModifyOrders() {
   const [flagDiscount, setFlagDiscount] = useState(false);
   const [fechaPedido, setFechaPedido] = useState("");
   const [userRol, setUserRol] = useState("");
+  const [clientInfo, setClientInfo] = useState({});
+  const [orderType, setOrderType] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -305,6 +308,8 @@ export default function FormModifyOrders() {
     setUserRol("");
     setAuxOrder([]);
     setFechaPedido("");
+    setClientInfo({});
+    setOrderType("");
     const stringParts = stringPedido.split("|");
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
@@ -322,6 +327,11 @@ export default function FormModifyOrders() {
       setUserRol(res.data.data[0].rol);
       setAuxOrder(res.data.data[0]);
       setFechaPedido(res.data.data[0].fechaCrea);
+      setClientInfo({
+        nitCliente: res.data.data[0].nit,
+        idZona: res.data.data[0].idZona,
+      });
+      setOrderType(res.data.data[0].tipo);
       const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
@@ -506,29 +516,53 @@ export default function FormModifyOrders() {
         break;
     }
   }
-  function deleteOrderAndUpdate() {
+  async function deleteOrderAndUpdate() {
     if (idPedido === "") {
       setAlert("Por favor, seleccione un pedido");
       setIsAlert(true);
     } else {
       setAlertSec("Cancelando pedido y actualizando kardex");
       setIsAlertSec(true);
-
       const objProdsDelete = {
         accion: "add",
         idAlmacen: creatorStore,
         productos: auxSelectedProds,
         detalle: `DPCPD-${idPedido}`,
       };
+      const bodyVirtualDelete = {
+        accion: "take",
+        clientInfo: clientInfo,
+        productos: auxSelectedProds,
+      };
       const reStocked = updateStock(objProdsDelete);
       reStocked.then((rs) => {
         const canceled = cancelOrder(idPedido);
-        canceled.then((cld) => {
-          setAlertSec("Pedido cancelado y kardex actualizado, redirigiendo...");
-          setIsAlertSec(true);
-          setTimeout(() => {
-            navigate("/principal");
-          }, 1500);
+        canceled.then(async (cld) => {
+          if (orderType === "consignacion") {
+            try {
+              const updatedVirtual = await updateVirtualStock(
+                bodyVirtualDelete
+              );
+              console.log("Actualizado virtual", updatedVirtual);
+              setAlertSec(
+                "Pedido cancelado y kardex actualizado, redirigiendo..."
+              );
+              setIsAlertSec(true);
+              setTimeout(() => {
+                navigate("/principal");
+              }, 1500);
+            } catch (err) {
+              console.log("error al sacar kardex del almacen virtual");
+            }
+          } else {
+            setAlertSec(
+              "Pedido cancelado y kardex actualizado, redirigiendo..."
+            );
+            setIsAlertSec(true);
+            setTimeout(() => {
+              navigate("/principal");
+            }, 1500);
+          }
         });
       });
     }
