@@ -257,9 +257,10 @@ export default function FormRecordSale() {
     setAvailable([...newList]);
   }
 
-  function filterSelectedClient(id) {
+  async function filterSelectedClient(id) {
     setSelectedClient(id);
     const searchObject = clientes.find((cli) => cli.idCliente === id);
+    console.log("TCL: filterSelectedClient -> searchObject", searchObject);
     const array = [];
     array.push(searchObject);
     setClientes(array);
@@ -267,6 +268,16 @@ export default function FormRecordSale() {
     setIdSelectedClient(searchObject.idCliente);
     setTipoDoc(searchObject.tipoDocumento);
     setClientEmail(searchObject.correo);
+    const { data } = await getProductsConsignacion(
+      searchObject.nitCliente,
+      searchObject.idZona
+    );
+
+    const disponibles = JSON.parse(data);
+    console.log("TCL: filterSelectedClient -> disponibles", disponibles)
+    const filtered = disponibles.filter((fa) => fa.activo === 1);
+    setAvailable(filtered);
+    setAuxProducts(filtered);
     productRef.current.focus();
   }
   function filterSelectedOnlyClient(cliente) {
