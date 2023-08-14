@@ -1,16 +1,14 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Table, Modal, Image } from "react-bootstrap";
-import { debounce } from "lodash";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
-import { getClient } from "../services/clientServices";
+import { getClientConsigancion } from "../services/clientServices";
 import { useEffect } from "react";
 import { getProductsWithStock } from "../services/productServices";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
 
 import {
@@ -19,7 +17,6 @@ import {
   verifyQuantities,
 } from "../services/saleServices";
 import {
-  getBranches,
   getBranchesPs,
   getMobileSalePoints,
   getSalePoints,
@@ -30,13 +27,8 @@ import {
   otherPaymentsList,
 } from "../services/invoiceServices";
 
-import {
-  saleDiscount,
-  verifyAutomaticDiscount,
-} from "../services/discountServices";
 import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
-import SaleModalAlt from "./saleModalAlt";
 import RecordModal from "./recordModal";
 
 export default function FormRecordSale() {
@@ -54,9 +46,6 @@ export default function FormRecordSale() {
   const [totalPrevio, setTotalPrevio] = useState(0);
   const [totalDesc, setTotalDesc] = useState(0);
   const [totalFacturar, setTotalFacturar] = useState(0);
-  const [tipo, setTipo] = useState("normal");
-  const [isDesc, setIsDesc] = useState(false);
-  const [pedidoFinal, setPedidoFinal] = useState({});
   const [usuarioAct, setUsuarioAct] = useState("");
   const [selectedClient, setSelectedClient] = useState("");
   const [filtered, setFiltered] = useState("");
@@ -78,7 +67,6 @@ export default function FormRecordSale() {
   const [isCreate, setIsCreate] = useState(false);
   const [isInvoice, setIsInvoice] = useState(false);
   const [auxProducts, setAuxProducts] = useState([]);
-  const [sucursal, setSucursal] = useState("");
   const [branchInfo, setBranchInfo] = useState({});
   const [invoice, setInvoice] = useState("");
   const [fechaHora, setFechaHora] = useState("");
@@ -235,17 +223,17 @@ export default function FormRecordSale() {
     setIsSelected(false);
     setClientes([]);
     setisLoading(true);
-    const found = getClient(search);
+    const found = getClientConsigancion(search);
     found.then((res) => {
-      console.log("Data", res.data.data);
+      console.log("Data", res.data);
       setIsClient(true);
-      if (res.data.data.length > 0) {
-        if (res.data.data.length == 1) {
-          filterSelectedOnlyClient(res.data.data);
-          setClientEmail(res.data.data[0].correo);
-          console.log("Correo", res.data.data);
+      if (res.data.length > 0) {
+        if (res.length == 1) {
+          filterSelectedOnlyClient(res.data);
+          setClientEmail(res.data[0].correo);
+          console.log("Correo", res.data);
         } else {
-          setClientes(res.data.data);
+          setClientes(res.data);
         }
         setisLoading(false);
       } else {
@@ -1075,10 +1063,12 @@ export default function FormRecordSale() {
         </Form>
       </div>
       <div>
-        <Form onSubmit={(e) => {
-          e.preventDefault();
-          validateQuantities();
-        }}>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            validateQuantities();
+          }}
+        >
           {selectedProducts.length > 0 ? (
             <div className="tableOne">
               <Table>
@@ -1186,7 +1176,6 @@ export default function FormRecordSale() {
                 </tfoot>
               </Table>
               <Form.Group>
-                
                 <div className="formLabel">CONFIRMAR PRODUCTOS</div>
                 <div className="percent">
                   <Button

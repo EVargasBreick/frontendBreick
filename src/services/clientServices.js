@@ -341,6 +341,18 @@ const getClient = (search) => {
   });
 };
 
+const getClientConsigancion = async (search) => {
+  const url = 'client/rs'
+  const response = await axios.get(`${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/${url}`,
+    {
+      params: {
+        search_record: search
+      }
+    })
+
+  return response.data
+}
+
 const getClientById = (id) => {
   return new Promise((resolve, reject) => {
     axios
@@ -436,4 +448,5 @@ export {
   numberOfClients,
   createClientPos,
   updateClientEmail,
+  getClientConsigancion
 };
