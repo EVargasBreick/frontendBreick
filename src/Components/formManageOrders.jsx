@@ -188,7 +188,7 @@ export default function FormManageOrders() {
           });
           setProductList(resp.data.data);
           const auxDetail = [...productDetail];
-          setProductDetail([...auxDetail, prodHeaderObj]);
+          setProductDetail([prodHeaderObj]);
           if (res.data.data[0].tipo !== "normal") {
             const prodHeaderObj = {
               vendedor: res.data.data[0].nombreVendedor,
@@ -207,7 +207,7 @@ export default function FormManageOrders() {
                 currentDate[2],
               tipo: toUpper(res.data.data[0].tipo),
             };
-            setProductDetail([...auxDetail, prodHeaderObj]);
+            setProductDetail([prodHeaderObj]);
           }
 
           setIsLoading(false);
@@ -326,7 +326,12 @@ export default function FormManageOrders() {
             value={filter}
           />
           <Form.Label className="formLabel">Lista de Pedidos</Form.Label>
-          <Form.Select onChange={(e) => setOrderDetails(e.target.value)}>
+          <Form.Select
+            onChange={(e) => {
+              setProductTable([]);
+              setOrderDetails(e.target.value);
+            }}
+          >
             <option>Seleccione pedido</option>
             {pedidosList.map((pedido) => {
               return (
