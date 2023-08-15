@@ -223,7 +223,7 @@ export default function FormRecordSale() {
           setClientEmail(res.data[0].correo);
 
           const { data } = await getProductsConsignacion(
-            res.data[0].nitCliente,
+            res.data[0].nit,
             res.data[0].idZona
           );
 
@@ -269,12 +269,12 @@ export default function FormRecordSale() {
     setTipoDoc(searchObject.tipoDocumento);
     setClientEmail(searchObject.correo);
     const { data } = await getProductsConsignacion(
-      searchObject.nitCliente,
+      searchObject.nit,
       searchObject.idZona
     );
 
     const disponibles = JSON.parse(data);
-    console.log("TCL: filterSelectedClient -> disponibles", disponibles)
+    console.log("TCL: filterSelectedClient -> disponibles", disponibles);
     const filtered = disponibles.filter((fa) => fa.activo === 1);
     setAvailable(filtered);
     setAuxProducts(filtered);
@@ -587,7 +587,7 @@ export default function FormRecordSale() {
         idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
         fechaHora: dateString(),
-        nitCliente: clientes[0].nitCliente,
+        nitCliente: clientes[0].nit,
         razonSocial: clientes[0].razonSocial,
         tipoPago: tipoPago,
         pagado: cancelado,
@@ -769,7 +769,7 @@ export default function FormRecordSale() {
               total: totalPrevio,
               descuento,
               totalDescontado: totalFacturar,
-              nit: clientes[0].nitCliente,
+              nit: clientes[0].nit,
               razonSocial: clientes[0].razonSocial,
               idZona: clientes[0].idZona,
             }}
@@ -863,7 +863,7 @@ export default function FormRecordSale() {
               idSucursal: branchInfo.nro,
               nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
               fechaHora: dateString(),
-              nitCliente: clientes[0].nitCliente,
+              nitCliente: clientes[0].nit,
               razonSocial: clientes[0].razonSocial,
               tipoPago: tipoPago,
               pagado: cancelado,
@@ -1037,7 +1037,7 @@ export default function FormRecordSale() {
                         </Button>
                       </div>
                     </td>
-                    <td className="tableColumn">{client.nitCliente}</td>
+                    <td className="tableColumn">{client.nit}</td>
                     <td className="tableColumn">{client.razonSocial}</td>
                     <td className="tableColumn">{client.zona}</td>
                     <td className="tableColumn">{client.departamento}</td>
