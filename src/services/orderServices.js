@@ -430,6 +430,22 @@ const updateVirtualStock = (body) => {
   });
 };
 
+const updateMultipleVirtualStock = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/virtual/actualizar/multiple`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   createOrder,
   getOrderStatus,
@@ -458,4 +474,5 @@ export {
   getAllOrderList,
   updateMultipleStock,
   updateVirtualStock,
+  updateMultipleVirtualStock,
 };

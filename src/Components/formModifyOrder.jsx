@@ -10,6 +10,7 @@ import {
   getUserOrderList,
   updateDbOrder,
   updateMultipleStock,
+  updateMultipleVirtualStock,
   updateOrderProduct,
   updateStock,
   updateVirtualStock,
@@ -684,12 +685,45 @@ export default function FormModifyOrders() {
                 deletedProds.then((res) => {
                   const updOrder = updateDbOrder(objUpdateOrder);
                   updOrder
-                    .then((upo) => {
-                      setTimeout(() => {
-                        setAlertSec("Pedido actualizado correctamente");
-                        setIsAlertSec(true);
-                        window.location.reload();
-                      }, 8000);
+                    .then(async (upo) => {
+                      const bodyVirtualAdd = {
+                        accion: "add",
+                        clientInfo: clientInfo,
+                        productos: selectedProds,
+                      };
+                      const bodyVirtualTake = {
+                        accion: "take",
+                        clientInfo: clientInfo,
+                        productos: auxSelectedProds,
+                      };
+                      if (orderType === "consignacion") {
+                        try {
+                          const updatedMultiple =
+                            await updateMultipleVirtualStock([
+                              bodyVirtualAdd,
+                              bodyVirtualTake,
+                            ]);
+                          console.log(
+                            "Updateado stock virtual",
+                            updatedMultiple
+                          );
+                          setTimeout(() => {
+                            setAlertSec("Pedido actualizado correctamente");
+                            setIsAlertSec(true);
+                            window.location.reload();
+                          }, 8000);
+                        } catch (err) {
+                          console.log(
+                            "Error al actualizar stock para consignacion"
+                          );
+                        }
+                      } else {
+                        setTimeout(() => {
+                          setAlertSec("Pedido actualizado correctamente");
+                          setIsAlertSec(true);
+                          window.location.reload();
+                        }, 8000);
+                      }
                     })
                     .catch((error) => {
                       console.log(error);
