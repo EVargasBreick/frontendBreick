@@ -59,6 +59,12 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/facturar-consignacion")}
+        className="menuItem"
+      >
+        <Image src={Invoice} className="icon"></Image>Facturar Consignaciones
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/traspaso")}
         className="menuItem"
       >

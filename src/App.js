@@ -63,6 +63,8 @@ import SalesAgencyReport from "./Components/salesAgencyReport";
 import SalesSellerReport from "./Components/salesSellerReport";
 import RecordSale from "./Components/RecordSale";
 import ViewTransferAgency from "./Components/viewTransferAgency";
+import BodyVirtualStockReport from "./Components/bodyVirtualStockReport";
+import VirtualStockReport from "./Components/virtualStockReport";
 
 function App() {
   return (
@@ -532,6 +534,14 @@ function App() {
               element={
                 <RequireAuth>
                   <ViewTransferAgency />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/stock/virtual"
+              element={
+                <RequireAuth>
+                  <VirtualStockReport />
                 </RequireAuth>
               }
             />

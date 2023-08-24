@@ -19,6 +19,7 @@ export const InvoiceComponent = React.forwardRef(
       orderDetails,
       leyenda,
       urlSin,
+      offlineText,
     },
     ref
   ) => {
@@ -33,6 +34,7 @@ export const InvoiceComponent = React.forwardRef(
       const result = cuf.match(regex).join(" ");
       return result;
     }
+    console.log("Payment data", paymentData);
     const inum = invoiceNumber;
     return (
       <div ref={ref} className="invoicePage">
@@ -310,7 +312,7 @@ export const InvoiceComponent = React.forwardRef(
                         : `Cambio `}
                     </td>
                     <td className="totalsData">{` ${parseFloat(
-                      paymentData.cambio
+                      paymentData?.cambio
                     ).toFixed(2)}`}</td>
                   </tr>
                 </tbody>
@@ -327,6 +329,8 @@ export const InvoiceComponent = React.forwardRef(
               />
             </div>
             <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
+            <div className="simpleSeparator"></div>
+            <div>{offlineText ? offlineText : ""}</div>
             <div className="simpleSeparator"></div>
             <div> {leyenda}</div>
             <div className="simpleSeparator"></div>

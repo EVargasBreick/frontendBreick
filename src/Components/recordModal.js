@@ -23,6 +23,7 @@ import {
   debouncedFullInvoiceProcessConsignacion,
   deleteInvoice,
   fullInvoiceProcess,
+  invoiceRecordAndUpdate,
   invoiceUpdate,
   logIncompleteInvoice,
   otherPaymentsList,
@@ -188,11 +189,11 @@ function RecordModal(
       isRoute
         ? cancelado - totalDescontado
         : Math.abs(
-          (
-            cancelado -
-            (total * (1 - datos.descuento / 100) - giftCard)
-          ).toFixed()
-        )
+            (
+              cancelado -
+              (total * (1 - datos.descuento / 100) - giftCard)
+            ).toFixed()
+          )
     );
   }, [cancelado]);
 
@@ -367,7 +368,7 @@ function RecordModal(
           if (
             cancelado == 0 ||
             Number(cancelado) + Number(voucher) - (totalDescontado + giftCard) <
-            0
+              0
           ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
@@ -498,7 +499,7 @@ function RecordModal(
   }
 
   async function invoicingProcess() {
-    console.log(datos)
+    console.log(datos);
     console.log("Sale body", saleBody.pedido);
     console.log("Unique id", uniqueId);
     const emailValidated = validateEmail();
@@ -549,8 +550,9 @@ function RecordModal(
           2
         ),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${invoiceBody.idAgencia
-          }`,
+        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
+          invoiceBody.idAgencia
+        }`,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -611,15 +613,15 @@ function RecordModal(
         storeInfo: storeInfo,
         clientInfo: clientInfo,
         productos: saleBody.productos,
-        accion: "take"
+        accion: "take",
       };
 
       try {
-        const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
-        const updateResponse = await debouncedFullInvoiceProcessConsignacion(composedBody);
-
+        //const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
+        //const updateResponse = await debouncedFullInvoiceProcessConsignacion(composedBody);
+        const invocieResponse = await invoiceRecordAndUpdate(composedBody);
         console.log("Respuesta de la fac", invocieResponse);
-        if (invocieResponse.data.code === 200 && updateResponse.data) {
+        if (invocieResponse.data.code === 200) {
           const parsed = JSON.parse(invocieResponse.data.data).data.data;
           console.log("Datos recibidos", parsed);
           if (parsed.emission_type_code === 1) {
@@ -663,9 +665,9 @@ function RecordModal(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-              errorList.map((item) => {
-                return item + `\n`;
-              })
+                errorList.map((item) => {
+                  return item + `\n`;
+                })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -933,8 +935,8 @@ function RecordModal(
                       cancelado: cancelado,
                       cambio: !valeForm
                         ? parseFloat(cancelado) +
-                        parseFloat(voucher) -
-                        (parseFloat(totalDescontado) + parseFloat(giftCard))
+                          parseFloat(voucher) -
+                          (parseFloat(totalDescontado) + parseFloat(giftCard))
                         : 0,
                       fechaHora: fechaHora,
                     }}
@@ -1146,8 +1148,6 @@ function RecordModal(
               </div>
             </div>
 
-
-
             <div className="modalRows">
               <div className="modalLabel"> Tipo de pago:</div>
               <div className="modalData">
@@ -1215,17 +1215,18 @@ function RecordModal(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{`${Number(cancelado) -
-                    Number(totalDescontado) +
-                    Number(voucher) <
-                    0
-                    ? `Ingrese un monto igual o superiores al total`
-                    : `${(
-                      Number(cancelado) -
+                  <div className="modalData">{`${
+                    Number(cancelado) -
                       Number(totalDescontado) +
-                      Number(voucher)
-                    ).toFixed(2)} Bs.`
-                    } `}</div>
+                      Number(voucher) <
+                    0
+                      ? `Ingrese un monto igual o superiores al total`
+                      : `${(
+                          Number(cancelado) -
+                          Number(totalDescontado) +
+                          Number(voucher)
+                        ).toFixed(2)} Bs.`
+                  } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (

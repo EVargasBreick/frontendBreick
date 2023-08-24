@@ -274,12 +274,19 @@ const debouncedFullInvoiceProcess = debounce(fullInvoiceProcess, 30000, {
   leading: true,
 });
 
-const debouncedFullInvoiceProcessConsignacion = debounce(fullInvoiceProcessConsignacion, 30000, {
-  leading: true,
-});
+const debouncedFullInvoiceProcessConsignacion = debounce(
+  fullInvoiceProcessConsignacion,
+  30000,
+  {
+    leading: true,
+  }
+);
 
-
-
+async function invoiceRecordAndUpdate(body) {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/virtual/facturar`;
+  const response = await axios.post(url, body);
+  return response;
+}
 
 export {
   createInvoice,
@@ -292,5 +299,6 @@ export {
   logIncompleteInvoice,
   getInvoiceToRePrint,
   debouncedFullInvoiceProcess,
-  debouncedFullInvoiceProcessConsignacion
+  debouncedFullInvoiceProcessConsignacion,
+  invoiceRecordAndUpdate,
 };

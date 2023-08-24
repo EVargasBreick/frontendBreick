@@ -17,6 +17,7 @@ export const InvoiceComponentAlt = React.forwardRef(
       orderDetails,
       leyenda,
       urlSin,
+      offlineText,
     },
     ref
   ) => {
@@ -26,6 +27,7 @@ export const InvoiceComponentAlt = React.forwardRef(
       : dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
+    console.log("Payment data", paymentData);
     function formattedCuf(cuf) {
       const regex = new RegExp(".{1,30}", "g");
       const result = cuf.match(regex).join(" ");
@@ -170,6 +172,9 @@ export const InvoiceComponentAlt = React.forwardRef(
             />
           </div>
           <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
+          <div className="simpleSeparator"></div>
+          <div className="simpleSeparator"></div>
+          <div>{offlineText ? offlineText : ""}</div>
           <div className="simpleSeparator"></div>
           <div> {leyenda}</div>
           <div className="simpleSeparator"></div>

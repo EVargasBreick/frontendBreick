@@ -115,6 +115,7 @@ function SaleModalAlt(
   const [descuentoFactura, setDescuentoFactura] = useState(totalDesc);
   const [isDownloadable, setIsDownloadable] = useState(false);
   const [transactionObject, setTransactionObject] = useState("");
+  const [offlineText, setOfflineText] = useState("");
   const [isLogged, setIsLogged] = useState(false);
   const [isEmailModal, setIsEmailModal] = useState(false);
   const [clientEmail, setClientEmail] = useState(emailCliente);
@@ -197,7 +198,9 @@ function SaleModalAlt(
 
   useEffect(() => {
     if (isSaved) {
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     }
   }, [isSaved]);
 
@@ -614,16 +617,25 @@ function SaleModalAlt(
             setLeyenda(invocieResponse.data.leyenda);
             setUrlSin(parsed.urlSin);
           } else {
-            console.log("Factura fuera de linea", parsed.shortLink);
-            setNoFactura(parsed.numeroFactura);
-            downloadAndPrintFile(parsed.shortLink, parsed.numeroFactura);
-            setAlertSec(
-              "El servicio del SIN se encuentra no disponible, puede escanear el qr de esta nota para ir a su factura en las siguientes horas, muchas gracias"
-            );
-            setIsAlertSec(true);
-            setTimeout(() => {
-              window.location.reload();
-            }, 5000);
+            if (isMobile) {
+              setOfflineText(`"Este documento es la Representación Gráfica de un Documento Fiscal
+              Digital emitido en una modalidad de facturación fuera de línea"`);
+              setNoFactura(parsed.numeroFactura);
+              saveNewEmail(parsed.cuf);
+              setLeyenda(invocieResponse.data.leyenda);
+              setUrlSin(parsed.urlSin);
+            } else {
+              console.log("Factura fuera de linea", parsed.shortLink);
+              setNoFactura(parsed.numeroFactura);
+              downloadAndPrintFile(parsed.shortLink, parsed.numeroFactura);
+              setAlertSec(
+                "El servicio del SIN se encuentra no disponible, puede escanear el qr de esta nota para ir a su factura en las siguientes horas, muchas gracias"
+              );
+              setIsAlertSec(true);
+              setTimeout(() => {
+                window.location.reload();
+              }, 8000);
+            }
           }
         } else {
           await debouncedFullInvoiceProcess.cancel();
@@ -680,7 +692,7 @@ function SaleModalAlt(
     }
   }
 
-  const downloadAndPrintFile = async (url, numeroFactura) => {
+  /*const downloadAndPrintFile = async (url, numeroFactura) => {
     const response = await fetch(url);
     const blob = await response.blob();
     const urlObject = URL.createObjectURL(blob);
@@ -710,7 +722,66 @@ function SaleModalAlt(
     document.body.removeChild(link);
 
     return newWindow;
+  };*/
+
+  const downloadAndPrintFile = async (url, numeroFactura) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const urlObject = URL.createObjectURL(blob);
+
+    // Download PDF
+    const downloadLink = document.createElement("a");
+    downloadLink.href = urlObject;
+    downloadLink.download = `factura-${numeroFactura}.pdf`; // Set the desired filename and extension
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    // Print PDF
+    const printPDF = () => {
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = urlObject;
+
+      iframe.onload = () => {
+        setTimeout(() => {
+          iframe.contentWindow.print();
+        }, 1000); // Adjust the delay if needed
+      };
+
+      document.body.appendChild(iframe);
+    };
+
+    // Check if the device is mobile
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    if (isMobile) {
+      // For mobile devices, directly print PDF
+      printPDF();
+    } else {
+      // For desktop devices, open new window for printing
+      const newWindow = window.open(urlObject);
+
+      if (newWindow) {
+        newWindow.onload = () => {
+          URL.revokeObjectURL(urlObject);
+          newWindow.print();
+          // Optional: Close the window after printing
+          // newWindow.close();
+        };
+      } else {
+        // Prompt the user to enable pop-ups manually
+        window.alert(
+          "Por favor, habilite las ventanas emergentes para imprimir el archivo automáticamente"
+        );
+      }
+    }
   };
+
   function logInnvoice() {
     setAlertSec("Registrando factura para impresion posterior");
     setIsAlertSec(true);
@@ -917,11 +988,10 @@ function SaleModalAlt(
                     paymentData={{
                       tipoPago: stringPago,
                       cancelado: cancelado,
-                      cambio: !valeForm
-                        ? parseFloat(cancelado) +
-                          parseFloat(voucher) -
-                          (parseFloat(totalDescontado) + parseFloat(giftCard))
-                        : 0,
+                      cambio:
+                        parseFloat(cancelado) +
+                        parseFloat(voucher) -
+                        (parseFloat(totalDescontado) + parseFloat(giftCard)),
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
@@ -935,6 +1005,7 @@ function SaleModalAlt(
                     invoiceNumber={noFactura}
                     leyenda={leyenda}
                     urlSin={urlSin}
+                    offlineText={offlineText}
                   />
                 </Button>
               </div>
@@ -979,6 +1050,7 @@ function SaleModalAlt(
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
                   urlSin={urlSin}
+                  offlineText={offlineText}
                 />
                 <InvoiceComponentCopy
                   ref={componentCopyRef}
@@ -1009,6 +1081,7 @@ function SaleModalAlt(
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
                   urlSin={urlSin}
+                  offlineText={offlineText}
                 />
               </div>
             </div>
@@ -1482,6 +1555,7 @@ function SaleModalAlt(
               invoiceNumber={noFactura}
               leyenda={leyenda}
               urlSin={urlSin}
+              offlineText={offlineText}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -1512,6 +1586,7 @@ function SaleModalAlt(
               invoiceNumber={noFactura}
               leyenda={leyenda}
               urlSin={urlSin}
+              offlineText={offlineText}
             />
           </div>
         </div>

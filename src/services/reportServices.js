@@ -175,6 +175,22 @@ const salesBySellerReport = (startDate, endDate) => {
   });
 };
 
+const virtualStockReport = (nitCliente, idZona) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/stock/virtual?nitCliente='${nitCliente}'&idZona=${idZona}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -184,4 +200,5 @@ export {
   entryReport,
   salesByStoreReport,
   salesBySellerReport,
+  virtualStockReport,
 };
