@@ -16,6 +16,18 @@ const getProducts = (id) => {
   });
 };
 
+const allProducts = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/all`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
 const getProductsWithStock = (idAlmacen, id) => {
   return new Promise((resolve, reject) => {
     axios
@@ -29,17 +41,16 @@ const getProductsWithStock = (idAlmacen, id) => {
 };
 
 const getProductsConsignacion = async (nit, idZona) => {
-  console.log('getProductsConsignacion', nit, idZona)
-  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/stock/virtual`
+  console.log("getProductsConsignacion", nit, idZona);
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/stock/virtual`;
   const response = await axios.get(url, {
     params: {
       nitCliente: nit,
-      idZona: idZona
-    }
-  })
-  return response
-}
-
+      idZona: idZona,
+    },
+  });
+  return response;
+};
 
 const getUserStock = (id) => {
   return new Promise((resolve, reject) => {
@@ -149,14 +160,14 @@ const updateForMissing = (selectedProds, faltantes) => {
       prod.tipoProducto == 1
         ? tradicionales.push(auxObj)
         : prod.tipoProducto == 2
-          ? pascua.push(auxObj)
-          : prod.tipoProducto == 3
-            ? navidad.push(auxObj)
-            : prod.tipoProducto == 4
-              ? halloween.push(auxObj)
-              : prod.tipoProducto == 5
-                ? sinDesc.push(auxObj)
-                : especiales.push(auxObj);
+        ? pascua.push(auxObj)
+        : prod.tipoProducto == 3
+        ? navidad.push(auxObj)
+        : prod.tipoProducto == 4
+        ? halloween.push(auxObj)
+        : prod.tipoProducto == 5
+        ? sinDesc.push(auxObj)
+        : especiales.push(auxObj);
       modifiedProds.push(auxObj);
     }
   });
@@ -371,5 +382,6 @@ export {
   updateForMissingSample,
   setTotalProductsToZero,
   virtualProductStock,
-  getProductsConsignacion
+  getProductsConsignacion,
+  allProducts,
 };

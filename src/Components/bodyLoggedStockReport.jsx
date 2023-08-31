@@ -3,11 +3,25 @@ import { getAllStores } from "../services/storeServices";
 import { getStockCodes, getStockLogged } from "../services/stockServices";
 import { Button, Form, Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
+import Cookies from "js-cookie";
+import { generateExcel } from "../services/utils";
 export default function BodyLoggedStockReport() {
   useEffect(() => {
+    const sudos = [1, 8, 10, 9, 7];
+    const userRol = JSON.parse(Cookies.get("userAuth")).rol;
     const allStores = getAllStores();
     allStores.then((res) => {
-      setStoreList(res.data);
+      console.log("Agencias", res.data);
+      if (sudos.includes(userRol)) {
+        console.log("Todas las tiendas");
+        setStoreList(res.data);
+      } else {
+        console.log("Filtrado");
+        const store = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+        const filtered = res.data.find((st) => st.idagencia == store);
+        console.log("Filtered", filtered);
+        setStoreList([filtered]);
+      }
     });
     const codeList = getStockCodes();
     codeList.then((resp) => {
@@ -23,6 +37,7 @@ export default function BodyLoggedStockReport() {
   const [isReport, setIsReport] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [auxTableData, setAuxTableData] = useState([]);
+  const isSudo = JSON.parse(Cookies.get("userAuth")).rol == 1 ? true : false;
   const [filtered, setFiltered] = useState("");
   const handleStore = (value) => {
     setSelectedStore(value);
@@ -108,7 +123,21 @@ export default function BodyLoggedStockReport() {
     });
   }
 
-  
+  function exportUpdateSqlData() {
+    const toExport = [];
+    for (const entry of tableData) {
+      const row = {
+        idProducto: entry.idProducto,
+        codInterno: entry.codInterno,
+        nombreProducto: entry.nombreProducto,
+        cantidad: entry.cantidadProducto,
+        accion: entry.accion,
+        query: `update stock_agencia set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idAgencia"='${selectedStore}';`,
+      };
+      toExport.push(row);
+    }
+    generateExcel(toExport, `Plantilla nivelacion ${selectedStore}`);
+  }
 
   return (
     <div>
@@ -220,6 +249,19 @@ export default function BodyLoggedStockReport() {
               Exportar a excel
             </Button>
           </div>
+          {isSudo ? (
+            <div style={{ paddingTop: "5%" }}>
+              <Button
+                variant="info"
+                className="cyanLarge"
+                onClick={() => {
+                  exportUpdateSqlData();
+                }}
+              >
+                Exportar a excel para nivelacion
+              </Button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

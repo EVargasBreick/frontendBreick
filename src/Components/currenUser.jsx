@@ -11,6 +11,8 @@ import { useState } from "react";
 import { useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 import ChangePasswordModal from "./Modals/ChangePasswordModal";
+import { allProducts } from "../services/productServices";
+import { generateExcel } from "../services/utils";
 export default function CurrentUser() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
@@ -37,6 +39,30 @@ export default function CurrentUser() {
     Cookies.remove("pdv");
     navigate("/");
   }
+
+  async function exportTemplate() {
+    const pList = await fullProdList();
+    generateExcel(pList, `Plantilla Inventario`);
+  }
+
+  async function fullProdList() {
+    const productList = await allProducts();
+    console.log("Product list", productList);
+    var prodArray = [];
+    for (const product of productList.data) {
+      const item = {
+        ["Id Producto"]: product.idProducto,
+        ["Cod Interno"]: product.codInterno,
+        ["Producto"]: product.nombreProducto,
+        ["Cantidad"]: 0,
+      };
+      prodArray.push(item);
+    }
+    return new Promise((resolve) => {
+      resolve(prodArray);
+    });
+  }
+
   return (
     <>
       <Dropdown>
@@ -61,6 +87,13 @@ export default function CurrentUser() {
             }}
           >
             Cambiar Contraseña
+          </Dropdown.Item>
+          <Dropdown.Item
+            onClick={() => {
+              exportTemplate();
+            }}
+          >
+            Exportar planilla de kardex
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>

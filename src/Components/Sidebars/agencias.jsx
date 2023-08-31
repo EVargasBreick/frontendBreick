@@ -144,6 +144,13 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         producto
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/reportes/stock")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Reporte Movimientos Kardex
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/reportes/bajas/general")}
         className="menuItem"
       >

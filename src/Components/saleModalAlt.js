@@ -134,6 +134,8 @@ function SaleModalAlt(
   const [valeForm, setValeForm] = useState({});
   const [voucher, setVoucher] = useState(0);
   const [isPya, setIsPya] = useState(false);
+  const canc = valeForm.cancelado ? valeForm.cancelado : cancelado;
+
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -389,11 +391,15 @@ function SaleModalAlt(
             console.log(
               "Solo deberia correr esto en caso de vale menor al total"
             );
+            console.log("Cancelado", cancelado);
+            console.log("Total desc", totalDescontado);
+            console.log("giftc", giftCard);
+            console.log("Valeform", valeForm);
             if (giftCard == 0) {
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
             } else {
-              if (cancelado < totalDescontado - giftCard) {
+              if (canc < totalDescontado - giftCard) {
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
@@ -987,11 +993,12 @@ function SaleModalAlt(
                     }}
                     paymentData={{
                       tipoPago: stringPago,
-                      cancelado: cancelado,
+                      cancelado: canc,
                       cambio:
-                        parseFloat(cancelado) +
+                        parseFloat(canc) +
                         parseFloat(voucher) -
-                        (parseFloat(totalDescontado) + parseFloat(giftCard)),
+                        parseFloat(totalDescontado) +
+                        parseFloat(giftCard),
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
@@ -1033,9 +1040,9 @@ function SaleModalAlt(
                   }}
                   paymentData={{
                     tipoPago: stringPago,
-                    cancelado: cancelado,
+                    cancelado: canc,
                     cambio:
-                      parseFloat(cancelado) -
+                      parseFloat(canc) -
                       parseFloat(totalDescontado) +
                       parseFloat(giftCard),
                     fechaHora: fechaHora,
@@ -1064,9 +1071,9 @@ function SaleModalAlt(
                   }}
                   paymentData={{
                     tipoPago: stringPago,
-                    cancelado: cancelado,
+                    cancelado: canc,
                     cambio:
-                      parseFloat(cancelado) -
+                      parseFloat(canc) -
                       parseFloat(totalDescontado) +
                       parseFloat(giftCard),
                     fechaHora: fechaHora,
@@ -1304,13 +1311,10 @@ function SaleModalAlt(
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
                   <div className="modalData">{`${
-                    Number(cancelado) -
-                      Number(totalDescontado) +
-                      Number(voucher) <
-                    0
+                    Number(canc) - Number(totalDescontado) + Number(voucher) < 0
                       ? `Ingrese un monto igual o superiores al total`
                       : `${(
-                          Number(cancelado) -
+                          Number(canc) -
                           Number(totalDescontado) +
                           Number(voucher)
                         ).toFixed(2)} Bs.`
@@ -1537,10 +1541,9 @@ function SaleModalAlt(
               }}
               paymentData={{
                 tipoPago: stringPago,
-                cancelado: cancelado,
-
+                cancelado: canc,
                 cambio:
-                  parseFloat(cancelado) -
+                  parseFloat(canc) -
                   parseFloat(totalDescontado) +
                   parseFloat(giftCard),
                 fechaHora: fechaHora,
@@ -1569,9 +1572,9 @@ function SaleModalAlt(
               }}
               paymentData={{
                 tipoPago: stringPago,
-                cancelado: cancelado,
+                cancelado: canc,
                 cambio:
-                  parseFloat(cancelado) -
+                  parseFloat(canc) -
                   parseFloat(totalDescontado) +
                   parseFloat(giftCard),
                 fechaHora: fechaHora,

@@ -23,7 +23,7 @@ import { OrderNote } from "./orderNote";
 import ReactToPrint from "react-to-print";
 import { OrderPDFAlt } from "./OrderPDFAlt";
 import { toUpper } from "lodash";
-
+import Cookies from "js-cookie";
 export default function FormAllOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
@@ -96,7 +96,6 @@ export default function FormAllOrders() {
   function setOrderDetails(stringPedido) {
     setProductDetail(null);
     setProductTable([]);
-
     setSelectedOrder({});
     setCodigoPedido("");
     setVendedor("");
