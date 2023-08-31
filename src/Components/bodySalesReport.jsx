@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import { Button, Form, Image } from "react-bootstrap";
 import Pagination from "./pagination";
@@ -13,6 +13,7 @@ export default function BodySalesReport() {
   const [newCuf, setNewCuf] = useState("");
   const [reportTable, setReportTable] = useState([]);
   const [auxReportTable, setAuxReportTable] = useState([]);
+  const auxReportTableFilter = useRef([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(25);
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -66,6 +67,7 @@ export default function BodySalesReport() {
           console.log("Data", response);
           setReportTable(response.data);
           setAuxReportTable(response.data);
+          auxReportTableFilter.current = response.data;
 
           setIsReportLoading(false);
         })
@@ -91,18 +93,29 @@ export default function BodySalesReport() {
           .toLowerCase()
           .includes(value.toString().toLowerCase())
     ); //
-    setReportTable([...newList]);
+
+    auxReportTableFilter.current = [...newList];
+    console.log("newList", byState);
+    if (byState != 2 && byState != -1) {
+      filterByState(byState);
+    } else {
+      setReportTable([...newList]);
+    }
   }
   function filterByState(value) {
     setByState(value);
     if (value == 2) {
-      setReportTable([...auxReportTable]);
+      setReportTable(auxReportTableFilter.current);
     } else {
       if (value == 0) {
-        const newList = auxReportTable.filter((dt) => dt.estado == 0);
+        const newList = auxReportTableFilter.current.filter(
+          (dt) => dt.estado == 0
+        );
         setReportTable([...newList]);
       } else {
-        const newList = auxReportTable.filter((dt) => dt.estado == 1);
+        const newList = auxReportTableFilter.current.filter(
+          (dt) => dt.estado == 1
+        );
         setReportTable([...newList]);
       }
     }
