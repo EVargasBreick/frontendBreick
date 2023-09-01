@@ -11,6 +11,7 @@ import { dateString } from "../services/dateServices";
 export default function FormNewPack() {
   // Listas cargadas en render
   const [prodList, setProdList] = useState([]);
+  const [auxProdList, setAuxProdList] = useState([]);
   // Listas y valores cargados manualmente
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [totalPack, setTotalPack] = useState(0);
@@ -25,6 +26,7 @@ export default function FormNewPack() {
     allProducts.then((fetchedProducts) => {
       console.log("Test", fetchedProducts);
       setProdList(fetchedProducts.data.data);
+      setAuxProdList(fetchedProducts.data.data);
     });
   }, []);
 
@@ -52,6 +54,7 @@ export default function FormNewPack() {
       precioDeFabrica: product.precioDeFabrica,
     };
     setSelectedProducts([...selectedProducts, prodObj]);
+    setProdList(auxProdList);
   }
   function changeQuantities(cantidad, index) {
     const updatedArray = [...selectedProducts];
@@ -131,6 +134,16 @@ export default function FormNewPack() {
       })
       .catch((err) => console.log("Error al crear producto", err));
   }
+
+  function searchProduct(value) {
+    const filtered = auxProdList.filter(
+      (ap) =>
+        ap.nombreProducto.toLowerCase().includes(value) ||
+        ap.codInterno == value
+    );
+    setProdList(filtered);
+  }
+
   return (
     <div>
       <div className="formLabel">CREAR PACKS BREICK</div>
@@ -155,8 +168,12 @@ export default function FormNewPack() {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Form>
-        <Form.Select onChange={(e) => selectProduct(e.target.value)}>
+
+      <Form style={{ display: "flex", justifyContent: "space-evenly" }}>
+        <Form.Select
+          onChange={(e) => selectProduct(e.target.value)}
+          style={{ width: "45%" }}
+        >
           <option>{"Seleccione producto"}</option>
           {prodList.map((pr, index) => {
             return (
@@ -166,10 +183,16 @@ export default function FormNewPack() {
             );
           })}
         </Form.Select>
+        <Form.Control
+          style={{ width: "45%" }}
+          type="text"
+          placeholder="buscar"
+          onChange={(e) => searchProduct(e.target.value)}
+        />
       </Form>
       {selectedProducts.length > 0 ? (
         <div>
-          <div className="formLabelAlt">Productos Seleccionados</div>
+          <div style={{ margin: "20px" }}>Productos Seleccionados</div>
           <Table className="tableOneAlt">
             <thead className="tableHeader">
               <tr>

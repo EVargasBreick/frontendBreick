@@ -73,11 +73,21 @@ export default function FormAllOrders() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const rol = JSON.parse(Cookies.get("userAuth")).rol;
+    const idUs = JSON.parse(Cookies.get("userAuth")).idUsuario;
+    const permitedRols = [1, 9, 10, 7];
     const listaPedidos = getAllOrderList("");
     listaPedidos.then((res) => {
-      console.log("Lista pedidos", res.data.data);
-      setPedidosList(res.data.data);
-      setAuxPedidosList(res.data.data);
+      if (permitedRols.includes(rol)) {
+        console.log("Lista pedidos", res.data.data);
+        setPedidosList(res.data.data);
+        setAuxPedidosList(res.data.data);
+      } else {
+        console.log("Lista pedidos", res.data.data);
+        const filtered = res.data.data.filter((rd) => rd.idUsuario == idUs);
+        setPedidosList(filtered);
+        setAuxPedidosList(filtered);
+      }
     });
     const allProducts = getProducts("all");
     allProducts.then((res) => {

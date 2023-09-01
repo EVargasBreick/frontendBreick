@@ -103,7 +103,12 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         <Image src={newClient} className="icon"></Image>Modificacion de Clientes
       </MenuItem>
       <div className="menuItem">Pedidos</div>
-
+      <MenuItem
+        onClick={() => redirectOnClick("/pedidos")}
+        className="menuItem"
+      >
+        <Image src={newOrder} className="icon"></Image>Ver Pedidos
+      </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/regPedido")}
         className="menuItem"
