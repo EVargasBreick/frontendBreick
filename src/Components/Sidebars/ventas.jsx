@@ -15,7 +15,7 @@ import leftArrow from "../../assets/leftArrow.png";
 import Client from "../../assets/client.png";
 import newClient from "../../assets/newClient.png";
 import newOrder from "../../assets/newOrder.png";
-
+import Check from "../../assets/check.png";
 import cancelSample from "../../assets/cancelSample.png";
 
 import appBooking from "../../assets/approveBook.png";
@@ -80,6 +80,9 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       >
         <Image src={leftArrow} className="icon"></Image>
         Modificar Traspaso
+      </MenuItem>
+      <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}>
+        <Image src={Check} className="icon"></Image>Aprobar Traspasos
       </MenuItem>
       <div className="menuItem">Productos</div>
       <MenuItem

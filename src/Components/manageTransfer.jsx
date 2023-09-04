@@ -11,13 +11,10 @@ export default function ManageTransfer() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-
+    const list = [1, 7, 10, 9];
+    const userA = JSON.parse(Cookies.get("userAuth")).rol;
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 7
-      ) {
-      } else {
+      if (!list.includes(userA)) {
         navigate("/principal");
       }
     }
