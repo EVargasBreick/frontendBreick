@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import loading2 from "../assets/loading2.gif";
-import { Form, Button, Alert, Image } from "react-bootstrap";
+import { Form, Button, Alert, Image, Modal } from "react-bootstrap";
 import { getLanguajes } from "../services/langServices";
 import { getRoles } from "../services/rolServices";
 import { getStores } from "../services/storeServices";
@@ -77,7 +77,6 @@ export default function FormUpdateUser() {
     verifyInput.then((res) => {
       if (res) {
         const verifyPassword = verifySamePassword(password, vPassword);
-
         verifyPassword
           .then((res) => {
             const object = structureUser(
@@ -158,7 +157,7 @@ export default function FormUpdateUser() {
   }
   return (
     <div>
-      <div className="formLabel">CREAR NUEVO USUARIO</div>
+      <div className="formLabel">EDITAR USUARIO</div>
       <Alert
         variant="danger"
         show={isAlert}
@@ -166,160 +165,160 @@ export default function FormUpdateUser() {
       >
         {alert}
       </Alert>
-      <div className="halfContainer">
-        <div className="half">Datos Personales</div>
-        <div className="half">Datos de acceso</div>
-      </div>
-      <Form>
+
+      <Modal show={false}>
         <div className="halfContainer">
-          <Form.Group className="half" controlId="name">
-            <Form.Label>Nombre</Form.Label>
-            <Form.Control
-              type="text"
-              onChange={(e) => setNombre(e.target.value)}
-              placeholder="ingrese nombre"
-            />
-          </Form.Group>
-          <Form.Group className="half" controlId="user">
-            <Form.Label>Usuario</Form.Label>
-            <Form.Control
-              type="text"
-              onChange={(e) => setUsuario(e.target.value)}
-              placeholder="ingrese usuario"
-            />
-          </Form.Group>
+          <div className="half">Datos Personales</div>
+          <div className="half">Datos de acceso</div>
         </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId="surname">
-            <Form.Label>Ap. Paterno</Form.Label>
-            <Form.Control
-              type="text"
-              onChange={(e) => setapPaterno(e.target.value)}
-              placeholder="ingrese apellido"
-            />
-          </Form.Group>
-          <Form.Group className="half" controlId="access">
-            <Form.Label>Acceso</Form.Label>
-            <Form.Select onChange={(e) => setAcceso(e.target.value)}>
-              <option>Seleccione acceso</option>
-              <option value="1">Activo</option>
-              <option value="0">Inactivo</option>
-            </Form.Select>
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId="lastName">
-            <Form.Label>Ap. Materno</Form.Label>
-            <Form.Control
-              type="text"
-              onChange={(e) => setapMaterno(e.target.value)}
-              placeholder="ingrese apellido"
-            />
-          </Form.Group>
-          <Form.Group className="half" controlId="category">
-            <Form.Label>Categoria</Form.Label>
-            <Form.Select onChange={(e) => setCategoria(e.target.value)}>
-              <option>Seleccione Categoria</option>
-              {roles.map((rol) => {
-                return (
-                  <option value={rol.idCategoria} key={rol.idCategoria}>
-                    {rol.categoria}
-                  </option>
-                );
-              })}
-            </Form.Select>
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId="ci">
-            <Form.Label>CI/Documento</Form.Label>
-            <Form.Control
-              onChange={(e) => setCi(e.target.value)}
-              type="text"
-              placeholder="ingrese numero de documento"
-            />
-          </Form.Group>
-          <Form.Group className="half" controlId="languaje">
-            <Form.Label>Idioma</Form.Label>
-            <Form.Select onChange={(e) => setIdioma(e.target.value)}>
-              <option>Seleccione Idioma</option>
-              {lang.map((l) => {
-                return (
-                  <option value={l.idLenguaje} key={l.idLenguaje}>
-                    {l.lenguaje}
-                  </option>
-                );
-              })}
-            </Form.Select>
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId="email">
-            <Form.Label>Correo Electronico</Form.Label>
-            <Form.Control
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="ingrese correo"
-            />
-          </Form.Group>
-          <Form.Group className="half" controlId="formBasicEmail">
-            <Form.Label>Agencia</Form.Label>
-            <Form.Select
-              value={agencia}
-              onChange={(e) => {
-                prepareStoreId(e.target.value);
-              }}
-            >
-              <option>Seleccione Agencia</option>
-              {almacen.map((ag) => {
-                return (
-                  <option value={ag.Nombre} key={ag.Nombre}>
-                    {ag.Nombre}
-                  </option>
-                );
-              })}
-            </Form.Select>
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId=""></Form.Group>
-          <Form.Group className="half" controlId="state">
-            <Form.Label>Ubicacion</Form.Label>
-            <Form.Select onChange={(e) => setDpto(e.target.value)}>
-              <option>Seleccione Departamento</option>
-              {departamentos.map((dp, index) => {
-                return (
-                  <option value={dp.idDepto} key={index}>
-                    {dp.departamento}
-                  </option>
-                );
-              })}
-            </Form.Select>
-          </Form.Group>
-        </div>
-        <div className="halfContainer">
-          <Form.Group className="half" controlId="create">
-            <div className="buttonsLarge">
-              <Button
-                variant="warning"
-                className="cyanLarge"
-                onClick={() => {
-                  userVerification();
+        <Form>
+          <div className="halfContainer">
+            <Form.Group className="half" controlId="name">
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type="text"
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="ingrese nombre"
+              />
+            </Form.Group>
+            <Form.Group className="half" controlId="user">
+              <Form.Label>Usuario</Form.Label>
+              <Form.Control
+                type="text"
+                onChange={(e) => setUsuario(e.target.value)}
+                placeholder="ingrese usuario"
+              />
+            </Form.Group>
+          </div>
+          <div className="halfContainer">
+            <Form.Group className="half" controlId="surname">
+              <Form.Label>Ap. Paterno</Form.Label>
+              <Form.Control
+                type="text"
+                onChange={(e) => setapPaterno(e.target.value)}
+                placeholder="ingrese apellido"
+              />
+            </Form.Group>
+            <Form.Group className="half" controlId="access">
+              <Form.Label>Acceso</Form.Label>
+              <Form.Select onChange={(e) => setAcceso(e.target.value)}>
+                <option>Seleccione acceso</option>
+                <option value="1">Activo</option>
+                <option value="0">Inactivo</option>
+              </Form.Select>
+            </Form.Group>
+          </div>
+          <div className="halfContainer">
+            <Form.Group className="half" controlId="lastName">
+              <Form.Label>Ap. Materno</Form.Label>
+              <Form.Control
+                type="text"
+                onChange={(e) => setapMaterno(e.target.value)}
+                placeholder="ingrese apellido"
+              />
+            </Form.Group>
+            <Form.Group className="half" controlId="category">
+              <Form.Label>Categoria</Form.Label>
+              <Form.Select onChange={(e) => setCategoria(e.target.value)}>
+                <option>Seleccione Categoria</option>
+                {roles.map((rol) => {
+                  return (
+                    <option value={rol.idCategoria} key={rol.idCategoria}>
+                      {rol.categoria}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+          </div>
+          <div className="halfContainer">
+            <Form.Group className="half" controlId="ci">
+              <Form.Label>CI/Documento</Form.Label>
+              <Form.Control
+                onChange={(e) => setCi(e.target.value)}
+                type="text"
+                placeholder="ingrese numero de documento"
+              />
+            </Form.Group>
+            <Form.Group className="half" controlId="languaje">
+              <Form.Label>Idioma</Form.Label>
+              <Form.Select onChange={(e) => setIdioma(e.target.value)}>
+                <option>Seleccione Idioma</option>
+                {lang.map((l) => {
+                  return (
+                    <option value={l.idLenguaje} key={l.idLenguaje}>
+                      {l.lenguaje}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+          </div>
+          <div className="halfContainer">
+            <Form.Group className="half" controlId="email">
+              <Form.Label>Correo Electronico</Form.Label>
+              <Form.Control
+                type="email"
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ingrese correo"
+              />
+            </Form.Group>
+            <Form.Group className="half" controlId="formBasicEmail">
+              <Form.Label>Agencia</Form.Label>
+              <Form.Select
+                value={agencia}
+                onChange={(e) => {
+                  prepareStoreId(e.target.value);
                 }}
               >
-                {isLoading ? (
-                  <Image src={loading2} style={{ width: "5%" }} />
-                ) : (
-                  "Crear"
-                )}
-              </Button>
-            </div>
-          </Form.Group>
-        </div>
-      </Form>
-      <div className="secondHalf">
-        <Form></Form>
-      </div>
+                <option>Seleccione Agencia</option>
+                {almacen.map((ag) => {
+                  return (
+                    <option value={ag.Nombre} key={ag.Nombre}>
+                      {ag.Nombre}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+          </div>
+          <div className="halfContainer">
+            <Form.Group className="half" controlId=""></Form.Group>
+            <Form.Group className="half" controlId="state">
+              <Form.Label>Ubicacion</Form.Label>
+              <Form.Select onChange={(e) => setDpto(e.target.value)}>
+                <option>Seleccione Departamento</option>
+                {departamentos.map((dp, index) => {
+                  return (
+                    <option value={dp.idDepto} key={index}>
+                      {dp.departamento}
+                    </option>
+                  );
+                })}
+              </Form.Select>
+            </Form.Group>
+          </div>
+          <div className="halfContainer">
+            <Form.Group className="half" controlId="create">
+              <div className="buttonsLarge">
+                <Button
+                  variant="warning"
+                  className="cyanLarge"
+                  onClick={() => {
+                    userVerification();
+                  }}
+                >
+                  {isLoading ? (
+                    <Image src={loading2} style={{ width: "5%" }} />
+                  ) : (
+                    "Crear"
+                  )}
+                </Button>
+              </div>
+            </Form.Group>
+          </div>
+        </Form>
+      </Modal>
     </div>
   );
 }

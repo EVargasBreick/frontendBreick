@@ -57,36 +57,55 @@ export default function Login() {
         setisLoading(false);
         console.log("User encontrado", userDataFetchd);
         if (userDataFetchd.data.message === "Usuario encontrado") {
-          setuserData(JSON.stringify(userDataFetchd.data.data[0]));
-          Cookies.set("userAuth", JSON.stringify(userDataFetchd.data.data[0]), {
-            expires: 0.5,
-          });
+          if (userDataFetchd.data.data[0].acceso == 1) {
+            console.log("Usuario activo");
+            setuserData(JSON.stringify(userDataFetchd.data.data[0]));
+            Cookies.set(
+              "userAuth",
+              JSON.stringify(userDataFetchd.data.data[0]),
+              {
+                expires: 0.5,
+              }
+            );
 
-          if (
-            Date.parse("01/01/2000 " + horaFinal) <
-              Date.parse(
-                "01/01/2000 " + userDataFetchd.data.data[0].horaEntrada + ":00"
-              ) ||
-            Date.parse("01/01/2000 " + horaFinal) >
-              Date.parse(
-                "01/01/2000 " + userDataFetchd.data.data[0].horaSalida + ":00"
-              )
-          ) {
+            if (
+              Date.parse("01/01/2000 " + horaFinal) <
+                Date.parse(
+                  "01/01/2000 " +
+                    userDataFetchd.data.data[0].horaEntrada +
+                    ":00"
+                ) ||
+              Date.parse("01/01/2000 " + horaFinal) >
+                Date.parse(
+                  "01/01/2000 " + userDataFetchd.data.data[0].horaSalida + ":00"
+                )
+            ) {
+            }
+
+            navigate("/principal");
           } else {
+            console.log("Usuario bloqueado");
+            setIsAlert(true);
+            setAlert(
+              "Su usuario se encuentra bloqueado, por favor contacte al encargado del sistema "
+            );
+            setTimeout(() => {
+              setIsAlert(false);
+            }, 3000);
           }
-
-          navigate("/principal");
         }
         if (userDataFetchd.data.message === "Usuario no encontrado") {
           setIsAlert(true);
           setAlert("Usuario no encontrado");
-          setUsername("");
           setPassword("");
         }
       });
     } else {
       setIsAlert(true);
       setAlert("Por favor ingrese usuario y contraseña ");
+      setTimeout(() => {
+        setIsAlert(false);
+      }, 3000);
     }
   }
   return (
