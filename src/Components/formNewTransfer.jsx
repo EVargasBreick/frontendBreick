@@ -305,6 +305,16 @@ export default function FormNewTransfer() {
       setIsAlert(true);
     }
   }
+
+  function validateTransfer() {
+    if (selectedProducts.length > 0 && idDestino != "") {
+      registerTransfer();
+    } else {
+      setAlert("El traspaso no puede tener destino vacío o no tener productos");
+      setIsAlert(true);
+    }
+  }
+
   function validateZero() {
     var valQuan = true;
     return new Promise((resolve, reject) => {
@@ -543,7 +553,7 @@ export default function FormNewTransfer() {
               variant="light"
               className="cyanLarge"
               onClick={() => {
-                registerTransfer();
+                validateTransfer();
               }}
             >
               Crear Traspaso

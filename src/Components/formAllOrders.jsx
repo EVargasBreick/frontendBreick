@@ -207,7 +207,7 @@ export default function FormAllOrders() {
               currentDate[2],
             tipo: toUpper(res.data.data[0].tipo),
           };
-          setProductDetail([...auxDetail, prodHeaderObj]);
+          setProductDetail([prodHeaderObj]);
         }
         setIsLoading(false);
         setIsOrder(true);
