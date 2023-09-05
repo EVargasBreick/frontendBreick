@@ -104,6 +104,7 @@ export default function FormAllOrders() {
     }
   }, [isPrint]);
   function setOrderDetails(stringPedido) {
+    setIsPdf(false);
     setProductDetail(null);
     setProductTable([]);
     setSelectedOrder({});
@@ -119,7 +120,7 @@ export default function FormAllOrders() {
     setNotas("");
     setIsOrder(false);
     setProductList([]);
-    setIsPdf(false);
+
     const stringParts = stringPedido.split("|");
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
