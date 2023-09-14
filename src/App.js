@@ -65,6 +65,7 @@ import RecordSale from "./Components/RecordSale";
 import ViewTransferAgency from "./Components/viewTransferAgency";
 import BodyVirtualStockReport from "./Components/bodyVirtualStockReport";
 import VirtualStockReport from "./Components/virtualStockReport";
+import TraspasosAgenciasCantidad from "./Components/traspasosAgenciasCantidad";
 
 function App() {
   return (
@@ -542,6 +543,14 @@ function App() {
               element={
                 <RequireAuth>
                   <VirtualStockReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/traspasos/agencia"
+              element={
+                <RequireAuth>
+                  <TraspasosAgenciasCantidad />
                 </RequireAuth>
               }
             />
