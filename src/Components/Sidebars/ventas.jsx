@@ -117,11 +117,19 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/facturas")}
+        className="menuItem"
+      >
+        <Image src={appBooking} className="icon"></Image>Informacion Facturas
+      </MenuItem>
+
+      <MenuItem
         onClick={() => redirectOnClick("/editarUsuario/agencia")}
         className="menuItem"
       >
         <Image src={newClient} className="icon"></Image>Reasignar Agencias
       </MenuItem>
+
 
       {/*<div>En Desarrollo ...</div>
       <MenuItem>

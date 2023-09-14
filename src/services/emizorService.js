@@ -18,6 +18,12 @@ export const emizorService = {
         return response.data;
     },
 
+    async getFacturaByCuf(cuf) {
+        const url = `/emizor/facturas/${cuf}`;
+        const response = await emizorInstance.get(url);
+        return response.data;
+    },
+
     async getFacturas(nit) {
         const url = `/emizor/facturasdb/${nit}`;
         const response = await emizorInstance.get(url);

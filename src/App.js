@@ -66,6 +66,7 @@ import ViewTransferAgency from "./Components/viewTransferAgency";
 import BodyVirtualStockReport from "./Components/bodyVirtualStockReport";
 import VirtualStockReport from "./Components/virtualStockReport";
 import TraspasosAgenciasCantidad from "./Components/traspasosAgenciasCantidad";
+import FacturasInfo from "./Components/facturasInfo";
 
 function App() {
   return (
@@ -551,6 +552,14 @@ function App() {
               element={
                 <RequireAuth>
                   <TraspasosAgenciasCantidad />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturas"
+              element={
+                <RequireAuth>
+                  <FacturasInfo />
                 </RequireAuth>
               }
             />
