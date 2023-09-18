@@ -67,6 +67,7 @@ import BodyVirtualStockReport from "./Components/bodyVirtualStockReport";
 import VirtualStockReport from "./Components/virtualStockReport";
 import TraspasosAgenciasCantidad from "./Components/traspasosAgenciasCantidad";
 import FacturasInfo from "./Components/facturasInfo";
+import EditPack from "./Components/editPack";
 
 function App() {
   return (
@@ -560,6 +561,14 @@ function App() {
               element={
                 <RequireAuth>
                   <FacturasInfo />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packs/editar"
+              element={
+                <RequireAuth>
+                  <EditPack />
                 </RequireAuth>
               }
             />
