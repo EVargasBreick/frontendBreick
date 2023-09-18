@@ -24,6 +24,8 @@ export default function FormTraspasosCantidadAgencias() {
     } catch (err) {}
   }
 
+  const exportData = [];
+
   const emapaId = reports.find(
     (item) => item.destination_name === "Almacen Emapa"
   )?.idDestino;
@@ -35,13 +37,31 @@ export default function FormTraspasosCantidadAgencias() {
     ...new Set(filteredReports.map((item) => item.nombreProducto)),
   ];
 
+  useEffect(() => {
+    productNames.forEach((product) => {
+      const productData = { productName: product };
+      destinations.forEach((destination) => {
+        const matchingItem = filteredReports.find(
+          (item) =>
+            item.nombreProducto === product &&
+            item.destination_name === destination
+        );
+        productData[destination] = matchingItem
+          ? matchingItem.product_count
+          : "--";
+      });
+      exportData.push(productData);
+    });
+  }, [reports]);
+
   const rows = productNames.map((product) => (
     <tr key={product} className="tableRow">
       <td>{product}</td>
       {destinations.map((destination) => {
         const matchingItem = filteredReports.find(
           (item) =>
-            item.nombreProducto === product && item.destination_name === destination
+            item.nombreProducto === product &&
+            item.destination_name === destination
         );
         return (
           <td key={destination}>
@@ -107,7 +127,7 @@ export default function FormTraspasosCantidadAgencias() {
           variant="success"
           onClick={() => {
             generateExcel(
-              reports,
+              exportData,
               `Reporte de Traspasos a Agencias: ${dateStart} - ${dateEnd}`
             );
           }}
