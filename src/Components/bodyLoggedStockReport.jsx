@@ -132,7 +132,9 @@ export default function BodyLoggedStockReport() {
         nombreProducto: entry.nombreProducto,
         cantidad: entry.cantidadProducto,
         accion: entry.accion,
-        query: `update stock_agencia set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idAgencia"='${selectedStore}';`,
+        queryAg: `update stock_agencia set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idAgencia"='${selectedStore}';`,
+        queryBodega: `update stock_bodega set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idBodega"='${selectedStore}';`,
+        queryMovil: `update stock_agencia_movil set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idVehiculo"='${selectedStore}';`,
       };
       toExport.push(row);
     }

@@ -50,13 +50,15 @@ export default function CurrentUser() {
     console.log("Product list", productList);
     var prodArray = [];
     for (const product of productList.data) {
-      const item = {
-        ["Id Producto"]: product.idProducto,
-        ["Cod Interno"]: product.codInterno,
-        ["Producto"]: product.nombreProducto,
-        ["Cantidad"]: 0,
-      };
-      prodArray.push(item);
+      if (product.activo == 1) {
+        const item = {
+          ["Id Producto"]: product.idProducto,
+          ["Cod Interno"]: product.codInterno,
+          ["Producto"]: product.nombreProducto,
+          ["Cantidad"]: 0,
+        };
+        prodArray.push(item);
+      }
     }
     return new Promise((resolve) => {
       resolve(prodArray);

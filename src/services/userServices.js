@@ -71,10 +71,10 @@ const structureUser = (
   const tipoUsuario = corpArray.includes(categoria)
     ? 1
     : categoria == 4
-      ? 4
-      : departamento == 1
-        ? 2
-        : 3;
+    ? 4
+    : departamento == 1
+    ? 2
+    : 3;
 
   var userObject = {
     nombre: nombre,
@@ -155,8 +155,8 @@ export const userService = {
   async getAll(roles = null) {
     const response = await userInstance.get(`/all`, {
       params: {
-        roles: roles
-      }
+        roles: roles,
+      },
     });
     return response.data;
   },
@@ -164,9 +164,13 @@ export const userService = {
   async updateUser(userId, body) {
     const response = await userInstance.put(`/update/${userId}`, body);
     return response.data;
-  }
-};
+  },
 
+  async updateUserAll(userId, body) {
+    const response = await userInstance.put(`/update/all/${userId}`, body);
+    return response.data;
+  },
+};
 
 export {
   controlUserInput,

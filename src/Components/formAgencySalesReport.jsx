@@ -10,6 +10,7 @@ export default function FormSalesAgency() {
     new Date().toISOString().slice(0, 10)
   );
   const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
+
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
 

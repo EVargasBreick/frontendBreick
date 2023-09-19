@@ -65,6 +65,7 @@ import RecordSale from "./Components/RecordSale";
 import ViewTransferAgency from "./Components/viewTransferAgency";
 import BodyVirtualStockReport from "./Components/bodyVirtualStockReport";
 import VirtualStockReport from "./Components/virtualStockReport";
+import SellerProductReport from "./Components/sellerProductReport";
 
 function App() {
   return (
@@ -510,6 +511,14 @@ function App() {
               element={
                 <RequireAuth>
                   <GroupedProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/vendedor/productos"
+              element={
+                <RequireAuth>
+                  <SellerProductReport />
                 </RequireAuth>
               }
             />

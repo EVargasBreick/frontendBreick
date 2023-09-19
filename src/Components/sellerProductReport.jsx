@@ -1,26 +1,19 @@
 import React from "react";
 import Display from "./display";
-import "../styles/generalStyle.css";
 import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
-import FormUpdateUser from "./formUpdateUser";
-
+import "../styles/generalStyle.css";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-export default function UpdateUser() {
+import BodySellerProductReport from "./bodySellerProductReport";
+export default function SellerProductReport() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-
     if (user) {
-      if (
-        !(
-          JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-          JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-          JSON.parse(Cookies.get("userAuth")).rol == 9
-        )
-      ) {
+      if (JSON.parse(Cookies.get("userAuth")).rol <= 10) {
+      } else {
         navigate("/principal");
       }
     }
@@ -36,7 +29,7 @@ export default function UpdateUser() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormUpdateUser />
+          <BodySellerProductReport />
         </div>
       </div>
     </div>

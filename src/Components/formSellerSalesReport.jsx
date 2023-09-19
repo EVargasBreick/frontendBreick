@@ -8,6 +8,9 @@ import { salesBySellerReport } from "../services/reportServices";
 export default function FormSalesSeller() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
+  const [hourStart, setHourStart] = useState("");
+  const [hourEnd, setHourEnd] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
 
@@ -15,12 +18,23 @@ export default function FormSalesSeller() {
     e.preventDefault();
     setLoading(true);
     try {
-      const reportData = await salesBySellerReport(dateStart, dateEnd);
+      const reportData = await salesBySellerReport(
+        dateStart,
+        dateEnd,
+        hourStart,
+        hourEnd
+      );
       console.log("Reporte data", reportData);
       setReports(reportData.data);
       setLoading(false);
     } catch (err) {}
   }
+  useEffect(() => {
+    if (dateStart != dateEnd) {
+      setHourStart("");
+      setHourEnd("");
+    }
+  }, [dateStart, dateEnd]);
 
   const rows = reports.map((report, index) => (
     <tr key={index} className="tableRow">
@@ -58,6 +72,29 @@ export default function FormSalesSeller() {
             />
           </Form.Group>
         </div>
+        {dateEnd == dateStart ? (
+          <div className="d-xl-flex justify-content-center gap-3">
+            <Form.Group className="flex-grow-1" controlId="dateField1">
+              <Form.Label>Hora Inicio:</Form.Label>
+              <Form.Control
+                type="time"
+                value={hourStart}
+                required
+                onChange={(e) => setHourStart(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="flex-grow-1" controlId="dateField2">
+              <Form.Label>Hora Fin:</Form.Label>
+              <Form.Control
+                type="time"
+                value={hourEnd}
+                required
+                onChange={(e) => setHourEnd(e.target.value)}
+              />
+            </Form.Group>
+          </div>
+        ) : null}
+
         <div>
           <Button className="flex-grow-1" variant="warning" type="submit">
             Generar Reporte
@@ -85,7 +122,7 @@ export default function FormSalesSeller() {
           onClick={() => {
             generateExcel(
               reports,
-              `Reporte de Ventas por vendedor entre: ${dateStart} - ${dateEnd}`
+              `Reporte de Ventas por vendedor entre: ${dateStart} ${hourStart} - ${dateEnd} ${hourEnd}`
             );
           }}
         >

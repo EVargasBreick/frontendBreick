@@ -17,7 +17,7 @@ import newClient from "../../assets/newClient.png";
 import newOrder from "../../assets/newOrder.png";
 import Check from "../../assets/check.png";
 import cancelSample from "../../assets/cancelSample.png";
-
+import Gears from "../../assets/gears.png";
 import appBooking from "../../assets/approveBook.png";
 import ReturnWare from "../../assets/returnWare.png";
 import Cross from "../../assets/cross.png";
@@ -116,11 +116,19 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
+      <div className="menuItem">Usuarios</div>
       <MenuItem
         onClick={() => redirectOnClick("/editarUsuario/agencia")}
         className="menuItem"
       >
         <Image src={newClient} className="icon"></Image>Reasignar Agencias
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/editarUsuario")}
+        className="menuItem"
+      >
+        <Image src={Gears} className="icon"></Image>Modificar usuarios del
+        sistema
       </MenuItem>
 
       {/*<div>En Desarrollo ...</div>

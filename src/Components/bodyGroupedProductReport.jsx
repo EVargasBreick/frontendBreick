@@ -11,86 +11,132 @@ export default function BodyGroupedProductReport() {
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
   const [idAgencia, setIdAgencia] = useState("");
-  const [estado, setEstado] = useState("");
-  const [userList, setUserList] = useState([]);
   const [almacen, setAlmacen] = useState([]);
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
-  const [selectedUser, setSelectedUser] = useState("");
-  const [tipo, setTipo] = useState("");
-  const [facturado, setFacturado] = useState("");
-  const [notas, setNotas] = useState("");
+  const [axuReports, setAuxReports] = useState([]);
+  const [filtered, setFiltered] = useState("");
+  const [checkedList, setCheckedList] = useState([]);
+  const [evChecked, setEvChecked] = useState(true);
   useEffect(() => {
     const stores = getStores();
     stores.then((store) => {
       setAlmacen(store.data);
     });
-    const users = userBasic();
-    users.then((user) => {
-      console.log("Ususarios", user);
-      setUserList(user.data);
-    });
   }, []);
 
   useEffect(() => {
-    if (
-      ((dateStart && dateEnd) ||
-        estado ||
-        selectedUser ||
-        tipo ||
-        facturado ||
-        notas) &&
-      idAgencia
-    ) {
-      setLoading(true);
-      const data = reportService.getProductOrderReport(
-        idAgencia,
-        dateStart,
-        dateEnd,
-        estado,
-        selectedUser,
-        tipo,
-        facturado
-      );
-      data.then((data) => {
-        setReports(data);
-        setLoading(false);
-      });
+    if (reports.length > 0) {
+      const checked = [];
+      for (const prod of reports) {
+        const obj = {
+          idProducto: prod.idProducto,
+          checked: true,
+        };
+        checked.push(obj);
+      }
+      setCheckedList(checked);
+      console.log("Checked", checked);
     }
-  }, [dateStart, dateEnd, estado, selectedUser, tipo, facturado]);
+  }, [reports]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    const data = await reportService.getProductOrderReport(
+    const data = await reportService.getGroupedProductReport(
       idAgencia,
       dateStart,
-      dateEnd,
-      estado,
-      selectedUser,
-      tipo,
-      facturado,
-      notas
+      dateEnd
     );
     setReports(data);
+    setAuxReports(data);
+
     setLoading(false);
+  }
+
+  function verifyDates(e) {
+    e.preventDefault();
+    if (!(dateStart == "" || dateEnd == "")) {
+      handleSubmit(e);
+    }
   }
 
   const rows = reports.map((report, index) => (
     <tr key={index} className="tableRow">
-      <td className="tableColumnSmall">{report.idProducto}</td>
       <td className="tableColumnSmall">{report.codInterno}</td>
       <td className="tableColumnSmall">{report.nombreProducto}</td>
       <td className="tableColumnSmall">{report.sumaTotal}</td>
+      <td className="tableColumnSmall">
+        {
+          <Form.Check
+            checked={
+              checkedList.find((cl) => cl.idProducto == report.idProducto)
+                ?.checked
+            }
+            onChange={() => checkProduct(report.idProducto)}
+          />
+        }
+      </td>
     </tr>
   ));
+
+  function filterProducts(value) {
+    setFiltered(value);
+    const filtered = axuReports.filter((ar) =>
+      ar.nombreProducto.toLowerCase().includes(value.toLowerCase())
+    );
+    if (filtered.length > 0) {
+      setReports(filtered);
+    }
+  }
+
+  function allChecked() {
+    const list = [];
+    for (const entry of checkedList) {
+      const obj = {
+        idProducto: entry.idProducto,
+        checked: evChecked ? false : true,
+      };
+      list.push(obj);
+    }
+    setCheckedList(list);
+    setEvChecked(!evChecked);
+  }
+
+  function checkProduct(id) {
+    const updatedArray = checkedList.map((obj) => {
+      if (obj.idProducto == id) {
+        return {
+          ...obj,
+          checked: !obj.checked,
+        };
+      }
+      return obj;
+    });
+    setCheckedList(updatedArray);
+  }
+
+  function filterToExport() {
+    const toExport = [];
+    for (const product of reports) {
+      if (
+        checkedList.find((cl) => cl.idProducto == product.idProducto).checked
+      ) {
+        toExport.push(product);
+      }
+    }
+    generateExcel(
+      toExport,
+      `Reporte Agrupado de Productos ${idAgencia} ${dateStart} - ${dateEnd}`
+    );
+  }
 
   return (
     <section>
       <p className="formLabel">REPORTE AGRUPADO DE PRODUCTOS EN PEDIDOS</p>
       <Form
         className="d-flex justify-content-center p-3 flex-column gap-3"
-        onSubmit={handleSubmit}
+        onSubmit={verifyDates}
       >
         <Form.Group controlId="formSelectAgencias">
           <Form.Label>Agencia:</Form.Label>
@@ -109,76 +155,6 @@ export default function BodyGroupedProductReport() {
               );
             })}
           </Form.Control>
-        </Form.Group>
-        <p className="formLabel">FILTROS- NO OBLIGATORIOS</p>
-
-        <Form.Group>
-          <Form.Label>Filtrar por estado</Form.Label>
-          <Form.Select
-            placeholder="Estado del pedido"
-            value={estado}
-            onChange={(e) => setEstado(e.target.value)}
-          >
-            <option value={""}>Todos</option>
-            <option value={0}>Pendientes</option>
-            <option value={1}>Aprobados</option>
-            <option value={2}>Cancelados</option>
-          </Form.Select>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Filtrar usuario</Form.Label>
-          <Form.Select
-            placeholder="Estado del pedido"
-            value={selectedUser}
-            onChange={(e) => setSelectedUser(e.target.value)}
-          >
-            <option value={""}>Todos</option>
-            {userList.map((user, index) => {
-              return (
-                <option value={user.usuario} key={index}>
-                  {user.nombre}
-                </option>
-              );
-            })}
-          </Form.Select>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Filtrar por tipo</Form.Label>
-          <Form.Select
-            placeholder="Estado del pedido"
-            value={tipo}
-            onChange={(e) => setTipo(e.target.value)}
-          >
-            <option value={""}>Todos</option>
-            <option value={"normal"}>Normales</option>
-            <option value={"muestra"}>Muestras</option>
-            <option value={"consignacion"}>consignaciones</option>
-          </Form.Select>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Filtrar por estado de facturación</Form.Label>
-          <Form.Select
-            placeholder="Estado del pedido"
-            value={facturado}
-            onChange={(e) => setFacturado(e.target.value)}
-          >
-            <option value={""}>Todos</option>
-            <option value={0}>Facturados</option>
-            <option value={1}>No Facturados</option>
-          </Form.Select>
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Filtrar por palabras clave en notas</Form.Label>
-          <Form.Control
-            placeholder="Notas del pedido"
-            value={notas}
-            type="text"
-            onChange={(e) => setNotas(e.target.value)}
-          />
         </Form.Group>
 
         <Form.Label>Seleccione rango de fechas</Form.Label>
@@ -202,40 +178,65 @@ export default function BodyGroupedProductReport() {
             />
           </Form.Group>
         </div>
-
-        <Button className="reportButton " variant="success" type="submit">
-          Generar Reporte
-        </Button>
+        {dateStart != "" && dateEnd != "" ? (
+          <Button className="reportButton " variant="success" type="submit">
+            Generar Reporte
+          </Button>
+        ) : (
+          <p className="formLabel">Seleccione rango de fechas</p>
+        )}
       </Form>
-
+      <div style={{ margin: "20px" }}>
+        {reports.length > 0 && (
+          <Form style={{ display: "flex", justifyContent: "center" }}>
+            <Form.Control
+              type="text"
+              placeholder="Filtrar por producto"
+              style={{ width: "50%" }}
+              onChange={(e) => filterProducts(e.target.value)}
+              value={filtered}
+            />
+          </Form>
+        )}
+      </div>
       {reports.length > 0 && (
-        <Button
-          variant="success"
-          onClick={() => {
-            generateExcel(
-              reports,
-              `Reporte de Bajas ${dateStart} - ${dateEnd}`
-            );
-          }}
-        >
-          Exportar a excel
-        </Button>
-      )}
-
-      <div className="d-flex justify-content-center">
-        <div className="tableOne">
-          <Table striped bordered responsive>
+        <div style={{ maxHeight: "55vh", overflowY: "auto" }}>
+          <Table striped bordered>
             <thead>
               <tr className="tableHeader">
-                <th className="tableColumn">Id Producto</th>
                 <th className="tableColumn">Codigo Interno</th>
                 <th className="tableColumn">Nombre del Producto</th>
                 <th className="tableColumn">Total Salidas</th>
+                <th className="tableColumnSmall">
+                  Selecionar
+                  <div style={{ display: "flex" }}>
+                    {`Todo `}
+                    {
+                      <Form.Check
+                        style={{ marginLeft: "10px" }}
+                        checked={evChecked}
+                        onChange={() => allChecked()}
+                      />
+                    }
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>{rows}</tbody>
           </Table>
         </div>
+      )}
+      <div style={{ margin: "20px" }}>
+        {reports.length > 0 && (
+          <Button
+            variant="success"
+            onClick={() => {
+              filterToExport();
+            }}
+          >
+            Exportar a excel
+          </Button>
+        )}
       </div>
       {loading && <Loader />}
     </section>

@@ -117,26 +117,22 @@ export const reportService = {
     const response = await reportInstance.get(url, { params });
     return response.data;
   },
-  async getProductOrderReport(
-    idAgencia,
-    startDate = null,
-    endDate = null,
-    estado = null,
-    usuario = null,
-    tipo = null,
-    facturado = null,
-    notas = null
-  ) {
+  async getProductOrderReport(idAgencia, startDate, endDate) {
     const url = `/reportes/productos/pedidos`;
     const params = {
       idAgencia,
       startDate,
       endDate,
-      estado,
-      usuario,
-      tipo,
-      facturado,
-      notas,
+    };
+    const response = await reportInstance.get(url, { params });
+    return response.data;
+  },
+  async getGroupedProductReport(idAgencia, startDate, endDate) {
+    const url = `/reportes/agrupado/productos`;
+    const params = {
+      idAgencia,
+      startDate,
+      endDate,
     };
     const response = await reportInstance.get(url, { params });
     return response.data;
@@ -159,11 +155,27 @@ const salesByStoreReport = (startDate, endDate) => {
   });
 };
 
-const salesBySellerReport = (startDate, endDate) => {
+const salesBySellerReport = (startDate, endDate, startHour, endHour) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/totales/vendedor?startDate='${startDate}'&endDate='${endDate}'`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/totales/vendedor?startDate=${startDate}&endDate=${endDate}&startHour=${startHour}&endHour=${endHour}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+const sellerProductReport = (startDate, endDate) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/agrupado/productos/vendedor?startDate='${startDate}'&endDate='${endDate}'`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -201,4 +213,5 @@ export {
   salesByStoreReport,
   salesBySellerReport,
   virtualStockReport,
+  sellerProductReport,
 };
