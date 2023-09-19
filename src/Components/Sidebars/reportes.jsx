@@ -94,7 +94,21 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         className="menuItem"
       >
         <Image src={Chocolate} className="icon"></Image>Reporte agrupado de
-        productos
+        productos facturados
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/traspasos/agencia")}
+        className="menuItem"
+      >
+        <Image src={Chocolate} className="icon"></Image>Reporte de prod. en
+        traspasos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/vendedor/productos")}
+        className="menuItem"
+      >
+        <Image src={Salesman} className="icon"></Image>Reporte de prod. por
+        vendedor
       </MenuItem>
 
       {/*

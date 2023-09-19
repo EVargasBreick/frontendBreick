@@ -94,6 +94,14 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         Registrar Pack
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/packs/editar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Editar Pack
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/packsasignar")}
         className="menuItem"
       >
@@ -109,6 +117,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={HStar} className="icon inverted"></Image>
         Desarmar Packs
       </MenuItem>
+      <div className="menuItem">Facturas</div>
       <MenuItem
         onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
@@ -116,14 +125,14 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
-      <div className="menuItem">Usuarios</div>
+
       <MenuItem
         onClick={() => redirectOnClick("/facturas")}
         className="menuItem"
       >
         <Image src={appBooking} className="icon"></Image>Informacion Facturas
       </MenuItem>
-
+      <div className="menuItem">Usuarios</div>
       <MenuItem
         onClick={() => redirectOnClick("/editarUsuario/agencia")}
         className="menuItem"
@@ -137,7 +146,6 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={Gears} className="icon"></Image>Modificar usuarios del
         sistema
       </MenuItem>
-
 
       {/*<div>En Desarrollo ...</div>
       <MenuItem>

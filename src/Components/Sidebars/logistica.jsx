@@ -26,6 +26,7 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       title="Modulo Logistica"
       icon={<Image src={Barcode} className="compIcon"></Image>}
     >
+      <div className="menuItem">Pedidos</div>
       <MenuItem
         onClick={() => redirectOnClick("/pedidos")}
         className="menuItem"
@@ -44,6 +45,7 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       >
         <Image src={Invoice} className="icon"></Image>Facturar Pedidos
       </MenuItem>
+      <div className="menuItem">Facturas</div>
       <MenuItem
         className="menuItem"
         onClick={() => redirectOnClick("/facturasanular")}
@@ -64,6 +66,7 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       >
         <Image src={Invoice} className="icon"></Image>Facturar Consignaciones
       </MenuItem>
+      <div className="menuItem">Traspasos</div>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso")}
         className="menuItem"
@@ -95,12 +98,20 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={newOrder} className="icon"></Image>Ver Traspasos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/traspasos/agencia")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Ver Estado Traspasos
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/traspaso/recepcion")}
         className="menuItem"
       >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Recepcion traspasos
       </MenuItem>
+      <div className="menuItem">Otros</div>
       <MenuItem
         onClick={() => redirectOnClick("/rechazados")}
         className="menuItem"
@@ -113,13 +124,6 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
-      </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/traspasos/agencia")}
-        className="menuItem"
-      >
-        <Image src={Lines} className="icon"></Image>
-        Ver Info Traspasos
       </MenuItem>
     </SubMenu>
   );
