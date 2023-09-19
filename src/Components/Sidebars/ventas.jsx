@@ -118,6 +118,13 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       </MenuItem>
       <div className="menuItem">Usuarios</div>
       <MenuItem
+        onClick={() => redirectOnClick("/facturas")}
+        className="menuItem"
+      >
+        <Image src={appBooking} className="icon"></Image>Informacion Facturas
+      </MenuItem>
+
+      <MenuItem
         onClick={() => redirectOnClick("/editarUsuario/agencia")}
         className="menuItem"
       >
@@ -130,6 +137,7 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={Gears} className="icon"></Image>Modificar usuarios del
         sistema
       </MenuItem>
+
 
       {/*<div>En Desarrollo ...</div>
       <MenuItem>

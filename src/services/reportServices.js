@@ -203,6 +203,13 @@ const virtualStockReport = (nitCliente, idZona) => {
   });
 };
 
+const getSalesByStoreReport = (startDate, endDate) => {
+  const url = `/reportes/traspasos/agencia?startDate='${startDate}'&endDate='${endDate}'`;
+  const base = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}`;
+  const response = axios.get(base + url);
+  return response;
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -214,4 +221,5 @@ export {
   salesBySellerReport,
   virtualStockReport,
   sellerProductReport,
+  getSalesByStoreReport,
 };

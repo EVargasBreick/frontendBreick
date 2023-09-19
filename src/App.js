@@ -65,6 +65,9 @@ import RecordSale from "./Components/RecordSale";
 import ViewTransferAgency from "./Components/viewTransferAgency";
 import BodyVirtualStockReport from "./Components/bodyVirtualStockReport";
 import VirtualStockReport from "./Components/virtualStockReport";
+import TraspasosAgenciasCantidad from "./Components/traspasosAgenciasCantidad";
+import FacturasInfo from "./Components/facturasInfo";
+import EditPack from "./Components/editPack";
 import SellerProductReport from "./Components/sellerProductReport";
 
 function App() {
@@ -551,6 +554,30 @@ function App() {
               element={
                 <RequireAuth>
                   <VirtualStockReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/traspasos/agencia"
+              element={
+                <RequireAuth>
+                  <TraspasosAgenciasCantidad />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturas"
+              element={
+                <RequireAuth>
+                  <FacturasInfo />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packs/editar"
+              element={
+                <RequireAuth>
+                  <EditPack />
                 </RequireAuth>
               }
             />
