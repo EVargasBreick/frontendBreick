@@ -56,6 +56,7 @@ export default function FormAllOrders() {
   const componentRef = useRef();
   const buttonRef = useRef();
   const [isPrint, setIsPrint] = useState(false);
+  const [isSuper, setIsSuper] = useState(false);
   const meses = [
     "Enero",
     "Febrero",
@@ -134,7 +135,8 @@ export default function FormAllOrders() {
       setFechaCrea(
         fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
       );
-
+      const verifySuper = res.data.data[0]?.issuper ? true : false;
+      setIsSuper(verifySuper);
       const prodHeaderObj = {
         vendedor: res.data.data[0].nombreVendedor,
         cliente: res.data.data[0].razonSocial,
@@ -177,10 +179,13 @@ export default function FormAllOrders() {
               : found?.precioDeFabrica * pr.cantidadProducto;
 
           //console.log("Found", found);
+          console.log("IS SUPER", verifySuper);
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,
-            precio: pr?.precioDeFabrica?.toFixed(2),
+            precio: verifySuper
+              ? pr?.precioSuper
+              : pr?.precioDeFabrica?.toFixed(2),
             total: total?.toFixed(2),
             "descuento calculado": pr.descuentoProducto?.toFixed(2),
           };
@@ -372,7 +377,9 @@ export default function FormAllOrders() {
                           {product.nombreProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {product?.precioDeFabrica + " Bs."}
+                          {isSuper
+                            ? product?.precioSuper
+                            : product?.precioDeFabrica + " Bs."}
                         </td>
                         <td className="tableColumnSmall">
                           {product.cantidadProducto}

@@ -1406,7 +1406,7 @@ function RecordModal(
                       <option value="vale">Vale</option>
                       <option value="promo">Promoción</option>
                       <option value="muestra">Muestra</option>
-                      <option value="muestra">Venta en línea</option>
+                      <option value="online">Venta en línea</option>
                     </Form.Select>
                   }
                 </div>

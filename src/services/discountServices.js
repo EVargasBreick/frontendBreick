@@ -989,6 +989,8 @@ function complexDiscountFunction(selectedProducts, discountList) {
         totalEspDesc += parseFloat(sp.cantProducto * sp.precioDescuentoFijo);
     }
   });
+  console.log("Total tradicionales", totalTrad);
+  console.log("Total sin descuento", totalSinDesc);
   const trads = getTradDiscounts(
     totalTrad,
     totalEsp,
@@ -1323,6 +1325,114 @@ function getHalloweenDiscounts(totalHall, discountList) {
   }
 }
 
+function processSeasonalDiscount(selectedProds, discounts) {
+  console.log("Procesando descuento estacional", selectedProds, discounts);
+  let totalGeneral = 0;
+  let totalEsp = 0;
+  let totalEspCD = 0;
+  let totalSD = 0;
+  const seasonProducts = [];
+  const sinDescProds = [];
+  const especialDescProds = [];
+  for (const product of selectedProds) {
+    // console.log("Producto", product);
+    if (product.tipoProducto == 5) {
+      totalSD += parseFloat(product.totalProd);
+      sinDescProds.push(product);
+    } else if (product.tipoProducto == 6) {
+      totalEsp += parseFloat(product.totalProd);
+      totalEspCD += product.precioDescuentoFijo * product.cantProducto;
+      especialDescProds.push(product);
+    } else {
+      totalGeneral += parseFloat(product.totalProd);
+      seasonProducts.push(product);
+    }
+  }
+
+  let totArray = discounts.map((ds) => {
+    const totalSE =
+      parseFloat(totalGeneral) * (1 - ds.descuento / 100) +
+      parseFloat(totalEsp) +
+      parseFloat(totalSD);
+    const totalCE =
+      parseFloat(totalGeneral) * (1 - ds.descuento / 100) +
+      parseFloat(totalEspCD) +
+      parseFloat(totalSD);
+    return {
+      totalSinDescEsp: parseFloat(totalSE.toFixed(2)),
+      totalConDescEsp: parseFloat(totalCE.toFixed(2)),
+      categoria: ds.categoria,
+      descuento: ds.descuento,
+    };
+  });
+
+  const obtained = obtainDiscounts(totArray, discounts);
+  const descEsp = obtained.conDescEsp ? totalEspCD : totalEsp;
+  const totalPedido = parseFloat(
+    parseFloat(totalGeneral) + parseFloat(totalSD) + parseFloat(totalEsp)
+  );
+  console.log(
+    `Total general ${totalGeneral} total sin descuento ${totalSD} total especiales ${totalEsp}`
+  );
+  console.log("TOTAL SUMADO", totalPedido);
+  const totalFacturar =
+    parseFloat(totalGeneral) * (1 - obtained.discount.descuento / 100) +
+    parseFloat(totalSD) +
+    parseFloat(descEsp);
+  const descCalculado = parseFloat(totalPedido) - parseFloat(totalFacturar);
+  return new Promise((resolve) =>
+    resolve({
+      totalesPedido: {
+        totalPedido,
+        totalFacturar,
+        descCalculado,
+        descuento: obtained.discount.descuento,
+        isDescEsp: obtained.conDescEsp,
+      },
+      productArrays: {
+        sinDescProds,
+        especialDescProds,
+        seasonProducts,
+      },
+    })
+  );
+}
+
+function obtainDiscounts(totArray, discounts) {
+  //console.log("discount array", discounts);
+  const ordenado = discounts.sort((a, b) => {
+    const categoriaA = a.categoria;
+    const categoriaB = b.categoria;
+    return categoriaB.localeCompare(categoriaA);
+  });
+
+  const catSinDesc = ["0", "A", "B", "C", "D"];
+
+  for (const discount of ordenado) {
+    const found = totArray.find((ta) => ta.categoria == discount.categoria);
+
+    if (!catSinDesc.includes(discount.categoria)) {
+      if (found.totalConDescEsp >= discount.montoMinimo) {
+        return { discount, conDescEsp: true };
+      }
+    } else {
+      if (found.totalSinDescEsp >= discount.montoMinimo) {
+        return { discount, conDescEsp: false };
+      }
+    }
+  }
+}
+
+function verifySeasonalProduct(selectedProds, discountData) {
+  const prodType = discountData[0].tipoProducto;
+  for (const product of selectedProds) {
+    if (product.tipoProducto == prodType) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export {
   traditionalDiscounts,
   easterDiscounts,
@@ -1335,4 +1445,6 @@ export {
   verifyAutomaticDiscount,
   discountByAmount,
   complexDiscountFunction,
+  processSeasonalDiscount,
+  verifySeasonalProduct,
 };

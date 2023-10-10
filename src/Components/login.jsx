@@ -15,9 +15,10 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 import Cookies from "js-cookie";
-
+import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
+import { InputGroup } from "react-bootstrap";
 export default function Login() {
   const horaActual =
     new Date().getHours() < 10
@@ -47,6 +48,7 @@ export default function Login() {
   const { setuserData } = useContext(UserContext);
   const [alert, setAlert] = useState("");
   const [isAlert, setIsAlert] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   function login() {
     const inputControl = loginInputControl(username, password);
     if (inputControl) {
@@ -108,6 +110,10 @@ export default function Login() {
       }, 3000);
     }
   }
+
+  const clickHandler = () => {
+    setShowPass(!showPass);
+  };
   return (
     <div className="appContainer">
       <div className="center">
@@ -136,12 +142,20 @@ export default function Login() {
 
             <Form.Group className="inputGroup" controlId="formBasicPassword">
               <Form.Label className="label">Contraseña:</Form.Label>
-              <Form.Control
-                value={password}
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => (e.key === "Enter" ? login() : null)}
-              />
+              <InputGroup>
+                <Form.Control
+                  value={password}
+                  type={showPass ? "text" : "password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => (e.key === "Enter" ? login() : null)}
+                />
+                <InputGroup.Text
+                  onClick={clickHandler}
+                  style={{ backgroundColor: "white" }}
+                >
+                  {showPass ? <BsEye /> : <BsEyeSlash />}
+                </InputGroup.Text>
+              </InputGroup>
             </Form.Group>
             <Button
               disabled={isLoading}
@@ -156,7 +170,6 @@ export default function Login() {
               )}
             </Button>
           </Form>
-
           <Image src={Powered2} className="powered"></Image>
         </div>
       </div>

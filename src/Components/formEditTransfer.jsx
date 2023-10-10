@@ -49,9 +49,10 @@ export default function FormEditTransfer() {
         const userList = list.filter(
           (ls) => ls.idUsuario == idUsuario && ls.listo != 1
         );
-        console.log("User list", userList);
-        setAuxPedidosList(userList);
-        setTList(userList);
+        const filtered = userList.filter((ul) => ul.estado !== 2);
+        console.log("User list", filtered);
+        setAuxPedidosList(filtered);
+        setTList(filtered);
       });
     }
   }, []);

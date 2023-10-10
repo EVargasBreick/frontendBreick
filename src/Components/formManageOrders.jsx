@@ -58,6 +58,7 @@ export default function FormManageOrders() {
   const [userStore, setUserStore] = useState("");
   const [auxPedidosList, setAuxPedidosList] = useState([]);
   const [filter, setFilter] = useState("");
+  const [isSuper, setIsSuper] = useState(false);
   const buttonRef = useRef();
   const meses = [
     "Enero",
@@ -103,6 +104,9 @@ export default function FormManageOrders() {
       .then((res) => {
         console.log("Order details", res.data.data[0]);
         //console.log(dateString().substring(0, 10).split("/"));
+        const isSuperm = res.data.data[0].issuper;
+        console.log("Is super", isSuperm);
+        setIsSuper(isSuperm);
         const fechaDesc = res.data.data[0].fechaCrea
           .substring(0, 10)
           .split("/");
@@ -150,6 +154,7 @@ export default function FormManageOrders() {
         prodList.then((resp) => {
           console.log("Order prod list", resp.data.data);
           const array = [];
+
           const element = {
             idNro: res.data.data[0].idPedido,
             id: res.data.data[0].codigoPedido,
@@ -179,7 +184,9 @@ export default function FormManageOrders() {
             const pTable = {
               producto: pr.nombreProducto,
               cantidad: pr.cantidadProducto,
-              precio: pr.precioDeFabrica?.toFixed(2),
+              precio: isSuperm
+                ? pr.precioSuper?.toFixed(2)
+                : pr.precioDeFabrica?.toFixed(2),
               total: total?.toFixed(2),
               "descuento calculado": pr.descuentoProducto?.toFixed(2),
             };
@@ -428,7 +435,9 @@ export default function FormManageOrders() {
                           {product.nombreProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {product.precioDeFabrica + " Bs."}
+                          {isSuper
+                            ? product.precioSuper
+                            : product.precioDeFabrica + " Bs."}
                         </td>
                         <td className="tableColumnSmall">
                           {product.cantidadProducto}

@@ -69,6 +69,9 @@ import TraspasosAgenciasCantidad from "./Components/traspasosAgenciasCantidad";
 import FacturasInfo from "./Components/facturasInfo";
 import EditPack from "./Components/editPack";
 import SellerProductReport from "./Components/sellerProductReport";
+import SalesByDayReport from "./Components/salesByDayReport";
+import GoalSetter from "./Components/goalSetter";
+import RegisterSeasonDiscounts from "./Components/registerSeasonDiscounts";
 
 function App() {
   return (
@@ -534,6 +537,14 @@ function App() {
               }
             />
             <Route
+              path="/reportes/ventas/diario"
+              element={
+                <RequireAuth>
+                  <SalesByDayReport />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/reportes/ventas/vendedor"
               element={
                 <RequireAuth>
@@ -578,6 +589,22 @@ function App() {
               element={
                 <RequireAuth>
                   <EditPack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/metas/ingresar"
+              element={
+                <RequireAuth>
+                  <GoalSetter />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/registrar/descuentos-temporada"
+              element={
+                <RequireAuth>
+                  <RegisterSeasonDiscounts />
                 </RequireAuth>
               }
             />

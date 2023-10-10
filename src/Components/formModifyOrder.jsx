@@ -36,12 +36,17 @@ import {
   easterDiscounts,
   halloweenDiscounts,
   manualAutomaticDiscount,
+  processSeasonalDiscount,
   traditionalDiscounts,
+  verifySeasonalProduct,
 } from "../services/discountServices";
 import ComplexDiscountTable from "./complexDiscountTable";
 import SimpleDiscountTable from "./simpleDiscountTable";
 import SpecialsTable from "./specialsTable";
 import { dateString } from "../services/dateServices";
+import SeasonalDiscountTable from "./seasonalDiscountTable";
+import SinDescTable from "./sinDescTable";
+import { getSeasonalDiscount } from "../services/discountEndpoints";
 export default function FormModifyOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [totalDesc, setTotalDesc] = useState(0);
@@ -85,6 +90,9 @@ export default function FormModifyOrders() {
   const [userRol, setUserRol] = useState("");
   const [clientInfo, setClientInfo] = useState({});
   const [orderType, setOrderType] = useState("");
+  const [seasonDiscountData, setSeasonDiscountData] = useState([]);
+  const [isSeasonalModal, setIsSeasonalModal] = useState(false);
+  const [isSuper, setIsSuper] = useState(false);
   const meses = [
     "Enero",
     "Febrero",
@@ -122,6 +130,17 @@ export default function FormModifyOrders() {
   const [auxPedidosList, setAuxPedidosList] = useState([]);
   const [filter, setFilter] = useState("");
   const [creatorStore, setCreatorStore] = useState("");
+
+  const [seasonalProds, setSeasonalProds] = useState([]);
+  const [seasonalSinDesc, setSeasonalSinDesc] = useState([]);
+  const [seasonalSpecial, setSeasonalSpecial] = useState([]);
+  const [seasonalTotals, setSeasonalTotals] = useState({});
+
+  async function listDiscounts(currentDate, tipo) {
+    const discountList = await getSeasonalDiscount(currentDate, tipo);
+    return discountList;
+  }
+
   const productRef = useRef([]);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
@@ -185,7 +204,7 @@ export default function FormModifyOrders() {
 
   useEffect(() => {
     if (flagDiscount) {
-      processDiscounts();
+      verifySeasonal();
     }
   }, [flagDiscount]);
   function selectProduct(product) {
@@ -200,7 +219,7 @@ export default function FormModifyOrders() {
       idPedidoProducto: null,
       idProducto: parsed.idProducto,
       nombreProducto: parsed.nombreProducto,
-      precioDeFabrica: parsed.precioDeFabrica,
+      precioDeFabrica: isSuper ? parsed.precioSuper : parsed.precioDeFabrica,
       precioDescuentoFijo: parsed.precioDescuentoFijo,
       totalDescFijo: 0,
       totalProd: 0,
@@ -318,6 +337,12 @@ export default function FormModifyOrders() {
 
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
+      const currentDate = dateString();
+      const list = listDiscounts(currentDate, res.data.data[0].tipoUsuario);
+      list.then((l) => {
+        console.log("Descuento de temporada", l.data.data);
+        setSeasonDiscountData(l.data.data);
+      });
       console.log("Almacen del usuario", res.data.data[0].idAlmacen);
       setSelectedProds([]);
       console.log("order details", res.data.data);
@@ -328,9 +353,12 @@ export default function FormModifyOrders() {
       setUserRol(res.data.data[0].rol);
       setAuxOrder(res.data.data[0]);
       setFechaPedido(res.data.data[0].fechaCrea);
+      setIsSuper(res.data.data[0]?.issuper ? true : false);
+      const verifySuper = res.data.data[0]?.issuper ? true : false;
       setClientInfo({
         nitCliente: res.data.data[0].nit,
         idZona: res.data.data[0].idZona,
+        issuper: res.data.data[0].issuper,
       });
       setOrderType(res.data.data[0].tipo);
       const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
@@ -366,6 +394,7 @@ export default function FormModifyOrders() {
       setUsuarioCrea(res.data.data[0].idUsuarioCrea);
       setCodigoPedido(res.data.data[0].codigoPedido);
       setCreatorStore(res.data.data[0].idAlmacen);
+
       const prodList = getOrderProdList(stringParts[0]);
       prodList.then((res) => {
         res.data.data.map((prod) => {
@@ -384,7 +413,12 @@ export default function FormModifyOrders() {
         var hallArray = [];
         var sinArray = [];
         var espArray = [];
+
         res.data.data.map((parsed, index) => {
+          console.log("TESTEANDO SUPER", res.data.data[0]);
+          const precio = verifySuper
+            ? parsed.precioSuper
+            : parsed.precioDeFabrica;
           const prodObj = {
             cantPrevia: parsed.cantidadProducto,
             cantProducto: parsed.cantidadProducto,
@@ -394,9 +428,11 @@ export default function FormModifyOrders() {
             idPedidoProducto: parsed.idPedidoProducto,
             idProducto: parsed.idProducto,
             nombreProducto: parsed.nombreProducto,
-            precioDeFabrica: parsed.precioDeFabrica,
+            precioDeFabrica: verifySuper
+              ? parsed.precioSuper
+              : parsed.precioDeFabrica,
             precioDescuentoFijo: parsed.precioDescuentoFijo,
-            totalProd: parsed.cantidadProducto * parsed.precioDeFabrica,
+            totalProd: parsed.cantidadProducto * precio,
             totalDescFijo: parsed.cantidadProducto * parsed.precioDescuentoFijo,
             tipoProducto: parsed.tipoProducto,
             descuentoProd: 0,
@@ -800,7 +836,7 @@ export default function FormModifyOrders() {
       setAuxProds(selectedProds);
       console.log("Productos a devolver a stock", auxSelectedProds);
       console.log("Productos a sacar de stock", selectedProds);
-      processDiscounts();
+      verifySeasonal();
     } else {
       setAlert("Seleccione al menos un producto por favor");
       setIsAlert(true);
@@ -816,6 +852,35 @@ export default function FormModifyOrders() {
       setAuxProducts(fetchedAvailable.data.data);
       setAuxAva(fetchedAvailable.data.data);
     });
+  }
+
+  async function verifySeasonal() {
+    if (seasonDiscountData.length > 0) {
+      const verified = verifySeasonalProduct(selectedProds, seasonDiscountData);
+      if (verified) {
+        setDiscModalType(false);
+
+        const data = await processSeasonalDiscount(
+          selectedProds,
+          seasonDiscountData
+        );
+        setTotalPrevio(data.totalesPedido.totalPedido);
+        setTotalFacturar(data.totalesPedido.totalFacturar);
+        setTotalDesc(data.totalesPedido.descCalculado);
+        setDescuento(data.totalesPedido.descuento);
+        setSeasonalSpecial(data.productArrays.especialDescProds);
+        setSeasonalProds(data.productArrays.seasonProducts);
+        setSeasonalSinDesc(data.productArrays.sinDescProds);
+        setSeasonalTotals(data.totalesPedido);
+        setIsSeasonalModal(true);
+        setDiscModal(true);
+        console.log("Data", data);
+      } else {
+        processDiscounts();
+      }
+    } else {
+      processDiscounts();
+    }
   }
 
   function cancelDiscounts() {
@@ -906,8 +971,9 @@ export default function FormModifyOrders() {
                 totales={descSimple}
                 isEsp={isSpecial}
               />
+              <SinDescTable sindDesc={sinDesc} />
             </div>
-          ) : (
+          ) : !isSeasonalModal ? (
             <div>
               <SimpleDiscountTable totales={descSimple} />
               <SpecialsTable
@@ -915,6 +981,19 @@ export default function FormModifyOrders() {
                 totales={descSimple}
                 isEsp={isSpecial}
               />
+            </div>
+          ) : (
+            <div>
+              <SeasonalDiscountTable
+                seasonal={seasonalProds}
+                sinDesc={seasonalSinDesc}
+                totales={seasonalTotals}
+              />
+              <SpecialsTable
+                especiales={seasonalSpecial}
+                isSeasonalEsp={seasonalTotals.isDescEsp}
+              />
+              <SinDescTable sindDesc={sinDesc} />
             </div>
           )}
         </Modal.Body>

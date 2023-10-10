@@ -328,11 +328,15 @@ export default function FormNewSaleAlt() {
           precioDeFabrica:
             JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
               ? produc.precioPDV
+              : clientes[0]?.issuper == 1
+              ? produc.precioSuper
               : produc.precioDeFabrica,
           descuentoProd: 0,
           total:
             JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
               ? produc.precioPDV
+              : clientes[0]?.issuper == 1
+              ? produc.precioSuper
               : produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
@@ -375,12 +379,16 @@ export default function FormNewSaleAlt() {
             precioDeFabrica:
               JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
                 ? selected.precioPDV
+                : clientes[0]?.issuper == 1
+                ? selected.precioSuper
                 : selected.precioDeFabrica,
             precioDescuentoFijo: selected.precioDescuentoFijo,
             descuentoProd: 0,
             total:
               JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
                 ? selected.precioPDV
+                : clientes[0]?.issuper == 1
+                ? selected.precioSuper
                 : selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
@@ -804,12 +812,28 @@ export default function FormNewSaleAlt() {
             invoice={invoice}
             total={totalPrevio}
             descuentoCalculado={
-              totalPrevio -
-              (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total);
-              }, 0) *
-                (100 - descuento)) /
-                100
+              ((totalPrevio -
+                (selectedProducts.reduce((accumulator, object) => {
+                  return accumulator + parseFloat(object.total);
+                }, 0) *
+                  (100 - descuento)) /
+                  100) *
+                1000) %
+                5 ==
+              0
+                ? totalPrevio -
+                  (selectedProducts.reduce((accumulator, object) => {
+                    return accumulator + parseFloat(object.total);
+                  }, 0) *
+                    (100 - descuento)) /
+                    100 -
+                  0.001
+                : totalPrevio -
+                  (selectedProducts.reduce((accumulator, object) => {
+                    return accumulator + parseFloat(object.total);
+                  }, 0) *
+                    (100 - descuento)) /
+                    100
             }
             totalDescontado={
               (selectedProducts.reduce((accumulator, object) => {

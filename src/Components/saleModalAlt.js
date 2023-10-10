@@ -83,6 +83,7 @@ function SaleModalAlt(
     updateStockBody,
     emailCliente,
     clientId,
+    isSeasonal,
   },
   ref
 ) {
@@ -143,7 +144,7 @@ function SaleModalAlt(
   }
   const uniqueId = uuidv4();
   const isMobile = isMobileDevice();
-  console.log("Data del branch", branchInfo);
+  //console.log("Data del branch", branchInfo);
   useEffect(() => {
     console.log("Is mobile", isMobile);
     console.log("CUF guardado");
@@ -153,6 +154,8 @@ function SaleModalAlt(
     }
   }, [cuf]);
   useEffect(() => {
+    console.log("Total descontado", totalDescontado);
+    console.log("Total descontado en datos", datos.totalDescontado);
     if (isFactura && !isMobile) {
       const node = invoiceWrapRef.current;
       if (node) {
@@ -182,20 +185,13 @@ function SaleModalAlt(
   }, [isFactura, isDrop]);
 
   useEffect(() => {
-    console.log(
-      "Cambio",
+    const data = Math.abs(
       cancelado - (total * (1 - datos.descuento / 100) - giftCard)
     );
-    setCambio(
-      isRoute
-        ? cancelado - totalDescontado
-        : Math.abs(
-            (
-              cancelado -
-              (total * (1 - datos.descuento / 100) - giftCard)
-            ).toFixed()
-          )
-    );
+    const rounded = (data * 1000) % 5 == 0 ? data - 0.001 : data;
+    console.log("Cambio", rounded);
+
+    setCambio(isRoute ? cancelado - totalDescontado : rounded);
   }, [cancelado]);
 
   useEffect(() => {
@@ -216,10 +212,11 @@ function SaleModalAlt(
   }, [isDownloadable]);
 
   useEffect(() => {
-    setTotalFacturar(datos.total - giftCard);
+    console.log("ACA SE ESTA SETTEANDO");
+    setTotalFacturar(totalDescontado - giftCard);
     setTotalDesc(descuentoCalculado);
     setCancelado(
-      parseFloat(parseFloat(-giftCard) + parseFloat(datos.total)).toFixed(2)
+      parseFloat(parseFloat(-giftCard) + parseFloat(totalDescontado)).toFixed(2)
     );
     setCambio(0);
     setDescuentoFactura(total - totalDesc + parseFloat(giftCard));
@@ -520,7 +517,7 @@ function SaleModalAlt(
         parseFloat(descuentoCalculado) + parseFloat(giftCard);
       const nroTarjeta = `${cardNumbersA}00000000${cardNumbersB}`;
       const productos = formatInvoiceProducts(selectedProducts);
-
+      console.log("Descuento calculado", descAdicional);
       const saleBodyNew = {
         pedido: {
           idUsuarioCrea: saleBody.pedido.idUsuarioCrea,
@@ -611,6 +608,7 @@ function SaleModalAlt(
         stock: updateStockBody,
         storeInfo: storeInfo,
       };
+      console.log("Composed body", composedBody);
       try {
         const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
         console.log("Respuesta de la fac", invocieResponse);
@@ -1185,7 +1183,7 @@ function SaleModalAlt(
             <div className="modalRows">
               <div className="modalLabel"> Total a pagar:</div>
               <div className="modalData">{`${parseFloat(
-                tipoPago == 4 ? total - giftCard : totalDescontado
+                tipoPago == 4 ? totalDescontado - giftCard : totalDescontado
               ).toFixed(2)} Bs.`}</div>
             </div>
             <div className="modalRows">
@@ -1498,7 +1496,7 @@ function SaleModalAlt(
 
                       <option value="promo">Promoción</option>
                       <option value="muestra">Muestra</option>
-                      <option value="muestra">Venta en línea</option>
+                      <option value="online">Venta en línea</option>
                     </Form.Select>
                   }
                 </div>

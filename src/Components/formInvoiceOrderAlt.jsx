@@ -187,15 +187,16 @@ export default function FormInvoiceOrderAlt() {
         const details = os.data.response;
         var saleProducts = [];
         details.forEach((dt) => {
+          const precio = dt.issuper == 1 ? dt.precioSuper : dt.precioDeFabrica;
           const saleObj = {
             nombreProducto: dt.nombreProducto,
             idProducto: dt.idProducto,
             cantProducto: dt.cantidadProducto,
-            total: dt.cantidadProducto * dt.precioDeFabrica,
+            total: dt.cantidadProducto * precio,
             descuentoProd: dt.descuentoProducto,
             codInterno: dt.codInterno,
             codigoUnidad: dt.codigoUnidad,
-            precioDeFabrica: dt.precioDeFabrica,
+            precioDeFabrica: precio,
           };
           saleProducts.push(saleObj);
         });
@@ -261,15 +262,17 @@ export default function FormInvoiceOrderAlt() {
         const details = os.data.response;
         var saleProducts = [];
         details.map((dt) => {
+          const precio = dt.issuper == 1 ? dt.precioSuper : dt.precioDeFabrica;
+          console.log("DETALLE DE PRODUCTO ACA", dt);
           const saleObj = {
             nombreProducto: dt.nombreProducto,
             idProducto: dt.idProducto,
             cantProducto: dt.cantidadProducto,
-            total: dt.cantidadProducto * dt.precioDeFabrica,
+            total: dt.cantidadProducto * precio,
             descuentoProd: dt.descuentoProducto,
             codInterno: dt.codInterno,
             codigoUnidad: dt.codigoUnidad,
-            precioDeFabrica: dt.precioDeFabrica,
+            precioDeFabrica: precio,
           };
           saleProducts.push(saleObj);
         });
@@ -398,6 +401,7 @@ export default function FormInvoiceOrderAlt() {
           stock: updateStockBody,
           storeInfo: storeInfo,
         };
+        console.log("Body compuesto", composedBody);
         try {
           const invocieResponse = await debouncedFullInvoiceProcess(
             composedBody
@@ -429,9 +433,11 @@ export default function FormInvoiceOrderAlt() {
             reject("Invoice response code is not 200"); // Reject the promise if the invoice response code is not 200
           }
         } catch (error) {
+          console.log("Body compuesto", composedBody);
           reject(error); // Reject the promise if there's an error during the invoicing process
         }
       } catch (error) {
+        console.log("Error aki?");
         reject(false);
       }
     });

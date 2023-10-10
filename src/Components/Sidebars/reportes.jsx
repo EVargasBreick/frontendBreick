@@ -17,6 +17,7 @@ import Bill from "../../assets/bill.png";
 import Gift from "../../assets/Gift.png";
 import Salesman from "../../assets/salesman.png";
 import Hand from "../../assets/hand.png";
+import Prod from "../../assets/prod.png";
 import "../../styles/generalStyle.css";
 export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
   return (
@@ -110,61 +111,12 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         <Image src={Salesman} className="icon"></Image>Reporte de prod. por
         vendedor
       </MenuItem>
-
-      {/*
-      <MenuItem>
-        <Image src={Ticket} className="icon"></Image>Reporte facturados por
-        vendedor
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/diario")}
+        className="menuItem"
+      >
+        <Image src={Prod} className="icon"></Image>Reporte mensual de ventas
       </MenuItem>
-      <MenuItem>
-        <Image src={Bill} className="icon"></Image>Reporte ventas por vendedores
-      </MenuItem>
-      <MenuItem>
-        <Image src={Gift} className="icon"></Image>Reporte ventas por muestras
-      </MenuItem>
-      <MenuItem>
-        <Image src={Gift} className="icon"></Image>Reporte de muestras
-      </MenuItem>
-      <MenuItem>
-        <Image src={Salesman} className="icon"></Image>Reporte de clientes por
-        vendedor
-      </MenuItem>
-      <MenuItem>
-        <Image src={Star} className="icon"></Image>Reporte de productos mas
-        vendidos
-      </MenuItem>
-      <MenuItem>
-        <Image src={Salesman} className="icon"></Image>Reporte de ventas
-        Vendedor - Cliente
-      </MenuItem>
-      <MenuItem>
-        {" "}
-        <Image src={Log} className="icon"></Image>Reporte pedidos
-      </MenuItem>
-      <MenuItem>
-        <Image src={Salesman} className="icon"></Image>Reporte pedidos por
-        ayudante
-      </MenuItem>
-      <MenuItem>
-        <Image src={Truck} className="icon"></Image>Reporte viajes cerrados
-      </MenuItem>
-      <MenuItem>
-        <Image src={Hand} className="icon"></Image>Reporte cierre venta
-      </MenuItem>
-      <MenuItem>
-        <Image src={Map} className="icon"></Image>Reporte productos por zona
-      </MenuItem>
-      <MenuItem>
-        <Image src={Salesman} className="icon"></Image>Reporte acumulado por
-        vendedor
-      </MenuItem>
-      <MenuItem>
-        <Image src={Bill} className="icon"></Image>Reporte ventas por
-        transferencias
-      </MenuItem>
-      <MenuItem>
-        <Image src={Bill} className="icon"></Image>Reporte de transferencias
-      </MenuItem>*/}
     </SubMenu>
   );
 }

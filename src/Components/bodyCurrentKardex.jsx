@@ -17,6 +17,7 @@ import "../styles/reportStyles.css";
 import Pagination from "./pagination";
 import { ReportPDF } from "./reportPDF";
 import loading2 from "../assets/loading2.gif";
+import Cookies from "js-cookie";
 export default function BodyCurrentKardex() {
   const [isCriteria, setIsCriteria] = useState(false);
   const [criteria, setCriteria] = useState("");
@@ -47,7 +48,10 @@ export default function BodyCurrentKardex() {
   const [searchbox, setSearchbox] = useState("");
   const [auxDataTable, setAuxDataTable] = useState([]);
   const [isReported, setIsReported] = useState(false);
+  const showAll = [1, 9, 10, 8, 7, 6, 5];
+  const user = JSON.parse(Cookies.get("userAuth"));
   useEffect(() => {
+    const userRol = JSON.parse(Cookies.get("userAuth")).rol;
     const fecha = new Date();
     const dia = fecha.toString().split(" ");
     setSelectedDate(dia[2] + "/" + dia[1] + "/" + dia[3]);
@@ -58,7 +62,15 @@ export default function BodyCurrentKardex() {
     const agencias = getStores();
     agencias.then((res) => {
       console.log("Stores", res);
-      setStoreList(res.data);
+      if (showAll.includes(userRol)) {
+        setStoreList(res.data);
+      } else {
+        const filtered = res.data.filter(
+          (ag) => ag.idAgencia == user.idAlmacen
+        );
+        setStoreList(filtered);
+        console.log("Filtered", filtered);
+      }
     });
   }, []);
 
@@ -294,7 +306,9 @@ export default function BodyCurrentKardex() {
             >
               <option value="">Seleccione criterio</option>
               <option value="1">Por Agencia</option>
-              <option value="2">Por Producto</option>
+              {showAll.includes(user.rol) ? (
+                <option value="2">Por Producto</option>
+              ) : null}
             </Form.Select>
           </Form.Group>
         </div>

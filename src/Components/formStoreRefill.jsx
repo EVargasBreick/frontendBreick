@@ -478,6 +478,7 @@ export default function FormStoreRefill() {
                                     product
                                   )
                                 }
+                                min={0}
                                 value={product.cantProducto}
                               />
                             </Form.Group>

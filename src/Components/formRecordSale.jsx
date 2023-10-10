@@ -316,15 +316,17 @@ export default function FormRecordSale() {
           cant_Actual: produc.cant_Actual,
           cantidadRestante: produc.cant_Actual,
           precioDescuentoFijo: produc.precioDescuentoFijo,
-          precioDeFabrica:
-            JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
-              ? produc.precioPDV
-              : produc.precioDeFabrica,
+          precioDeFabrica: clientes[0]?.issuper
+            ? produc.precioSuper
+            : JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+            ? produc.precioPDV
+            : produc.precioDeFabrica,
           descuentoProd: 0,
-          total:
-            JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
-              ? produc.precioPDV
-              : produc.precioDeFabrica,
+          total: clientes[0]?.issuper
+            ? produc.precioSuper
+            : JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+            ? produc.precioPDV
+            : produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
         };
@@ -363,16 +365,18 @@ export default function FormRecordSale() {
             idProducto: selected.idProducto,
             cant_Actual: selected.cant_Actual,
             cantidadRestante: selected.cant_Actual,
-            precioDeFabrica:
-              JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
-                ? selected.precioPDV
-                : selected.precioDeFabrica,
+            precioDeFabrica: clientes[0]?.issuper
+              ? selected.precioSuper
+              : JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+              ? selected.precioPDV
+              : selected.precioDeFabrica,
             precioDescuentoFijo: selected.precioDescuentoFijo,
             descuentoProd: 0,
-            total:
-              JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
-                ? selected.precioPDV
-                : selected.precioDeFabrica,
+            total: clientes[0]?.issuper
+              ? selected.precioSuper
+              : JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
+              ? selected.precioPDV
+              : selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
           };

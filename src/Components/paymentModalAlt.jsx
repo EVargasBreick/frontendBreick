@@ -434,7 +434,7 @@ export default function PaymentModalAlt({
         stock: updateStockBody,
         storeInfo: storeInfo,
       };
-
+      console.log("BODY COMPUESTO", composedBody);
       try {
         setFechaHora(dateString());
         const invocieResponse = await debouncedFullInvoiceProcess(composedBody);

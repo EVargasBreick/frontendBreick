@@ -210,6 +210,22 @@ const getSalesByStoreReport = (startDate, endDate) => {
   return response;
 };
 
+const salesByDayReport = (month, year) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/diario/vendedor?year=${year}&month=${month}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -222,4 +238,5 @@ export {
   virtualStockReport,
   sellerProductReport,
   getSalesByStoreReport,
+  salesByDayReport,
 };
