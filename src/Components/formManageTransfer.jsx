@@ -99,22 +99,20 @@ export default function FormManageTransfer() {
       idTraspaso: idTraspaso,
       fechaHora: dateString(),
       idUsuario: userId,
-    });
-    canceledTransfer.then((res) => {
-      const returnToStock = updateStock({
+      stock: {
         accion: "add",
         idAlmacen: idOrigen,
         productos: productos,
         detalle: `DPCTR-${idTraspaso}`,
-      });
-      returnToStock.then((returned) => {
-        setIsFormModal(false);
-        setAlertSec("Traspaso cancelado correctamente");
-        setIsAlertSec(true);
-        setTimeout(() => {
-          window.location.reload(false);
-        }, 5000);
-      });
+      },
+    });
+    canceledTransfer.then((res) => {
+      setIsFormModal(false);
+      setAlertSec("Traspaso cancelado correctamente");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload(false);
+      }, 5000);
     });
   }
   function approveTransfer() {
