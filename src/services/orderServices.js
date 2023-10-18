@@ -2,19 +2,10 @@ import axios from "axios";
 import debounce from "lodash/debounce";
 const createOrder = (orderObject) => {
   console.log("CREANDO PEDIDO", orderObject);
-  return new Promise((resolve, reject) => {
-    axios
-      .post(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos`,
-        orderObject
-      )
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+  return axios.post(
+    `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos`,
+    orderObject
+  );
 };
 
 const getOrderStatus = () => {
