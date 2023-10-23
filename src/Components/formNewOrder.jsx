@@ -587,6 +587,10 @@ export default function FormNewOrder() {
           })
           .catch((error) => {
             console.log("Error", error);
+            setAlertSec(error.response.message || "Error en el Pedido");
+            setTimeout(() => {
+              setIsAlertSec(false);
+            }, 5000);
           });
       } else {
         setIsAlert(true);
@@ -711,6 +715,10 @@ export default function FormNewOrder() {
             })
             .catch((error) => {
               console.log("Error al crear el pedido", error);
+              setAlertSec(error.response.message || "Error en el Pedido");
+              setTimeout(() => {
+                setIsAlertSec(false);
+              }, 5000);
             });
         } else {
           setIsAlert(true);
