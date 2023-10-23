@@ -10,7 +10,7 @@ import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
 import { getStores } from "../services/storeServices";
 import { getProductsWithStock } from "../services/productServices";
-import { createTransfer } from "../services/transferServices";
+import { createTransfer, deleteTransfer } from "../services/transferServices";
 import { updateStock } from "../services/orderServices";
 import { OrderNote } from "./orderNote";
 import ReactToPrint from "react-to-print";
@@ -38,6 +38,7 @@ export default function FormStoreRefill() {
   const componentRef = useRef();
   const buttonRef = useRef();
   const productRef = useRef([]);
+  const [destinationStock, setDestinationStock] = useState([]);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -62,6 +63,7 @@ export default function FormStoreRefill() {
           console.log("disponibles", available);
           setProductos(available);
           setAuxProducts(available);
+          productRef.current = product.data;
         });
       } else {
         setIsInterior(true);
@@ -127,9 +129,11 @@ export default function FormStoreRefill() {
         setNombreDestino(
           almacen.find((al) => al.idAgencia == idSub[0])?.Nombre
         );
+        getDestinationStock(idSub[0]);
       } else {
         setIdDestino(id + "");
         setNombreDestino(almacen.find((al) => al.idAgencia == id)?.Nombre);
+        getDestinationStock(id + "");
       }
     }
   }
@@ -184,7 +188,7 @@ export default function FormStoreRefill() {
         .then((validated) => {
           const validatedQuant = validateQuantities();
           validatedQuant
-            .then((res) => {
+            .then(async (res) => {
               const transferObj = {
                 idOrigen: idOrigen,
                 idDestino: idDestino,
@@ -200,6 +204,7 @@ export default function FormStoreRefill() {
               const newTransfer = createTransfer(transferObj);
               newTransfer
                 .then((nt) => {
+                  const createdId = nt.data.data.idCreado;
                   const reservedProducts = updateStock({
                     accion: "take",
                     idAlmacen: idOrigen,
@@ -237,11 +242,17 @@ export default function FormStoreRefill() {
                       ];
                       setProductList(orderObj);
                     })
-                    .catch((error) => {
+                    .catch(async (error) => {
+                      updateCurrentStock();
+                      const deleted = await deleteTransfer(createdId);
+                      console.log("Traspaso borrado", deleted);
                       setIsAlertSec(false);
-                      setAlert(error.response.data.message);
                       console.log("Error", error);
+                      setAlert(error);
                       setIsAlert(true);
+                      setTimeout(() => {
+                        setIsAlert(false);
+                      }, 5000);
                     });
                 })
                 .catch((error) => {
@@ -336,6 +347,14 @@ export default function FormStoreRefill() {
     setProductos(auxProducts);
   }
 
+  function getDestinationStock(storeId) {
+    const prods = getProductsWithStock(storeId, "all");
+    prods.then((product) => {
+      console.log("disponibles", product.data);
+      setDestinationStock(product.data);
+    });
+  }
+
   return (
     <div>
       <div className="formLabel">CREAR TRASPASO</div>
@@ -375,11 +394,14 @@ export default function FormStoreRefill() {
           >
             <option>Seleccione destino</option>
             {almacen.map((ag) => {
-              return (
-                <option value={ag.Nombre} key={ag.Nombre}>
-                  {ag.Nombre}
-                </option>
-              );
+              console.log("AG", ag);
+              if (ag.idAgencia != idOrigen) {
+                return (
+                  <option value={ag.Nombre} key={ag.Nombre}>
+                    {ag.Nombre}
+                  </option>
+                );
+              }
             })}
           </Form.Select>
         </Form.Group>
@@ -435,6 +457,7 @@ export default function FormStoreRefill() {
                     <th className="tableColumn">Producto</th>
                     <th className="tableColumnSmall">Cantidad</th>
                     <th className="tableColumnSmall">Disponible</th>
+                    <th className="tableColumnSmall">Stock en destino</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -445,6 +468,10 @@ export default function FormStoreRefill() {
                     const refActual = productRef.current.find(
                       (pr) => pr.idProducto == product.idProducto
                     )?.cant_Actual;
+                    const stockDestino = destinationStock.find(
+                      (ds) => ds.idProducto == product.idProducto
+                    );
+
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -490,6 +517,7 @@ export default function FormStoreRefill() {
                         >
                           {cActual}
                         </td>
+                        <td>{stockDestino?.cant_Actual}</td>
                       </tr>
                     );
                   })}

@@ -48,7 +48,7 @@ export default function BodyCurrentKardex() {
   const [searchbox, setSearchbox] = useState("");
   const [auxDataTable, setAuxDataTable] = useState([]);
   const [isReported, setIsReported] = useState(false);
-  const showAll = [1, 9, 10, 8, 7, 6, 5];
+  const showAll = [1, 9, 10, 8, 7, 6, 5, 2];
   const user = JSON.parse(Cookies.get("userAuth"));
   useEffect(() => {
     const userRol = JSON.parse(Cookies.get("userAuth")).rol;

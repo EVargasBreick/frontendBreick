@@ -36,6 +36,7 @@ export default function FormNewTransfer() {
   const [auxProducts, setAuxProducts] = useState([]);
   const [nombreOrigen, setNombreOrigen] = useState("");
   const [nombreDestino, setNombreDestino] = useState();
+  const [destinationStock, setDestinationStock] = useState([]);
   const componentRef = useRef();
   const buttonRef = useRef();
   const productRef = useRef([]);
@@ -109,6 +110,14 @@ export default function FormNewTransfer() {
     });
   }
 
+  function getDestinationStock(storeId) {
+    const prods = getProductsWithStock(storeId, "all");
+    prods.then((product) => {
+      console.log("disponibles", product.data);
+      setDestinationStock(product.data);
+    });
+  }
+
   function prepareStoreId(id, action) {
     const idSub = id.split(" ");
     if (action === "origen") {
@@ -133,9 +142,11 @@ export default function FormNewTransfer() {
         setNombreDestino(
           almacen.find((al) => al.idAgencia == idSub[0])?.Nombre
         );
+        getDestinationStock(idSub[0]);
       } else {
         setIdDestino(id + "");
         setNombreDestino(almacen.find((al) => al.idAgencia == id)?.Nombre);
+        getDestinationStock(id + "");
       }
     }
   }
@@ -424,11 +435,13 @@ export default function FormNewTransfer() {
           >
             <option>Seleccione destino</option>
             {almacen.map((ag) => {
-              return (
-                <option value={ag.Nombre} key={ag.Nombre}>
-                  {ag.Nombre}
-                </option>
-              );
+              if (ag.idAgencia != idOrigen) {
+                return (
+                  <option value={ag.Nombre} key={ag.Nombre}>
+                    {ag.Nombre}
+                  </option>
+                );
+              }
             })}
           </Form.Select>
         </Form.Group>
@@ -484,6 +497,7 @@ export default function FormNewTransfer() {
                     <th className="tableColumn">Producto</th>
                     <th className="tableColumnSmall">Cantidad</th>
                     <th className="tableColumnSmall">Disponible</th>
+                    <th className="tableColumnSmall">Stock en destino</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -494,7 +508,10 @@ export default function FormNewTransfer() {
                     const refActual = productRef.current.find(
                       (pr) => pr.idProducto == product.idProducto
                     )?.cant_Actual;
-
+                    const stockDestino = destinationStock.find(
+                      (ds) => ds.idProducto == product.idProducto
+                    );
+                    console.log("Stock destino", stockDestino);
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -539,6 +556,7 @@ export default function FormNewTransfer() {
                         >
                           {cActual}
                         </td>
+                        <td>{stockDestino?.cant_Actual}</td>
                       </tr>
                     );
                   })}

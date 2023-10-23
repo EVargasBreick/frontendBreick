@@ -3,6 +3,7 @@ import { Button, Form, Table } from "react-bootstrap";
 import { userService } from "../services/userServices";
 
 import {
+  monthlyGoalsReport,
   salesByDayReport,
   sellerProductReport,
 } from "../services/reportServices";
@@ -28,7 +29,8 @@ export default function BodySalesByDay() {
   const [yearList, setYearList] = useState([]);
   const startingYear = 2023;
   const [userChart, setUserChart] = useState("");
-  const [goalChart, setGoalChart] = useState("");
+  const [goalChart, setGoalChart] = useState({});
+  const [goalsData, setGoalsData] = useState([]);
   const dayList = [
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
     22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
@@ -139,29 +141,49 @@ export default function BodySalesByDay() {
     }
   }, [fullTable]);
 
-  function structureData() {
+  async function structureData() {
+    const goalsFetched = await monthlyGoalsReport(month, year);
+    setGoalsData(goalsFetched.data);
+    const goalsInfo = goalsFetched.data;
     console.log("Entrando aca");
     const uniqueArray = uniqueUsers(reportData);
     setUniqueUs(uniqueArray);
     const dynamic = {};
+    const goals = {};
     for (const user of userList) {
       dynamic[user.nombre + " " + user.apPaterno] = {};
+      goals[user.nombre + " " + user.apPaterno] = {};
       const filtered = reportData.filter(
         (rd) => rd.idUsuario === user.idUsuario
       );
+      const foundIdGoal = goalsInfo.filter(
+        (gd) => gd.idUsuario == user.idUsuario
+      );
+      console.log("found id goal", foundIdGoal);
       for (const day of dayList) {
         const dayValue = day > 9 ? day : "0" + day;
         const foundValue = filtered.find(
           (fn) => fn.split_part == `${dayValue}/${month}/${year}`
         );
+        const foundGoal = foundIdGoal
+          ? foundIdGoal.find(
+              (fig) => fig.fecha == `${dayValue}/${month}/${year}`
+            )
+          : 0;
+        const goalCell = foundIdGoal ? (foundGoal ? foundGoal?.meta : 0) : 0;
 
         dynamic[user.nombre + " " + user.apPaterno][
           `${dayValue}/${month}/${year}`
         ] = foundValue ? parseFloat(foundValue?.round) : 0;
+
+        goals[user.nombre + " " + user.apPaterno][
+          `${dayValue}/${month}/${year}`
+        ] = goalCell;
       }
     }
-    console.log("Tabla dinamica", dynamic);
+    console.log("Tabla dinamica goals", goals);
     setFullTable(dynamic);
+    setGoalsData(goals);
   }
 
   function uniqueUsers() {
@@ -178,7 +200,8 @@ export default function BodySalesByDay() {
   async function getReport() {
     const report = await salesByDayReport(month, year);
     setReportData(report.data);
-    console.log("Datos del reporte", report);
+
+    //console.log("Datos del reporte de metas", goals.data);
   }
 
   const roundToTwoDecimals = (num) => {
@@ -188,10 +211,10 @@ export default function BodySalesByDay() {
     return parseFloat(num);
   };
 
-  function setUpChartData(data, nombre, index) {
-    console.log("TESTEANDO", fullTable[userCol[index - 1]]);
-    setGoalChart(fullTable[userCol[index - 1]]);
+  function setUpChartData(data, nombre, index, goals) {
+    console.log("TESTEANDO", goals);
     setChartData(data);
+    setGoalChart(goals);
     setUserChart(nombre);
     openModal();
   }
@@ -357,7 +380,12 @@ export default function BodySalesByDay() {
                       <Button
                         variant="warning"
                         onClick={() =>
-                          setUpChartData(fullTable[user], user, index)
+                          setUpChartData(
+                            fullTable[user],
+                            user,
+                            index,
+                            goalsData[user]
+                          )
                         }
                       >
                         Ver

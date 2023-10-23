@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Toast from "react-bootstrap/Toast";
-import Button from "react-bootstrap/Button";
 import ToastContainer from "react-bootstrap/ToastContainer";
 
 const ToastComponent = ({ show, setShow, autoclose, text, type }) => {

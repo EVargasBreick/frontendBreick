@@ -46,7 +46,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         Ventas Agencia
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/facturasanular")}
+        onClick={() => redirectOnClick("/facturas/anulacion")}
         className="menuItem"
       >
         {" "}
@@ -162,6 +162,12 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         <Image src={Lines} className="icon"></Image>
         Ver Info Traspasos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/actual/kardex")}
+        className="menuItem"
+      >
+        <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
       </MenuItem>
       {/*<MenuItem
         onClick={() => redirectOnClick("/reportes/log/kardex")}

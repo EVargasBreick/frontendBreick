@@ -25,6 +25,8 @@ import Load from "../../assets/load.png";
 import Printer from "../../assets/printer.png";
 import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
+import { GoGoal } from "react-icons/go";
+import { TbDiscount2 } from "react-icons/tb";
 import "../../styles/generalStyle.css";
 
 export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
@@ -51,6 +53,12 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={newClient} className="icon"></Image>Modificacion de Clientes
       </MenuItem>
       <div className="menuItem">Pedidos</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/pedidos")}
+        className="menuItem"
+      >
+        <Image src={newOrder} className="icon"></Image>Ver Pedidos
+      </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/regPedido")}
         className="menuItem"
@@ -117,6 +125,13 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={HStar} className="icon inverted"></Image>
         Desarmar Packs
       </MenuItem>
+      {/*  <MenuItem
+        onClick={() => redirectOnClick("/registrar/descuentos-temporada")}
+        className="menuItem"
+      >
+        <TbDiscount2 size="12%" style={{ paddingRight: "5px" }} />
+        Registrar desc de temporada
+      </MenuItem>*/}
       <div className="menuItem">Facturas</div>
       <MenuItem
         onClick={() => redirectOnClick("/facturasReimprimir")}
@@ -132,7 +147,14 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       >
         <Image src={appBooking} className="icon"></Image>Informacion Facturas
       </MenuItem>
-      <div className="menuItem">Usuarios</div>
+      <div className="menuItem">Vendedores</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/metas/ingresar")}
+        className="menuItem"
+      >
+        <GoGoal size="12%" style={{ paddingRight: "5px" }} /> Registrar metas
+        senamales
+      </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/editarUsuario/agencia")}
         className="menuItem"

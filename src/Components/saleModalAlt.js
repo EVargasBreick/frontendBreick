@@ -1174,10 +1174,12 @@ function SaleModalAlt(
             <div className="modalRows">
               <div className="modalLabel"> Descuento:</div>
               <div className="modalData">
-                {(
-                  parseFloat(giftCard != "" ? giftCard : 0) +
-                  parseFloat(descuentoCalculado)
-                ).toFixed(2)}
+                {Math.abs(
+                  (
+                    parseFloat(giftCard != "" ? giftCard : 0) +
+                    parseFloat(descuentoCalculado)
+                  ).toFixed(2)
+                )}
               </div>
             </div>
             <div className="modalRows">

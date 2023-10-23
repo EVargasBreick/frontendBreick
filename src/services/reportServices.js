@@ -226,6 +226,38 @@ const salesByDayReport = (month, year) => {
   });
 };
 
+const monthlyGoalsReport = (month, year) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/diario/metas?year=${year}&month=${month}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+const remainingDayGoal = (idUsuario, fecha) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/diario/restante?idUsuario=${idUsuario}&fecha=${fecha}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -239,4 +271,6 @@ export {
   sellerProductReport,
   getSalesByStoreReport,
   salesByDayReport,
+  monthlyGoalsReport,
+  remainingDayGoal,
 };

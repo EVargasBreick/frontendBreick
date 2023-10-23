@@ -161,6 +161,7 @@ export default function FormNewSaleAlt() {
       });
       const suc = getBranchesPs();
       suc.then((resp) => {
+        console.log("SUCURSALES", resp.data);
         const sucursales = resp.data;
         const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
         console.log("Dataaa", data);

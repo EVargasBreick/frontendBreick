@@ -101,16 +101,21 @@ export const monthInfo = (month, year) => {
 };
 
 export const formatDate = (date) => {
-  const spplited = JSON.stringify(date).split("-");
-  const startyear = spplited[0].split(`"`).pop();
-  const startmonth = spplited[1];
-  const startday = spplited[2].split("T")[0];
-  const fullDate = startday + "/" + startmonth + "/" + startyear;
-
+  const originalDate = new Date(date);
+  const day =
+    originalDate.getDate() < 10
+      ? `0${originalDate.getDate()}`
+      : originalDate.getDate();
+  const month =
+    originalDate.getMonth() + 1 < 10
+      ? `0${originalDate.getMonth() + 1}`
+      : originalDate.getMonth() + 1; // Months are 0-indexed, so add 1 to get the correct month.
+  const year = originalDate.getFullYear();
+  const fullDate = day + "/" + month + "/" + year;
   return {
-    month: startmonth,
-    day: startday,
-    year: startyear,
+    month: month,
+    day: day,
+    year: year,
     fullDate: fullDate,
   };
 };

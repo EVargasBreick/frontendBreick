@@ -1,24 +1,23 @@
 import React from "react";
 import Display from "./display";
-import Sidebar from "./sidebar";
 import "../styles/generalStyle.css";
-
+import "../styles/formLayouts.css";
+import Sidebar from "./sidebar";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-
-import FormOrdersToReady from "./formOrdersToReady";
-import FormRejectedOrders from "./formRejectedOrders";
-import FormRegisterSeasonDiscounts from "./formRegisterSeasonDiscounts";
-export default function RegisterSeasonDiscounts() {
+import FormCancelInvoiceAltern from "./formCancelInvoiceAltern";
+export default function CancelInvoiceAltern() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-    const permited = [1, 7, 9];
-    const userRol = JSON.parse(Cookies.get("userAuth")).rol;
+
     if (user) {
-      //console.log("User rol", userRol);
-      if (!permited.includes(userRol)) {
+      if (
+        JSON.parse(Cookies.get("userAuth")).rol != 8 ||
+        JSON.parse(Cookies.get("userAuth")).rol != 10
+      ) {
+      } else {
         navigate("/principal");
       }
     }
@@ -34,7 +33,7 @@ export default function RegisterSeasonDiscounts() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormRegisterSeasonDiscounts />
+          <FormCancelInvoiceAltern />
         </div>
       </div>
     </div>

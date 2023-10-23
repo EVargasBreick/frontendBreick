@@ -172,10 +172,41 @@ export const userService = {
   },
 };
 
+const getWeeklyGoals = (startDate, endDate) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/user/weekly/goals?startDate=${startDate}&endDate=${endDate}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const insertAndUpdateWeekly = (body) => {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/user/update/goals`;
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, body)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export {
   controlUserInput,
   verifySamePassword,
   structureUser,
   createUser,
   userBasic,
+  getWeeklyGoals,
+  insertAndUpdateWeekly,
 };

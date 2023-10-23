@@ -17,7 +17,7 @@ import { updateStock } from "../services/orderServices";
 import { getMobileSalePoints } from "../services/storeServices";
 import { emizorService } from "../services/emizorService";
 
-export default function FormCancelInvoiceAlt() {
+export default function FormCancelInvoiceAltern() {
   const [userStore, setUserStore] = useState("");
   const [facturas, setFacturas] = useState([]);
   const [isCanceled, setIsCanceled] = useState(false);
@@ -130,27 +130,24 @@ export default function FormCancelInvoiceAlt() {
     setIsAlert(true);
     setAlert("Anulando Factura");
     console.log("Datos factura anulando", invoice);
+    const products = allFacts.filter((af) => af.idFactura == invoice.idFactura);
+    const returnToStock = {
+      accion: "add",
+      idAlmacen: selectedInvoice.idAgencia,
+      productos: products,
+      detalle: `ANFAC-${invoice.idFactura}`,
+    };
     try {
-      const cancelar = await emizorService.anularFactura(invoice.cuf, motivo);
+      const cancelar = await emizorService.composedAnularFactura(
+        invoice.cuf,
+        motivo,
+        returnToStock
+      );
       console.log("cancelar", cancelar);
-      try {
-        const products = allFacts.filter(
-          (af) => af.idFactura == invoice.idFactura
-        );
-        const returnToStock = await updateStock({
-          accion: "add",
-          idAlmacen: selectedInvoice.idAgencia,
-          productos: products,
-          detalle: `ANFAC-${invoice.idFactura}`,
-        });
-        console.log("Stock retornado", returnToStock);
-        setAlert("Factura Anulada");
-        setTimeout(() => {
-          window.location.reload();
-        }, 5000);
-      } catch (error) {
-        setAlert("Error al devolver stock");
-      }
+      setAlert("Factura Anulada");
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
     } catch (error) {
       const errors = error.response?.data?.data?.data?.errors ?? [
         "Error al anular factura",

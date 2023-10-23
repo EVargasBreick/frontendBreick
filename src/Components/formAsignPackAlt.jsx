@@ -16,6 +16,7 @@ import { PackageDropComponent } from "./packacgeDropComponent";
 import { getBranchesPs } from "../services/storeServices";
 import { handleDownloadPdf } from "../services/utils";
 import ReactToPrint from "react-to-print";
+import LoadingModal from "./Modals/loadingModal";
 
 export default function FormAsignPack() {
   const [packs, setPacks] = useState([]);
@@ -39,6 +40,8 @@ export default function FormAsignPack() {
   const [modalText, setModalText] = useState("");
   const [changed, setChanged] = useState(false);
   const [showButtons, setShowButtons] = useState(true);
+  const [isAlert, setIsAlert] = useState(false);
+  const [alert, setAlert] = useState("");
   // ref
   const dropRef = useRef();
   const [branchInfo, setBranchInfo] = useState({});
@@ -51,8 +54,10 @@ export default function FormAsignPack() {
       setLoading(true);
       const packList = getPacks();
       packList.then((res) => {
-        setAllPacks(res.data);
-        let uniqueArray = res.data.reduce((acc, curr) => {
+        console.log("Packs para amar", res.data);
+        const filtered = res.data.filter((data) => data.activo == 1);
+        setAllPacks(filtered);
+        let uniqueArray = filtered.reduce((acc, curr) => {
           if (!acc.find((obj) => obj.nombrePack === curr.nombrePack)) {
             acc.push(curr);
           }
@@ -64,7 +69,7 @@ export default function FormAsignPack() {
       getStoreStock(userAlmacen);
       const groupList = getProductsGroup();
       groupList.then((res) => {
-        console.log("Respuesta de los grupos", res.data);
+        //console.log("Respuesta de los grupos", res.data);
         setProductGroupList(res.data);
       });
 
@@ -109,7 +114,7 @@ export default function FormAsignPack() {
               ({ idProducto: id2 }) => id2.toString() === id1.toString()
             )
         );
-        console.log("Resultados", results);
+        //console.log("Resultados", results);
         if (results.length > 0) {
           setChanged(true);
         } else {
@@ -135,10 +140,13 @@ export default function FormAsignPack() {
     setIsPack(true);
     setSelectedPackId(value);
     const prodList = allPacks.filter((pk) => pk.idPack == value);
-    console.log("Pack seleccionado", prodList);
+    //console.log("Pack seleccionado", prodList);
     setProductList(prodList);
   }
   async function asignPack() {
+    setShowModal(false);
+    setAlert("Armando Packs");
+    setIsAlert(true);
     try {
       setLoading(true);
       const selectedProducts = [];
@@ -305,7 +313,7 @@ export default function FormAsignPack() {
       auxProdList[index].nombreProducto = found.nombreProducto;
       auxProdList[index].precioDeFabrica = found.precioDeFabrica;
       setProductList(auxProdList);
-      console.log("Cambiado");
+      //console.log("Cambiado");
       setChanged(true);
     }
   }
@@ -338,6 +346,7 @@ export default function FormAsignPack() {
         text={toastText}
         type={toastType}
       />
+      <LoadingModal isAlertSec={isAlert} alertSec={alert} />
 
       <Form>
         <Form.Select

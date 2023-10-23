@@ -154,6 +154,7 @@ export default function FormAllOrders() {
           currentDate[2],
         tipo: toUpper(res.data.data[0].tipo),
       };
+      console.log("PROD HEADER OBJ", prodHeaderObj);
       setVendedor(res.data.data[0].nombreVendedor);
       setCliente(res.data.data[0].razonSocial);
       setZona(res.data.data[0].zona);
@@ -166,17 +167,22 @@ export default function FormAllOrders() {
       setTipo(res.data.data[0].tipo);
       var sumatoria = 0;
       const prodList = getOrderProdList(stringParts[0]);
+      console.log("IS SUPER", isSuper);
       prodList.then((resp) => {
         resp.data.data.map((pr) => {
           const found = allProducts.find(
             (item) => item.nombreProducto === pr.nombreProducto
           );
-          sumatoria += found?.precioDeFabrica * pr.cantidadProducto;
+          sumatoria += verifySuper
+            ? found?.precioSuper * pr.cantidadProducto
+            : found?.precioDeFabrica * pr.cantidadProducto;
           setTotalMuestra(sumatoria);
           const total =
             res.data.data[0].tipo === "normal"
               ? pr.totalProd
-              : found?.precioDeFabrica * pr.cantidadProducto;
+              : !verifySuper
+              ? found?.precioDeFabrica * pr.cantidadProducto
+              : found?.precioSuper * pr.cantidadProducto;
 
           //console.log("Found", found);
           console.log("IS SUPER", verifySuper);
@@ -367,10 +373,13 @@ export default function FormAllOrders() {
                     const found = allProducts.find(
                       (item) => item.nombreProducto === product.nombreProducto
                     );
+
                     const total =
                       tipo === "normal"
                         ? product.totalProd
-                        : found?.precioDeFabrica * product.cantidadProducto;
+                        : !isSuper
+                        ? found?.precioDeFabrica * product.cantidadProducto
+                        : found?.precioSuper * product.cantidadProducto;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumn">

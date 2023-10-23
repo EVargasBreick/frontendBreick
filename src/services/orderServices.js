@@ -183,7 +183,7 @@ const updateStock = debounce(
       }
     });
   },
-  3000,
+  1000,
   { leading: true }
 );
 
@@ -211,7 +211,7 @@ const updateMultipleStock = debounce(
       }
     });
   },
-  3000,
+  10000,
   { leading: true }
 );
 

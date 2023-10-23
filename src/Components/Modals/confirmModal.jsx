@@ -16,15 +16,14 @@ export const ConfirmModal = ({
         <Button variant="secondary" onClick={handleCancel}>
           X
         </Button>
-
       </Modal.Header>
       <Modal.Body>{text}</Modal.Body>
       {isButtons && (
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancel} autoFocus>
+          <Button variant="danger" onClick={handleCancel} autoFocus>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSubmit}>
+          <Button variant="success" onClick={handleSubmit}>
             Confirmar
           </Button>
         </Modal.Footer>

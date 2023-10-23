@@ -178,6 +178,8 @@ export default function FormManageOrders() {
             const total =
               res.data.data[0].tipo === "normal"
                 ? pr.totalProd
+                : isSuperm
+                ? found.precioSuper * pr.cantidadProducto
                 : found.precioDeFabrica * pr.cantidadProducto;
 
             //console.log("Found", found);

@@ -93,6 +93,8 @@ export default function FormModifyOrders() {
   const [seasonDiscountData, setSeasonDiscountData] = useState([]);
   const [isSeasonalModal, setIsSeasonalModal] = useState(false);
   const [isSuper, setIsSuper] = useState(false);
+  const [auxTotalPrev, setAuxTotalPrev] = useState("");
+  const [auxTotalFac, setAuxTotalFac] = useState("");
   const meses = [
     "Enero",
     "Febrero",
@@ -389,8 +391,10 @@ export default function FormModifyOrders() {
       setPrevDisc(res.data.data[0].descuento);
       setFacturado(res.data.data[0].montoTotal);
       setTotalPrevio(res.data.data[0].montoFacturar);
+      setAuxTotalPrev(res.data.data[0].montoFacturar);
       setTotalDesc(res.data.data[0].descuentoCalculado);
       setTotalFacturar(res.data.data[0].montoTotal);
+      setAuxTotalFac(res.data.data[0].montoTotal);
       setUsuarioCrea(res.data.data[0].idUsuarioCrea);
       setCodigoPedido(res.data.data[0].codigoPedido);
       setCreatorStore(res.data.data[0].idAlmacen);
@@ -419,6 +423,7 @@ export default function FormModifyOrders() {
           const precio = verifySuper
             ? parsed.precioSuper
             : parsed.precioDeFabrica;
+
           const prodObj = {
             cantPrevia: parsed.cantidadProducto,
             cantProducto: parsed.cantidadProducto,
@@ -673,7 +678,9 @@ export default function FormModifyOrders() {
       if (
         countProdsChanged === selectedProds.length &&
         descuento === prevDisc &&
-        auxSelectedProds.length === selectedProds.length
+        auxSelectedProds.length === selectedProds.length &&
+        totalPrevio == auxTotalPrev &&
+        totalFacturar == auxTotalFac
       ) {
         setAlert("No se han detectado cambios en el pedido ");
         setIsAlert(true);

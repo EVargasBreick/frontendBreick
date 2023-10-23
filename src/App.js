@@ -72,6 +72,7 @@ import SellerProductReport from "./Components/sellerProductReport";
 import SalesByDayReport from "./Components/salesByDayReport";
 import GoalSetter from "./Components/goalSetter";
 import RegisterSeasonDiscounts from "./Components/registerSeasonDiscounts";
+import CancelInvoiceAltern from "./Components/cancelInvoiceAltern";
 
 function App() {
   return (
@@ -309,6 +310,14 @@ function App() {
               element={
                 <RequireAuth>
                   <CancelInvoiceAlt />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturas/anulacion"
+              element={
+                <RequireAuth>
+                  <CancelInvoiceAltern />
                 </RequireAuth>
               }
             />
