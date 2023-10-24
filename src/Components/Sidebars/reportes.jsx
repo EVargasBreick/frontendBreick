@@ -19,6 +19,10 @@ import Salesman from "../../assets/salesman.png";
 import Hand from "../../assets/hand.png";
 import Prod from "../../assets/prod.png";
 import "../../styles/generalStyle.css";
+import { MdInventory } from "react-icons/md";
+import { TbCalendarTime } from "react-icons/tb";
+import { MdMoveUp } from "react-icons/md";
+import { BiSolidStoreAlt } from "react-icons/bi";
 export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
   return (
     <SubMenu
@@ -29,6 +33,7 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       open={toggledRep}
       icon={<Image src={Report} className="compIcon"></Image>}
     >
+      <div className="menuItem">Reportes de ventas</div>
       <MenuItem
         onClick={() => redirectOnClick("/reportes/ventas/general")}
         className="menuItem"
@@ -36,52 +41,11 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         <Image src={Book} className="icon"></Image>Reporte libro de ventas
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/reportes/ventas/productos")}
-        className="menuItem"
-      >
-        <Image src={Book} className="icon"></Image>Reporte libro de ventas por
-        producto
-      </MenuItem>
-
-      <MenuItem
-        onClick={() => redirectOnClick("/reportes/log/kardex")}
-        className="menuItem"
-      >
-        <Image src={Lines} className="icon"></Image>
-        Reporte Kardex Pasado
-      </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/reportes/stock")}
-        className="menuItem"
-      >
-        <Image src={Lines} className="icon"></Image>
-        Reporte Movimientos Kardex
-      </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/reportes/stock/virtual")}
-        className="menuItem"
-      >
-        <Image src={Lines} className="icon"></Image>Reporte de Stock en
-        Consignación
-      </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/reportes/actual/kardex")}
-        className="menuItem"
-      >
-        <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
-      </MenuItem>
-      <MenuItem
-        onClick={() => redirectOnClick("/reportes/bajas/general")}
-        className="menuItem"
-      >
-        <Image src={Hand} className="icon"></Image>Reporte libro de bajas
-      </MenuItem>
-      <MenuItem
         onClick={() => redirectOnClick("/reportes/ventas/agencias")}
         className="menuItem"
       >
-        <Image src={Ticket} className="icon"></Image>Reporte de ventas por
-        agencia
+        <BiSolidStoreAlt size="40px" style={{ paddingRight: "5px" }} />
+        Reporte de ventas por agencia
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/reportes/ventas/vendedor")}
@@ -89,6 +53,20 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       >
         <Image src={Salesman} className="icon"></Image>Reporte de ventas por
         vendedor
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/diario")}
+        className="menuItem"
+      >
+        <Image src={Prod} className="icon"></Image>Reporte mensual de ventas
+      </MenuItem>
+      <div className="menuItem">Reportes de productos</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/productos")}
+        className="menuItem"
+      >
+        <Image src={Book} className="icon"></Image>Reporte libro de ventas por
+        producto
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/reportes/agrupado/productos")}
@@ -111,11 +89,41 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         <Image src={Salesman} className="icon"></Image>Reporte de prod. por
         vendedor
       </MenuItem>
+      <div className="menuItem">Reportes de kardex</div>
       <MenuItem
-        onClick={() => redirectOnClick("/reportes/ventas/diario")}
+        onClick={() => redirectOnClick("/reportes/actual/kardex")}
         className="menuItem"
       >
-        <Image src={Prod} className="icon"></Image>Reporte mensual de ventas
+        <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/log/kardex")}
+        className="menuItem"
+      >
+        <TbCalendarTime size="40px" style={{ paddingRight: "5px" }} />
+        Reporte Kardex Pasado
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/stock")}
+        className="menuItem"
+      >
+        <MdMoveUp size="40px" style={{ paddingRight: "5px" }} />
+        Reporte Movimientos Kardex
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/stock/virtual")}
+        className="menuItem"
+      >
+        <BiSolidStoreAlt size="40px" style={{ paddingRight: "5px" }} />
+        Reporte de Stock en Consignación
+      </MenuItem>
+
+      <div className="menuItem">Otros reportes</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/bajas/general")}
+        className="menuItem"
+      >
+        <Image src={Hand} className="icon"></Image>Reporte libro de bajas
       </MenuItem>
     </SubMenu>
   );

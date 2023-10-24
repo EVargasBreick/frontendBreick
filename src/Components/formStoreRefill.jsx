@@ -241,6 +241,9 @@ export default function FormStoreRefill() {
                         },
                       ];
                       setProductList(orderObj);
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 30000);
                     })
                     .catch(async (error) => {
                       updateCurrentStock();

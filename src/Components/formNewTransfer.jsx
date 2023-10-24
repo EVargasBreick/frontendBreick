@@ -265,6 +265,9 @@ export default function FormNewTransfer() {
                           setIsAlertSec(false);
                           setAlert("Traspaso Creado correctamente");
                           setIsAlert(true);
+                          setTimeout(() => {
+                            window.location.reload();
+                          }, 30000);
                         })
                         .catch((error) => {
                           console.log("Error al enviar el correo", error);

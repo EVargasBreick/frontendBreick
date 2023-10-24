@@ -125,13 +125,13 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={HStar} className="icon inverted"></Image>
         Desarmar Packs
       </MenuItem>
-      {/*  <MenuItem
+      <MenuItem
         onClick={() => redirectOnClick("/registrar/descuentos-temporada")}
         className="menuItem"
       >
         <TbDiscount2 size="12%" style={{ paddingRight: "5px" }} />
         Registrar desc de temporada
-      </MenuItem>*/}
+      </MenuItem>
       <div className="menuItem">Facturas</div>
       <MenuItem
         onClick={() => redirectOnClick("/facturasReimprimir")}
