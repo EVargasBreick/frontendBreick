@@ -186,9 +186,12 @@ export default function FormManageOrders() {
             const pTable = {
               producto: pr.nombreProducto,
               cantidad: pr.cantidadProducto,
-              precio: isSuperm
-                ? pr.precioSuper?.toFixed(2)
-                : pr.precioDeFabrica?.toFixed(2),
+              precio:
+                pr.precio_producto != null
+                  ? pr.precio_producto
+                  : isSuperm
+                  ? pr.precioSuper?.toFixed(2)
+                  : pr.precioDeFabrica?.toFixed(2),
               total: total?.toFixed(2),
               "descuento calculado": pr.descuentoProducto?.toFixed(2),
             };
@@ -416,7 +419,6 @@ export default function FormManageOrders() {
                 <thead>
                   <tr className="tableHeader">
                     <th className="tableColumn">Producto</th>
-
                     <th className="tableColumnSmall">Precio</th>
                     <th className="tableColumnSmall">Cantidad</th>
                     <th className="tableColumnSmall">Total</th>
@@ -431,13 +433,16 @@ export default function FormManageOrders() {
                       tipo === "normal"
                         ? product.totalProd
                         : found.precioDeFabrica * product.cantidadProducto;
+
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumn">
                           {product.nombreProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {isSuper
+                          {product.precio_producto != null
+                            ? product.precio_producto
+                            : isSuper
                             ? product.precioSuper
                             : product.precioDeFabrica + " Bs."}
                         </td>

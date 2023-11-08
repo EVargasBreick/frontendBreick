@@ -189,9 +189,12 @@ export default function FormAllOrders() {
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,
-            precio: verifySuper
-              ? pr?.precioSuper
-              : pr?.precioDeFabrica?.toFixed(2),
+            precio:
+              pr?.precio_producto != null
+                ? pr?.precio_producto
+                : verifySuper
+                ? pr?.precioSuper
+                : pr?.precioDeFabrica?.toFixed(2),
             total: total?.toFixed(2),
             "descuento calculado": pr.descuentoProducto?.toFixed(2),
           };
@@ -375,7 +378,7 @@ export default function FormAllOrders() {
                     );
 
                     const total =
-                      tipo === "normal"
+                      tipo === "normal" || product.totalProd != 0
                         ? product.totalProd
                         : !isSuper
                         ? found?.precioDeFabrica * product.cantidadProducto
@@ -386,7 +389,9 @@ export default function FormAllOrders() {
                           {product.nombreProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {isSuper
+                          {product?.precio_producto
+                            ? product.precio_producto
+                            : isSuper
                             ? product?.precioSuper
                             : product?.precioDeFabrica + " Bs."}
                         </td>

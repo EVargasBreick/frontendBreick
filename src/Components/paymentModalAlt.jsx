@@ -110,12 +110,11 @@ export default function PaymentModalAlt({
     const suc = getBranchesPs();
     suc.then((resp) => {
       const sucursales = resp.data;
-      console.log("Sucursales", sucursales);
-      console.log("Id almacen", idAlmacen);
+
       const sucur = sucursales.find((sc) => idAlmacen == sc.idAgencia)
         ? sucursales.find((sc) => idAlmacen == sc.idAgencia)
         : sucursales.find((sc) => "AL001" == sc.idAgencia);
-      console.log("Sucur", sucur);
+
       const branchData = {
         nombre: sucur.nombre,
         dir: sucur.direccion,
@@ -123,7 +122,7 @@ export default function PaymentModalAlt({
         ciudad: sucur.ciudad,
         nro: sucur.idImpuestos,
       };
-      console.log("Branch data", branchData);
+
       setBranchInfo(branchData);
     });
   }, []);
@@ -133,8 +132,6 @@ export default function PaymentModalAlt({
     }
   }, [cuf, noFactura]);
   useEffect(() => {
-    console.log("Body factura", invoice);
-    console.log("Invoiceref", invoiceRef);
     if (isFactura && componentRef.current) {
       invoiceRef.current.click();
     }

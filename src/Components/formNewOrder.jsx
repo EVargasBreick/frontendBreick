@@ -877,6 +877,80 @@ export default function FormNewOrder() {
     searchRef.current.focus();
   }
 
+  function changePrice(index, value, prod) {
+    let auxObj = {
+      cant_Actual: prod.cant_Actual,
+      cantPrevia: prod.cantPrevia,
+      cantProducto: prod.cantProducto,
+      codInterno: prod.codInterno,
+      codigoBarras: prod.codigoBarras,
+      idProducto: prod.idProducto,
+      nombreProducto: prod.nombreProducto,
+      precioDeFabrica: value,
+      precioDescuentoFijo: prod.precioDescuentoFijo,
+      totalProd: prod.cantProducto * value,
+      totalDescFijo: prod.cantProducto * prod.precioDescuentoFijo,
+      tipoProducto: prod.tipoProducto,
+      descuentoProd: 0,
+      unidadDeMedida: prod.unidadDeMedida,
+    };
+    let auxSelected = [...selectedProds];
+    auxSelected[index] = auxObj;
+    setSelectedProds(auxSelected);
+
+    switch (prod.tipoProducto) {
+      case 1:
+        const tindex = tradicionales.findIndex(
+          (td) => td.idProducto == prod.idProducto
+        );
+        const taux = [...tradicionales];
+        taux[tindex] = auxObj;
+        setTradicionales(taux);
+        break;
+      case 2:
+        const pindex = pascua.findIndex(
+          (ps) => ps.idProducto == prod.idProducto
+        );
+        const paux = [...pascua];
+        paux[pindex] = auxObj;
+        setPascua(paux);
+        break;
+      case 3:
+        const nindex = navidad.findIndex(
+          (nv) => nv.idProducto == prod.idProducto
+        );
+        const naux = [...navidad];
+        naux[nindex] = auxObj;
+        setNavidad(naux);
+        break;
+      case 4:
+        const hindex = halloween.findIndex(
+          (hl) => hl.idProducto == prod.idProducto
+        );
+        const haux = [...halloween];
+        haux[hindex] = auxObj;
+        setHalloween(haux);
+        break;
+      case 5:
+        const sindex = sinDesc.findIndex(
+          (sd) => sd.idProducto == prod.idProducto
+        );
+        const saux = [...sinDesc];
+        saux[sindex] = auxObj;
+        setSinDesc(saux);
+        break;
+      case 6:
+        const espIndex = especiales.findIndex(
+          (ep) => ep.codInterno == prod.codInterno
+        );
+
+        const eaux = [...especiales];
+        eaux[espIndex] = auxObj;
+        setEspeciales(eaux);
+        break;
+    }
+  }
+
   return (
     <div>
       <div className="formLabel">REGISTRAR PEDIDOS</div>
@@ -1149,6 +1223,9 @@ export default function FormNewOrder() {
                               <Form.Control
                                 type="number"
                                 value={sp.precioDeFabrica}
+                                onChange={(e) =>
+                                  changePrice(index, e.target.value, sp)
+                                }
                               />{" "}
                               <InputGroup.Text>Bs</InputGroup.Text>
                             </InputGroup>
