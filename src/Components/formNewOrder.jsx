@@ -47,7 +47,7 @@ import SpecialsTable from "./specialsTable";
 import SinDescTable from "./sinDescTable";
 import { getSeasonalDiscount } from "../services/discountEndpoints";
 import SeasonalDiscountTable from "./seasonalDiscountTable";
-
+import { InputGroup } from "react-bootstrap";
 export default function FormNewOrder() {
   const [isClient, setIsClient] = useState(false);
   const [isProduct, setIsProduct] = useState(false);
@@ -1111,8 +1111,8 @@ export default function FormNewOrder() {
                       isMobile ? "Cant" : "Cantidad"
                     } /Peso (Gr)`}</th>
                     <th className="smallTableColumn">Total</th>
-                    <th className="smallTableColumn">
-                      {isMobile ? "Cant Disp" : "Cantidad Disponible"}
+                    <th style={{ width: "10%" }}>
+                      {isMobile ? "Cant Disp" : "Disponible"}
                     </th>
                   </tr>
                 </thead>
@@ -1143,10 +1143,18 @@ export default function FormNewOrder() {
                         <td className="smallTableColumn">
                           {sp.nombreProducto}
                         </td>
-                        <td className="smallTableColumn">
-                          {sp.precioDeFabrica + " Bs."}
+                        <td style={{ width: "20%" }}>
+                          {
+                            <InputGroup>
+                              <Form.Control
+                                type="number"
+                                value={sp.precioDeFabrica}
+                              />{" "}
+                              <InputGroup.Text>Bs</InputGroup.Text>
+                            </InputGroup>
+                          }
                         </td>
-                        <td className="smallTableColumn">
+                        <td style={{ width: "20%" }}>
                           <Form.Control
                             type="number"
                             min="0"
@@ -1160,12 +1168,7 @@ export default function FormNewOrder() {
                         <td className="smallTableColumn">
                           {sp.totalProd?.toFixed(2)}
                         </td>
-                        <td
-                          className="smallTableColumn"
-                          style={{ color: cActual != refActual ? "red" : "" }}
-                        >
-                          {cActual}
-                        </td>
+                        <td style={{ width: "10%" }}>{cActual}</td>
                       </tr>
                     );
                   })}

@@ -152,15 +152,15 @@ export default function FormCancelInvoiceAlt() {
         setAlert("Error al devolver stock");
       }
     } catch (error) {
-      const errors = error.response?.data?.data?.data?.errors ?? [
+      /*const errors = error.response?.data?.data?.data?.errors ?? [
         "Error al anular factura",
-      ];
-      console.log("TCL: cancelInvoice -> errors", errors);
-      setAlert(
+      ];*/
+      console.log("ERROR AL ANULAR", JSON.parse(error));
+      /*setAlert(
         errors.map((err) => {
           return err + "\n";
         })
-      );
+      );*/
 
       setTimeout(() => {
         setIsAlert(false);

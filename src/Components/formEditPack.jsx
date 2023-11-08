@@ -10,6 +10,7 @@ import {
   getPacks,
   registerPack,
   updatePack,
+  updatePackState,
 } from "../services/packServices";
 import {
   getCurrentStockStore,
@@ -53,7 +54,8 @@ export default function FormEditPack() {
   const [isAgency, setIsAgency] = useState(false);
   const allProducts = useRef([]);
   const [changeTotal, setChangeTotal] = useState(false);
-
+  const [packId, setPackId] = useState("");
+  const [packStatus, setPackStatus] = useState("");
   useEffect(() => {
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
@@ -190,10 +192,13 @@ export default function FormEditPack() {
     window.location.reload();
   };
   function selectPack(value) {
+    setPackId(value);
+
     setIsPack(true);
     setSelectedPackId(value);
     const prodList = allPacks.filter((pk) => pk.idPack == value);
     console.log("TCL: selectPack -> prodList", prodList);
+    setPackStatus(prodList[0].activo);
     setProdList(prodList);
     setAuxProdList(prodList);
     setNombrePack(prodList[0].nombrePack);
@@ -241,6 +246,9 @@ export default function FormEditPack() {
         setToastText("Pack Actualizado Correctamente");
         setToastType("success");
         setShowToast(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2500);
       })
       .catch((err) => {
         setToastText("Error al actualizar pack");
@@ -308,6 +316,30 @@ export default function FormEditPack() {
     setProductStock(filtered);
   }
 
+  async function changePackStatus() {
+    setAlertSec(packStatus == 1 ? "Desactivando Pack" : "Activando Pack");
+    setIsAlertSec(true);
+    const body = {
+      idPack: packId,
+      estado: packStatus == 1 ? 0 : 1,
+    };
+    try {
+      const updatedPack = await updatePackState(body);
+      console.log("Updated pack", updatedPack);
+      const text = packStatus == 1 ? "Desactivado" : "Activado";
+      setAlertSec(`Pack ${text} Correctamente`);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (err) {
+      console.log("Error al actualizar el pack", err);
+      setAlertSec("Error al cambiar el estado del pack");
+      setTimeout(() => {
+        setIsAlertSec(false);
+      }, 2000);
+    }
+  }
+
   return (
     <div>
       <ToastComponent
@@ -361,7 +393,20 @@ export default function FormEditPack() {
 
       {selectedProducts.length > 0 ? (
         <div>
-          <div className="formLabelAlt">Agregar Productos</div>
+          <div style={{ margin: "10px" }}>{`EL PACK SE ENCUENTRA ${
+            packStatus == 1 ? "ACTIVADO" : "DESACTIVADO"
+          }`}</div>
+          <div
+            style={{
+              marginTop: "20px",
+              marginBottom: "20px",
+              display: "flex",
+              position: "relative",
+              left: "0",
+            }}
+          >
+            Agregar Productos
+          </div>
 
           <Form style={{ display: "flex", justifyContent: "space-evenly" }}>
             <Form.Select
@@ -480,9 +525,15 @@ export default function FormEditPack() {
             />
           </Form>
           <div className="formLabelAlt"></div>
-          <div>
-            <Button variant="success" onClick={() => savePack()}>
-              Actualzar Pack
+          <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+            <Button
+              variant={packStatus == 1 ? "danger" : "success"}
+              onClick={() => changePackStatus()}
+            >
+              {packStatus == 1 ? "Desactivar Pack" : "Activar Pack"}
+            </Button>
+            <Button variant="warning" onClick={() => savePack()}>
+              Actualizar Pack
             </Button>
           </div>
         </div>

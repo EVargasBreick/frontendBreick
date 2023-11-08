@@ -14,6 +14,7 @@ import cancelInvoice from "../../assets/cancelInvoice.png";
 import Cross from "../../assets/cross.png";
 import Lines from "../../assets/lines.png";
 import Printer from "../../assets/printer.png";
+import { TbShoppingCartCancel } from "react-icons/tb";
 import "../../styles/generalStyle.css";
 
 export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
@@ -124,6 +125,13 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/bajas/anular")}
+        className="menuItem"
+      >
+        <TbShoppingCartCancel size="30px" style={{ paddingRight: "5px" }} />
+        Anular Baja
       </MenuItem>
     </SubMenu>
   );

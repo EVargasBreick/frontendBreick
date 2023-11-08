@@ -190,6 +190,7 @@ export default function BodySalesReport() {
           agencia: rt.Agencia,
           "monto a pagar":
             rt.desembolsada == 0 ? 0 : rt.montoFacturar.toFixed(2),
+          "url siat": `https://siat.impuestos.gob.bo/consulta/QR?nit=128153028&cuf=${rt.cuf}&numero=${rt.nroFactura}`,
         };
         newArray.push(dataRecord);
       })
@@ -274,6 +275,12 @@ export default function BodySalesReport() {
     const splitted = cuf.match(/.{25}/g);
     return splitted ? splitted.join(" ") : cuf;
   }
+
+  function goToSiat(cuf, nroFactura) {
+    const url = `https://siat.impuestos.gob.bo/consulta/QR?nit=128153028&cuf=${cuf}&numero=${nroFactura}`;
+    window.open(url, "_blank");
+  }
+
   return (
     <div>
       <div className="formLabel">REPORTE GENERAL DE VENTAS</div>
@@ -296,10 +303,14 @@ export default function BodySalesReport() {
               value={toDate}
             />
           </div>
-          <Button className="reportButtonG" onClick={() => generateReport()}>
-            Generar reporte
-          </Button>
         </Form>
+        <Button
+          className="reportButtonG"
+          style={{ marginBottom: "10px" }}
+          onClick={() => generateReport()}
+        >
+          Generar reporte
+        </Button>
       </div>
       {(reportTable.length > 0 || searchBox != "" || byState != -1) &&
       !isReportLoading ? (
@@ -387,8 +398,7 @@ export default function BodySalesReport() {
                   <th className="reportColumnXSmall ">IPJ</th>
                   <th className="reportColumnXSmall ">TASAS</th>
                   <th className="reportColumnXSmall ">NO IVA</th>
-                  <th className="reportColumnXSmall ">EXPOR TACIONES</th>
-                  <th className="reportColumnXSmall "> GRAV ADAS</th>
+
                   <th className="reportColumnSmall "> SUB TOTAL</th>
                   <th className="reportColumnSmall ">DCTOS</th>
                   <th className="reportColumnXSmall ">GIFT CARD</th>
@@ -399,6 +409,7 @@ export default function BodySalesReport() {
 
                   <th className="reportColumnMedium ">VENDEDOR</th>
                   <th className="reportColumnMedium ">AGENCIA</th>
+                  <th className="reportColumnMedium ">VER EN SIAT</th>
                 </tr>
               </thead>
               <tbody>
@@ -418,8 +429,7 @@ export default function BodySalesReport() {
                       <td className="reportColumnXSmall">0</td>
                       <td className="reportColumnXSmall">0</td>
                       <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall"> 0</td>
+
                       <td className="reportColumnSmall"> {rt.montoTotal}</td>
                       <td className="reportColumnSmall">
                         {(rt.montoTotal - rt.montoFacturar).toFixed(2)}
@@ -442,6 +452,16 @@ export default function BodySalesReport() {
                         {rt.nombreCompleto}
                       </td>
                       <td className="reportColumnMedium">{rt.Agencia}</td>
+                      <td className="reportColumnMedium">
+                        {
+                          <Button
+                            variant="success"
+                            onClick={() => goToSiat(rt.cuf, rt.nroFactura)}
+                          >
+                            Ver
+                          </Button>
+                        }
+                      </td>
                     </tr>
                   );
                 })}

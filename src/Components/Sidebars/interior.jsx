@@ -27,6 +27,7 @@ import Map from "../../assets/Map.png";
 import Lines from "../../assets/lines.png";
 import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
+import { TbShoppingCartCancel } from "react-icons/tb";
 export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
   return (
     <SubMenu
@@ -81,6 +82,13 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/bajas/anular")}
+        className="menuItem"
+      >
+        <TbShoppingCartCancel size="40px" style={{ paddingRight: "5px" }} />
+        Anular Baja
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/stock/actualizar")}
@@ -138,14 +146,12 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
       >
-        {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
       <MenuItem
         className="menuItem"
         onClick={() => redirectOnClick("/facturas/anulacion")}
       >
-        {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
       <div className="menuItem">Reportes</div>

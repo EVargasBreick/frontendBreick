@@ -489,10 +489,13 @@ export default function PaymentModalAlt({
             setIsAlert(true);
           } else {
             await debouncedFullInvoiceProcess.cancel();
-            const error = JSON.parse(invocieResponse.data.error).data.errors[0];
-            console.log("Error", error);
+            const error = JSON.parse(
+              JSON.parse(invocieResponse.data.error).data.data.errors
+            );
+            const errors = Object.values(error);
+            console.log("Error al facturar", errors[0]);
             setIsAlertSec(false);
-            setAlert(`${invocieResponse.data.message} : ${error}`);
+            setAlert(`${invocieResponse.data.message} : ${errors[0]}`);
             setIsAlert(true);
           }
         }

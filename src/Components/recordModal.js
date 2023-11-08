@@ -438,6 +438,7 @@ function RecordModal(
                 productos: selectedProducts,
                 totalbaja: totalDescontado,
                 vale: giftCard,
+                ci: datos.nit,
               };
               const bajaRegistrada = registerDrop(objBaja);
               bajaRegistrada

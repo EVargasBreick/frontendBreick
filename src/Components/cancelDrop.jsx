@@ -1,23 +1,17 @@
 import React from "react";
 import Display from "./display";
-import "../styles/generalStyle.css";
-import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
+import "../styles/generalStyle.css";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import FormCancelInvoice from "./formCancelInvoice";
-export default function CancelInvoice() {
+import FormCancelDrop from "./formCancelDrop";
+export default function CancelDrop() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol != 8 ||
-        JSON.parse(Cookies.get("userAuth")).rol != 10
-      ) {
-        navigate("/facturas/anulacion");
+      if (JSON.parse(Cookies.get("userAuth")).rol != 3) {
       } else {
         navigate("/principal");
       }
@@ -34,7 +28,7 @@ export default function CancelInvoice() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormCancelInvoice />
+          <FormCancelDrop />
         </div>
       </div>
     </div>

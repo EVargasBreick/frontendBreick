@@ -73,6 +73,7 @@ import SalesByDayReport from "./Components/salesByDayReport";
 import GoalSetter from "./Components/goalSetter";
 import RegisterSeasonDiscounts from "./Components/registerSeasonDiscounts";
 import CancelInvoiceAltern from "./Components/cancelInvoiceAltern";
+import CancelDrop from "./Components/cancelDrop";
 
 function App() {
   return (
@@ -614,6 +615,14 @@ function App() {
               element={
                 <RequireAuth>
                   <RegisterSeasonDiscounts />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/bajas/anular"
+              element={
+                <RequireAuth>
+                  <CancelDrop />
                 </RequireAuth>
               }
             />

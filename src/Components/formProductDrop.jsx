@@ -143,6 +143,7 @@ export default function FormProductDrop() {
             return accumulator + object.total;
           }, 0),
           vale: 0,
+          ci: process.env.REACT_APP_NIT_EMPRESA,
         };
         const bajaRegistrada = registerDrop(objBaja);
         bajaRegistrada.then((res) => {

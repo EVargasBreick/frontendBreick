@@ -442,7 +442,9 @@ function SaleModalAlt(
                 productos: selectedProducts,
                 totalbaja: totalDescontado,
                 vale: giftCard,
+                ci: datos.nit,
               };
+              console.log("OBJETO BAJA", objBaja);
               const bajaRegistrada = registerDrop(objBaja);
               bajaRegistrada
                 .then((res) => {

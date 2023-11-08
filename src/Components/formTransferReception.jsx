@@ -164,7 +164,6 @@ export default function FormTransferReception() {
               window.location.reload();
             }, 3000);
           });
-
       });
     } else {
       const addBody = {
@@ -293,6 +292,7 @@ export default function FormTransferReception() {
                     <td>
                       <div className="checkBoxContainer">
                         <input
+                          style={{ cursor: "pointer" }}
                           className="checkBoxInput"
                           type="checkbox"
                           onChange={(e) => handelCheck(index, e.target.checked)}

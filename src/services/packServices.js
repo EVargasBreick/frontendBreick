@@ -47,14 +47,25 @@ const addPackid = (params) => {
 };
 
 const updatePack = async (body) => {
-  const url = '/packs/actualizar'
-  const base = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}`
+  const url = "/packs/actualizar";
+  const base = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}`;
   try {
-    const response = await axios.put(base + url, body)
-    return response
+    const response = await axios.put(base + url, body);
+    return response;
   } catch (error) {
-    return error
+    return error;
   }
-}
+};
 
-export { registerPack, getPacks, addPackid, updatePack };
+const updatePackState = async (body) => {
+  const url = "/packs/estado";
+  const base = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}`;
+  try {
+    const response = await axios.put(base + url, body);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export { registerPack, getPacks, addPackid, updatePack, updatePackState };

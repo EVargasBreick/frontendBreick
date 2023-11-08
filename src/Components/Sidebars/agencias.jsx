@@ -19,6 +19,7 @@ import Cross from "../../assets/cross.png";
 import Hand from "../../assets/hand.png";
 import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
+import { TbShoppingCartCancel } from "react-icons/tb";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
   const [isInterior, setIsInterior] = useState(false);
   useEffect(() => {
@@ -108,6 +109,14 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
       </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/bajas/anular")}
+        className="menuItem"
+      >
+        <TbShoppingCartCancel size="40px" style={{ paddingRight: "5px" }} />
+        Anular Baja
+      </MenuItem>
+
       <MenuItem
         onClick={() => redirectOnClick("/packsasignar")}
         className="menuItem"

@@ -11,7 +11,7 @@ import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
-
+import debounce from "lodash/debounce";
 import { CancelInvoice } from "../Xml/cancelInvoice";
 import { updateStock } from "../services/orderServices";
 import { getMobileSalePoints } from "../services/storeServices";
@@ -96,21 +96,17 @@ export default function FormCancelInvoiceAltern() {
       PuntoDeVentas
     );
     facturas.then((fc) => {
-      const filteredDates = filterDates(fc.data);
-      filteredDates.then((res) => {
-        setAllFacts(res);
-        let uniqueArray = res.reduce((acc, curr) => {
-          if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
-            acc.push(curr);
-          }
-          return acc;
-        }, []);
-        setFacturas(uniqueArray);
-        setAuxFac(uniqueArray);
-      });
+      setAllFacts(fc.data);
+      let uniqueArray = fc.data.reduce((acc, curr) => {
+        if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
+          acc.push(curr);
+        }
+        return acc;
+      }, []);
+      setFacturas(uniqueArray);
+      setAuxFac(uniqueArray);
     });
   }
-
   function formattedCuf(cuf) {
     const splitted = cuf.match(/.{25}/g);
     return splitted ? splitted.join(" ") : cuf;
@@ -125,6 +121,11 @@ export default function FormCancelInvoiceAltern() {
     );
     setFacturas([...newList]);
   }
+
+  const debouncedCancelInvoice = debounce(cancelInvoice, 20000, {
+    leading: true,
+  });
+
   async function cancelInvoice(invoice) {
     setIsCanceled(false);
     setIsAlert(true);
@@ -137,6 +138,7 @@ export default function FormCancelInvoiceAltern() {
       productos: products,
       detalle: `ANFAC-${invoice.idFactura}`,
     };
+    console.log("Return to stock", returnToStock);
     try {
       const cancelar = await emizorService.composedAnularFactura(
         invoice.cuf,
@@ -147,18 +149,19 @@ export default function FormCancelInvoiceAltern() {
       setAlert("Factura Anulada");
       setTimeout(() => {
         window.location.reload();
-      }, 5000);
+      }, 3000);
     } catch (error) {
+      debouncedCancelInvoice.cancel();
       const errors = error.response?.data?.data?.data?.errors ?? [
         "Error al anular factura",
       ];
-      console.log("TCL: cancelInvoice -> errors", errors);
+      const errorArray = Object.values(JSON.parse(errors));
+      console.log("TCL: cancelInvoice -> errors", errorArray);
       setAlert(
-        errors.map((err) => {
+        errorArray.map((err) => {
           return err + "\n";
         })
       );
-
       setTimeout(() => {
         setIsAlert(false);
       }, 3000);
@@ -201,7 +204,7 @@ export default function FormCancelInvoiceAltern() {
           if (mes_actual == mes_fac) {
             filtered.push(ar);
           } else {
-            if (dia_actual < 11) {
+            if (dia_actual < 10) {
               filtered.push(ar);
             }
           }
@@ -240,7 +243,7 @@ export default function FormCancelInvoiceAltern() {
         <Modal.Footer className="modalFooter">
           <Button
             variant="warning"
-            onClick={() => cancelInvoice(selectedInvoice)}
+            onClick={() => debouncedCancelInvoice(selectedInvoice)}
           >
             Anular
           </Button>

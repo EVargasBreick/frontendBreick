@@ -378,6 +378,7 @@ function SaleModal(
               idUsuario: userId,
               idAlmacen: userStore,
               productos: selectedProducts,
+              ci: invoice.nitCliente,
             };
             const bajaRegistrada = registerDrop(objBaja);
             bajaRegistrada
