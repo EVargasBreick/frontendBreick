@@ -810,6 +810,7 @@ function addProductDiscSimple(selectedProds, descSimple) {
             ? (sp.precioDeFabrica - sp.precioDescuentoFijo) * cantidadDeProducto
             : 0,
           unidadDeMedida: sp.unidadDeMedida,
+          precio_producto: sp.precio_producto,
         };
         auxProdObj.push(auxObj);
       } else {
@@ -839,6 +840,7 @@ function addProductDiscSimple(selectedProds, descSimple) {
             cantidadDeProducto
           ).toFixed(2),
           unidadDeMedida: sp.unidadDeMedida,
+          precio_producto: sp.precio_producto,
         };
         auxProdObj.push(auxObj);
       }

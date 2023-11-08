@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, Table, Image, Modal } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
+import { InputGroup } from "react-bootstrap";
 import {
   addProductToOrder,
   cancelOrder,
@@ -420,7 +421,9 @@ export default function FormModifyOrders() {
 
         res.data.data.map((parsed, index) => {
           console.log("TESTEANDO SUPER", res.data.data[0]);
-          const precio = verifySuper
+          const precio = parsed.precio_producto
+            ? parsed.precio_producto
+            : verifySuper
             ? parsed.precioSuper
             : parsed.precioDeFabrica;
 
@@ -442,6 +445,7 @@ export default function FormModifyOrders() {
             tipoProducto: parsed.tipoProducto,
             descuentoProd: 0,
             unidadDeMedida: parsed.unidadDeMedida,
+            precio_producto: parsed.precio_producto,
           };
           console.log("Datos del producto", prodObj);
           setSelectedProds((selectedProds) => [...selectedProds, prodObj]);
@@ -498,7 +502,7 @@ export default function FormModifyOrders() {
       nombreProducto: prod.nombreProducto,
       precioDeFabrica: prod.precioDeFabrica,
       precioDescuentoFijo: prod.precioDescuentoFijo,
-      totalProd: cantidad * prod.precioDeFabrica,
+      totalProd: cantidad * (prod.precio_producto ?? prod.precioDeFabrica),
       totalDescFijo: cantidad * prod.precioDescuentoFijo,
       tipoProducto: prod.tipoProducto,
       descuentoProd: 0,
@@ -634,6 +638,7 @@ export default function FormModifyOrders() {
       };
       var countProdsChanged = 0;
       selectedProds.map((sp) => {
+        console.log("TCL: updateOrder -> sp", sp);
         if (sp.cantProducto === sp.cantPrevia) {
           countProdsChanged++;
         } else {
@@ -641,14 +646,16 @@ export default function FormModifyOrders() {
             const objProd = {
               idProducto: sp.idProducto,
               cantProducto: sp.cantProducto - sp.cantPrevia,
-              totalProd: sp.cantProducto * sp.precioDeFabrica,
+              totalProd:
+                sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
             };
             arrayTakes.push(objProd);
           } else {
             const objProd = {
               idProducto: sp.idProducto,
               cantProducto: sp.cantPrevia - sp.cantProducto,
-              totalProd: sp.cantProducto * sp.precioDeFabrica,
+              totalProd:
+                sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
             };
             arrayAdds.push(objProd);
           }
@@ -657,7 +664,8 @@ export default function FormModifyOrders() {
           const objProd = {
             idProducto: sp.idProducto,
             cantProducto: sp.cantProducto,
-            totalProd: sp.cantProducto * sp.precioDeFabrica,
+            totalProd:
+              sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
             descuentoProd: sp.descuentoProd,
             idPedidoProducto: sp.idPedidoProducto,
           };
@@ -667,9 +675,11 @@ export default function FormModifyOrders() {
             idPedidoProducto: sp.idPedidoProducto,
             idProducto: sp.idProducto,
             cantProducto: sp.cantProducto,
-            totalProd: sp.cantProducto * sp.precioDeFabrica,
+            totalProd:
+              sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
             descuentoProd: sp.descuentoProd,
             idPedidoProducto: sp.idPedidoProducto,
+            precio_producto: sp.precio_producto ?? null,
           };
           objProductsUpdated.push(objProd);
         }
@@ -1192,7 +1202,26 @@ export default function FormModifyOrders() {
                           {product.cantPrevia}
                         </td>
 
-                        <td className="tableColumnSmall">{`${product.precioDeFabrica} Bs.`}</td>
+                        <td style={{ width: "10%" }}>
+                          <InputGroup>
+                            <Form.Control
+                              required
+                              type="number"
+                              value={
+                                product.precio_producto ??
+                                product.precioDeFabrica
+                              }
+                              onChange={(e) => {
+                                const aux = [...selectedProds];
+                                aux[index].precio_producto = e.target.value;
+                                aux[index].totalProd =
+                                  e.target.value * product.cantProducto;
+                                setSelectedProds(aux);
+                              }}
+                            />{" "}
+                            <InputGroup.Text>Bs</InputGroup.Text>
+                          </InputGroup>
+                        </td>
                         <td className="tableColumnSmall">
                           <Form>
                             <Form.Group>
@@ -1226,7 +1255,12 @@ export default function FormModifyOrders() {
                 <div className="padded">
                   <div className="totalColumnBlank"></div>
                   <div className="totalColumnText">Total</div>
-                  <div className="totalColumnData">{`${totalPrevio} Bs.`}</div>
+                  {/* total of totals */}
+                  <div className="totalColumnData">{`${selectedProds
+                    .reduce((accumulator, object) => {
+                      return accumulator + object.totalProd;
+                    }, 0)
+                    .toFixed(2)} Bs.`}</div>
                 </div>
                 <div className="padded">
                   <div className="totalColumnBlank"></div>
