@@ -1205,6 +1205,9 @@ export default function FormModifyOrders() {
                         <td style={{ width: "10%" }}>
                           <InputGroup>
                             <Form.Control
+                              disabled={
+                                !(userRol != 2 && userRol != 3 && userRol != 4)
+                              }
                               required
                               type="number"
                               value={

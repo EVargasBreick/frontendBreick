@@ -1221,6 +1221,13 @@ export default function FormNewOrder() {
                           {
                             <InputGroup>
                               <Form.Control
+                                disabled={
+                                  !(
+                                    tipoUsuario != 2 &&
+                                    tipoUsuario != 3 &&
+                                    tipoUsuario != 4
+                                  )
+                                }
                                 type="number"
                                 value={sp.precioDeFabrica}
                                 onChange={(e) =>
