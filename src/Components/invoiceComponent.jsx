@@ -101,7 +101,8 @@ export const InvoiceComponent = React.forwardRef(
                         {parseFloat(producto.descuentoProd)?.toFixed(2)}
                       </td>
                       <td className="ProductLeft">
-                        {parseFloat(totalProducto)?.toFixed(2)}
+                        {parseFloat(totalProducto)?.toFixed(2) -
+                          (Number(producto.descuentoProd) ?? 0)}
                       </td>
                     </tr>
                   );
@@ -122,9 +123,14 @@ export const InvoiceComponent = React.forwardRef(
                 </tr>
                 <tr>
                   <td className="totals">Descuento</td>
-                  <td className="totalsData">{`${parseFloat(
-                    totalsData.descuentoCalculado
-                  ).toFixed(2)}`}</td>
+                  <td className="totalsData">
+                    {`${parseFloat(
+                      totalsData.descuentoCalculado +
+                        selectedProducts.reduce((acc, item) => {
+                          return acc + Number(item.descuentoProd ?? 0);
+                        }, 0)
+                    ).toFixed(2)}`}
+                  </td>
                 </tr>
                 <tr>
                   <td className="totals">TOTAL FACT</td>

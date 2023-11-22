@@ -820,13 +820,21 @@ export default function FormNewSaleAlt() {
             setAlert={setAlert}
             setIsAlert={setIsAlert}
             branchInfo={branchInfo}
-            selectedProducts={selectedProducts}
+            selectedProducts={[...selectedProducts].map((sp) => {
+              return {
+                ...sp,
+                descuentoProd: Number((sp.descuentoProd / 100) * sp.total),
+              };
+            })}
             invoice={invoice}
             total={totalPrevio}
             descuentoCalculado={
               ((totalPrevio -
                 (selectedProducts.reduce((accumulator, object) => {
-                  return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
+                  return (
+                    accumulator +
+                    parseFloat(object.total * (1 - object.descuentoProd / 100))
+                  );
                 }, 0) *
                   (100 - descuento)) /
                   100) *
@@ -835,21 +843,34 @@ export default function FormNewSaleAlt() {
               0
                 ? totalPrevio -
                   (selectedProducts.reduce((accumulator, object) => {
-                    return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
+                    return (
+                      accumulator +
+                      parseFloat(
+                        object.total * (1 - object.descuentoProd / 100)
+                      )
+                    );
                   }, 0) *
                     (100 - descuento)) /
                     100 -
                   0.001
                 : totalPrevio -
                   (selectedProducts.reduce((accumulator, object) => {
-                    return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
+                    return (
+                      accumulator +
+                      parseFloat(
+                        object.total * (1 - object.descuentoProd / 100)
+                      )
+                    );
                   }, 0) *
                     (100 - descuento)) /
                     100
             }
             totalDescontado={
               (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
+                return (
+                  accumulator +
+                  parseFloat(object.total * (1 - object.descuentoProd / 100))
+                );
               }, 0) *
                 (100 - descuento)) /
               100
@@ -899,7 +920,12 @@ export default function FormNewSaleAlt() {
                 idPedido: "",
                 idFactura: 0,
               },
-              productos: selectedProducts,
+              productos: [...selectedProducts].map((sp) => {
+                return {
+                  ...sp,
+                  descuentoProd: Number((sp.descuentoProd / 100) * sp.total),
+                };
+              }),
             }}
             invoiceBody={{
               idCliente: selectedClient,
@@ -965,7 +991,12 @@ export default function FormNewSaleAlt() {
             }}
             updateStockBody={{
               idAlmacen: userStore,
-              productos: selectedProducts,
+              productos: [...selectedProducts].map((sp) => {
+                return {
+                  ...sp,
+                  descuentoProd: Number((sp.descuentoProd / 100) * sp.total),
+                };
+              }),
             }}
             emailCliente={clientEmail}
             clientId={idSelectedClient}
@@ -1241,7 +1272,7 @@ export default function FormNewSaleAlt() {
                         </td>
                         <td>
                           {parseFloat(
-                            Number(sp.total) * (1 - (sp.descuentoProd / 100))
+                            Number(sp.total) * (1 - sp.descuentoProd / 100)
                           ).toFixed(2)}
                         </td>
                       </tr>
@@ -1268,7 +1299,11 @@ export default function FormNewSaleAlt() {
                     </th>
                     <th className="smallTableColumn">{`${
                       (selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + (parseFloat(object.total) * (1 - object.descuentoProd / 100));
+                        return (
+                          accumulator +
+                          parseFloat(object.total) *
+                            (1 - object.descuentoProd / 100)
+                        );
                       }, 0) *
                         (100 - descuento)) /
                       100

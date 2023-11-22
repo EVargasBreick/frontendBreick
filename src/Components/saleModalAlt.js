@@ -520,17 +520,7 @@ function SaleModalAlt(
       const nroTarjeta = `${cardNumbersA}00000000${cardNumbersB}`;
       const productos = formatInvoiceProducts(selectedProducts);
       console.log("Descuento calculado", descAdicional);
-      console.log("Sale body", saleBody.productos);
-      const productsDiscount = saleBody.productos.map((item) => {
-        return {
-          ...item,
-          descuentoProd: Number(
-            (Number(item.descuentoProd) / 100) *
-            Number(item.total)
-          ).toFixed(2),
-        };
-      }
-      );
+
 
       const saleBodyNew = {
         pedido: {
@@ -547,10 +537,9 @@ function SaleModalAlt(
           idPedido: "",
           idFactura: 0,
         },
-        productos: productsDiscount,
+        productos: saleBody.productos,
       };
 
-      console.log("Sale body new", productsDiscount);
       const invoiceBodyNew = {
         idCliente: invoiceBody.idCliente,
         nroFactura: invoiceBody.nroFactura,
