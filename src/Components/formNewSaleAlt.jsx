@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Table, Modal, Image } from "react-bootstrap";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
@@ -341,6 +341,7 @@ export default function FormNewSaleAlt() {
               : produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
+          // descuento
         };
         setCurrentProd(productObj);
         setSelectedProducts([...selectedProducts, productObj]);
@@ -728,6 +729,16 @@ export default function FormNewSaleAlt() {
     Cookies.set("pdv", id, { expires: 0.5 });
     setIsPoint(true);
   }
+
+  function changeDiscount(index, prod, descuento) {
+    const auxSelected = [...selectedProducts];
+    auxSelected[index].descuentoProd = descuento;
+    console.log("Descuento", auxSelected[index]);
+
+    setSelectedProducts(auxSelected);
+    setAuxSelectedProducts(auxSelected);
+  }
+
   return (
     <div>
       <div className="formLabel">VENTAS AGENCIA</div>
@@ -815,7 +826,7 @@ export default function FormNewSaleAlt() {
             descuentoCalculado={
               ((totalPrevio -
                 (selectedProducts.reduce((accumulator, object) => {
-                  return accumulator + parseFloat(object.total);
+                  return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
                 }, 0) *
                   (100 - descuento)) /
                   100) *
@@ -824,21 +835,21 @@ export default function FormNewSaleAlt() {
               0
                 ? totalPrevio -
                   (selectedProducts.reduce((accumulator, object) => {
-                    return accumulator + parseFloat(object.total);
+                    return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
                   }, 0) *
                     (100 - descuento)) /
                     100 -
                   0.001
                 : totalPrevio -
                   (selectedProducts.reduce((accumulator, object) => {
-                    return accumulator + parseFloat(object.total);
+                    return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
                   }, 0) *
                     (100 - descuento)) /
                     100
             }
             totalDescontado={
               (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total);
+                return accumulator + parseFloat(object.total * (1 - object.descuentoProd/100));
               }, 0) *
                 (100 - descuento)) /
               100
@@ -1131,9 +1142,14 @@ export default function FormNewSaleAlt() {
                     <th className="smallTableColumn">{`${
                       isMobile ? "Cant" : "Cantidad"
                     } /Peso (Gr)`}</th>
+                    <th className="smallTableColumn">Descuento %</th>
+
                     <th className="smallTableColumn">Total</th>
                     <th className="smallTableColumn">
                       {isMobile ? "Cant Disp" : "Cantidad Disponible"}
+                    </th>
+                    <th className="smallTableColumn">
+                      {isMobile ? "Total Desc" : "Total con Descuento"}
                     </th>
                   </tr>
                 </thead>
@@ -1179,13 +1195,54 @@ export default function FormNewSaleAlt() {
                             }}
                           />
                         </td>
+
                         <td className="smallTableColumn">
-                          {parseFloat(sp.total).toFixed(2)}
+                          <div className="input-group mb-3">
+                            <input
+                              type="number"
+                              className="form-control"
+                              placeholder="0"
+                              aria-label="0"
+                              aria-describedby="0 de descuento"
+                              min={0}
+                              max={100}
+                              value={sp.descuentoProd}
+                              onChange={(e) => {
+                                const inputRes = Number(e.target.value);
+
+                                if (
+                                  inputRes > 100 ||
+                                  inputRes < 0 ||
+                                  typeof inputRes !== "number"
+                                ) {
+                                  return;
+                                }
+
+                                changeDiscount(index, sp, inputRes);
+                              }}
+                            />
+                            <div className="input-group-append">
+                              <span
+                                className="input-group-text"
+                                id="basic-addon2"
+                              >
+                                %
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="smallTableColumn">
+                          {parseFloat(Number(sp.total)).toFixed(2)}
                         </td>
                         <td className="smallTableColumn">
                           {sp.unidadDeMedida == "Unidad"
                             ? parseFloat(sp.cant_Actual).toFixed(0)
                             : parseFloat(sp.cant_Actual).toFixed(3)}
+                        </td>
+                        <td>
+                          {parseFloat(
+                            Number(sp.total) * (1 - (sp.descuentoProd / 100))
+                          ).toFixed(2)}
                         </td>
                       </tr>
                     );
@@ -1198,6 +1255,8 @@ export default function FormNewSaleAlt() {
                     ) : null}
                     <th className="smallTableColumnalt"></th>
                     <th></th>
+                    <th></th>
+                    <th></th>
                     <th className="smallTableColumn">{"Total: "}</th>
                     <th className="smallTableColumn">
                       {`${selectedProducts.reduce((accumulator, object) => {
@@ -1205,11 +1264,11 @@ export default function FormNewSaleAlt() {
                       }, 0)} Bs.`}
                     </th>
                     <th className="smallTableColumn">
-                      {isMobile ? "Total Descon tado" : "Total descontado: "}
+                      {isMobile ? "Total Descontado" : "Total descontado: "}
                     </th>
                     <th className="smallTableColumn">{`${
                       (selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + parseFloat(object.total);
+                        return accumulator + (parseFloat(object.total) * (1 - object.descuentoProd / 100));
                       }, 0) *
                         (100 - descuento)) /
                       100
