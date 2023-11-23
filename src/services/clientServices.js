@@ -342,16 +342,18 @@ const getClient = (search) => {
 };
 
 const getClientConsigancion = async (search) => {
-  const url = 'client/rs'
-  const response = await axios.get(`${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/${url}`,
+  const url = "client/rs";
+  const response = await axios.get(
+    `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/${url}`,
     {
       params: {
-        search_record: search
-      }
-    })
+        search_record: search,
+      },
+    }
+  );
 
-  return response.data
-}
+  return response.data;
+};
 
 const getClientById = (id) => {
   return new Promise((resolve, reject) => {
@@ -429,6 +431,21 @@ const updateClientEmail = (body) => {
   });
 };
 
+const getClientSimple = (value) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/client/simple?value=${value}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   verifyClientEmail,
   verifyClientPhone,
@@ -448,5 +465,6 @@ export {
   numberOfClients,
   createClientPos,
   updateClientEmail,
-  getClientConsigancion
+  getClientConsigancion,
+  getClientSimple,
 };

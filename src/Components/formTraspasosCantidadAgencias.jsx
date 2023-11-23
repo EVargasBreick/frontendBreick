@@ -19,6 +19,7 @@ export default function FormTraspasosCantidadAgencias() {
     setLoading(true);
     try {
       const reportData = await getSalesByStoreReport(dateStart, dateEnd);
+      console.log("Data del reporte", reportData.data);
       setReports(reportData.data);
       setLoading(false);
     } catch (err) {}
@@ -39,7 +40,11 @@ export default function FormTraspasosCantidadAgencias() {
 
   useEffect(() => {
     productNames.forEach((product) => {
-      const productData = { productName: product };
+      const productData = {
+        codInterno: filteredReports.find((fr) => fr.nombreProducto == product)
+          ?.codInterno,
+        productName: product,
+      };
       destinations.forEach((destination) => {
         const matchingItem = filteredReports.find(
           (item) =>
@@ -56,7 +61,11 @@ export default function FormTraspasosCantidadAgencias() {
 
   const rows = productNames.map((product) => (
     <tr key={product} className="tableRow">
+      <td>
+        {filteredReports.find((fr) => fr.nombreProducto == product)?.codInterno}
+      </td>
       <td>{product}</td>
+
       {destinations.map((destination) => {
         const matchingItem = filteredReports.find(
           (item) =>
@@ -112,7 +121,8 @@ export default function FormTraspasosCantidadAgencias() {
           <Table striped bordered responsive>
             <thead>
               <tr className="tableHeader">
-                <th>Product Name</th>
+                <th>Cod Interno</th>
+                <th>Nombre Producto</th>
                 {destinations.map((destination) => (
                   <th key={destination}>{destination}</th>
                 ))}

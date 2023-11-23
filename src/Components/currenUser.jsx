@@ -13,12 +13,13 @@ import { UserContext } from "../Context/UserContext";
 import ChangePasswordModal from "./Modals/ChangePasswordModal";
 import { allProducts } from "../services/productServices";
 import { generateExcel } from "../services/utils";
+import ClientInfo from "./Modals/clientInfo";
 export default function CurrentUser() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const { setIsAuth, setuserData } = useContext(UserContext);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
-
+  const [showSearchClientModal, setShowSearchClientModal] = useState(false);
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
 
@@ -97,11 +98,22 @@ export default function CurrentUser() {
           >
             Exportar planilla de kardex
           </Dropdown.Item>
+          <Dropdown.Item
+            onClick={() => {
+              setShowSearchClientModal(true);
+            }}
+          >
+            Buscar cliente
+          </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
       <ChangePasswordModal
         show={showChangePasswordModal}
         handleClose={() => setShowChangePasswordModal(false)}
+      />
+      <ClientInfo
+        setShowSearchClientModal={setShowSearchClientModal}
+        showSearchClientModal={showSearchClientModal}
       />
     </>
   );

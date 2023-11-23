@@ -1,8 +1,8 @@
 import React from "react";
 import { Table } from "react-bootstrap";
 
-export default function SinDescTable({ sindDesc, totales, isEsp }) {
-  console.log("Sin desc", sindDesc);
+export default function SinDescTable({ sindDesc }) {
+  //console.log("Sin desc", sindDesc);
   const isEspe = sindDesc.length > 0;
   return (
     <div>
@@ -22,12 +22,13 @@ export default function SinDescTable({ sindDesc, totales, isEsp }) {
             </thead>
             <tbody>
               {sindDesc.map((esp, index) => {
+                //console.log("Sin desc", esp);
                 return (
                   <tr key={index}>
                     <td>{esp.nombreProducto}</td>
-                    <td>{`${esp.precioDeFabrica.toFixed(2)} Bs.`}</td>
+                    <td>{`${Number(esp?.precioDeFabrica).toFixed(2)} Bs.`}</td>
                     <td>{esp.cantProducto}</td>
-                    <td>{`${(esp.precioDeFabrica * esp.cantProducto).toFixed(
+                    <td>{`${(esp?.precioDeFabrica * esp?.cantProducto).toFixed(
                       2
                     )} Bs.`}</td>
                   </tr>

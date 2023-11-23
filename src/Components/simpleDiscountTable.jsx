@@ -22,18 +22,16 @@ export default function SimpleDiscountTable({ totales }) {
           <td>{`${totales.totalDescontables} Bs.`}</td>
           <td>{`${totales.descuento} %`}</td>
           <td>{`${parseFloat(totales.descCalculado)?.toFixed(2)} Bs.`}</td>
-          <td>{`${parseFloat(totales.totalTradicional)?.toFixed(2)} Bs.`}</td>
+          <td>{`${parseFloat(
+            totales.totalDescontables - totales.descCalculado
+          )?.toFixed(2)} Bs.`}</td>
         </tr>
         <tr>
-          <td>Productos con descuento especial</td>
+          <td>Productos sin descuento</td>
           <td>{`${totales.totalEspecial} Bs.`}</td>
-          <td>{`${
-            totales.descCalculadoEspeciales?.toFixed(2) > 0 ? "Si" : "No"
-          }`}</td>
-          <td>{`${parseFloat(totales.descCalculadoEspeciales)?.toFixed(
-            2
-          )} Bs.`}</td>
-          <td>{`${parseFloat(totales.facturar)?.toFixed(2)} Bs.`}</td>
+          <td>{`0`}</td>
+          <td>{`0 Bs.`}</td>
+          <td>{`${totales.totalEspecial} Bs.`}</td>
         </tr>
       </tbody>
       <tfoot className="tableModalHeader">

@@ -68,9 +68,28 @@ const disableSeasonalDiscount = (id) => {
   });
 };
 
+const getDiscountType = () => {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/descuentos/tipo`;
+  return new Promise((resolve, reject) => {
+    axios
+      .get(url)
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      })
+      .catch((err) => {
+        console.log("Error al obtener el tipo de descuento", err);
+      });
+  });
+};
+
 export {
   getSeasonalDiscount,
   getCurrentSeason,
   registerSeasonalDiscount,
   disableSeasonalDiscount,
+  getDiscountType,
 };
