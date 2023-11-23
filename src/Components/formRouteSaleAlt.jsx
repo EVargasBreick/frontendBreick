@@ -38,6 +38,7 @@ import {
   addProductDiscounts,
   christmassDiscounts,
   complexDiscountFunction,
+  complexNewDiscountFunction,
   easterDiscounts,
   halloweenDiscounts,
   processSeasonalDiscount,
@@ -51,10 +52,14 @@ import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import ComplexDiscountTable from "./complexDiscountTable";
 import SpecialsTable from "./specialsTable";
 import SaleModalAlt from "./saleModalAlt";
-import { getSeasonalDiscount } from "../services/discountEndpoints";
+import {
+  getDiscountType,
+  getSeasonalDiscount,
+} from "../services/discountEndpoints";
 import SeasonalDiscountTable from "./seasonalDiscountTable";
 import SinDescTable from "./sinDescTable";
 export default function FormRouteSaleAlt() {
+  const [discountType, setDiscountType] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
   const [clientes, setClientes] = useState([]);
@@ -143,6 +148,10 @@ export default function FormRouteSaleAlt() {
   const [seasonalSpecial, setSeasonalSpecial] = useState([]);
   const [seasonalTotals, setSeasonalTotals] = useState({});
 
+  const datosPaneton = [
+    { codInterno: "715037", precio: 46.5 },
+    { codInterno: "715038", precio: 88.0 },
+  ];
   const tabletasArray = [
     "702000",
     "702001",
@@ -202,6 +211,11 @@ export default function FormRouteSaleAlt() {
   }, [totalFacturar]);
 
   useEffect(() => {
+    const dType = getDiscountType();
+    dType.then((dt) => {
+      console.log("Tipo de descuento", dt.data);
+      setDiscountType(dt.data.idTipoDescuento);
+    });
     searchRef.current.focus();
     const spplited = dateString().split(" ");
 
@@ -404,6 +418,10 @@ export default function FormRouteSaleAlt() {
         }
       });
       if (!aux) {
+        const isPaneton = datosPaneton.find(
+          (dp) => dp.codInterno == produc.codInterno
+        );
+
         const productObj = {
           codInterno: produc.codInterno,
           cantProducto: 1,
@@ -415,7 +433,9 @@ export default function FormRouteSaleAlt() {
           cant_Actual: produc.cant_Actual,
           cantidadRestante: produc.cant_Actual,
           precioDescuentoFijo: produc.precioDescuentoFijo,
-          precioDeFabrica: isTableta
+          precioDeFabrica: isPaneton
+            ? isPaneton.precio
+            : isTableta
             ? produc.precioDeFabrica * 0.9
             : clientes[0]?.issuper == 1
             ? produc.precioSuper
@@ -882,11 +902,12 @@ export default function FormRouteSaleAlt() {
     setIsPoint(true);
   }
 
-  function processDiscounts() {
-    const discountObject = complexDiscountFunction(
-      selectedProducts,
-      discountList
-    );
+  async function processDiscounts() {
+    const dType = await getDiscountType();
+    const discountObject =
+      dType.data.idTipoDescuento == 1
+        ? complexDiscountFunction(selectedProducts, discountList)
+        : complexNewDiscountFunction(selectedProducts, discountList);
     setTradObject(discountObject.tradicionales);
     setPasObject(discountObject.pascua);
     setNavObject(discountObject.navidad);

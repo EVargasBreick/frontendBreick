@@ -7,7 +7,7 @@ export default function SpecialsTable({
   isEsp,
   isSeasonalEsp,
 }) {
-  console.log("Especiales", especiales);
+  //console.log("Especiales", especiales);
   const isEspe =
     isSeasonalEsp && especiales.length > 0
       ? true

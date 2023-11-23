@@ -33,10 +33,12 @@ import {
   addProductDiscSimple,
   christmassDiscounts,
   complexDiscountFunction,
+  complexNewDiscountFunction,
   discountByAmount,
   easterDiscounts,
   halloweenDiscounts,
   manualAutomaticDiscount,
+  newDiscountByAmount,
   processSeasonalDiscount,
   traditionalDiscounts,
   verifySeasonalProduct,
@@ -47,8 +49,12 @@ import SpecialsTable from "./specialsTable";
 import { dateString } from "../services/dateServices";
 import SeasonalDiscountTable from "./seasonalDiscountTable";
 import SinDescTable from "./sinDescTable";
-import { getSeasonalDiscount } from "../services/discountEndpoints";
+import {
+  getDiscountType,
+  getSeasonalDiscount,
+} from "../services/discountEndpoints";
 export default function FormModifyOrders() {
+  const [discountType, setDiscountType] = useState("");
   const [pedidosList, setPedidosList] = useState([]);
   const [totalDesc, setTotalDesc] = useState(0);
   const [totalPrevio, setTotalPrevio] = useState(0);
@@ -110,6 +116,12 @@ export default function FormModifyOrders() {
     "Noviembre",
     "Diciembre",
   ];
+
+  const datosPaneton = [
+    { codInterno: "715037", precio: 46.5 },
+    { codInterno: "715038", precio: 88.0 },
+  ];
+
   const navigate = useNavigate();
   const [discountList, setDiscountList] = useState([]);
   const [tradicionales, setTradicionales] = useState([]);
@@ -146,6 +158,11 @@ export default function FormModifyOrders() {
 
   const productRef = useRef([]);
   useEffect(() => {
+    const dType = getDiscountType();
+    dType.then((dt) => {
+      console.log("Tipo de descuento", dt.data);
+      setDiscountType(dt.data.idTipoDescuento);
+    });
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       if (JSON.parse(UsuarioAct).idDepto != 1) {
@@ -802,25 +819,32 @@ export default function FormModifyOrders() {
     setDescuento(value);
   }
 
-  function processDiscounts() {
+  async function processDiscounts() {
     if (userRol != 2 && userRol != 3 && userRol != 4) {
       const objDesc = discountByAmount(selectedProds, descuento);
-      console.log("Obj desc", objDesc);
-      setDescSimple(objDesc);
-      setTotalDesc(objDesc.descCalculado);
-      setTotalPrevio(objDesc.totalDescontables);
-      setTotalFacturar(objDesc.totalTradicional);
+      const objDescNew = newDiscountByAmount(selectedProds, descuento);
+      console.log("Obj desc new", objDescNew);
+      setDescSimple(objDescNew);
+      setTotalDesc(objDescNew.descCalculado);
+      setTotalPrevio(
+        Number(objDescNew.totalEspecial + objDescNew.totalDescontables)
+      );
+      setTotalFacturar(
+        Number(objDescNew.totalTradicional + objDescNew.totalEspecial)
+      );
+      console.log(
+        "CHEKIANDO ESTO",
+        Number(objDescNew.totalTradicional + objDescNew.totalEspecial)
+      );
       setDiscModalType(false);
-      const newSelected = addProductDiscSimple(selectedProds, objDesc);
-      newSelected.then((response) => {
-        setSelectedProds(response);
-      });
+      setSelectedProds(objDescNew.productosReprocesados);
       setDiscModal(true);
     } else {
-      const discountObject = complexDiscountFunction(
-        selectedProds,
-        discountList
-      );
+      const dType = await getDiscountType();
+      const discountObject =
+        dType.data.idTipoDescuento == 1
+          ? complexDiscountFunction(selectedProds, discountList)
+          : complexNewDiscountFunction(selectedProds, discountList);
       setTradObject(discountObject.tradicionales);
       setPasObject(discountObject.pascua);
       setNavObject(discountObject.navidad);
@@ -988,16 +1012,12 @@ export default function FormModifyOrders() {
                 totales={descSimple}
                 isEsp={isSpecial}
               />
-              <SinDescTable sindDesc={sinDesc} />
+              <SinDescTable sinDesc={sinDesc} />
             </div>
           ) : !isSeasonalModal ? (
             <div>
               <SimpleDiscountTable totales={descSimple} />
-              <SpecialsTable
-                especiales={especiales}
-                totales={descSimple}
-                isEsp={isSpecial}
-              />
+              <SinDescTable sindDesc={descSimple.productosSinDescuento} />
             </div>
           ) : (
             <div>
@@ -1173,6 +1193,9 @@ export default function FormModifyOrders() {
                     const refActual = productRef.current.find(
                       (pr) => pr.idProducto == product.idProducto
                     )?.cant_Actual;
+                    const isPaneton = datosPaneton.find(
+                      (dp) => dp.codInterno == product.codInterno
+                    );
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -1206,7 +1229,12 @@ export default function FormModifyOrders() {
                           <InputGroup>
                             <Form.Control
                               disabled={
-                                !(userRol != 2 && userRol != 3 && userRol != 4)
+                                !(
+                                  (tipoUsuario != 2 &&
+                                    tipoUsuario != 3 &&
+                                    tipoUsuario != 4) ||
+                                  isPaneton
+                                )
                               }
                               required
                               type="number"

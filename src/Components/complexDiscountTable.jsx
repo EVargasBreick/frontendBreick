@@ -16,10 +16,10 @@ export default function ComplexDiscountTable({
   hallObject,
 }) {
   const [isMobile, setIsMobile] = useState(false);
-  console.log("ENTRO ACA");
+  //console.log("ENTRO ACA");
   useEffect(() => {
-    console.log("Tradicionales", tradicionales);
-    console.log("Sin descuento", sinDesc);
+    //console.log("Tradicionales", tradicionales);
+    //console.log("Sin descuento", sinDesc);
     function handleResize() {
       if (window.innerWidth < 700) {
         setIsMobile(true);

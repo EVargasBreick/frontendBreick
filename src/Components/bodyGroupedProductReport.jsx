@@ -5,7 +5,7 @@ import { getStores } from "../services/storeServices";
 import { reportService } from "../services/reportServices";
 import { Loader } from "./loader/Loader";
 import { generateExcel } from "../services/utils";
-import { userBasic } from "../services/userServices";
+import { userBasic, userService } from "../services/userServices";
 
 export default function BodyGroupedProductReport() {
   const [dateStart, setDateStart] = useState("");
@@ -14,15 +14,44 @@ export default function BodyGroupedProductReport() {
   const [almacen, setAlmacen] = useState([]);
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState([]);
+  const [reportsMoney, setReportsMoney] = useState([]);
+  const [auxReportsMoney, setAuxReportsMoney] = useState([]);
   const [axuReports, setAuxReports] = useState([]);
   const [filtered, setFiltered] = useState("");
   const [checkedList, setCheckedList] = useState([]);
   const [evChecked, setEvChecked] = useState(true);
+  const [checkedListMoney, setCheckedListMoney] = useState([]);
+  const [evCheckedMoney, setEvCheckedMoney] = useState(true);
+  const [reportType, setReportType] = useState("cantidad");
+  const [checkedStores, setCheckedStores] = useState([]);
+  const [allSelected, setAllSelected] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [criteria, setCriteria] = useState("");
+  const [salesmanList, setSalesmanList] = useState([]);
+  const [selectedSalesman, setSelectedSalesman] = useState("");
+  const [selectedClient, setSelectedClient] = useState("");
   useEffect(() => {
+    const vendedoresList = userService.getAll(2, 4);
+    vendedoresList.then((list) => {
+      console.log("Usuarios", list);
+      setSalesmanList(list);
+    });
     const stores = getStores();
     stores.then((store) => {
       setAlmacen(store.data);
     });
+    function handleResize() {
+      if (window.innerWidth < 700) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    }
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -36,7 +65,8 @@ export default function BodyGroupedProductReport() {
         checked.push(obj);
       }
       setCheckedList(checked);
-      console.log("Checked", checked);
+      setCheckedListMoney(checked);
+      //console.log("Checked", checked);
     }
   }, [reports]);
 
@@ -44,13 +74,18 @@ export default function BodyGroupedProductReport() {
     e.preventDefault();
     setLoading(true);
     const data = await reportService.getGroupedProductReport(
-      idAgencia,
+      checkedStores,
       dateStart,
-      dateEnd
+      dateEnd,
+      selectedClient,
+      selectedSalesman,
+      criteria
     );
-    setReports(data);
-    setAuxReports(data);
-
+    console.log("Data del reporte", data.facturado);
+    setReports(data.cantidades);
+    setAuxReports(data.cantidades);
+    setReportsMoney(data.facturado);
+    setAuxReportsMoney(data.facturado);
     setLoading(false);
   }
 
@@ -62,10 +97,17 @@ export default function BodyGroupedProductReport() {
   }
 
   const rows = reports.map((report, index) => (
-    <tr key={index} className="tableRow">
-      <td className="tableColumnSmall">{report.codInterno}</td>
+    <tr
+      key={index}
+      className="tableRow"
+      style={index < 10 ? { backgroundColor: `#b9f0cc` } : null}
+    >
+      <td className="tableColumnSmall">{index + 1}</td>
+      {!isMobile && <td className="tableColumnSmall">{report.codInterno}</td>}
       <td className="tableColumnSmall">{report.nombreProducto}</td>
-      <td className="tableColumnSmall">{report.sumaTotal}</td>
+      <td className="tableColumnSmall">{`${report.sumaTotal} ${
+        report.unidadDeMedida == "Unidad" ? "Unidades" : "Kgs"
+      }`}</td>
       <td className="tableColumnSmall">
         {
           <Form.Check
@@ -73,7 +115,33 @@ export default function BodyGroupedProductReport() {
               checkedList.find((cl) => cl.idProducto == report.idProducto)
                 ?.checked
             }
-            onChange={() => checkProduct(report.idProducto)}
+            onChange={() => checkProduct(report.idProducto, "quantity")}
+          />
+        }
+      </td>
+    </tr>
+  ));
+
+  const rowsMoney = reportsMoney.map((report, index) => (
+    <tr
+      key={index}
+      className="tableRow"
+      style={index < 10 ? { backgroundColor: `#b9f0cc` } : null}
+    >
+      <td className="tableColumnSmall">{index + 1}</td>
+      {!isMobile && <td className="tableColumnSmall">{report.codInterno}</td>}
+      <td className="tableColumnSmall">{report.nombreProducto}</td>
+      <td className="tableColumnSmall">{`${report.sumaTotal?.toFixed(
+        2
+      )} Bs.`}</td>
+      <td className="tableColumnSmall">
+        {
+          <Form.Check
+            checked={
+              checkedList.find((cl) => cl.idProducto == report.idProducto)
+                ?.checked
+            }
+            onChange={() => checkProduct(report.idProducto, "money")}
           />
         }
       </td>
@@ -85,8 +153,12 @@ export default function BodyGroupedProductReport() {
     const filtered = axuReports.filter((ar) =>
       ar.nombreProducto.toLowerCase().includes(value.toLowerCase())
     );
+    const filteredMoney = auxReportsMoney.filter((ar) =>
+      ar.nombreProducto.toLowerCase().includes(value.toLowerCase())
+    );
     if (filtered.length > 0) {
       setReports(filtered);
+      setReportsMoney(filteredMoney);
     }
   }
 
@@ -100,20 +172,35 @@ export default function BodyGroupedProductReport() {
       list.push(obj);
     }
     setCheckedList(list);
+    setCheckedListMoney(list);
     setEvChecked(!evChecked);
+    setEvCheckedMoney(!evCheckedMoney);
   }
 
-  function checkProduct(id) {
-    const updatedArray = checkedList.map((obj) => {
-      if (obj.idProducto == id) {
-        return {
-          ...obj,
-          checked: !obj.checked,
-        };
-      }
-      return obj;
-    });
-    setCheckedList(updatedArray);
+  function checkProduct(id, type) {
+    if (type == "money") {
+      const updatedArrayMoney = checkedListMoney.map((obj) => {
+        if (obj.idProducto == id) {
+          return {
+            ...obj,
+            checked: !obj.checked,
+          };
+        }
+        return obj;
+      });
+      setCheckedListMoney(updatedArrayMoney);
+    } else {
+      const updatedArray = checkedList.map((obj) => {
+        if (obj.idProducto == id) {
+          return {
+            ...obj,
+            checked: !obj.checked,
+          };
+        }
+        return obj;
+      });
+      setCheckedList(updatedArray);
+    }
   }
 
   function filterToExport() {
@@ -129,103 +216,308 @@ export default function BodyGroupedProductReport() {
       toExport,
       `Reporte Agrupado de Productos ${idAgencia} ${dateStart} - ${dateEnd}`
     );
+    const toExportMoney = [];
+    for (const product of reportsMoney) {
+      if (
+        checkedListMoney.find((cl) => cl.idProducto == product.idProducto)
+          .checked
+      ) {
+        toExportMoney.push(product);
+      }
+    }
+    if (reportType == "cantidad") {
+      generateExcel(
+        toExport,
+        `Reporte Agrupado de Productos por cantidad vendida${idAgencia} ${dateStart} - ${dateEnd}`
+      );
+    } else {
+      generateExcel(
+        toExport,
+        `Reporte Agrupado de Productos por ingresos monetarios ${idAgencia} ${dateStart} - ${dateEnd}`
+      );
+    }
+  }
+
+  function selectStore(idAgencia) {
+    console.log("Array de agencias", checkedList);
+    if (idAgencia == "todo") {
+      if (allSelected) {
+        setCheckedStores([]);
+        setAllSelected(!allSelected);
+      } else {
+        const array = [];
+        almacen.map((al) => {
+          array.push(al.idAgencia);
+        });
+        setCheckedStores(array);
+        console.log("Checked list", array);
+        setAllSelected(!allSelected);
+      }
+    } else {
+      const checked = [...checkedStores];
+      console.log("Checked", checked);
+      const filtered = checked.filter((cs) => cs != idAgencia);
+      console.log("Filtered", filtered);
+      if (!filtered || filtered?.length == checked.length) {
+        console.log("Se agrega");
+        checked.push(idAgencia);
+        setCheckedStores(checked);
+        console.log("Array de ids", checked);
+      } else {
+        console.log("Se quita");
+        setCheckedStores(filtered);
+        console.log("Array de ids", filtered);
+      }
+    }
+  }
+
+  const gridStyles = {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gridGap: "10px", // Add some gap between cells
+    margin: "10px 0 10px 0",
+  };
+
+  // Conditionally update styles if isMobile is true
+  if (isMobile) {
+    gridStyles.gridTemplateColumns = "repeat(1, 1fr)";
   }
 
   return (
     <section>
-      <p className="formLabel">REPORTE AGRUPADO DE PRODUCTOS EN PEDIDOS</p>
+      <p className="formLabel">REPORTE AGRUPADO DE PRODUCTOS VENDIDOS</p>
       <Form
         className="d-flex justify-content-center p-3 flex-column gap-3"
         onSubmit={verifyDates}
       >
-        <Form.Group controlId="formSelectAgencias">
-          <Form.Label>Agencia:</Form.Label>
-          <Form.Control
-            className="reportOptionDrop"
-            as="select"
-            defaultValue="Seleccione una agencia"
-            onChange={(e) => setIdAgencia(e.target.value)}
-          >
-            <option>Seleccione una agencia</option>
-            {almacen.map((agencia) => {
-              return (
-                <option value={agencia.idAgencia} key={agencia.idAgencia}>
-                  {agencia.Nombre}
-                </option>
-              );
-            })}
-          </Form.Control>
-        </Form.Group>
+        <Form.Select onChange={(e) => setCriteria(e.target.value)}>
+          <option value="">Seleccione criterio de reporte</option>
+          <option value={"agencia"}>Por Agencia</option>
+          <option value={"vendedor"}>Por Vendedor</option>
+          <option value={"cliente"}>Por Cliente</option>
+        </Form.Select>
+        <div hidden={criteria == ""}>
+          <Form.Label>{`Seleccione ${
+            criteria == "agencia"
+              ? "Agencias"
+              : criteria == "vendedor"
+              ? "Vendedor"
+              : "Cliente"
+          }`}</Form.Label>
+          {criteria == "agencia" ? (
+            <div>
+              <Form.Group
+                style={{
+                  maxHeight: "30vh",
+                  overflow: "auto",
+                  backgroundColor: "#5cb8b2",
+                  borderRadius: "10px",
+                }}
+              >
+                <style>
+                  {`
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
 
-        <Form.Label>Seleccione rango de fechas</Form.Label>
-        <div className="d-xl-flex justify-content-center gap-3">
-          <Form.Group className="flex-grow-1" controlId="dateField1">
-            <Form.Label>Fecha Inicio:</Form.Label>
+      ::-webkit-scrollbar-thumb {
+        background-color: #4b3169;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background-color: #f1f1f1;
+        border-radius: 10px;
+      }
+    `}
+                </style>
+                <div style={gridStyles}>
+                  <div style={{ minWidth: 120, minHeight: 50 }}>
+                    <Form.Check
+                      value={"todo"}
+                      onChange={(e) => selectStore(e.target.value)}
+                      checked={allSelected}
+                    />
+                    <Form.Label>{`${
+                      !allSelected ? "Seleccionar" : "Quitar"
+                    } Todos`}</Form.Label>
+                  </div>
+                  {almacen.map((agencia, index) => {
+                    const nombre =
+                      agencia?.Nombre?.split(" ")?.slice(1)?.join(" ") != ""
+                        ? agencia?.Nombre?.split(" ")?.slice(1)?.join(" ")
+                        : agencia.Nombre;
+                    const isChecked = checkedStores.find(
+                      (cl) => cl == agencia.idAgencia
+                    );
+
+                    return (
+                      <div key={index} style={{ minWidth: 120, minHeight: 50 }}>
+                        <Form.Check
+                          checked={isChecked}
+                          value={agencia.idAgencia}
+                          onChange={() => selectStore(agencia.idAgencia)}
+                        />
+                        <Form.Label>{nombre}</Form.Label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Form.Group>
+            </div>
+          ) : criteria == "vendedor" ? (
+            <Form.Select
+              onChange={(e) => setSelectedSalesman(e.target.value)}
+              value={selectedSalesman}
+            >
+              <option>{`Seleccione vendedor`}</option>
+              {salesmanList.map((sm, index) => {
+                return (
+                  <option
+                    key={index}
+                    value={sm.idUsuario}
+                  >{`${sm.nombre} ${sm.apPaterno}`}</option>
+                );
+              })}
+            </Form.Select>
+          ) : (
             <Form.Control
-              type="date"
-              placeholder="1818915"
-              value={dateStart}
-              onChange={(e) => setDateStart(e.target.value)}
+              type="number"
+              value={selectedClient}
+              min={0}
+              onChange={(e) => setSelectedClient(e.target.value)}
             />
-          </Form.Group>
-          <Form.Group className="flex-grow-1" controlId="dateField2">
-            <Form.Label>Fecha Fin:</Form.Label>
-            <Form.Control
-              type="date"
-              placeholder="1818915"
-              value={dateEnd}
-              onChange={(e) => setDateEnd(e.target.value)}
-            />
-          </Form.Group>
+          )}
+
+          <Form.Label style={{ marginTop: "20px" }}>
+            Seleccione rango de fechas
+          </Form.Label>
+          <div className="d-xl-flex justify-content-center gap-3">
+            <Form.Group className="flex-grow-1" controlId="dateField1">
+              <Form.Label>Fecha Inicio:</Form.Label>
+              <Form.Control
+                type="date"
+                placeholder="1818915"
+                value={dateStart}
+                onChange={(e) => setDateStart(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="flex-grow-1" controlId="dateField2">
+              <Form.Label>Fecha Fin:</Form.Label>
+              <Form.Control
+                type="date"
+                placeholder="1818915"
+                value={dateEnd}
+                onChange={(e) => setDateEnd(e.target.value)}
+              />
+            </Form.Group>
+          </div>
         </div>
         {dateStart != "" && dateEnd != "" ? (
           <Button className="reportButton " variant="success" type="submit">
             Generar Reporte
           </Button>
-        ) : (
-          <p className="formLabel">Seleccione rango de fechas</p>
-        )}
+        ) : null}
       </Form>
       <div style={{ margin: "20px" }}>
         {reports.length > 0 && (
-          <Form style={{ display: "flex", justifyContent: "center" }}>
+          <Form
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Form.Label>Criterio de Reporte</Form.Label>
+            <Form.Select
+              style={{ width: "50%", margin: "20px" }}
+              onChange={(e) => setReportType(e.target.value)}
+            >
+              <option value="cantidad">Por cantidad vendida</option>
+              <option value="monto">Por Monto Vendido</option>
+            </Form.Select>
             <Form.Control
               type="text"
               placeholder="Filtrar por producto"
-              style={{ width: "50%" }}
+              style={{ width: "50%", margin: "20px" }}
               onChange={(e) => filterProducts(e.target.value)}
               value={filtered}
             />
           </Form>
         )}
       </div>
-      {reports.length > 0 && (
-        <div style={{ maxHeight: "55vh", overflowY: "auto" }}>
-          <Table striped bordered>
-            <thead>
-              <tr className="tableHeader">
-                <th className="tableColumn">Codigo Interno</th>
-                <th className="tableColumn">Nombre del Producto</th>
-                <th className="tableColumn">Total Salidas</th>
-                <th className="tableColumnSmall">
-                  Selecionar
-                  <div style={{ display: "flex" }}>
-                    {`Todo `}
-                    {
-                      <Form.Check
-                        style={{ marginLeft: "10px" }}
-                        checked={evChecked}
-                        onChange={() => allChecked()}
-                      />
-                    }
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-          </Table>
-        </div>
-      )}
+      {reportType == "cantidad"
+        ? reports.length > 0 && (
+            <div
+              style={{
+                maxHeight: "75vh",
+                overflowY: "auto",
+                marginBottom: "30px",
+              }}
+            >
+              <h5>Reporte de productos más vendidos por unidad/kg</h5>
+              <Table striped bordered>
+                <thead>
+                  <tr className="tableHeader">
+                    <th className="tableColumnSmall">
+                      {!isMobile ? "Posición" : "Pos"}
+                    </th>
+                    {!isMobile ? (
+                      <th className="tableColumn">Codigo Interno</th>
+                    ) : null}
+                    <th className="tableColumn">Nombre del Producto</th>
+                    <th className="tableColumn">Total Salidas</th>
+                    <th className="tableColumnSmall">
+                      Selecionar
+                      <div style={{ display: "flex" }}>
+                        {`Todo `}
+                        {
+                          <Form.Check
+                            style={{ marginLeft: "10px" }}
+                            checked={evChecked}
+                            onChange={() => allChecked()}
+                          />
+                        }
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+              </Table>
+            </div>
+          )
+        : reportsMoney.length > 0 && (
+            <div style={{ maxHeight: "75vh", overflowY: "auto" }}>
+              <h5>Reporte de productos más vendidos por monto ingresado</h5>
+              <Table striped bordered>
+                <thead>
+                  <tr className="tableHeader">
+                    <th className="tableColumnSmall">Posición</th>
+                    {!isMobile ? (
+                      <th className="tableColumn">Codigo Interno</th>
+                    ) : null}
+                    <th className="tableColumn">Nombre del Producto</th>
+                    <th className="tableColumn">Total Salidas</th>
+                    <th className="tableColumnSmall">
+                      Selecionar
+                      <div style={{ display: "flex" }}>
+                        {`Todo `}
+                        {
+                          <Form.Check
+                            style={{ marginLeft: "10px" }}
+                            checked={evChecked}
+                            onChange={() => allChecked()}
+                          />
+                        }
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>{rowsMoney}</tbody>
+              </Table>
+            </div>
+          )}
       <div style={{ margin: "20px" }}>
         {reports.length > 0 && (
           <Button

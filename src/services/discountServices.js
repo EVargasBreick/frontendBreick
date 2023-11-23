@@ -945,6 +945,7 @@ function discountByAmount(selectedProducts, descuento) {
   const total = selectedProducts.reduce((accumulator, object) => {
     return accumulator + parseFloat(object.totalProd);
   }, 0);
+
   const descuentoCalculado = parseFloat((total * descuento) / 100).toFixed(2);
   const totalDescontado = total - descuentoCalculado;
   return {
@@ -959,8 +960,46 @@ function discountByAmount(selectedProducts, descuento) {
   };
 }
 
+function newDiscountByAmount(selectedProducts, descuento) {
+  console.log("Selected products", selectedProducts);
+  let totalCD = 0;
+  let totalSD = 0;
+  const conDesc = [1, 2, 3, 4];
+  let prodCD = [];
+  let prodSD = [];
+  let reprocessedProducts = [];
+  for (const product of selectedProducts) {
+    if (conDesc.includes(product.tipoProducto)) {
+      totalCD += Number(product.totalProd);
+      prodCD.push(product);
+      product.descuentoProd = Number(
+        (product.totalProd * (descuento / 100)).toFixed(2)
+      );
+    } else {
+      totalSD += Number(product.totalProd);
+      prodSD.push(product);
+    }
+    reprocessedProducts.push(product);
+  }
+  const descuentoCalculado = parseFloat((totalCD * descuento) / 100).toFixed(2);
+  const totalDescontado = Number(totalCD) - descuentoCalculado;
+  return {
+    totalDescontables: Number(totalCD),
+    descuento: descuento,
+    descCalculado: descuentoCalculado,
+    totalTradicional: totalDescontado,
+    totalEspecial: Number(totalSD),
+    descCalculadoEspeciales: 0,
+    facturar: Number(totalSD),
+    especial: false,
+    productosConDescuento: prodCD,
+    productosSinDescuento: prodSD,
+    productosReprocesados: reprocessedProducts,
+  };
+}
+
 function complexDiscountFunction(selectedProducts, discountList) {
-  console.log("Selected", selectedProducts);
+  //console.log("Selected", selectedProducts);
   var totalTrad = 0;
   var totalPascua = 0;
   var totalHallo = 0;
@@ -969,7 +1008,7 @@ function complexDiscountFunction(selectedProducts, discountList) {
   var totalEsp = 0;
   var totalEspDesc = 0;
   selectedProducts.map((sp) => {
-    console.log("Producto", sp);
+    //console.log("Producto", sp);
     switch (sp.tipoProducto) {
       case 1:
         totalTrad += parseFloat(sp.totalProd);
@@ -991,8 +1030,8 @@ function complexDiscountFunction(selectedProducts, discountList) {
         totalEspDesc += parseFloat(sp.cantProducto * sp.precioDescuentoFijo);
     }
   });
-  console.log("Total tradicionales", totalTrad);
-  console.log("Total sin descuento", totalSinDesc);
+  //console.log("Total tradicionales", totalTrad);
+  //console.log("Total sin descuento", totalSinDesc);
   const trads = getTradDiscounts(
     totalTrad,
     totalEsp,
@@ -1078,7 +1117,7 @@ function getTradDiscounts(
             facturar: totalDescC,
           };
         } else {
-          console.log("Test", totalConDescuentoE, totalEspDesc, totalSD);
+          //console.log("Test", totalConDescuentoE, totalEspDesc, totalSD);
           if (totalConDescuentoE + totalEspDesc + totalSD < 20000) {
             return {
               total: totalGeneral,
@@ -1435,6 +1474,340 @@ function verifySeasonalProduct(selectedProds, discountData) {
   return false;
 }
 
+function complexNewDiscountFunction(selectedProducts, discountList) {
+  let separatedProducts = {
+    tradicionales: [],
+    navidad: [],
+    pascua: [],
+    halloween: [],
+    sinDesc: [],
+    especiales: [],
+  };
+
+  let totalesTipo = {
+    tradicionales: 0,
+    navidad: 0,
+    pascua: 0,
+    halloween: 0,
+    sinDesc: 0,
+    especiales: 0,
+    especialesCD: 0,
+  };
+
+  for (const product of selectedProducts) {
+    if (product.tipoProducto == 1) {
+      separatedProducts.tradicionales.push(product);
+      totalesTipo.tradicionales += product.totalProd;
+    } else if (product.tipoProducto == 2) {
+      separatedProducts.pascua.push(product);
+      totalesTipo.pascua += product.totalProd;
+    } else if (product.tipoProducto == 3) {
+      separatedProducts.navidad.push(product);
+      totalesTipo.navidad += product.totalProd;
+    } else if (product.tipoProducto == 4) {
+      separatedProducts.halloween.push(product);
+      totalesTipo.halloween += product.totalProd;
+    } else if (product.tipoProducto == 5) {
+      separatedProducts.sinDesc.push(product);
+      totalesTipo.sinDesc += product.totalProd;
+    } else {
+      separatedProducts.especiales.push(product);
+      totalesTipo.especiales += product.totalProd;
+      totalesTipo.especialesCD +=
+        product.precioDescuentoFijo * product.cantProducto;
+    }
+  }
+
+  const categorias = [
+    { categoria: "0", montoMinimo: 0, montoMaximo: 1000 },
+    { categoria: "A", montoMinimo: 1001, montoMaximo: 3000 },
+    { categoria: "B", montoMinimo: 3001, montoMaximo: 5000 },
+    { categoria: "C", montoMinimo: 5001, montoMaximo: 10000 },
+    { categoria: "D", montoMinimo: 10001, montoMaximo: 20000 },
+    {
+      categoria: "E",
+      montoMinimo: 20001,
+      montoMaximo: 50000,
+    },
+    { categoria: "F", montoMinimo: 50001, montoMaximo: 100000 },
+    { categoria: "G", montoMinimo: 100001, montoMaximo: 200000 },
+    { categoria: "H", montoMinimo: 200001, montoMaximo: 9999999 },
+  ];
+
+  let tradDiscounts = [];
+  let hallDiscounts = [];
+  let pasDiscounts = [];
+  let navDiscounts = [];
+  for (const cat of categorias) {
+    if (!["F", "G", "H"].includes(cat.categoria)) {
+      const trad = getDiscountPercentage(1, cat.categoria, discountList);
+      const nav = getDiscountPercentage(3, cat.categoria, discountList);
+      const hall = getDiscountPercentage(4, cat.categoria, discountList);
+      const pas = getDiscountPercentage(2, cat.categoria, discountList);
+      tradDiscounts.push({
+        categoria: cat.categoria,
+        descuento: trad,
+        descontado: totalesTipo.tradicionales * (1 - trad / 100),
+      });
+      hallDiscounts.push({
+        categoria: cat.categoria,
+        descuento: hall,
+        descontado: totalesTipo.halloween * (1 - hall / 100),
+      });
+      navDiscounts.push({
+        categoria: cat.categoria,
+        descuento: nav,
+        descontado: totalesTipo.navidad * (1 - nav / 100),
+      });
+      pasDiscounts.push({
+        categoria: cat.categoria,
+        descuento: pas,
+        descontado: totalesTipo.pascua * (1 - pas / 100),
+      });
+    } else {
+      const pas = getDiscountPercentage(2, cat.categoria, discountList);
+      pasDiscounts.push({
+        categoria: cat.categoria,
+        descuento: pas,
+        descontado: totalesTipo.pascua * (1 - pas / 100),
+      });
+      const trad = getDiscountPercentage(1, "E", discountList);
+      const nav = getDiscountPercentage(3, "E", discountList);
+      const hall = getDiscountPercentage(4, "E", discountList);
+      tradDiscounts.push({
+        categoria: cat.categoria,
+        descuento: trad,
+        descontado: totalesTipo.tradicionales * (1 - trad / 100),
+      });
+      hallDiscounts.push({
+        categoria: cat.categoria,
+        descuento: hall,
+        descontado: totalesTipo.halloween * (1 - hall / 100),
+      });
+      navDiscounts.push({
+        categoria: cat.categoria,
+        descuento: nav,
+        descontado: totalesTipo.navidad * (1 - nav / 100),
+      });
+    }
+  }
+  console.log("Descuentos trad", tradDiscounts);
+  console.log("Descuentos pas", pasDiscounts);
+  console.log("Descuentos hall", hallDiscounts);
+  console.log("Descuentos nav", navDiscounts);
+
+  let index = categorias.length - 1;
+
+  while (index >= 0) {
+    //console.log("Corriendo en index", index);
+    const foundTrad = tradDiscounts.find(
+      (td) => td.categoria == categorias[index].categoria
+    );
+    const foundPas = pasDiscounts.find(
+      (td) => td.categoria == categorias[index].categoria
+    );
+    const foundNav = navDiscounts.find(
+      (td) => td.categoria == categorias[index].categoria
+    );
+    const foundHall = hallDiscounts.find(
+      (td) => td.categoria == categorias[index].categoria
+    );
+
+    let totalSDE =
+      foundTrad?.descontado +
+      foundPas?.descontado +
+      foundNav?.descontado +
+      foundHall?.descontado +
+      totalesTipo.especiales +
+      totalesTipo.sinDesc;
+    let totalCDE =
+      foundTrad?.descontado +
+      foundPas?.descontado +
+      foundNav?.descontado +
+      foundHall?.descontado +
+      totalesTipo.especialesCD +
+      totalesTipo.sinDesc;
+
+    let objReturn = {
+      halloween: {
+        total: Number(totalesTipo.halloween).toFixed(2),
+        descuento: foundHall.descuento,
+        descCalculado: Number(
+          Number(totalesTipo.halloween) - Number(foundHall.descontado)
+        ).toFixed(2),
+        facturar: Number(foundHall.descontado).toFixed(2),
+      },
+      navidad: {
+        total: Number(totalesTipo.navidad).toFixed(2),
+        descuento: foundNav.descuento,
+        descCalculado: Number(
+          Number(totalesTipo.navidad) - Number(foundNav.descontado)
+        ).toFixed(2),
+        facturar: Number(foundNav.descontado).toFixed(2),
+      },
+      pascua: {
+        total: Number(totalesTipo.pascua).toFixed(2),
+        descuento: foundPas.descuento,
+        descCalculado: Number(
+          Number(totalesTipo.pascua) - Number(foundPas.descontado)
+        ).toFixed(2),
+        facturar: Number(foundPas.descontado).toFixed(2),
+      },
+      tradicionales: {
+        total: Number(
+          Number(totalesTipo.tradicionales) +
+            Number(totalesTipo.sinDesc) +
+            Number(totalesTipo.especiales)
+        ),
+        descuento: foundNav.descuento,
+        descCalculado: 0,
+        facturar: 0,
+        especial: false,
+      },
+    };
+    if (index > 4) {
+      objReturn.tradicionales.descuento = foundTrad.descuento;
+      objReturn.tradicionales.descCalculado =
+        Number(
+          Number(totalesTipo.tradicionales) +
+            Number(totalesTipo.sinDesc) +
+            Number(totalesTipo.especiales)
+        ) -
+        (Number(foundTrad.descontado) +
+          totalesTipo.sinDesc +
+          totalesTipo.especialesCD);
+      objReturn.tradicionales.facturar =
+        Number(foundTrad.descontado) +
+        totalesTipo.sinDesc +
+        totalesTipo.especialesCD;
+      objReturn.tradicionales.especial =
+        totalesTipo.especiales != 0 ? true : false;
+      if (
+        totalCDE >= categorias[index].montoMinimo &&
+        totalCDE <= categorias[index].montoMaximo
+      ) {
+        console.log("Objeto a retornar", objReturn);
+        console.log("Categoria escogida", categorias[index]);
+        return objReturn;
+        break;
+      } else {
+        if (index != categorias.length - 1) {
+          if (
+            totalCDE >= categorias[index + 1].montoMinimo &&
+            totalCDE <= categorias[index + 1].montoMaximo
+          ) {
+            console.log("Objeto a retornar", objReturn);
+            console.log("Categoria escogida", categorias[index]);
+            return objReturn;
+            break;
+          }
+        }
+      }
+    } else {
+      objReturn.tradicionales.descuento = foundTrad.descuento;
+      objReturn.tradicionales.descCalculado =
+        Number(totalesTipo.tradicionales) - Number(foundTrad.descontado);
+      objReturn.tradicionales.facturar =
+        Number(foundTrad.descontado) +
+        totalesTipo.sinDesc +
+        totalesTipo.especiales;
+
+      if (
+        totalSDE >= categorias[index].montoMinimo &&
+        totalSDE <= categorias[index].montoMaximo
+      ) {
+        console.log("Objeto a retornar", objReturn);
+        console.log("Categoria escogida", categorias[index]);
+        return objReturn;
+        break;
+      } else {
+        if (
+          totalSDE >= categorias[index + 1].montoMinimo &&
+          totalSDE <= categorias[index + 1].montoMaximo
+        ) {
+          console.log("Objeto a retornar", objReturn);
+          console.log("Categoria escogida", categorias[index]);
+          return objReturn;
+          break;
+        }
+      }
+    }
+    index--;
+  }
+  /*for (const categoria of categorias) {
+    const foundTrad = tradDiscounts.find(
+      (td) => td.categoria == categoria.categoria
+    );
+    const foundPas = pasDiscounts.find(
+      (td) => td.categoria == categoria.categoria
+    );
+    const foundNav = navDiscounts.find(
+      (td) => td.categoria == categoria.categoria
+    );
+    const foundHall = hallDiscounts.find(
+      (td) => td.categoria == categoria.categoria
+    );
+
+    let totalSDE =
+      foundTrad?.descontado +
+      foundPas?.descontado +
+      foundNav?.descontado +
+      foundHall?.descontado +
+      totalesTipo.especiales +
+      totalesTipo.sinDesc;
+    let totalCDE =
+      foundTrad?.descontado +
+      foundPas?.descontado +
+      foundNav?.descontado +
+      foundHall?.descontado +
+      totalesTipo.especialesCD +
+      totalesTipo.sinDesc;
+
+    if (foundPas.descontado == 0) {
+      if (index < 4) {
+        if (
+          totalSDE >= categoria.montoMinimo &&
+          totalSDE <= categoria.montoMaximo
+        ) {
+          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
+          console.log("Total calculado", totalCDE);
+        }
+      } else {
+        if (totalCDE >= categoria.montoMinimo) {
+          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
+          console.log("Total calculado", totalSDE);
+        }
+      }
+    } else {
+      if (index < 4) {
+        if (
+          totalSDE >= categoria.montoMinimo &&
+          totalSDE <= categoria.montoMaximo
+        ) {
+          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
+          console.log("Total calculado", totalCDE);
+        }
+      } else {
+        if (
+          totalCDE >= categoria.montoMinimo &&
+          totalCDE <= categoria.montoMaximo
+        ) {
+          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
+          console.log("Total calculado", totalSDE);
+        }
+      }
+    }
+    index++;
+  }*/
+
+  /*console.log("Rangos", categorias);
+
+  console.log("Totales trad", tradDiscounts);
+  console.log("Totales pas", pasDiscounts);
+  console.log("Totales hall", hallDiscounts);
+  console.log("Totales nav", navDiscounts);*/
+}
+
 export {
   traditionalDiscounts,
   easterDiscounts,
@@ -1449,4 +1822,6 @@ export {
   complexDiscountFunction,
   processSeasonalDiscount,
   verifySeasonalProduct,
+  complexNewDiscountFunction,
+  newDiscountByAmount,
 };

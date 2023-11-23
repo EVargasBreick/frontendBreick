@@ -137,6 +137,7 @@ export default function FormTransferReception() {
           accion: "add",
           idAlmacen: transferDetails.idOrigen,
           productos: lessProducts,
+          detalle: `DVRTR-${transferDetails.idTraspaso}`,
         };
 
         const addBody = {

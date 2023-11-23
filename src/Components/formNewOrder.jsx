@@ -33,10 +33,12 @@ import {
   addProductDiscSimple,
   christmassDiscounts,
   complexDiscountFunction,
+  complexNewDiscountFunction,
   discountByAmount,
   easterDiscounts,
   halloweenDiscounts,
   manualAutomaticDiscount,
+  newDiscountByAmount,
   processSeasonalDiscount,
   traditionalDiscounts,
   verifySeasonalProduct,
@@ -45,9 +47,13 @@ import ComplexDiscountTable from "./complexDiscountTable";
 import SimpleDiscountTable from "./simpleDiscountTable";
 import SpecialsTable from "./specialsTable";
 import SinDescTable from "./sinDescTable";
-import { getSeasonalDiscount } from "../services/discountEndpoints";
+import {
+  getDiscountType,
+  getSeasonalDiscount,
+} from "../services/discountEndpoints";
 import SeasonalDiscountTable from "./seasonalDiscountTable";
 import { InputGroup } from "react-bootstrap";
+import { userService } from "../services/userServices";
 export default function FormNewOrder() {
   const [isClient, setIsClient] = useState(false);
   const [isProduct, setIsProduct] = useState(false);
@@ -120,7 +126,20 @@ export default function FormNewOrder() {
   const [seasonalSpecial, setSeasonalSpecial] = useState([]);
   const [seasonalTotals, setSeasonalTotals] = useState({});
 
+  const [discountType, setDiscountType] = useState("");
+
+  const datosPaneton = [
+    { codInterno: "715037", precio: 46.5 },
+    { codInterno: "715038", precio: 88.0 },
+  ];
+
   useEffect(() => {
+    const dType = getDiscountType();
+    dType.then((dt) => {
+      console.log("Tipo de descuento", dt.data);
+      setDiscountType(dt.data.idTipoDescuento);
+    });
+
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       setUserEmail(JSON.parse(UsuarioAct).correo);
@@ -761,25 +780,32 @@ export default function FormNewOrder() {
     }
   }
 
-  function processDiscounts() {
+  async function processDiscounts() {
     if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
-      const objDesc = discountByAmount(selectedProds, descuento);
-      console.log("Obj desc", objDesc);
-      setDescSimple(objDesc);
-      setTotalDesc(objDesc.descCalculado);
-      setTotalPrevio(objDesc.totalDescontables);
-      setTotalFacturar(objDesc.totalTradicional);
+      //const objDesc = discountByAmount(selectedProds, descuento);
+      const objDescNew = newDiscountByAmount(selectedProds, descuento);
+      console.log("Obj desc new", objDescNew);
+      setDescSimple(objDescNew);
+      setTotalDesc(objDescNew.descCalculado);
+      setTotalPrevio(
+        Number(objDescNew.totalEspecial + objDescNew.totalDescontables)
+      );
+      setTotalFacturar(
+        Number(objDescNew.totalTradicional + objDescNew.totalEspecial)
+      );
+      console.log(
+        "CHEKIANDO ESTO",
+        Number(objDescNew.totalTradicional + objDescNew.totalEspecial)
+      );
       setDiscModalType(false);
-      const newSelected = addProductDiscSimple(selectedProds, objDesc);
-      newSelected.then((response) => {
-        setSelectedProds(response);
-      });
+      setSelectedProds(objDescNew.productosReprocesados);
       setDiscModal(true);
     } else {
-      const discountObject = complexDiscountFunction(
-        selectedProds,
-        discountList
-      );
+      const dType = await getDiscountType();
+      const discountObject =
+        dType.data.idTipoDescuento == 1
+          ? complexDiscountFunction(selectedProds, discountList)
+          : complexNewDiscountFunction(selectedProds, discountList);
       setTradObject(discountObject.tradicionales);
       setPasObject(discountObject.pascua);
       setNavObject(discountObject.navidad);
@@ -1023,11 +1049,7 @@ export default function FormNewOrder() {
           ) : !isSeasonalModal ? (
             <div>
               <SimpleDiscountTable totales={descSimple} />
-              <SpecialsTable
-                especiales={especiales}
-                totales={descSimple}
-                isEsp={isSpecial}
-              />
+              <SinDescTable sindDesc={descSimple.productosSinDescuento} />
             </div>
           ) : (
             <div>
@@ -1198,6 +1220,10 @@ export default function FormNewOrder() {
                     const refActual = productRef.current.find(
                       (pr) => pr.idProducto == sp.idProducto
                     )?.cant_Actual;
+                    const isPaneton = datosPaneton.find(
+                      (dp) => dp.codInterno == sp.codInterno
+                    );
+                    //console.log("IS PANETON", isPaneton);
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="smallTableColumn">
@@ -1223,9 +1249,10 @@ export default function FormNewOrder() {
                               <Form.Control
                                 disabled={
                                   !(
-                                    tipoUsuario != 2 &&
-                                    tipoUsuario != 3 &&
-                                    tipoUsuario != 4
+                                    (tipoUsuario != 2 &&
+                                      tipoUsuario != 3 &&
+                                      tipoUsuario != 4) ||
+                                    isPaneton
                                   )
                                 }
                                 type="number"

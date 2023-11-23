@@ -484,6 +484,9 @@ export default function PaymentModalAlt({
             setIsAlertSec(false);
             setAlert(`${invocieResponse.data.message}`);
             setIsAlert(true);
+            setTimeout(() => {
+              setIsAlert(false);
+            }, 4000);
           } else {
             await debouncedFullInvoiceProcess.cancel();
             const error = JSON.parse(

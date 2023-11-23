@@ -58,6 +58,7 @@ export default function BodySalesByProductReport() {
       );
       reportData
         .then((response) => {
+          console.log("Data del reporte", response.data);
           setReportTable(response.data);
           setAuxReportTable(response.data);
 
@@ -124,6 +125,7 @@ export default function BodySalesByProductReport() {
       reportTable.map((rt, index) => {
         const dataRecord = {
           nro: index + 1,
+          "nro factura": rt.nroFactura,
           fecha: rt.fecha,
           hora: rt.hora,
           "nit cliente": rt.nitCliente,

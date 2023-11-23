@@ -127,12 +127,22 @@ export const reportService = {
     const response = await reportInstance.get(url, { params });
     return response.data;
   },
-  async getGroupedProductReport(idAgencia, startDate, endDate) {
+  async getGroupedProductReport(
+    agencias,
+    startDate,
+    endDate,
+    selectedClient,
+    selectedSalesman,
+    criteria
+  ) {
     const url = `/reportes/agrupado/productos`;
     const params = {
-      idAgencia,
+      idAgencia: agencias,
       startDate,
       endDate,
+      selectedClient,
+      selectedSalesman,
+      criteria,
     };
     const response = await reportInstance.get(url, { params });
     return response.data;
