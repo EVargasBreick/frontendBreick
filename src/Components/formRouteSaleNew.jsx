@@ -11,43 +11,21 @@ import {
   productsDiscount,
 } from "../services/productServices";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
-
-import { convertToText } from "../services/numberServices";
-
-import SaleModal from "./saleModal";
 import { dateString } from "../services/dateServices";
+import { verifyQuantities } from "../services/saleServices";
 import {
-  createSale,
-  deleteSale,
-  verifyQuantities,
-} from "../services/saleServices";
-import {
-  getBranches,
   getBranchesPs,
   getMobileSalePoints,
   getSalePoints,
 } from "../services/storeServices";
-import {
-  createInvoice,
-  deleteInvoice,
-  otherPaymentsList,
-} from "../services/invoiceServices";
+import { otherPaymentsList } from "../services/invoiceServices";
 
 import {
-  addProductDiscounts,
-  christmassDiscounts,
   complexDiscountFunction,
   complexNewDiscountFunction,
-  easterDiscounts,
-  halloweenDiscounts,
   processSeasonalDiscount,
-  saleDiscount,
-  traditionalDiscounts,
-  verifyAutomaticDiscount,
   verifySeasonalProduct,
 } from "../services/discountServices";
-import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import ComplexDiscountTable from "./complexDiscountTable";
 import SpecialsTable from "./specialsTable";
@@ -58,7 +36,8 @@ import {
 } from "../services/discountEndpoints";
 import SeasonalDiscountTable from "./seasonalDiscountTable";
 import SinDescTable from "./sinDescTable";
-export default function FormRouteSaleAlt() {
+import SaleModalNew from "./saleModalNew";
+export default function FormRouteSaleNew() {
   const [discountType, setDiscountType] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
@@ -74,9 +53,7 @@ export default function FormRouteSaleAlt() {
   const [totalPrevio, setTotalPrevio] = useState(0);
   const [totalDesc, setTotalDesc] = useState(0);
   const [totalFacturar, setTotalFacturar] = useState(0);
-  const [tipo, setTipo] = useState("normal");
   const [isDesc, setIsDesc] = useState(false);
-  const [pedidoFinal, setPedidoFinal] = useState({});
   const [discModal, setDiscModal] = useState(false);
   const [usuarioAct, setUsuarioAct] = useState("");
   const [selectedClient, setSelectedClient] = useState("");
@@ -88,24 +65,13 @@ export default function FormRouteSaleAlt() {
     { nombreProducto: "Cargando..." },
   ]);
   const [isSaleModal, setIsSaleModal] = useState(true);
-  const [tipoPago, setTipoPago] = useState(0);
-  const [cambio, setCambio] = useState(0);
-  const [cancelado, setCancelado] = useState(0);
-  const [cardNumbersA, setCardNumbersA] = useState("");
-  const [cardNumbersB, setCardNumbersB] = useState("");
-  const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState("");
-  const [userStore, setUserStore] = useState("");
   const [isCreate, setIsCreate] = useState(false);
   const [isInvoice, setIsInvoice] = useState(false);
   const [auxProducts, setAuxProducts] = useState([]);
   const [sucursal, setSucursal] = useState("");
   const [branchInfo, setBranchInfo] = useState({});
-  const [invoice, setInvoice] = useState("");
-  const [fechaHora, setFechaHora] = useState("");
   const [auxSelectedProducts, setAuxSelectedProducts] = useState("");
   const [idSelectedClient, setIdSelectedClient] = useState("");
-  const [userName, setUserName] = useState("");
   const [tipoDoc, setTipoDoc] = useState("");
   const [isQuantity, setIsQuantity] = useState(false);
   const [modalQuantity, setModalQuantity] = useState("");
@@ -114,8 +80,6 @@ export default function FormRouteSaleAlt() {
   const [pointOfSale, setPointOfsale] = useState("");
   const [isPoint, setIsPoint] = useState(false);
   const [otherPayments, setOtherPayments] = useState([]);
-  const [giftCard, setGiftCard] = useState(0);
-  const [userCity, setUserCity] = useState("");
   const [tradicionales, setTradicionales] = useState([]);
   const [navidad, setNavidad] = useState([]);
   const [pascua, setPascua] = useState([]);
@@ -135,7 +99,7 @@ export default function FormRouteSaleAlt() {
   const [navObject, setNavObject] = useState({});
   const [hallObject, setHallObject] = useState({});
   const [descSimple, setDescSimple] = useState({});
-  const [mobilePdv, setMobilePdv] = useState({});
+
   const quantref = useRef(null);
   const saleModalRef = useRef();
   const [clientEmail, setClientEmail] = useState("");
@@ -147,6 +111,13 @@ export default function FormRouteSaleAlt() {
   const [seasonalSinDesc, setSeasonalSinDesc] = useState([]);
   const [seasonalSpecial, setSeasonalSpecial] = useState([]);
   const [seasonalTotals, setSeasonalTotals] = useState({});
+
+  const [userData, setUserData] = useState({
+    userId: "",
+    userStore: "",
+    userName: "",
+    userCity: "",
+  });
 
   const datosPaneton = [
     { codInterno: "715037", precio: 46.5 },
@@ -207,17 +178,11 @@ export default function FormRouteSaleAlt() {
   }
 
   useEffect(() => {
-    console.log("setteando total facturar", totalFacturar);
-  }, [totalFacturar]);
-
-  useEffect(() => {
     const dType = getDiscountType();
     dType.then((dt) => {
-      console.log("Tipo de descuento", dt.data);
       setDiscountType(dt.data.idTipoDescuento);
     });
     searchRef.current.focus();
-    const spplited = dateString().split(" ");
 
     const newly = Cookies.get("nit");
     if (newly) {
@@ -225,22 +190,23 @@ export default function FormRouteSaleAlt() {
       Cookies.remove("nit");
     }
     const UsuarioAct = Cookies.get("userAuth");
-
+    const parsedUser = JSON.parse(UsuarioAct);
     if (UsuarioAct) {
-      setUserCity(JSON.parse(UsuarioAct).idDepto);
-      setUserEmail(JSON.parse(UsuarioAct).correo);
-      setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      const uData = {
+        userName: parsedUser.usuario,
+        userStore: parsedUser.idAlmacen,
+        userId: parsedUser.idUsuario,
+      };
+
+      setUserData(uData);
       const PuntoDeVenta = Cookies.get("pdv");
       if (PuntoDeVenta) {
         setIsPoint(true);
         setPointOfsale(PuntoDeVenta);
       } else {
-        const mobilepdvdata = getMobileSalePoints(
-          JSON.parse(UsuarioAct).idAlmacen
-        );
+        const mobilepdvdata = getMobileSalePoints(parsedUser.idAlmacen);
         mobilepdvdata.then((res) => {
           const datos = res.data[0];
-          console.log("Datos del punto de venta", datos);
           if (datos == undefined) {
             setIsPoint(false);
           } else {
@@ -250,15 +216,12 @@ export default function FormRouteSaleAlt() {
           }
         });
       }
-
-      setUserName(JSON.parse(UsuarioAct).usuario);
-      const pl = getSalePoints(JSON.parse(UsuarioAct).idAlmacen);
+      const pl = getSalePoints(parsedUser.idAlmacen);
       pl.then((res) => {
         setPointList([{ nroPuntoDeVenta: 0 }]);
       });
     }
     if (Cookies.get("userAuth")) {
-      setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
       const otrosPagos = otherPaymentsList();
       otrosPagos
         .then((op) => {
@@ -267,10 +230,7 @@ export default function FormRouteSaleAlt() {
         .catch((err) => {
           console.log("Otros pagos?", err);
         });
-      const disponibles = getProductsWithStock(
-        JSON.parse(Cookies.get("userAuth")).idAlmacen,
-        "all"
-      );
+      const disponibles = getProductsWithStock(parsedUser.idAlmacen, "all");
       disponibles.then((fetchedAvailable) => {
         const filtered = fetchedAvailable.data.filter((fa) => fa.activo === 1);
         setAvailable(filtered);
@@ -279,9 +239,7 @@ export default function FormRouteSaleAlt() {
       const suc = getBranchesPs();
       suc.then((resp) => {
         const sucursales = resp.data;
-        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
         const sucur = sucursales.find((sc) => "AL001" == sc.idAgencia);
-        console.log("Sucursal", sucur);
         setSucursal(sucur);
         const branchData = {
           nombre: sucur.nombre,
@@ -292,29 +250,13 @@ export default function FormRouteSaleAlt() {
         };
         setBranchInfo(branchData);
       });
-      /*const interval = setInterval(() => {
-        const disponibles = getProductsWithStock(
-          JSON.parse(Cookies.get("userAuth")).idAlmacen,
-          "all"
-        );
-        disponibles.then((fetchedAvailable) => {
-          setAvailable(fetchedAvailable.data[0]);
-        });
-      }, 60000);*/
-      const dl = productsDiscount(
-        JSON.parse(Cookies.get("userAuth")).idUsuario
-      );
+      const dl = productsDiscount(parsedUser.idUsuario);
       dl.then((res) => {
         setDiscountList(res.data.data);
       });
       const currentDate = dateString();
-
-      const list = listDiscounts(
-        currentDate,
-        JSON.parse(UsuarioAct).tipoUsuario
-      );
+      const list = listDiscounts(currentDate, parsedUser.tipoUsuario);
       list.then((l) => {
-        console.log("Descuento de temporada", l.data.data);
         setSeasonDiscountData(l.data.data);
       });
     }
@@ -399,256 +341,101 @@ export default function FormRouteSaleAlt() {
     setIsSelected(true);
     setIdSelectedClient(client.idCliente);
     setTipoDoc(client.tipoDocumento);
-
     productRef.current.focus();
   }
 
-  function addProductToList(action, product) {
-    if (action == "manual") {
-      const produc = JSON.parse(product);
-      const isTableta = tabletasArray.includes(produc.codInterno);
-      var aux = false;
+  function addProductToList(product) {
+    const produc = JSON.parse(product);
+    const isTableta = tabletasArray.includes(produc.codInterno);
+    var aux = false;
 
-      selectedProducts.map((sp) => {
-        if (sp.codInterno === produc.codInterno) {
-          setIsQuantity(false);
-          setAlert("El producto ya se encuentra seleccionado");
-          setIsAlert(true);
-          aux = true;
-        }
-      });
-      if (!aux) {
-        const isPaneton = datosPaneton.find(
-          (dp) => dp.codInterno == produc.codInterno
-        );
-
-        const productObj = {
-          codInterno: produc.codInterno,
-          cantProducto: 1,
-          codigoSin: produc.codigoSin,
-          actividadEconomica: produc.actividadEconomica,
-          codigoUnidad: produc.codigoUnidad,
-          nombreProducto: produc.nombreProducto,
-          idProducto: produc.idProducto,
-          cant_Actual: produc.cant_Actual,
-          cantidadRestante: produc.cant_Actual,
-          precioDescuentoFijo: produc.precioDescuentoFijo,
-          precioDeFabrica: isPaneton
-            ? isPaneton.precio
-            : isTableta
-            ? produc.precioDeFabrica * 0.9
-            : clientes[0]?.issuper == 1
-            ? produc.precioSuper
-            : produc.precioDeFabrica,
-          descuentoProd: 0,
-          totalProd: isTableta
-            ? produc.precioDeFabrica * 0.9
-            : clientes[0]?.issuper == 1
-            ? produc.precioSuper
-            : produc.precioDeFabrica,
-          tipoProducto: produc.tipoProducto,
-          unidadDeMedida: produc.unidadDeMedida,
-        };
-        const tipo = isTableta ? 5 : produc.tipoProducto;
-        switch (produc.tipoProducto) {
-          case 1:
-            console.log("Tradicional agregado");
-            setTradicionales([...tradicionales, productObj]);
-            break;
-          case 2:
-            console.log("Pascua agregado");
-            setPascua([...pascua, productObj]);
-            break;
-          case 3:
-            setNavidad([...navidad, productObj]);
-            break;
-          case 4:
-            setHalloween([...halloween, productObj]);
-            break;
-          case 5:
-            setSinDesc([...sinDesc, productObj]);
-            break;
-          case 6:
-            setEspeciales([...especiales, productObj]);
-            break;
-        }
-        setCurrentProd(productObj);
-        setSelectedProducts([...selectedProducts, productObj]);
-        setAuxSelectedProducts([...auxSelectedProducts, productObj]);
+    selectedProducts.map((sp) => {
+      if (sp.codInterno === produc.codInterno) {
+        setIsQuantity(false);
+        setAlert("El producto ya se encuentra seleccionado");
+        setIsAlert(true);
+        aux = true;
       }
-      setIsQuantity(true);
-    } else {
-      setModalQuantity("");
-      const selected = available.find(
-        (pr) =>
-          pr.codigoBarras === filtered ||
-          pr.codInterno == filtered ||
-          pr.nombreProducto.toLowerCase().includes(filtered.toLowerCase())
+    });
+    if (!aux) {
+      const isPaneton = datosPaneton.find(
+        (dp) => dp.codInterno == produc.codInterno
       );
 
-      if (selected != undefined) {
-        const isTableta = tabletasArray.includes(selected.codInterno);
-        var aux = false;
-        selectedProducts.map((sp) => {
-          if (sp.codInterno === selected.codInterno) {
-            const indexSelected = selectedProducts.indexOf(sp);
-            const added = parseInt(sp.cantProducto) + 1;
-            changeQuantities(indexSelected, added, sp, true);
-            aux = true;
-          }
-        });
-        if (!aux) {
-          const productObj = {
-            codInterno: selected.codInterno,
-            cantProducto: 1,
-            codigoSin: selected.codigoSin,
-            actividadEconomica: selected.actividadEconomica,
-            codigoUnidad: selected.codigoUnidad,
-            nombreProducto: selected.nombreProducto,
-            idProducto: selected.idProducto,
-            cant_Actual: selected.cant_Actual,
-            cantidadRestante: selected.cant_Actual,
-            precioDeFabrica: isTableta
-              ? selected.precioDeFabrica * 0.9
-              : clientes[0]?.issuper == 1
-              ? selected.precioSuper
-              : selected.precioDeFabrica,
-            precioDescuentoFijo: selected.precioDescuentoFijo,
-            descuentoProd: 0,
-            totalProd: isTableta
-              ? selected.precioDeFabrica * 0.9
-              : clientes[0]?.issuper == 1
-              ? selected.precioSuper
-              : selected.precioDeFabrica,
-            tipoProducto: selected.tipoProducto,
-            unidadDeMedida: selected.unidadDeMedida,
-          };
-          const tipo = isTableta ? 5 : selected.tipoProducto;
-          switch (selected.tipoProducto) {
-            case 1:
-              setTradicionales([...tradicionales, productObj]);
-              break;
-            case 2:
-              setPascua([...pascua, productObj]);
-              break;
-            case 3:
-              setNavidad([...navidad, productObj]);
-              break;
-            case 4:
-              setHalloween([...halloween, productObj]);
-              break;
-            case 5:
-              setSinDesc([...sinDesc, productObj]);
-              break;
-            case 6:
-              setEspeciales([...especiales, productObj]);
-              break;
-          }
-          setCurrentProd(productObj);
-          setSelectedProducts([...selectedProducts, productObj]);
-          setAuxSelectedProducts([...auxSelectedProducts, productObj]);
-        }
+      const precioElegido = isPaneton
+        ? isPaneton.precio
+        : isTableta
+        ? produc.precioDeFabrica * 0.9
+        : clientes[0]?.issuper == 1
+        ? produc.precioSuper
+        : produc.precioDeFabrica;
 
-        setFiltered("");
-        setIsQuantity(true);
-      } else {
-        setAlert("Producto No Encontrado");
-        setIsAlert(true);
-      }
+      const rounded =
+        produc.unidadDeMedida == "Unidad"
+          ? parseInt(modalQuantity)
+          : Number(modalQuantity).toFixed(2);
+
+      const productObj = {
+        codInterno: produc.codInterno,
+        cantProducto: rounded,
+        codigoSin: produc.codigoSin,
+        actividadEconomica: produc.actividadEconomica,
+        codigoUnidad: produc.codigoUnidad,
+        nombreProducto: produc.nombreProducto,
+        idProducto: produc.idProducto,
+        cant_Actual: produc.cant_Actual,
+        cantidadRestante: produc.cant_Actual,
+        precioDescuentoFijo: produc.precioDescuentoFijo,
+        precioDeFabrica: precioElegido,
+        descuentoProd: 0,
+        totalProd: precioElegido * rounded,
+        tipoProducto: produc.tipoProducto,
+        unidadDeMedida: produc.unidadDeMedida,
+      };
+      setCurrentProd(productObj);
+      setSelectedProducts([...selectedProducts, productObj]);
+      setAuxSelectedProducts([...auxSelectedProducts, productObj]);
+    }
+    setFiltered("");
+  }
+
+  function addWithScanner(e) {
+    e.preventDefault();
+    const found = auxProducts.find(
+      (ap) => ap.codInterno == filtered || ap.codigoBarras == filtered
+    );
+    if (found) {
+      setCurrentProd(found);
+      setIsQuantity(true);
+      setFiltered("");
+      setAvailable(auxProducts);
+    } else {
+      setAlert("Producto no encontrado");
+      setIsAlert(true);
     }
   }
-  function changeQuantitiesModal(e) {
-    e.preventDefault();
-    const index = selectedProducts.length - 1;
-    const selectedProd = selectedProducts[index];
-    changeQuantities(index, modalQuantity, selectedProd, false);
+
+  function changeQuantitiesModal() {
+    addProductToList(JSON.stringify(currentProd));
     setIsQuantity(false);
     setModalQuantity("");
-    setAvailable(auxProducts);
     searchRef.current.focus();
   }
 
-  const handleClose = () => {
-    setIsAlert(false);
-    setWillCreate(false);
-    setisLoading(false);
-    setIsCreate(false);
-  };
-  function deleteProduct(index, cod, prod) {
-    console.log("Producto a borrar", prod, cod, index);
-    const auxArray = [...selectedProducts];
-    const auxAux = [...auxSelectedProducts];
-    console.log("Tipo producto", prod);
-    switch (prod.tipoProducto) {
-      case 1:
-        console.log("Borrando trad");
-        const tindex = tradicionales.findIndex((td) => td.idProducto == cod);
-        const taux = [...tradicionales];
-        taux.splice(tindex, 1);
-        setTradicionales(taux);
-        break;
-      case 2:
-        console.log("Borrando Pascua");
-        const pindex = pascua.findIndex((ps) => ps.idProducto == cod);
-        console.log("Index pascuero", pindex);
-        const paux = [...pascua];
-        paux.splice(pindex, 1);
-        setPascua(paux);
-        break;
-      case 3:
-        console.log("Borrando Navidad");
-        const nindex = navidad.findIndex((nv) => nv.idProducto == cod);
-        const naux = [...navidad];
-        naux.splice(nindex, 1);
-        setNavidad(naux);
-        break;
-      case 4:
-        console.log("Borrando Halloween");
-        const hindex = halloween.findIndex((hl) => hl.idProducto == cod);
-        const haux = [...halloween];
-        haux.splice(hindex, 1);
-        setHalloween(haux);
-        break;
-      case 5:
-        console.log("Borrando sin desc");
-        const sindex = sinDesc.findIndex((sd) => sd.idProducto == cod);
-        const saux = [...sinDesc];
-        saux.splice(sindex, 1);
-        setSinDesc(saux);
-        break;
-      case 6:
-        console.log("Borrando especial");
-        const eindex = especiales.findIndex((ep) => ep.idProducto == cod);
-        const eaux = [...especiales];
-        eaux.splice(eindex, 1);
-        setEspeciales(eaux);
-        break;
-    }
-    auxArray.splice(index, 1);
-    auxAux.splice(index, 1);
-    setSelectedProducts(auxArray);
-    setAuxSelectedProducts(auxAux);
+  function handleModalQuantity(cantidad) {
+    console.log(Number(cantidad).toFixed(2));
+    setModalQuantity(cantidad);
   }
-  function addWithScanner(e) {
-    e.preventDefault();
-    addProductToList("scanner");
-  }
-  function changeQuantities(index, cantidad, prod, isScanner) {
-    const arrCant = !isScanner ? cantidad.split(".") : cantidad;
-    const isThree =
-      cantidad === ""
-        ? ""
-        : arrCant[1]?.length > process.env.REACT_APP_DECIMALES
-        ? parseFloat(cantidad).toFixed(2)
-        : cantidad;
-    const total = parseFloat(
-      parseFloat(prod.precioDeFabrica).toFixed(2) *
-        (prod.unidadDeMedida == "Unidad" ? parseInt(isThree) : isThree)
-    ).toFixed(2);
+
+  function changeQuantities(index, cantidad, prod) {
+    const rounded =
+      prod.unidadDeMedida == "Unidad"
+        ? parseInt(cantidad)
+        : Number(cantidad).toFixed(2);
+    const total = Number(prod.precioDeFabrica * rounded).toFixed(2);
     let auxObj = {
       codInterno: prod.codInterno,
-      cantProducto:
-        prod.unidadDeMedida == "Unidad" ? parseInt(isThree) : isThree,
+      cantProducto: rounded,
       codigoSin: prod.codigoSin,
       actividadEconomica: prod.actividadEconomica,
       codigoUnidad: prod.codigoUnidad,
@@ -657,8 +444,8 @@ export default function FormRouteSaleAlt() {
       cant_Actual: prod.cant_Actual,
       cantidadRestante: prod.cant_Actual - cantidad,
       descuentoProd: total - total * (1 - descuento / 100),
-      precioDeFabrica: prod.precioDeFabrica,
-      precioDescuentoFijo: prod.precioDescuentoFijo,
+      precioDeFabrica: Number(prod.precioDeFabrica).toFixed(2),
+      precioDescuentoFijo: Number(prod.precioDescuentoFijo).toFixed(2),
       totalProd: total,
       tipoProducto: prod.tipoProducto,
       descuentoProd: 0,
@@ -668,60 +455,25 @@ export default function FormRouteSaleAlt() {
     auxSelected[index] = auxObj;
     setSelectedProducts(auxSelected);
     setAuxSelectedProducts(auxSelected);
-    switch (prod.tipoProducto) {
-      case 1:
-        const tindex = tradicionales.findIndex(
-          (td) => td.idProducto == prod.idProducto
-        );
-        const taux = [...tradicionales];
-        taux[tindex] = auxObj;
-        console.log("Cantidad en pascua cambiando");
-        setTradicionales(taux);
-        break;
-      case 2:
-        const pindex = pascua.findIndex(
-          (ps) => ps.idProducto == prod.idProducto
-        );
-        const paux = [...pascua];
-        paux[pindex] = auxObj;
-        setPascua(paux);
-        break;
-      case 3:
-        const nindex = navidad.findIndex(
-          (nv) => nv.idProducto == prod.idProducto
-        );
-        const naux = [...navidad];
-        naux[nindex] = auxObj;
-        setNavidad(naux);
-        break;
-      case 4:
-        const hindex = halloween.findIndex(
-          (hl) => hl.idProducto == prod.idProducto
-        );
-        const haux = [...halloween];
-        haux[hindex] = auxObj;
-        setHalloween(haux);
-        break;
-      case 5:
-        const sindex = sinDesc.findIndex(
-          (sd) => sd.idProducto == prod.idProducto
-        );
-        const saux = [...sinDesc];
-        saux[sindex] = auxObj;
-        setSinDesc(saux);
-        break;
-      case 6:
-        const espIndex = especiales.findIndex(
-          (ep) => ep.codInterno == prod.codInterno
-        );
-        const eaux = [...especiales];
-        eaux[espIndex] = auxObj;
-        setEspeciales(eaux);
-        break;
-    }
   }
+
+  const handleClose = () => {
+    setIsAlert(false);
+    setWillCreate(false);
+    setisLoading(false);
+    setIsCreate(false);
+  };
+
+  function deleteProduct(index) {
+    const auxArray = [...selectedProducts];
+    const auxAux = [...auxSelectedProducts];
+    auxArray.splice(index, 1);
+    auxAux.splice(index, 1);
+    setSelectedProducts(auxArray);
+    setAuxSelectedProducts(auxAux);
+  }
+
   function handleModal() {
-    //console.log("Desc calculado aki", totalDesc);
     if (isSelected) {
       setTimeout(() => {
         setIsInvoice(true);
@@ -731,153 +483,6 @@ export default function FormRouteSaleAlt() {
       setAlert("Por favor, seleccione un cliente");
       setIsAlert(true);
     }
-  }
-
-  function saveSale(createdId) {
-    const totPrev = parseFloat(
-      auxSelectedProducts.reduce((accumulator, object) => {
-        return accumulator + parseFloat(object.total).toFixed(2);
-      }, 0)
-    ).toFixed(2);
-    console.log("Tot prev 2", parseFloat(totPrev).toFixed(2));
-    const totDesc = selectedProducts.reduce((accumulator, object) => {
-      return accumulator + parseFloat(object.total).toFixed(2);
-    }, 0);
-    return new Promise((resolve, reject) => {
-      setFechaHora(dateString());
-      const objVenta = {
-        pedido: {
-          idUsuarioCrea: usuarioAct,
-          idCliente: selectedClient,
-          fechaCrea: dateString(),
-          fechaActualizacion: dateString(),
-          montoTotal: parseFloat(totalPrevio).toFixed(2),
-          descCalculado: parseFloat(totalDesc).toFixed(2),
-          descuento: descuento,
-          montoFacturar: parseFloat(totalPrevio - totalDesc).toFixed(2),
-          idPedido: "",
-          idFactura: createdId,
-        },
-        productos: selectedProducts,
-      };
-      const ventaCreada = createSale(objVenta);
-      ventaCreada
-        .then((res) => {
-          const idVenta = res.data.idCreado;
-          setTimeout(() => {
-            const updatedStock = updateStock({
-              accion: "take",
-              idAlmacen: userStore,
-              productos: selectedProducts,
-              detalle: `NVAG-${idVenta}`,
-            });
-            const objStock = {
-              accion: "add",
-              idAlmacen: userStore,
-              productos: selectedProducts,
-              detalle: `CVAGN-${idVenta}`,
-            };
-            updatedStock
-              .then((us) => {
-                saleModalRef.current.childFunction(
-                  createdId,
-                  idVenta,
-                  objStock
-                );
-                resolve(true);
-                setIsAlertSec(true);
-              })
-              .catch((err) => {
-                setAlert(err.response.data.message);
-                const deletedInvoice = deleteInvoice(createdId);
-                deletedInvoice.then((rs) => {
-                  const deletedSale = deleteSale(idVenta);
-                  deletedSale.then((res) => {
-                    console.log("Borrados");
-                  });
-                });
-              });
-          }, 500);
-        })
-        .catch((err) => {
-          console.log("Error al crear la venta", err);
-          const deletedInvoice = deleteInvoice(createdId);
-          setAlert("Error al crear la factura, intente nuevamente");
-          reject(false);
-        });
-    });
-  }
-  function saveInvoice() {
-    return new Promise((resolve, reject) => {
-      setAlertSec("Registrando Venta");
-      setIsAlertSec(true);
-      const invoiceBody = {
-        idCliente: selectedClient,
-        nroFactura: 0,
-        idSucursal: branchInfo.nro,
-        nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
-        fechaHora: dateString(),
-        nitCliente: clientes[0].nit,
-        razonSocial: clientes[0].razonSocial,
-        tipoPago: tipoPago,
-        pagado: cancelado,
-        cambio: parseFloat(cambio).toFixed(2),
-        nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
-        cuf: "",
-        importeBase: parseFloat(
-          parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)
-        ).toFixed(2),
-        debitoFiscal: parseFloat(
-          (parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)) *
-            0.13
-        ).toFixed(2),
-        desembolsada: 0,
-        autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
-        cufd: "",
-        fechaEmision: "",
-        nroTransaccion: 0,
-        idOtroPago: ofp,
-        vale: giftCard,
-        aPagar: aPagar,
-        puntoDeVenta: pointOfSale,
-        idAgencia: userStore,
-      };
-      console.log("INVOICE BODY", invoiceBody);
-      setInvoice(invoiceBody);
-      console.log("Invoice body", invoiceBody);
-      const newInvoice = createInvoice(invoiceBody);
-      newInvoice
-        .then((res) => {
-          setTimeout(() => {
-            const newId = res.data.idCreado;
-            const created = saveSale(newId);
-            created
-              .then((res) => {
-                resolve(true);
-              })
-              .catch((error) => {
-                reject(false);
-              });
-          }, 500);
-        })
-        .catch((error) => {
-          console.log("Error en la creacion de la factura", error);
-          setAlert("Error al crear la factura, intente nuevamente");
-        });
-
-      setIsSaleModal(!isSaleModal);
-    });
-  }
-  function handleDiscount() {
-    const newDiscount = verifyAutomaticDiscount(selectedProducts, descuento);
-    newDiscount.then((nd) => {
-      setDescuento(nd);
-      const discountedProds = saleDiscount(selectedProducts, nd);
-      discountedProds.then((res) => {
-        setSelectedProducts(res);
-        handleModal();
-      });
-    });
   }
 
   function validateQuantities() {
@@ -904,32 +509,38 @@ export default function FormRouteSaleAlt() {
 
   async function processDiscounts() {
     const dType = await getDiscountType();
-    const discountObject = complexDiscountFunction(
-      selectedProducts,
-      discountList
-    );
+    const discountObject =
+      dType.data.idTipoDescuento == 1
+        ? complexDiscountFunction(selectedProducts, discountList)
+        : complexNewDiscountFunction(selectedProducts, discountList);
     console.log("Discount object", discountObject);
     setTradObject(discountObject.tradicionales);
     setPasObject(discountObject.pascua);
     setNavObject(discountObject.navidad);
     setHallObject(discountObject.halloween);
+    setTradicionales(discountObject.arrays.tradicionales);
+    setPascua(discountObject.arrays.pascua);
+    setNavidad(discountObject.arrays.navidad);
+    setHalloween(discountObject.arrays.halloween);
+    setSinDesc(discountObject.arrays.sinDesc);
+    setEspeciales(discountObject.arrays.especiales);
     setTotalDesc(
-      discountObject.tradicionales.descCalculado +
-        discountObject.pascua.descCalculado +
-        discountObject.navidad.descCalculado +
-        discountObject.halloween.descCalculado
+      Number(discountObject.tradicionales.descCalculado) +
+        Number(discountObject.pascua.descCalculado) +
+        Number(discountObject.navidad.descCalculado) +
+        Number(discountObject.halloween.descCalculado)
     );
     setTotalPrevio(
-      discountObject.tradicionales.total +
-        discountObject.pascua.total +
-        discountObject.navidad.total +
-        discountObject.halloween.total
+      Number(discountObject.tradicionales.total) +
+        Number(discountObject.pascua.total) +
+        Number(discountObject.navidad.total) +
+        Number(discountObject.halloween.total)
     );
     setTotalFacturar(
-      discountObject.tradicionales.facturar +
-        discountObject.pascua.facturar +
-        discountObject.navidad.facturar +
-        discountObject.halloween.facturar
+      Number(discountObject.tradicionales.facturar) +
+        Number(discountObject.pascua.facturar) +
+        Number(discountObject.navidad.facturar) +
+        Number(discountObject.halloween.facturar)
     );
     setDiscModal(true);
   }
@@ -1008,15 +619,20 @@ export default function FormRouteSaleAlt() {
         <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
         <Modal.Body>
           <div className="productModal">{currentProd.nombreProducto}</div>
-          <Form>
+          <Form
+            onSubmit={(e) => {
+              e.preventDefault();
+              changeQuantitiesModal(e.target[0].value);
+            }}
+          >
             <Form.Control
               type="number"
-              onChange={(e) => setModalQuantity(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" ? changeQuantitiesModal(e) : null
-              }
+              onChange={(e) => handleModalQuantity(e.target.value)}
+              required
+              step={"any"}
               ref={quantref}
               value={modalQuantity}
+              min={0}
             />
           </Form>
         </Modal.Body>
@@ -1076,127 +692,40 @@ export default function FormRouteSaleAlt() {
       </Modal>
       {isInvoice ? (
         <div>
-          <SaleModalAlt
-            ref={saleModalRef}
+          <SaleModalNew
+            aPagar={aPagar}
+            branchInfo={branchInfo}
+            clientId={selectedClient}
             datos={{
-              total: totalPrevio,
               descuento,
-              totalDescontado: totalFacturar,
+              descuentoCalculado: totalDesc,
               nit: clientes[0].nit,
               razonSocial: clientes[0].razonSocial,
-            }}
-            show={true}
-            setDescuento={setDescuento}
-            isSaleModal={isSaleModal}
-            setIsSaleModal={setIsSaleModal}
-            setIsInvoice={setIsInvoice}
-            tipoPago={tipoPago}
-            setTipoPago={setTipoPago}
-            setCambio={setCambio}
-            cambio={cambio}
-            cancelado={cancelado}
-            setCancelado={setCancelado}
-            cardNumbersA={cardNumbersA}
-            setCardNumbersA={setCardNumbersA}
-            cardNumbersB={cardNumbersB}
-            setCardNumbersB={setCardNumbersB}
-            saveInvoice={saveInvoice}
-            setAlert={setAlert}
-            setIsAlert={setIsAlert}
-            branchInfo={branchInfo}
-            selectedProducts={selectedProducts}
-            invoice={invoice}
-            total={totalPrevio}
-            descuentoCalculado={
-              isSeasonalModal
-                ? totalDesc
-                : parseFloat(pasObject.descCalculado) +
-                  parseFloat(tradObject.descCalculado) +
-                  parseFloat(navObject.descCalculado) +
-                  parseFloat(hallObject.descCalculado)
-            }
-            totalDescontado={
-              isSeasonalModal
-                ? totalFacturar
-                : parseFloat(tradObject.facturar) +
-                  parseFloat(pasObject.facturar) +
-                  parseFloat(navObject.facturar) +
-                  parseFloat(hallObject.facturar)
-            }
-            fechaHora={fechaHora}
-            tipoDocumento={tipoDoc}
-            userName={userName}
-            pointOfSale={pointOfSale}
-            otherPayments={otherPayments}
-            giftCard={giftCard}
-            setGiftCard={setGiftCard}
-            userStore={userStore}
-            userId={usuarioAct}
-            saleType="store"
-            setTotalFacturar={setTotalFacturar}
-            setTotalDesc={setTotalDesc}
-            setTotalPrevio={setTotalPrevio}
-            ofp={ofp}
-            setOfp={setOfp}
-            aPagar={aPagar}
-            setAPagar={setAPagar}
-            isRoute={true}
-            saleBody={{
-              pedido: {
-                idUsuarioCrea: usuarioAct,
-                idCliente: selectedClient,
-                fechaCrea: dateString(),
-                fechaActualizacion: dateString(),
-                montoTotal: parseFloat(totalPrevio).toFixed(2),
-                descCalculado: parseFloat(totalDesc).toFixed(2),
-                descuento: descuento,
-                montoFacturar: parseFloat(totalPrevio - totalDesc).toFixed(2),
-                idPedido: "",
-                idFactura: 0,
-              },
-              productos: selectedProducts,
-            }}
-            invoiceBody={{
-              idCliente: selectedClient,
-              nroFactura: 0,
-              idSucursal: branchInfo.nro,
-              nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
-              fechaHora: dateString(),
-              nitCliente: clientes[0].nit,
-              razonSocial: clientes[0].razonSocial,
-              tipoPago: tipoPago,
-              pagado: cancelado,
-              cambio: parseFloat(cambio).toFixed(2),
-              nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
-              cuf: "",
-              importeBase: parseFloat(
-                isSeasonalModal
-                  ? totalFacturar
-                  : parseFloat(cancelado).toFixed(2) -
-                      parseFloat(cambio).toFixed(2)
-              ).toFixed(2),
-              debitoFiscal: parseFloat(
-                (parseFloat(cancelado).toFixed(2) -
-                  parseFloat(cambio).toFixed(2)) *
-                  0.13
-              ).toFixed(2),
-              desembolsada: 0,
-              autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
-              cufd: "",
-              fechaEmision: "",
-              nroTransaccion: 0,
-              idOtroPago: ofp,
-              vale: giftCard,
-              aPagar: aPagar,
-              puntoDeVenta: pointOfSale,
-              idAgencia: userStore,
-            }}
-            updateStockBody={{
-              idAlmacen: userStore,
-              productos: selectedProducts,
+              total: totalPrevio,
+              totalDescontado: totalFacturar,
             }}
             emailCliente={clientEmail}
-            clientId={idSelectedClient}
+            isRoute={false}
+            isSaleModal={isSaleModal}
+            ofp={ofp}
+            otherPayments={otherPayments}
+            pointOfSale={pointOfSale}
+            ref={saleModalRef}
+            saleType="store"
+            selectedProducts={selectedProducts}
+            setAPagar={setAPagar}
+            setAlert={setAlert}
+            setIsAlert={setIsAlert}
+            setIsInvoice={setIsInvoice}
+            setIsSaleModal={setIsSaleModal}
+            setOfp={setOfp}
+            show={true}
+            tipoDocumento={tipoDoc}
+            updateStockBody={{
+              idAlmacen: userData.userStore,
+              productos: selectedProducts,
+            }}
+            userData={userData}
             isSeasonal={isSeasonalModal}
           />
         </div>
@@ -1319,7 +848,8 @@ export default function FormRouteSaleAlt() {
             <Form.Select
               className="selectorColor"
               onChange={(e) => {
-                addProductToList("manual", e.target.value);
+                setCurrentProd(JSON.parse(e.target.value));
+                setIsQuantity(true);
               }}
             >
               <option>Seleccionar Producto</option>
@@ -1463,7 +993,7 @@ export default function FormRouteSaleAlt() {
                       min="0"
                       max="100"
                       value={descuento}
-                      disabled={isDesc}
+                      disabled={true}
                       type="number"
                       placeholder="Ingrese porcentaje"
                       onChange={(e) => setDescuento(e.target.value)}

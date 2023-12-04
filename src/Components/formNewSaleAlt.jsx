@@ -37,6 +37,7 @@ import {
 import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import SaleModalAlt from "./saleModalAlt";
+import { roundToTwoDecimalPlaces } from "../services/mathServices";
 
 export default function FormNewSaleAlt() {
   const [isClient, setIsClient] = useState(false);
@@ -102,8 +103,11 @@ export default function FormNewSaleAlt() {
   const searchRef = useRef(null);
   const productRef = useRef(null);
   const quantref = useRef(null);
+  const discref = useRef(null);
   const saleModalRef = useRef();
   const [clientEmail, setClientEmail] = useState("");
+  const [modalDiscount, setModalDiscount] = useState(0);
+  const [isIndividualDiscount, setIsIndividualDiscount] = useState(true);
   useEffect(() => {
     console.log(
       "Es isla?",
@@ -410,18 +414,22 @@ export default function FormNewSaleAlt() {
   }
   function changeQuantitiesModal(e) {
     // e.preventDefault();
+    console.log("CANTIDAD EN EL MODAL", modalQuantity);
     const index = selectedProducts.length - 1;
     const selectedProd = selectedProducts[index];
     changeQuantities(index, modalQuantity, selectedProd, false);
     setIsQuantity(false);
     setModalQuantity("");
     setAvailable(auxProducts);
-
     searchRef.current.focus();
   }
 
   function handleModalQuantity(cantidad) {
     setModalQuantity(cantidad);
+  }
+
+  function handleModalDiscount(discount) {
+    setModalDiscount(discount);
   }
 
   const handleClose = () => {
@@ -572,11 +580,11 @@ export default function FormNewSaleAlt() {
                   objStock
                 );
                 resolve(true);
-                setIsAlertSec(false);
+               // setIsAlertSec(false);
               })
               .catch((err) => {
                 setAlert(err);
-                setIsAlertSec(false);
+               // setIsAlertSec(false);
                 const deletedInvoice = deleteInvoice(createdId);
                 deletedInvoice.then((rs) => {
                   const deletedSale = deleteSale(idVenta);
@@ -590,7 +598,7 @@ export default function FormNewSaleAlt() {
         .catch((err) => {
           console.log("Error al crear la venta", err);
           const deletedInvoice = deleteInvoice(createdId);
-          setIsAlertSec(false);
+          //setIsAlertSec(false);
           setAlert("Error al crear la factura, intente nuevamente");
           reject(false);
         });
@@ -598,7 +606,7 @@ export default function FormNewSaleAlt() {
   }
   function saveInvoice() {
     setAlertSec("Registrando Venta");
-    setIsAlertSec(true);
+    //setIsAlertSec(true);
     return new Promise((resolve, reject) => {
       const invoiceBody = {
         idCliente: selectedClient,
@@ -684,7 +692,7 @@ export default function FormNewSaleAlt() {
         .catch((error) => {
           console.log("Error en la creacion de la factura", error);
           setAlert("Error al crear la factura, intente nuevamente");
-          setIsAlertSec(false);
+          //setIsAlertSec(false);
         });
 
       setIsSaleModal(!isSaleModal);
@@ -770,7 +778,7 @@ export default function FormNewSaleAlt() {
             changeQuantitiesModal(e.target[0].value);
           }}
         >
-          <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
+          <Modal.Header className="modalHeader">{`INGRESE CANTIDAD`}</Modal.Header>
           <Modal.Body>
             <div className="productModal">{currentProd.nombreProducto}</div>
             <Form.Control
@@ -1176,11 +1184,12 @@ export default function FormNewSaleAlt() {
                     <th className="smallTableColumn">Descuento %</th>
 
                     <th className="smallTableColumn">Total</th>
-                    <th className="smallTableColumn">
-                      {isMobile ? "Cant Disp" : "Cantidad Disponible"}
-                    </th>
+
                     <th className="smallTableColumn">
                       {isMobile ? "Total Desc" : "Total con Descuento"}
+                    </th>
+                    <th className="smallTableColumn">
+                      {isMobile ? "Cant Disp" : "Cantidad Disponible"}
                     </th>
                   </tr>
                 </thead>
@@ -1265,15 +1274,16 @@ export default function FormNewSaleAlt() {
                         <td className="smallTableColumn">
                           {parseFloat(Number(sp.total)).toFixed(2)}
                         </td>
-                        <td className="smallTableColumn">
-                          {sp.unidadDeMedida == "Unidad"
-                            ? parseFloat(sp.cant_Actual).toFixed(0)
-                            : parseFloat(sp.cant_Actual).toFixed(3)}
-                        </td>
+
                         <td>
                           {parseFloat(
                             Number(sp.total) * (1 - sp.descuentoProd / 100)
                           ).toFixed(2)}
+                        </td>
+                        <td className="smallTableColumn">
+                          {sp.unidadDeMedida == "Unidad"
+                            ? parseFloat(sp.cant_Actual).toFixed(0)
+                            : parseFloat(sp.cant_Actual).toFixed(3)}
                         </td>
                       </tr>
                     );
@@ -1287,7 +1297,7 @@ export default function FormNewSaleAlt() {
                     <th className="smallTableColumnalt"></th>
                     <th></th>
                     <th></th>
-                    <th></th>
+
                     <th className="smallTableColumn">{"Total: "}</th>
                     <th className="smallTableColumn">
                       {`${selectedProducts.reduce((accumulator, object) => {
@@ -1297,18 +1307,18 @@ export default function FormNewSaleAlt() {
                     <th className="smallTableColumn">
                       {isMobile ? "Total Descontado" : "Total descontado: "}
                     </th>
-                    <th className="smallTableColumn">{`${
+                    <th className="smallTableColumn">{`${roundToTwoDecimalPlaces(
                       (selectedProducts.reduce((accumulator, object) => {
                         return (
                           accumulator +
-                          parseFloat(object.total) *
-                            (1 - object.descuentoProd / 100)
+                          object.total * (1 - object.descuentoProd / 100)
                         );
                       }, 0) *
                         (100 - descuento)) /
-                      100
-                    }
+                        100
+                    )}
                      Bs.`}</th>
+                    <th></th>
                   </tr>
                 </tfoot>
               </Table>

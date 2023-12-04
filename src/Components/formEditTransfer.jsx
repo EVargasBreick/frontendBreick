@@ -6,6 +6,7 @@ import {
   transferProducts,
   updateChangedTransfer,
   updateProductTransfer,
+  updateTransfer,
 } from "../services/transferServices";
 import Cookies from "js-cookie";
 import "../styles/formLayouts.css";
@@ -61,6 +62,7 @@ export default function FormEditTransfer() {
       selectTransfer();
     }
   }, [transferId, timestampRef]);
+
   function selectTransfer() {
     console.log("Id seleccionado", transferId);
     setSelectedTransfer({});
@@ -92,11 +94,34 @@ export default function FormEditTransfer() {
     });
   }
 
+  function cancelTransfer() {
+    setAlertSec("Cancelando Traspaso");
+    setIsAlertSec(true);
+    const canceledTransfer = updateTransfer({
+      estado: 2,
+      idTraspaso: transferId,
+      fechaHora: dateString(),
+      idUsuario: userId,
+      stock: {
+        accion: "add",
+        idAlmacen: transferOrigin,
+        productos: selectedProducts,
+        detalle: `DPCTR-${transferId}`,
+      },
+    });
+    canceledTransfer.then((res) => {
+      setAlertSec("Traspaso cancelado correctamente");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload(false);
+      }, 5000);
+    });
+  }
+
   function updateCurrentStock() {
     setTransferProductList([]);
     setSelectedProducts([]);
     const storeId = tList.find((tl) => (tl.idTraspaso = transferId)).idOrigen;
-
     const prods = getProductsWithStock(storeId, "all");
     prods.then((pr) => {
       console.log("Flag 1");
@@ -486,6 +511,13 @@ export default function FormEditTransfer() {
                       className="yellowLarge"
                     >
                       Actualizar
+                    </Button>
+                  </td>
+                </tr>
+                <tr className="tableFootAlt">
+                  <td colSpan={5}>
+                    <Button onClick={() => cancelTransfer()} variant="danger">
+                      Cancelar Traspaso
                     </Button>
                   </td>
                 </tr>

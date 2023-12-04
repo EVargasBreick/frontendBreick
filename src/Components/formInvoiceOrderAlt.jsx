@@ -365,6 +365,7 @@ export default function FormInvoiceOrderAlt() {
           voucher: 0,
           pya: false,
         };
+
         const emizorBody = {
           numeroFactura: 0,
           nombreRazonSocial: cliente.razonSocial,

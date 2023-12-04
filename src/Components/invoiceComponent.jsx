@@ -3,6 +3,10 @@ import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
 import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
+import {
+  roundToTwoDecimalPlaces,
+  rountWithMathFloor,
+} from "../services/mathServices";
 export const InvoiceComponent = React.forwardRef(
   (
     {
@@ -101,8 +105,10 @@ export const InvoiceComponent = React.forwardRef(
                         {parseFloat(producto.descuentoProd)?.toFixed(2)}
                       </td>
                       <td className="ProductLeft">
-                        {parseFloat(totalProducto)?.toFixed(2) -
-                          (Number(producto.descuentoProd) ?? 0)}
+                        {roundToTwoDecimalPlaces(
+                          parseFloat(totalProducto) -
+                            (Number(producto.descuentoProd) ?? 0).toFixed(2)
+                        )}
                       </td>
                     </tr>
                   );
@@ -124,12 +130,9 @@ export const InvoiceComponent = React.forwardRef(
                 <tr>
                   <td className="totals">Descuento</td>
                   <td className="totalsData">
-                    {`${parseFloat(
-                      totalsData.descuentoCalculado +
-                        selectedProducts.reduce((acc, item) => {
-                          return acc + Number(item.descuentoProd ?? 0);
-                        }, 0)
-                    ).toFixed(2)}`}
+                    {`${rountWithMathFloor(
+                      totalsData?.total - totalsData?.totalDescontado
+                    )}`}
                   </td>
                 </tr>
                 <tr>

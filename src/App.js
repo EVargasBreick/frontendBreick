@@ -74,6 +74,8 @@ import GoalSetter from "./Components/goalSetter";
 import RegisterSeasonDiscounts from "./Components/registerSeasonDiscounts";
 import CancelInvoiceAltern from "./Components/cancelInvoiceAltern";
 import CancelDrop from "./Components/cancelDrop";
+import NewSaleNew from "./Components/newSaleNew";
+import RouteSaleNew from "./Components/routeSaleNew";
 
 function App() {
   return (
@@ -419,6 +421,14 @@ function App() {
               }
             />
             <Route
+              path="/ventas/rutas"
+              element={
+                <RequireAuth>
+                  <RouteSaleNew />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/traspasos/editar"
               element={
                 <RequireAuth>
@@ -491,7 +501,7 @@ function App() {
               }
             />
             <Route
-              path="/ventas/agencia"
+              path="/ventas/agencia/antiguo"
               element={
                 <RequireAuth>
                   <NewSaleAlt />
@@ -507,7 +517,7 @@ function App() {
               }
             />
             <Route
-              path="/ventas/rutas"
+              path="/ventas/rutas/antiguo"
               element={
                 <RequireAuth>
                   <RouteSaleAlt />
@@ -623,6 +633,14 @@ function App() {
               element={
                 <RequireAuth>
                   <CancelDrop />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/ventas/agencia/"
+              element={
+                <RequireAuth>
+                  <NewSaleNew />
                 </RequireAuth>
               }
             />

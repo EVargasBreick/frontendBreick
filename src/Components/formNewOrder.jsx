@@ -788,14 +788,21 @@ export default function FormNewOrder() {
       setDescSimple(objDescNew);
       setTotalDesc(objDescNew.descCalculado);
       setTotalPrevio(
-        Number(objDescNew.totalEspecial + objDescNew.totalDescontables)
+        Number(
+          Number(objDescNew.totalEspecial) +
+            Number(objDescNew.totalDescontables)
+        )
       );
       setTotalFacturar(
-        Number(objDescNew.totalTradicional + objDescNew.totalEspecial)
+        Number(
+          Number(objDescNew.totalTradicional) + Number(objDescNew.totalEspecial)
+        )
       );
       console.log(
         "CHEKIANDO ESTO",
-        Number(objDescNew.totalTradicional + objDescNew.totalEspecial)
+        Number(
+          Number(objDescNew.totalTradicional) + Number(objDescNew.totalEspecial)
+        )
       );
       setDiscModalType(false);
       setSelectedProds(objDescNew.productosReprocesados);
@@ -811,22 +818,22 @@ export default function FormNewOrder() {
       setNavObject(discountObject.navidad);
       setHallObject(discountObject.halloween);
       setTotalDesc(
-        discountObject.tradicionales.descCalculado +
-          discountObject.pascua.descCalculado +
-          discountObject.navidad.descCalculado +
-          discountObject.halloween.descCalculado
+        Number(discountObject.tradicionales.descCalculado) +
+          Number(discountObject.pascua.descCalculado) +
+          Number(discountObject.navidad.descCalculado) +
+          Number(discountObject.halloween.descCalculado)
       );
       setTotalPrevio(
-        discountObject.tradicionales.total +
-          discountObject.pascua.total +
-          discountObject.navidad.total +
-          discountObject.halloween.total
+        Number(discountObject.tradicionales.total) +
+          Number(discountObject.pascua.total) +
+          Number(discountObject.navidad.total) +
+          Number(discountObject.halloween.total)
       );
       setTotalFacturar(
-        discountObject.tradicionales.facturar +
-          discountObject.pascua.facturar +
-          discountObject.navidad.facturar +
-          discountObject.halloween.facturar
+        Number(discountObject.tradicionales.facturar) +
+          Number(discountObject.pascua.facturar) +
+          Number(discountObject.navidad.facturar) +
+          Number(discountObject.halloween.facturar)
       );
       setIsSpecial(discountObject.tradicionales.especial);
       setDiscModalType(true);
@@ -1184,8 +1191,9 @@ export default function FormNewOrder() {
             <div className="formLabel">DESCUENTO (%)</div>
             <div className="percent">
               <Form.Control
-                min="0"
-                max="100"
+                min={0}
+                max={100}
+                required
                 value={descuento}
                 disabled={tipoUsuario == 1 ? false : true}
                 onChange={(e) => handleDiscount(e.target.value)}

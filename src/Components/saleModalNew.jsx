@@ -1,15 +1,8 @@
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import React, { useEffect, useRef, useState } from "react";
 import { Modal, Button, Form, Image, FormControl } from "react-bootstrap";
-import InvoicePDF from "./invoicePDF";
-import QrComponent from "./qrComponent";
 import loading2 from "../assets/loading2.gif";
 import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
-import { getInvoiceNumber, structureXml } from "../services/mockedServices";
-import { SoapInvoice } from "../Xml/soapInvoice";
-import xml2js from "xml2js";
-import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
 import { dateString } from "../services/dateServices";
 import { registerDrop } from "../services/dropServices";
 import { updateStock } from "../services/orderServices";
@@ -20,71 +13,42 @@ import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
 import {
   debouncedFullInvoiceProcess,
-  deleteInvoice,
-  fullInvoiceProcess,
-  invoiceUpdate,
   logIncompleteInvoice,
-  otherPaymentsList,
 } from "../services/invoiceServices";
-import { deleteSale } from "../services/saleServices";
 import Cookies from "js-cookie";
-import { debounce, set } from "lodash";
 import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
 import { emizorService } from "../services/emizorService";
 import { TipoPagoComponent } from "./tipoPagoCOmponent";
-import { roundToTwoDecimalPlaces } from "../services/mathServices";
+import {
+  roundToTwoDecimalPlaces,
+  rountWithMathFloor,
+} from "../services/mathServices";
 
-function SaleModalAlt(
+function SaleModalNew(
   {
+    aPagar,
+    branchInfo,
+    clientId,
     datos,
-    show,
-    setDescuento,
+    emailCliente,
+    isRoute,
     isSaleModal,
-    setIsSaleModal,
-    setIsInvoice,
-    tipoPago,
-    setTipoPago,
-    setCambio,
-    cambio,
-    cancelado,
-    setCancelado,
-    cardNumbersA,
-    setCardNumbersA,
-    cardNumbersB,
-    setCardNumbersB,
-    saveInvoice,
+    ofp,
+    otherPayments,
+    pointOfSale,
+    saleType,
+    selectedProducts,
+    setAPagar,
     setAlert,
     setIsAlert,
-    branchInfo,
-    selectedProducts,
-    invoice,
-    total,
-    descuentoCalculado,
-    totalDescontado,
-    fechaHora,
-    tipoDocumento,
-    userName,
-    pointOfSale,
-    otherPayments,
-    userStore,
-    userId,
-    saleType,
-    setTotalFacturar,
-    setTotalDesc,
-    setTotalPrevio,
-    ofp,
+    setIsInvoice,
+    setIsSaleModal,
     setOfp,
-    aPagar,
-    setAPagar,
-    isRoute,
-    saleBody,
-    invoiceBody,
+    tipoDocumento,
     updateStockBody,
-    emailCliente,
-    clientId,
-    isSeasonal,
+    userData,
   },
   ref
 ) {
@@ -100,7 +64,6 @@ function SaleModalAlt(
   const [invoiceMod, setInvoceMod] = useState(false);
   const [invoiceId, setInvoiceId] = useState("");
   const componentRef = useRef();
-  const [approvedId, setApprovedId] = useState("");
   const [motivo, setMotivo] = useState("");
   const [isDrop, setIsDrop] = useState(false);
   const [dropId, setDropId] = useState(0);
@@ -112,18 +75,15 @@ function SaleModalAlt(
   const invButtonRefAlt = useRef();
   const invoiceWrapRef = useRef(null);
   const componentCopyRef = useRef(null);
-  const [isRegistered, setIsRegistered] = useState(false);
-  const totalDesc = datos.total * (1 - datos.descuento / 100);
-  const [descuentoFactura, setDescuentoFactura] = useState(totalDesc);
+  const [descuentoFactura, setDescuentoFactura] = useState(
+    datos.descuentoCalculado
+  );
   const [isDownloadable, setIsDownloadable] = useState(false);
-  const [transactionObject, setTransactionObject] = useState("");
   const [offlineText, setOfflineText] = useState("");
-  const [isLogged, setIsLogged] = useState(false);
   const [isEmailModal, setIsEmailModal] = useState(false);
   const [clientEmail, setClientEmail] = useState(emailCliente);
   const [transactionId, setTransactionId] = useState("");
-  const [invoiceNubmer, setInvoiceNumber] = useState("");
-  const [invObj, setInvObj] = useState({});
+
   const [idFactura, setIdFactura] = useState("");
   const [noFactura, setNoFactura] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
@@ -136,6 +96,12 @@ function SaleModalAlt(
   const [valeForm, setValeForm] = useState({});
   const [voucher, setVoucher] = useState(0);
   const [isPya, setIsPya] = useState(false);
+  const [tipoPago, setTipoPago] = useState(0);
+  const [cambio, setCambio] = useState(0);
+  const [cancelado, setCancelado] = useState(0);
+
+  const [cardNumbersA, setCardNumbersA] = useState("");
+  const [cardNumbersB, setCardNumbersB] = useState("");
   const canc = valeForm.cancelado ? valeForm.cancelado : cancelado;
 
   function isMobileDevice() {
@@ -155,8 +121,6 @@ function SaleModalAlt(
     }
   }, [cuf]);
   useEffect(() => {
-    //console.log("Total descontado", totalDescontado);
-    //console.log("Total descontado en datos", datos.totalDescontado);
     if (isFactura && !isMobile) {
       const node = invoiceWrapRef.current;
       if (node) {
@@ -186,14 +150,11 @@ function SaleModalAlt(
   }, [isFactura, isDrop]);
 
   useEffect(() => {
-    const data = Math.abs(
-      cancelado - (total * (1 - datos.descuento / 100) - giftCard)
+    const cambios = rountWithMathFloor(
+      cancelado - datos.totalDescontado - giftCard
     );
-    const rounded = (data * 1000) % 5 == 0 ? data - 0.001 : data;
-    console.log("Cambio", rounded);
-
     setCambio(
-      isRoute ? cancelado - roundToTwoDecimalPlaces(totalDescontado) : rounded
+      isRoute ? cancelado - rountWithMathFloor(datos.totalDescontado) : cambios
     );
   }, [cancelado]);
 
@@ -216,17 +177,20 @@ function SaleModalAlt(
 
   useEffect(() => {
     console.log("ACA SE ESTA SETTEANDO");
-    setTotalFacturar(roundToTwoDecimalPlaces(totalDescontado) - giftCard);
-    setTotalDesc(descuentoCalculado);
+
     setCancelado(
-      parseFloat(
-        parseFloat(-giftCard) +
-          parseFloat(roundToTwoDecimalPlaces(totalDescontado))
-      ).toFixed(2)
+      rountWithMathFloor(
+        Number(Number(-giftCard) + Number(datos.totalDescontado))
+      )
     );
     setCambio(0);
-    setDescuentoFactura(total - totalDesc + parseFloat(giftCard));
-    console.log("Totaldesc", total - totalDesc + parseFloat(giftCard));
+    setDescuentoFactura(
+      datos.total - datos.descuentoCalculado + Number(giftCard)
+    );
+    console.log(
+      "datos.descuentoCalculado",
+      datos.total - datos.descuentoCalculado + Number(giftCard)
+    );
   }, [giftCard]);
 
   useEffect(() => {
@@ -266,13 +230,13 @@ function SaleModalAlt(
         break;
       case "2":
         setStringPago("Tarjeta");
-        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
+        setCancelado(roundToTwoDecimalPlaces(datos.totalDescontado));
         setCambio(0);
         setOfp(0);
         break;
       case "3":
         setStringPago("Cheque");
-        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
+        setCancelado(roundToTwoDecimalPlaces(datos.totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -288,7 +252,7 @@ function SaleModalAlt(
         break;
       case "5":
         setStringPago("Otros");
-        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
+        setCancelado(roundToTwoDecimalPlaces(datos.totalDescontado));
         setCambio(0);
         setCardNumbersA("");
         setCardNumbersB("");
@@ -296,7 +260,7 @@ function SaleModalAlt(
       case "6":
         setStringPago("Pago Posterior");
         setAPagar(0);
-        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
+        setCancelado(roundToTwoDecimalPlaces(datos.totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -304,7 +268,7 @@ function SaleModalAlt(
         break;
       case "7":
         setStringPago("Transferencia");
-        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
+        setCancelado(roundToTwoDecimalPlaces(datos.totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -313,7 +277,7 @@ function SaleModalAlt(
         break;
       case "8":
         setStringPago("Deposito");
-        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
+        setCancelado(roundToTwoDecimalPlaces(datos.totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -322,7 +286,7 @@ function SaleModalAlt(
         break;
       case "9":
         setStringPago("Transferencia Swift");
-        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
+        setCancelado(roundToTwoDecimalPlaces(datos.totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -332,7 +296,7 @@ function SaleModalAlt(
       case "10":
         setStringPago("Efectivo-tarjeta");
         setCancelado(
-          parseFloat(roundToTwoDecimalPlaces(totalDescontado)).toFixed(2)
+          Number(roundToTwoDecimalPlaces(datos.totalDescontado)).toFixed(2)
         );
         setOfp(0);
         setCambio(0);
@@ -369,7 +333,7 @@ function SaleModalAlt(
           console.log(
             "Cancelado",
             cancelado,
-            roundToTwoDecimalPlaces(totalDescontado),
+            roundToTwoDecimalPlaces(datos.totalDescontado),
             giftCard,
             voucher
           );
@@ -377,7 +341,7 @@ function SaleModalAlt(
             cancelado == 0 ||
             Number(cancelado) +
               Number(voucher) -
-              (roundToTwoDecimalPlaces(totalDescontado) + giftCard) <
+              (roundToTwoDecimalPlaces(datos.totalDescontado) + giftCard) <
               0
           ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
@@ -396,20 +360,26 @@ function SaleModalAlt(
           }
           if (
             tipoPago == 4 &&
-            roundToTwoDecimalPlaces(totalDescontado) > giftCard
+            roundToTwoDecimalPlaces(datos.totalDescontado) > giftCard
           ) {
             console.log(
               "Solo deberia correr esto en caso de vale menor al total"
             );
             console.log("Cancelado", cancelado);
-            console.log("Total desc", roundToTwoDecimalPlaces(totalDescontado));
+            console.log(
+              "Total desc",
+              roundToTwoDecimalPlaces(datos.totalDescontado)
+            );
             console.log("giftc", giftCard);
             console.log("Valeform", valeForm);
             if (giftCard == 0) {
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
             } else {
-              if (canc < roundToTwoDecimalPlaces(totalDescontado) - giftCard) {
+              if (
+                canc <
+                roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard
+              ) {
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
@@ -438,7 +408,7 @@ function SaleModalAlt(
           if (
             tipoPago == 11 ||
             (tipoPago == 4 &&
-              roundToTwoDecimalPlaces(totalDescontado) <= giftCard)
+              roundToTwoDecimalPlaces(datos.totalDescontado) <= giftCard)
           ) {
             console.log("Entro aca");
             console.log("Valeform", valeForm);
@@ -448,14 +418,14 @@ function SaleModalAlt(
               const objBaja = {
                 motivo:
                   tipoPago == 4 &&
-                  roundToTwoDecimalPlaces(totalDescontado) <= giftCard
+                  roundToTwoDecimalPlaces(datos.totalDescontado) <= giftCard
                     ? "vale"
                     : motivo,
                 fechaBaja: dateString(),
-                idUsuario: userId,
-                idAlmacen: userStore,
+                idUsuario: userData.userId,
+                idAlmacen: userData.userStore,
                 productos: selectedProducts,
-                totalbaja: roundToTwoDecimalPlaces(totalDescontado),
+                totalbaja: roundToTwoDecimalPlaces(datos.totalDescontado),
                 vale: giftCard,
                 ci: datos.nit,
               };
@@ -466,7 +436,7 @@ function SaleModalAlt(
                   setDropId(res.data.id);
                   const objStock = {
                     accion: "take",
-                    idAlmacen: userStore,
+                    idAlmacen: userData.userStore,
                     productos: selectedProducts,
                     detalle: `SPRBJ-${res.data.id}`,
                   };
@@ -520,7 +490,6 @@ function SaleModalAlt(
   }
 
   async function invoicingProcess() {
-    console.log("Sale body", saleBody.pedido);
     console.log("Unique id", uniqueId);
     const emailValidated = validateEmail();
     if (emailValidated) {
@@ -530,66 +499,57 @@ function SaleModalAlt(
         nroSucursal: branchInfo.nro,
         puntoDeVenta: pointOfSale,
       };
-      const descAdicional =
-        parseFloat(descuentoCalculado) + parseFloat(giftCard);
+      const descAdicional = Number(datos.descuentoCalculado) + Number(giftCard);
       const nroTarjeta = `${cardNumbersA}00000000${cardNumbersB}`;
       const productos = formatInvoiceProducts(selectedProducts);
       console.log("Descuento calculado", descAdicional);
 
       const saleBodyNew = {
         pedido: {
-          idUsuarioCrea: saleBody.pedido.idUsuarioCrea,
-          idCliente: saleBody.pedido.idCliente,
-          fechaCrea: saleBody.pedido.fechaCrea,
-          fechaActualizacion: saleBody.pedido.fechaActualizacion,
-          montoTotal: saleBody.pedido.montoTotal,
-          descuento: saleBody.pedido.descuento,
-          descCalculado:
-            parseFloat(saleBody.pedido.descCalculado) + parseFloat(giftCard),
-          montoFacturar:
-            parseFloat(roundToTwoDecimalPlaces(totalDescontado)) -
-            parseFloat(giftCard),
+          idUsuarioCrea: userData.userId,
+          idCliente: clientId,
+          fechaCrea: dateString(),
+          fechaActualizacion: dateString(),
+          montoTotal: datos.total,
+          descuento: datos.descuento,
+          descCalculado: Number(datos.descuentoCalculado) + Number(giftCard),
+          montoFacturar: Number(datos.totalDescontado) - giftCard,
           idPedido: "",
           idFactura: 0,
         },
-        productos: saleBody.productos,
+        productos: selectedProducts,
       };
 
       const invoiceBodyNew = {
-        idCliente: invoiceBody.idCliente,
-        nroFactura: invoiceBody.nroFactura,
-        idSucursal: invoiceBody.idSucursal,
+        idCliente: clientId,
+        nroFactura: 0,
+        idSucursal: branchInfo.nro,
         nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
-        fechaHora: invoiceBody.fechaHora,
-        nitCliente: invoiceBody.nitCliente,
-        razonSocial: invoiceBody.razonSocial,
+        fechaHora: dateString(),
+        nitCliente: datos.nit,
+        razonSocial: datos.razonSocial,
         tipoPago: tipoPago,
         pagado: cancelado,
         cambio:
-          cancelado -
-          parseFloat(
-            roundToTwoDecimalPlaces(totalDescontado) - giftCard
-          ).toFixed(2),
+          Number(cancelado) - Number(datos.totalDescontado) - Number(giftCard),
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
         cuf: "",
-        importeBase: parseFloat(
-          roundToTwoDecimalPlaces(totalDescontado) - giftCard
-        ).toFixed(2),
-        debitoFiscal: parseFloat(
-          (roundToTwoDecimalPlaces(totalDescontado) - giftCard) * 0.13
+        importeBase: Number(Number(datos.totalDescontado) - giftCard).toFixed(
+          2
+        ),
+        debitoFiscal: Number(
+          (roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard) * 0.13
         ).toFixed(2),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
-          invoiceBody.idAgencia
-        }`,
+        autorizacion: uniqueId,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
         idOtroPago: ofp,
         vale: giftCard,
         aPagar: aPagar,
-        puntoDeVenta: invoiceBody.puntoDeVenta,
-        idAgencia: invoiceBody.idAgencia,
+        puntoDeVenta: pointOfSale,
+        idAgencia: userData.userStore,
         voucher: voucher,
         pya: isPya,
       };
@@ -601,7 +561,7 @@ function SaleModalAlt(
         fechaEmision: "",
         cafc: "",
         codigoExcepcion: 0,
-        descuentoAdicional: parseFloat(descAdicional.toFixed(2)),
+        descuentoAdicional: Number(descAdicional.toFixed(2)),
         montoGiftCard: 0,
         codigoTipoDocumentoIdentidad: tipoDocumento,
         numeroDocumento: datos.nit == 0 ? "1000001" : `${datos.nit}`,
@@ -609,35 +569,29 @@ function SaleModalAlt(
         codigoCliente: `${clientId}`,
         codigoMetodoPago: tipoPago,
         numeroTarjeta: nroTarjeta.length == 16 ? nroTarjeta : "",
-        montoTotal: parseFloat(
-          parseFloat(
-            roundToTwoDecimalPlaces(totalDescontado) - giftCard
+        montoTotal: Number(
+          Number(
+            roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard
           ).toFixed(2)
         ),
         codigoMoneda: 1,
         tipoCambio: 1,
-        montoTotalMoneda: parseFloat(
-          parseFloat(
-            roundToTwoDecimalPlaces(totalDescontado) - giftCard
+        montoTotalMoneda: Number(
+          Number(
+            roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard
           ).toFixed(2)
         ),
-        usuario: userName,
+        usuario: userData.userName,
         emailCliente: clientEmail,
         telefonoCliente: "",
         extras: { facturaTicket: uniqueId },
         codigoLeyenda: 0,
-        montoTotalSujetoIva: parseFloat(
-          parseFloat(
-            parseFloat(roundToTwoDecimalPlaces(totalDescontado)) - giftCard
-          ).toFixed(2)
-        ),
+        montoTotalSujetoIva: Number(
+          Number(roundToTwoDecimalPlaces(datos.totalDescontado)) - giftCard
+        ).toFixed(2),
         tipoCambio: 1,
         detalles: productos,
       };
-      console.log(
-        "Total facturar ROUNDED",
-        roundToTwoDecimalPlaces(roundToTwoDecimalPlaces(totalDescontado))
-      );
       const composedBody = {
         venta: saleBodyNew,
         invoice: invoiceBodyNew,
@@ -645,7 +599,6 @@ function SaleModalAlt(
         stock: updateStockBody,
         storeInfo: storeInfo,
       };
-      console.log("Composed body", composedBody);
       try {
         const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
         console.log("Respuesta de la fac", invocieResponse);
@@ -732,38 +685,6 @@ function SaleModalAlt(
       }
     }
   }
-
-  /*const downloadAndPrintFile = async (url, numeroFactura) => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    const urlObject = URL.createObjectURL(blob);
-
-    const newWindow = window.open(urlObject);
-
-    if (newWindow) {
-      newWindow.onload = () => {
-        URL.revokeObjectURL(urlObject);
-        newWindow.print();
-        // Optional: Close the window after printing
-        // newWindow.close();
-      };
-    } else {
-      // Prompt the user to enable pop-ups manually
-      window.alert(
-        "Por favor, habilite las ventanas emergentes para imprimir el archivo automáticamente"
-      );
-    }
-
-    const link = document.createElement("a");
-    link.href = urlObject;
-    link.download = `factura-${numeroFactura}-${datos.nit}.pdf`; // Set the desired filename and extension
-    link.style.display = "none";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    return newWindow;
-  };*/
 
   const downloadAndPrintFile = async (url, numeroFactura) => {
     const response = await fetch(url);
@@ -853,7 +774,6 @@ function SaleModalAlt(
   }
 
   function handleClose() {
-    setDescuento(0);
     setIsInvoice(false);
     setIsSaleModal(false);
   }
@@ -1030,19 +950,20 @@ function SaleModalAlt(
                       tipoPago: stringPago,
                       cancelado: canc,
                       cambio:
-                        parseFloat(canc) +
-                        parseFloat(voucher) -
-                        parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
-                        parseFloat(giftCard),
-                      fechaHora: fechaHora,
+                        Number(canc) +
+                        Number(voucher) -
+                        Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
+                        Number(giftCard),
+                      fechaHora: dateString(),
                     }}
                     totalsData={{
-                      total: total,
+                      total: datos.total,
                       descuentoCalculado: isRoute
-                        ? descuentoCalculado
+                        ? datos.descuentoCalculado
                         : descuentoFactura,
                       totalDescontado:
-                        roundToTwoDecimalPlaces(totalDescontado) - giftCard,
+                        roundToTwoDecimalPlaces(datos.totalDescontado) -
+                        giftCard,
                     }}
                     giftCard={giftCard}
                     invoiceNumber={noFactura}
@@ -1078,18 +999,18 @@ function SaleModalAlt(
                     tipoPago: stringPago,
                     cancelado: canc,
                     cambio:
-                      parseFloat(canc) -
-                      parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
-                      parseFloat(giftCard),
-                    fechaHora: fechaHora,
+                      Number(canc) -
+                      Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
+                      Number(giftCard),
+                    fechaHora: dateString(),
                   }}
                   totalsData={{
-                    total: total,
+                    total: datos.total,
                     descuentoCalculado: isRoute
-                      ? descuentoCalculado
+                      ? datos.descuentoCalculado
                       : descuentoFactura,
                     totalDescontado:
-                      roundToTwoDecimalPlaces(totalDescontado) - giftCard,
+                      roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard,
                   }}
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
@@ -1110,18 +1031,18 @@ function SaleModalAlt(
                     tipoPago: stringPago,
                     cancelado: canc,
                     cambio:
-                      parseFloat(canc) -
-                      parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
-                      parseFloat(giftCard),
-                    fechaHora: fechaHora,
+                      Number(canc) -
+                      Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
+                      Number(giftCard),
+                    fechaHora: dateString(),
                   }}
                   totalsData={{
-                    total: total,
+                    total: datos.total,
                     descuentoCalculado: isRoute
-                      ? descuentoCalculado
+                      ? datos.descuentoCalculado
                       : descuentoFactura,
                     totalDescontado:
-                      roundToTwoDecimalPlaces(totalDescontado) - giftCard,
+                      roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard,
                   }}
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
@@ -1160,7 +1081,7 @@ function SaleModalAlt(
                   razonSocial: datos.razonSocial,
                 }}
                 dropId={dropId}
-                total={roundToTwoDecimalPlaces(totalDescontado)}
+                total={roundToTwoDecimalPlaces(datos.totalDescontado)}
                 vale={giftCard}
               />
             </Button>
@@ -1185,7 +1106,7 @@ function SaleModalAlt(
               razonSocial: datos.razonSocial,
             }}
             dropId={dropId}
-            total={roundToTwoDecimalPlaces(totalDescontado)}
+            total={roundToTwoDecimalPlaces(datos.totalDescontado)}
             vale={giftCard}
           />
         </div>
@@ -1207,7 +1128,7 @@ function SaleModalAlt(
             </div>
             <div className="modalRows">
               <div className="modalLabel"> Total:</div>
-              <div className="modalData">{`${parseFloat(datos.total).toFixed(
+              <div className="modalData">{`${Number(datos.total).toFixed(
                 2
               )} Bs.`}</div>
             </div>
@@ -1215,17 +1136,17 @@ function SaleModalAlt(
               <div className="modalLabel"> Descuento:</div>
               <div className="modalData">
                 {(
-                  parseFloat(giftCard != "" ? giftCard : 0) +
-                  parseFloat(descuentoCalculado)
+                  Number(giftCard != "" ? giftCard : 0) +
+                  Number(datos.descuentoCalculado)
                 ).toFixed(2)}
               </div>
             </div>
             <div className="modalRows">
               <div className="modalLabel"> Total a pagar:</div>
-              <div className="modalData">{`${parseFloat(
+              <div className="modalData">{`${Number(
                 tipoPago == 4
-                  ? roundToTwoDecimalPlaces(totalDescontado) - giftCard
-                  : roundToTwoDecimalPlaces(totalDescontado)
+                  ? roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard
+                  : roundToTwoDecimalPlaces(datos.totalDescontado)
               ).toFixed(2)} Bs.`}</div>
             </div>
             <div className="modalRows">
@@ -1352,13 +1273,15 @@ function SaleModalAlt(
                   <div className="modalLabel"> Cambio:</div>
                   <div className="modalData">{`${
                     Number(canc) -
-                      Number(roundToTwoDecimalPlaces(totalDescontado)) +
+                      Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
                       Number(voucher) <
                     0
                       ? `Ingrese un monto igual o superiores al total`
                       : `${(
                           Number(canc) -
-                          Number(roundToTwoDecimalPlaces(totalDescontado)) +
+                          Number(
+                            roundToTwoDecimalPlaces(datos.totalDescontado)
+                          ) +
                           Number(voucher)
                         ).toFixed(2)} Bs.`
                   } `}</div>
@@ -1414,7 +1337,7 @@ function SaleModalAlt(
                   <div className="modalLabel"> A cobrar con tarjeta:</div>
                   <div className="modalData">{`${(
                     -cancelado +
-                    parseFloat(roundToTwoDecimalPlaces(totalDescontado))
+                    Number(roundToTwoDecimalPlaces(datos.totalDescontado))
                   ).toFixed(2)} Bs.`}</div>
                 </div>
                 <div className="modalRows">
@@ -1479,8 +1402,8 @@ function SaleModalAlt(
                   // <>
                   //   <div className="modalRows">
                   //     <div className="modalLabel"> A pagar en efectivo:</div>
-                  //     <div className="modalData"> {parseFloat(
-                  //       parseFloat(-giftCard) +
+                  //     <div className="modalData"> {Number(
+                  //       Number(-giftCard) +
                   //       total * (1 - datos.descuento / 100)
                   //     ).toFixed(2)} Bs.
                   //     </div>
@@ -1513,8 +1436,8 @@ function SaleModalAlt(
                   //           ? "Ingrese un monto mayor"
                   //           : `${(
                   //             cancelado -
-                  //             totalDesc +
-                  //             parseFloat(giftCard)
+                  //             datos.descuentoCalculado +
+                  //             Number(giftCard)
                   //           ).toFixed(2)} Bs.`
                   //           } `}</div>
                   //       </div>
@@ -1524,7 +1447,7 @@ function SaleModalAlt(
                   <TipoPagoComponent
                     otherPayment={otherPayments}
                     setValeForm={setValeForm}
-                    total={total}
+                    total={datos.totalDescontado}
                     setVale={setGiftCard}
                     vale={giftCard}
                   />
@@ -1587,18 +1510,18 @@ function SaleModalAlt(
                 tipoPago: stringPago,
                 cancelado: canc,
                 cambio:
-                  parseFloat(canc) -
-                  parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
-                  parseFloat(giftCard),
-                fechaHora: fechaHora,
+                  Number(canc) -
+                  Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
+                  Number(giftCard),
+                fechaHora: dateString(),
               }}
               totalsData={{
-                total: total,
+                total: datos.total,
                 descuentoCalculado: isRoute
-                  ? descuentoCalculado
+                  ? datos.descuentoCalculado
                   : descuentoFactura,
                 totalDescontado:
-                  roundToTwoDecimalPlaces(totalDescontado) - giftCard,
+                  roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard,
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}
@@ -1619,18 +1542,18 @@ function SaleModalAlt(
                 tipoPago: stringPago,
                 cancelado: canc,
                 cambio:
-                  parseFloat(canc) -
-                  parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
-                  parseFloat(giftCard),
-                fechaHora: fechaHora,
+                  Number(canc) -
+                  Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
+                  Number(giftCard),
+                fechaHora: dateString(),
               }}
               totalsData={{
-                total: total,
+                total: datos.total,
                 descuentoCalculado: isRoute
-                  ? descuentoCalculado
+                  ? datos.descuentoCalculado
                   : descuentoFactura,
                 totalDescontado:
-                  roundToTwoDecimalPlaces(totalDescontado) - giftCard,
+                  roundToTwoDecimalPlaces(datos.totalDescontado) - giftCard,
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}
@@ -1643,4 +1566,4 @@ function SaleModalAlt(
     </div>
   );
 }
-export default React.forwardRef(SaleModalAlt);
+export default React.forwardRef(SaleModalNew);

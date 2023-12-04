@@ -19,16 +19,16 @@ function traditionalDiscounts(
   console.log("SD", sinDesc);
 
   const totalTradicional = tradicionales.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalSinDesc = sinDesc.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalEspecial = especiales.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalEspecialDesc = especiales.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalDescFijo);
+    return accumulator + Number(object.totalDescFijo);
   }, 0);
   const tradA = getDiscountPercentage(1, "A", discountList);
   const tradB = getDiscountPercentage(1, "B", discountList);
@@ -36,166 +36,153 @@ function traditionalDiscounts(
   const tradD = getDiscountPercentage(1, "D", discountList);
   const tradE = getDiscountPercentage(1, "E", discountList);
   if (
-    parseFloat(totalTradicional) * parseFloat(1 - tradA / 100).toFixed(2) +
-      parseFloat(totalSinDesc) +
-      parseFloat(totalEspecial) <
+    Number(totalTradicional) * Number(1 - tradA / 100).toFixed(2) +
+      Number(totalSinDesc) +
+      Number(totalEspecial) <
     1000
   ) {
     return {
       total:
-        parseFloat(totalTradicional) +
-        parseFloat(totalEspecial) +
-        parseFloat(totalSinDesc),
+        Number(totalTradicional) + Number(totalEspecial) + Number(totalSinDesc),
       descuento: 0,
       descCalculado: 0,
       especial: false,
       facturar:
-        parseFloat(totalTradicional) +
-        parseFloat(totalEspecial) +
-        parseFloat(totalSinDesc),
+        Number(totalTradicional) + Number(totalEspecial) + Number(totalSinDesc),
     };
   } else {
     if (
-      parseFloat(totalTradicional) * parseFloat(1 - tradB / 100).toFixed(2) +
-        parseFloat(totalSinDesc) +
-        parseFloat(totalEspecial) <
+      Number(totalTradicional) * Number(1 - tradB / 100).toFixed(2) +
+        Number(totalSinDesc) +
+        Number(totalEspecial) <
       3000
     ) {
       const totalDescontado =
-        parseFloat(totalTradicional) * parseFloat(1 - tradA / 100).toFixed(2) +
-        parseFloat(totalSinDesc) +
-        parseFloat(totalEspecial);
+        Number(totalTradicional) * Number(1 - tradA / 100).toFixed(2) +
+        Number(totalSinDesc) +
+        Number(totalEspecial);
       return {
         total:
-          parseFloat(totalTradicional) +
-          parseFloat(totalEspecial) +
-          parseFloat(totalSinDesc),
+          Number(totalTradicional) +
+          Number(totalEspecial) +
+          Number(totalSinDesc),
         descuento: tradA,
-        descCalculado: parseFloat(
-          parseFloat(totalTradicional) +
-            parseFloat(totalSinDesc) +
-            parseFloat(totalEspecial) -
-            parseFloat(totalDescontado)
+        descCalculado: Number(
+          Number(totalTradicional) +
+            Number(totalSinDesc) +
+            Number(totalEspecial) -
+            Number(totalDescontado)
         ).toFixed(2),
-        facturar: parseFloat(totalDescontado).toFixed(2),
+        facturar: Number(totalDescontado).toFixed(2),
         especial: false,
       };
     } else {
       if (
-        parseFloat(totalTradicional) * parseFloat(1 - tradC / 100).toFixed(2) +
-          parseFloat(totalSinDesc) +
-          parseFloat(totalEspecial) <
+        Number(totalTradicional) * Number(1 - tradC / 100).toFixed(2) +
+          Number(totalSinDesc) +
+          Number(totalEspecial) <
         5000
       ) {
         const totalDescontado =
-          parseFloat(totalTradicional) *
-            parseFloat(1 - tradB / 100).toFixed(2) +
-          parseFloat(totalSinDesc) +
-          parseFloat(totalEspecial);
+          Number(totalTradicional) * Number(1 - tradB / 100).toFixed(2) +
+          Number(totalSinDesc) +
+          Number(totalEspecial);
 
         return {
           total:
-            parseFloat(totalTradicional) +
-            parseFloat(totalEspecial) +
-            parseFloat(totalSinDesc),
+            Number(totalTradicional) +
+            Number(totalEspecial) +
+            Number(totalSinDesc),
           descuento: tradB,
-          descCalculado: parseFloat(
-            parseFloat(totalTradicional) +
-              parseFloat(totalSinDesc) +
-              parseFloat(totalEspecial) -
-              parseFloat(totalDescontado)
+          descCalculado: Number(
+            Number(totalTradicional) +
+              Number(totalSinDesc) +
+              Number(totalEspecial) -
+              Number(totalDescontado)
           ).toFixed(2),
-          facturar: parseFloat(totalDescontado).toFixed(2),
+          facturar: Number(totalDescontado).toFixed(2),
           especial: false,
         };
       } else {
         if (
-          parseFloat(totalTradicional) *
-            parseFloat(1 - tradD / 100).toFixed(2) +
-            parseFloat(totalSinDesc) +
-            parseFloat(totalEspecial) <
+          Number(totalTradicional) * Number(1 - tradD / 100).toFixed(2) +
+            Number(totalSinDesc) +
+            Number(totalEspecial) <
           10000
         ) {
           const totalDescontado =
-            parseFloat(totalTradicional) *
-              parseFloat(1 - tradC / 100).toFixed(2) +
-            parseFloat(totalSinDesc) +
-            parseFloat(totalEspecial);
+            Number(totalTradicional) * Number(1 - tradC / 100).toFixed(2) +
+            Number(totalSinDesc) +
+            Number(totalEspecial);
 
           return {
             total:
-              parseFloat(totalTradicional) +
-              parseFloat(totalEspecial) +
-              parseFloat(totalSinDesc),
+              Number(totalTradicional) +
+              Number(totalEspecial) +
+              Number(totalSinDesc),
             descuento: tradC,
-            descCalculado: parseFloat(
-              parseFloat(totalTradicional) +
-                parseFloat(totalSinDesc) +
-                parseFloat(totalEspecial) -
-                parseFloat(totalDescontado)
+            descCalculado: Number(
+              Number(totalTradicional) +
+                Number(totalSinDesc) +
+                Number(totalEspecial) -
+                Number(totalDescontado)
             ).toFixed(2),
-            facturar: parseFloat(totalDescontado).toFixed(2),
+            facturar: Number(totalDescontado).toFixed(2),
             especial: false,
           };
         } else {
           if (
-            parseFloat(
-              totalTradicional * parseFloat(1 - tradE / 100).toFixed(2)
-            ) +
-              parseFloat(totalEspecialDesc) +
-              parseFloat(totalSinDesc) <
+            Number(totalTradicional * Number(1 - tradE / 100).toFixed(2)) +
+              Number(totalEspecialDesc) +
+              Number(totalSinDesc) <
             20000
           ) {
             const totalDescontado =
-              parseFloat(
-                totalTradicional * parseFloat(1 - tradD / 100).toFixed(2)
-              ) +
-              parseFloat(totalSinDesc) +
-              parseFloat(totalEspecial);
+              Number(totalTradicional * Number(1 - tradD / 100).toFixed(2)) +
+              Number(totalSinDesc) +
+              Number(totalEspecial);
             console.log(
               "A ver que onda",
-              totalTradicional * parseFloat(1 - tradD / 100).toFixed(2)
+              totalTradicional * Number(1 - tradD / 100).toFixed(2)
             );
             console.log("Total descontado", totalSinDesc + totalEspecial);
             return {
               total:
-                parseFloat(totalTradicional) +
-                parseFloat(totalEspecial) +
-                parseFloat(totalSinDesc),
+                Number(totalTradicional) +
+                Number(totalEspecial) +
+                Number(totalSinDesc),
               descuento: tradD,
-              descCalculado: parseFloat(
-                parseFloat(totalTradicional) +
-                  parseFloat(totalSinDesc) +
-                  parseFloat(totalEspecial) -
-                  parseFloat(totalDescontado)
+              descCalculado: Number(
+                Number(totalTradicional) +
+                  Number(totalSinDesc) +
+                  Number(totalEspecial) -
+                  Number(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
               especial: false,
             };
           } else {
             const totalDescontado =
-              parseFloat(
-                totalTradicional * parseFloat(1 - tradE / 100).toFixed(2)
-              ) +
-              parseFloat(totalSinDesc) +
-              parseFloat(totalEspecialDesc);
+              Number(totalTradicional * Number(1 - tradE / 100).toFixed(2)) +
+              Number(totalSinDesc) +
+              Number(totalEspecialDesc);
             console.log(
               "Total descontado",
-              totalTradicional * parseFloat(1 - tradE / 100).toFixed(2) +
+              totalTradicional * Number(1 - tradE / 100).toFixed(2) +
                 totalEspecialDesc +
                 totalSinDesc
             );
             return {
               total:
-                parseFloat(totalTradicional) +
-                parseFloat(totalEspecial) +
-                parseFloat(totalSinDesc),
+                Number(totalTradicional) +
+                Number(totalEspecial) +
+                Number(totalSinDesc),
               descuento: tradE,
-              descCalculado: parseFloat(
-                parseFloat(totalTradicional) +
-                  parseFloat(totalEspecialDesc) +
-                  parseFloat(totalSinDesc) -
-                  parseFloat(totalDescontado)
+              descCalculado: Number(
+                Number(totalTradicional) +
+                  Number(totalEspecialDesc) +
+                  Number(totalSinDesc) -
+                  Number(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
               especial: true,
@@ -218,10 +205,10 @@ function easterDiscounts(pascua, discountList) {
   const pasH = getDiscountPercentage(2, "H", discountList);
   console.log("Pascua test", pascua);
   const totalPascua = pascua.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   console.log("Total pascua", totalPascua);
-  if (totalPascua * parseFloat(1 - pasA / 100).toFixed(2) < 1000) {
+  if (totalPascua * Number(1 - pasA / 100).toFixed(2) < 1000) {
     return {
       total: totalPascua,
       descuento: 0,
@@ -229,111 +216,101 @@ function easterDiscounts(pascua, discountList) {
       facturar: totalPascua,
     };
   } else {
-    if (totalPascua * parseFloat(1 - pasB / 100).toFixed(2) < 3000) {
-      const totalDescontado =
-        totalPascua * parseFloat(1 - pasA / 100).toFixed(2);
+    if (totalPascua * Number(1 - pasB / 100).toFixed(2) < 3000) {
+      const totalDescontado = totalPascua * Number(1 - pasA / 100).toFixed(2);
 
       return {
         total: totalPascua,
         descuento: pasA,
-        descCalculado: parseFloat(
-          parseFloat(totalPascua) - parseFloat(totalDescontado)
+        descCalculado: Number(
+          Number(totalPascua) - Number(totalDescontado)
         ).toFixed(2),
         facturar: totalDescontado.toFixed(2),
       };
     } else {
-      if (totalPascua * parseFloat(1 - pasC / 100).toFixed(2) < 5000) {
-        const totalDescontado =
-          totalPascua * parseFloat(1 - pasB / 100).toFixed(2);
+      if (totalPascua * Number(1 - pasC / 100).toFixed(2) < 5000) {
+        const totalDescontado = totalPascua * Number(1 - pasB / 100).toFixed(2);
 
         return {
           total: totalPascua,
           descuento: pasB,
-          descCalculado: parseFloat(
-            parseFloat(totalPascua) - parseFloat(totalDescontado)
+          descCalculado: Number(
+            Number(totalPascua) - Number(totalDescontado)
           ).toFixed(2),
           facturar: totalDescontado.toFixed(2),
         };
       } else {
-        if (totalPascua * parseFloat(1 - pasD / 100).toFixed(2) < 10000) {
+        if (totalPascua * Number(1 - pasD / 100).toFixed(2) < 10000) {
           const totalDescontado =
-            totalPascua * parseFloat(1 - pasC / 100).toFixed(2);
+            totalPascua * Number(1 - pasC / 100).toFixed(2);
 
           return {
             total: totalPascua,
             descuento: pasC,
-            descCalculado: parseFloat(
-              parseFloat(totalPascua) - parseFloat(totalDescontado)
+            descCalculado: Number(
+              Number(totalPascua) - Number(totalDescontado)
             ).toFixed(2),
             facturar: totalDescontado.toFixed(2),
           };
         } else {
-          if (totalPascua * parseFloat(1 - pasE / 100).toFixed(2) < 20000) {
+          if (totalPascua * Number(1 - pasE / 100).toFixed(2) < 20000) {
             const totalDescontado =
-              totalPascua * parseFloat(1 - pasD / 100).toFixed(2);
+              totalPascua * Number(1 - pasD / 100).toFixed(2);
 
             return {
               total: totalPascua,
               descuento: pasD,
-              descCalculado: parseFloat(
-                parseFloat(totalPascua) - parseFloat(totalDescontado)
+              descCalculado: Number(
+                Number(totalPascua) - Number(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
           } else {
-            if (totalPascua * parseFloat(1 - pasF / 100).toFixed(2) < 50000) {
+            if (totalPascua * Number(1 - pasF / 100).toFixed(2) < 50000) {
               const totalDescontado =
-                totalPascua * parseFloat(1 - pasE / 100).toFixed(2);
+                totalPascua * Number(1 - pasE / 100).toFixed(2);
 
               return {
                 total: totalPascua,
                 descuento: pasE,
-                descCalculado: parseFloat(
-                  totalPascua - totalDescontado
-                ).toFixed(2),
+                descCalculado: Number(totalPascua - totalDescontado).toFixed(2),
                 facturar: totalDescontado.toFixed(2),
               };
             } else {
-              if (
-                totalPascua * parseFloat(1 - pasG / 100).toFixed(2) <
-                100000
-              ) {
+              if (totalPascua * Number(1 - pasG / 100).toFixed(2) < 100000) {
                 const totalDescontado =
-                  totalPascua * parseFloat(1 - pasF / 100).toFixed(2);
+                  totalPascua * Number(1 - pasF / 100).toFixed(2);
 
                 return {
                   total: totalPascua,
                   descuento: pasF,
-                  descCalculado: parseFloat(
-                    parseFloat(totalPascua) - parseFloat(totalDescontado)
+                  descCalculado: Number(
+                    Number(totalPascua) - Number(totalDescontado)
                   ).toFixed(2),
                   facturar: totalDescontado.toFixed(2),
                 };
               } else {
-                if (
-                  totalPascua * parseFloat(1 - pasH / 100).toFixed(2) <
-                  200000
-                ) {
+                if (totalPascua * Number(1 - pasH / 100).toFixed(2) < 200000) {
                   const totalDescontado =
-                    totalPascua * parseFloat(1 - pasG / 100).toFixed(2);
+                    totalPascua * Number(1 - pasG / 100).toFixed(2);
 
                   return {
                     total: totalPascua,
                     descuento: pasG,
-                    descCalculado: parseFloat(
+                    descCalculado: Number(
                       totalPascua - totalDescontado
                     ).toFixed(2),
                     facturar: totalDescontado.toFixed(2),
                   };
                 } else {
                   const totalDescontado =
-                    totalPascua * parseFloat(1 - pasH / 100).toFixed(2);
+                    totalPascua * Number(1 - pasH / 100).toFixed(2);
 
                   return {
-                    total: parseFloat(totalPascua),
+                    total: Number(totalPascua),
                     descuento: pasH,
-                    descCalculado: parseFloat(
-                      parseFloat(totalPascua) - parseFloat(totalDescontado)
+                    descCalculado: Number(
+                      Number(totalPascua) - Number(totalDescontado)
                     ).toFixed(2),
                     facturar: totalDescontado.toFixed(2),
                   };
@@ -354,9 +331,9 @@ function christmassDiscounts(navidad, discountList) {
   const crisD = getDiscountPercentage(3, "D", discountList);
   const crisE = getDiscountPercentage(3, "E", discountList);
   const totalNavidad = navidad.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
-  if (totalNavidad * parseFloat(1 - crisA / 100).toFixed(2) < 1000) {
+  if (totalNavidad * Number(1 - crisA / 100).toFixed(2) < 1000) {
     return {
       total: totalNavidad,
       descuento: 0,
@@ -364,66 +341,65 @@ function christmassDiscounts(navidad, discountList) {
       facturar: totalNavidad,
     };
   } else {
-    if (totalNavidad * parseFloat(1 - crisB / 100).toFixed(2) < 3000) {
-      const totalDescontado =
-        totalNavidad * parseFloat(1 - crisA / 100).toFixed(2);
+    if (totalNavidad * Number(1 - crisB / 100).toFixed(2) < 3000) {
+      const totalDescontado = totalNavidad * Number(1 - crisA / 100).toFixed(2);
 
       return {
         total: totalNavidad,
         descuento: crisA,
-        descCalculado: parseFloat(
-          parseFloat(totalNavidad) - parseFloat(totalDescontado)
+        descCalculado: Number(
+          Number(totalNavidad) - Number(totalDescontado)
         ).toFixed(2),
         facturar: totalDescontado.toFixed(2),
       };
     } else {
-      if (totalNavidad * parseFloat(1 - crisC / 100).toFixed(2) < 5000) {
+      if (totalNavidad * Number(1 - crisC / 100).toFixed(2) < 5000) {
         const totalDescontado =
-          totalNavidad * parseFloat(1 - crisB / 100).toFixed(2);
+          totalNavidad * Number(1 - crisB / 100).toFixed(2);
 
         return {
           total: totalNavidad,
           descuento: crisB,
-          descCalculado: parseFloat(
-            parseFloat(totalNavidad) - parseFloat(totalDescontado)
+          descCalculado: Number(
+            Number(totalNavidad) - Number(totalDescontado)
           ).toFixed(2),
           facturar: totalDescontado.toFixed(2),
         };
       } else {
-        if (totalNavidad * parseFloat(1 - crisD / 100).toFixed(2) < 10000) {
+        if (totalNavidad * Number(1 - crisD / 100).toFixed(2) < 10000) {
           const totalDescontado =
-            totalNavidad * parseFloat(1 - crisC / 100).toFixed(2);
+            totalNavidad * Number(1 - crisC / 100).toFixed(2);
 
           return {
             total: totalNavidad,
             descuento: crisC,
-            descCalculado: parseFloat(
-              parseFloat(totalNavidad) - parseFloat(totalDescontado)
+            descCalculado: Number(
+              Number(totalNavidad) - Number(totalDescontado)
             ).toFixed(2),
             facturar: totalDescontado.toFixed(2),
           };
         } else {
-          if (totalNavidad * parseFloat(1 - crisE / 100).toFixed(2) < 20000) {
+          if (totalNavidad * Number(1 - crisE / 100).toFixed(2) < 20000) {
             const totalDescontado =
-              totalNavidad * parseFloat(1 - crisD / 100).toFixed(2);
+              totalNavidad * Number(1 - crisD / 100).toFixed(2);
 
             return {
               total: totalNavidad,
               descuento: crisD,
-              descCalculado: parseFloat(
-                parseFloat(totalNavidad) - parseFloat(totalDescontado)
+              descCalculado: Number(
+                Number(totalNavidad) - Number(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
           } else {
             const totalDescontado =
-              totalNavidad * parseFloat(1 - crisE / 100).toFixed(2);
+              totalNavidad * Number(1 - crisE / 100).toFixed(2);
 
             return {
               total: totalNavidad,
               descuento: crisE,
-              descCalculado: parseFloat(
-                parseFloat(totalNavidad) - parseFloat(totalDescontado)
+              descCalculado: Number(
+                Number(totalNavidad) - Number(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
@@ -441,9 +417,9 @@ function halloweenDiscounts(halloween, discountList) {
   const hallD = getDiscountPercentage(4, "D", discountList);
   const hallE = getDiscountPercentage(4, "E", discountList);
   const totalHalloween = halloween.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
-  if (totalHalloween * parseFloat(1 - hallA / 100).toFixed(2) < 1000) {
+  if (totalHalloween * Number(1 - hallA / 100).toFixed(2) < 1000) {
     return {
       total: totalHalloween,
       descuento: 0,
@@ -451,68 +427,66 @@ function halloweenDiscounts(halloween, discountList) {
       facturar: totalHalloween,
     };
   } else {
-    if (totalHalloween * parseFloat(1 - hallB / 100).toFixed(2) < 3000) {
+    if (totalHalloween * Number(1 - hallB / 100).toFixed(2) < 3000) {
       const totalDescontado =
-        totalHalloween * parseFloat(1 - hallA / 100).toFixed(2);
+        totalHalloween * Number(1 - hallA / 100).toFixed(2);
 
       return {
         total: totalHalloween,
         descuento: hallA,
-        descCalculado: parseFloat(
-          parseFloat(totalHalloween) - parseFloat(totalDescontado)
+        descCalculado: Number(
+          Number(totalHalloween) - Number(totalDescontado)
         ).toFixed(2),
         facturar: totalDescontado.toFixed(2),
       };
     } else {
-      if (totalHalloween * parseFloat(1 - hallC / 100).toFixed(2) < 5000) {
+      if (totalHalloween * Number(1 - hallC / 100).toFixed(2) < 5000) {
         const totalDescontado =
-          totalHalloween * parseFloat(1 - hallB / 100).toFixed(2);
+          totalHalloween * Number(1 - hallB / 100).toFixed(2);
 
         return {
           total: totalHalloween,
           descuento: hallB,
-          descCalculado: parseFloat(
-            parseFloat(totalHalloween) - parseFloat(totalDescontado)
+          descCalculado: Number(
+            Number(totalHalloween) - Number(totalDescontado)
           ).toFixed(2),
           facturar: totalDescontado.toFixed(2),
         };
       } else {
-        if (totalHalloween * parseFloat(1 - hallD / 100).toFixed(2) < 10000) {
+        if (totalHalloween * Number(1 - hallD / 100).toFixed(2) < 10000) {
           const totalDescontado =
-            totalHalloween * parseFloat(1 - hallC / 100).toFixed(2);
+            totalHalloween * Number(1 - hallC / 100).toFixed(2);
 
           return {
             total: totalHalloween,
             descuento: hallC,
-            descCalculado: parseFloat(
-              parseFloat(totalHalloween) - parseFloat(totalDescontado)
+            descCalculado: Number(
+              Number(totalHalloween) - Number(totalDescontado)
             ).toFixed(2),
             facturar: totalDescontado.toFixed(2),
           };
         } else {
-          if (totalHalloween * parseFloat(1 - hallE / 100).toFixed(2) < 20000) {
+          if (totalHalloween * Number(1 - hallE / 100).toFixed(2) < 20000) {
             const totalDescontado =
-              parseFloat(totalHalloween) *
-              parseFloat(1 - hallD / 100).toFixed(2);
+              Number(totalHalloween) * Number(1 - hallD / 100).toFixed(2);
 
             return {
               total: totalHalloween,
               descuento: hallD,
-              descCalculado: parseFloat(
-                parseFloat(totalHalloween) - parseFloat(totalDescontado)
+              descCalculado: Number(
+                Number(totalHalloween) - Number(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
           } else {
             const totalDescontado =
-              parseFloat(totalHalloween) *
-              parseFloat(1 - hallE / 100).toFixed(2);
+              Number(totalHalloween) * Number(1 - hallE / 100).toFixed(2);
 
             return {
               total: totalHalloween,
               descuento: hallE,
-              descCalculado: parseFloat(
-                parseFloat(totalHalloween) - parseFloat(totalDescontado)
+              descCalculado: Number(
+                Number(totalHalloween) - Number(totalDescontado)
               ).toFixed(2),
               facturar: totalDescontado.toFixed(2),
             };
@@ -532,78 +506,76 @@ function manualAutomaticDiscount(
   descuento
 ) {
   const totalTradicional = tradicionales.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalSinDesc = sinDesc.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalEspecial = especiales.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalEspecialDesc = especiales.reduce((accumulator, object) => {
     return accumulator + object.totalDescFijo;
   }, 0);
   const totalPascua = pascua.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalNavidad = navidad.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalHalloween = halloween.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
   const totalDescontado =
-    (parseFloat(totalTradicional) +
-      parseFloat(totalPascua) +
-      parseFloat(totalNavidad) +
-      parseFloat(totalHalloween)) *
+    (Number(totalTradicional) +
+      Number(totalPascua) +
+      Number(totalNavidad) +
+      Number(totalHalloween)) *
     (1 - descuento / 100);
 
   if (
-    parseFloat(totalDescontado) +
-      parseFloat(totalSinDesc) +
-      parseFloat(totalEspecialDesc) >
+    Number(totalDescontado) + Number(totalSinDesc) + Number(totalEspecialDesc) >
     20000
   ) {
     return {
       totalDescontables:
-        parseFloat(totalTradicional) +
-        parseFloat(totalPascua) +
-        parseFloat(totalNavidad) +
-        parseFloat(totalHalloween) +
-        parseFloat(totalSinDesc),
+        Number(totalTradicional) +
+        Number(totalPascua) +
+        Number(totalNavidad) +
+        Number(totalHalloween) +
+        Number(totalSinDesc),
       descuento: descuento,
       descCalculado:
-        parseFloat(totalTradicional) +
-        parseFloat(totalPascua) +
-        parseFloat(totalNavidad) +
-        parseFloat(totalHalloween) +
-        parseFloat(totalSinDesc) -
-        parseFloat(totalDescontado),
-      totalTradicional: parseFloat(totalDescontado) + parseFloat(totalSinDesc),
-      totalEspecial: parseFloat(totalEspecial),
+        Number(totalTradicional) +
+        Number(totalPascua) +
+        Number(totalNavidad) +
+        Number(totalHalloween) +
+        Number(totalSinDesc) -
+        Number(totalDescontado),
+      totalTradicional: Number(totalDescontado) + Number(totalSinDesc),
+      totalEspecial: Number(totalEspecial),
       descCalculadoEspeciales:
-        parseFloat(totalEspecial) - parseFloat(totalEspecialDesc),
-      facturar: parseFloat(totalEspecialDesc),
+        Number(totalEspecial) - Number(totalEspecialDesc),
+      facturar: Number(totalEspecialDesc),
       especial: true,
     };
   } else {
     return {
       totalDescontables:
-        parseFloat(totalTradicional) +
-        parseFloat(totalPascua) +
-        parseFloat(totalNavidad) +
-        parseFloat(totalHalloween) +
-        parseFloat(totalSinDesc),
+        Number(totalTradicional) +
+        Number(totalPascua) +
+        Number(totalNavidad) +
+        Number(totalHalloween) +
+        Number(totalSinDesc),
       descuento: descuento,
       descCalculado:
-        parseFloat(totalTradicional) +
-        parseFloat(totalPascua) +
-        parseFloat(totalNavidad) +
-        parseFloat(totalHalloween) +
-        parseFloat(totalSinDesc) -
-        parseFloat(totalDescontado),
-      totalTradicional: parseFloat(totalDescontado) + parseFloat(totalSinDesc),
+        Number(totalTradicional) +
+        Number(totalPascua) +
+        Number(totalNavidad) +
+        Number(totalHalloween) +
+        Number(totalSinDesc) -
+        Number(totalDescontado),
+      totalTradicional: Number(totalDescontado) + Number(totalSinDesc),
       totalEspecial: totalEspecial,
       descCalculadoEspeciales: 0,
       facturar: totalEspecial,
@@ -856,16 +828,13 @@ function verifyAutomaticDiscount(selectedProducts, descuento) {
       const especiales = response.especiales;
       const tradicionales = response.tradicionales;
       const totEspeciales = especiales.reduce((accumulator, object) => {
-        return accumulator + parseFloat(object.total);
+        return accumulator + Number(object.total);
       }, 0);
       const totTradicional = tradicionales.reduce((accumulator, object) => {
-        return accumulator + parseFloat(object.total);
+        return accumulator + Number(object.total);
       }, 0);
 
-      if (
-        parseFloat(totTradicional) * 0.93 + parseFloat(totEspeciales) >
-        1000
-      ) {
+      if (Number(totTradicional) * 0.93 + Number(totEspeciales) > 1000) {
         resolve(7);
       } else {
         resolve(descuento);
@@ -943,10 +912,10 @@ function saleDiscount(selectedProducts, descuento) {
 function discountByAmount(selectedProducts, descuento) {
   console.log("Selected products", selectedProducts);
   const total = selectedProducts.reduce((accumulator, object) => {
-    return accumulator + parseFloat(object.totalProd);
+    return accumulator + Number(object.totalProd);
   }, 0);
 
-  const descuentoCalculado = parseFloat((total * descuento) / 100).toFixed(2);
+  const descuentoCalculado = Number((total * descuento) / 100).toFixed(2);
   const totalDescontado = total - descuentoCalculado;
   return {
     totalDescontables: total,
@@ -981,7 +950,7 @@ function newDiscountByAmount(selectedProducts, descuento) {
     }
     reprocessedProducts.push(product);
   }
-  const descuentoCalculado = parseFloat((totalCD * descuento) / 100).toFixed(2);
+  const descuentoCalculado = Number((totalCD * descuento) / 100).toFixed(2);
   const totalDescontado = Number(totalCD) - descuentoCalculado;
   return {
     totalDescontables: Number(totalCD),
@@ -1007,27 +976,40 @@ function complexDiscountFunction(selectedProducts, discountList) {
   var totalSinDesc = 0;
   var totalEsp = 0;
   var totalEspDesc = 0;
+  let tradicionales = [];
+  let pascua = [];
+  let halloween = [];
+  let navidad = [];
+  let sinDesc = [];
+  let especiales = [];
   selectedProducts.map((sp) => {
     //console.log("Producto", sp);
     switch (sp.tipoProducto) {
       case 1:
-        totalTrad += parseFloat(sp.totalProd);
+        totalTrad += Number(sp.totalProd);
+        tradicionales.push(sp);
         break;
       case 2:
-        totalPascua += parseFloat(sp.totalProd);
+        totalPascua += Number(sp.totalProd);
+        pascua.push(sp);
         break;
       case 3:
-        totalNav += parseFloat(sp.totalProd);
+        totalNav += Number(sp.totalProd);
+        navidad.push(sp);
         break;
       case 4:
-        totalHallo += parseFloat(sp.totalProd);
+        totalHallo += Number(sp.totalProd);
+        halloween.push(sp);
         break;
       case 5:
-        totalSinDesc += parseFloat(sp.totalProd);
+        totalSinDesc += Number(sp.totalProd);
+        sinDesc.push(sp);
         break;
       case 6:
-        totalEsp += parseFloat(sp.totalProd);
-        totalEspDesc += parseFloat(sp.cantProducto * sp.precioDescuentoFijo);
+        totalEsp += Number(sp.totalProd);
+        totalEspDesc += Number(sp.cantProducto * sp.precioDescuentoFijo);
+        especiales.push(sp);
+        break;
     }
   });
   //console.log("Total tradicionales", totalTrad);
@@ -1047,6 +1029,14 @@ function complexDiscountFunction(selectedProducts, discountList) {
     pascua: pasc,
     navidad: nav,
     halloween: hall,
+    arrays: {
+      tradicionales,
+      pascua,
+      navidad,
+      halloween,
+      sinDesc,
+      especiales,
+    },
   };
 }
 
@@ -1067,20 +1057,17 @@ function getTradDiscounts(
   const totalConDescuentoC = totalTrad * (1 - tradC / 100);
   const totalConDescuentoD = totalTrad * (1 - tradD / 100);
   const totalConDescuentoE = totalTrad * (1 - tradE / 100);
-  const totalGeneral =
-    parseFloat(totalTrad) + parseFloat(totalEsp) + parseFloat(totalSD);
+  const totalGeneral = Number(totalTrad) + Number(totalEsp) + Number(totalSD);
   const totalDescA =
-    parseFloat(totalConDescuentoA) + parseFloat(totalEsp) + parseFloat(totalSD);
+    Number(totalConDescuentoA) + Number(totalEsp) + Number(totalSD);
   const totalDescB =
-    parseFloat(totalConDescuentoB) + parseFloat(totalEsp) + parseFloat(totalSD);
+    Number(totalConDescuentoB) + Number(totalEsp) + Number(totalSD);
   const totalDescC =
-    parseFloat(totalConDescuentoC) + parseFloat(totalEsp) + parseFloat(totalSD);
+    Number(totalConDescuentoC) + Number(totalEsp) + Number(totalSD);
   const totalDescD =
-    parseFloat(totalConDescuentoD) + parseFloat(totalEsp) + parseFloat(totalSD);
+    Number(totalConDescuentoD) + Number(totalEsp) + Number(totalSD);
   const totalDescF =
-    parseFloat(totalConDescuentoE) +
-    parseFloat(totalEspDesc) +
-    parseFloat(totalSD);
+    Number(totalConDescuentoE) + Number(totalEspDesc) + Number(totalSD);
   if (totalConDescuentoA + totalEsp + totalSD < 1000) {
     return {
       total: totalGeneral,
@@ -1378,30 +1365,30 @@ function processSeasonalDiscount(selectedProds, discounts) {
   for (const product of selectedProds) {
     // console.log("Producto", product);
     if (product.tipoProducto == 5) {
-      totalSD += parseFloat(product.totalProd);
+      totalSD += Number(product.totalProd);
       sinDescProds.push(product);
     } else if (product.tipoProducto == 6) {
-      totalEsp += parseFloat(product.totalProd);
+      totalEsp += Number(product.totalProd);
       totalEspCD += product.precioDescuentoFijo * product.cantProducto;
       especialDescProds.push(product);
     } else {
-      totalGeneral += parseFloat(product.totalProd);
+      totalGeneral += Number(product.totalProd);
       seasonProducts.push(product);
     }
   }
 
   let totArray = discounts.map((ds) => {
     const totalSE =
-      parseFloat(totalGeneral) * (1 - ds.descuento / 100) +
-      parseFloat(totalEsp) +
-      parseFloat(totalSD);
+      Number(totalGeneral) * (1 - ds.descuento / 100) +
+      Number(totalEsp) +
+      Number(totalSD);
     const totalCE =
-      parseFloat(totalGeneral) * (1 - ds.descuento / 100) +
-      parseFloat(totalEspCD) +
-      parseFloat(totalSD);
+      Number(totalGeneral) * (1 - ds.descuento / 100) +
+      Number(totalEspCD) +
+      Number(totalSD);
     return {
-      totalSinDescEsp: parseFloat(totalSE.toFixed(2)),
-      totalConDescEsp: parseFloat(totalCE.toFixed(2)),
+      totalSinDescEsp: Number(totalSE?.toFixed(2)),
+      totalConDescEsp: Number(totalCE?.toFixed(2)),
       categoria: ds.categoria,
       descuento: ds.descuento,
     };
@@ -1409,18 +1396,18 @@ function processSeasonalDiscount(selectedProds, discounts) {
 
   const obtained = obtainDiscounts(totArray, discounts);
   const descEsp = obtained.conDescEsp ? totalEspCD : totalEsp;
-  const totalPedido = parseFloat(
-    parseFloat(totalGeneral) + parseFloat(totalSD) + parseFloat(totalEsp)
+  const totalPedido = Number(
+    Number(totalGeneral) + Number(totalSD) + Number(totalEsp)
   );
   console.log(
     `Total general ${totalGeneral} total sin descuento ${totalSD} total especiales ${totalEsp}`
   );
   console.log("TOTAL SUMADO", totalPedido);
   const totalFacturar =
-    parseFloat(totalGeneral) * (1 - obtained.discount.descuento / 100) +
-    parseFloat(totalSD) +
-    parseFloat(descEsp);
-  const descCalculado = parseFloat(totalPedido) - parseFloat(totalFacturar);
+    Number(totalGeneral) * (1 - obtained.discount.descuento / 100) +
+    Number(totalSD) +
+    Number(descEsp);
+  const descCalculado = Number(totalPedido) - Number(totalFacturar);
   return new Promise((resolve) =>
     resolve({
       totalesPedido: {
@@ -1475,6 +1462,7 @@ function verifySeasonalProduct(selectedProds, discountData) {
 }
 
 function complexNewDiscountFunction(selectedProducts, discountList) {
+  console.log("CORRIENDO ESTE NUEVO", discountList);
   let separatedProducts = {
     tradicionales: [],
     navidad: [],
@@ -1494,27 +1482,40 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
     especialesCD: 0,
   };
 
+  let tradicionales = [];
+  let pascua = [];
+  let halloween = [];
+  let navidad = [];
+  let sinDesc = [];
+  let especiales = [];
+
   for (const product of selectedProducts) {
     if (product.tipoProducto == 1) {
       separatedProducts.tradicionales.push(product);
       totalesTipo.tradicionales += product.totalProd;
+      tradicionales.push(product);
     } else if (product.tipoProducto == 2) {
       separatedProducts.pascua.push(product);
       totalesTipo.pascua += product.totalProd;
+      pascua.push(product);
     } else if (product.tipoProducto == 3) {
       separatedProducts.navidad.push(product);
       totalesTipo.navidad += product.totalProd;
+      navidad.push(product);
     } else if (product.tipoProducto == 4) {
       separatedProducts.halloween.push(product);
       totalesTipo.halloween += product.totalProd;
+      halloween.push(product);
     } else if (product.tipoProducto == 5) {
       separatedProducts.sinDesc.push(product);
       totalesTipo.sinDesc += product.totalProd;
+      sinDesc.push(product);
     } else {
       separatedProducts.especiales.push(product);
       totalesTipo.especiales += product.totalProd;
       totalesTipo.especialesCD +=
         product.precioDescuentoFijo * product.cantProducto;
+      especiales.push(product);
     }
   }
 
@@ -1613,6 +1614,8 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
       (td) => td.categoria == categorias[index].categoria
     );
 
+    console.log("FOUND HALL", foundHall);
+
     let totalSDE =
       foundTrad?.descontado +
       foundPas?.descontado +
@@ -1664,6 +1667,14 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
         facturar: 0,
         especial: false,
       },
+      arrays: {
+        tradicionales,
+        navidad,
+        pascua,
+        halloween,
+        sinDesc,
+        especiales,
+      },
     };
     if (index > 4) {
       objReturn.tradicionales.descuento = foundTrad.descuento;
@@ -1689,7 +1700,6 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
         console.log("Objeto a retornar", objReturn);
         console.log("Categoria escogida", categorias[index]);
         return objReturn;
-        break;
       } else {
         if (index != categorias.length - 1) {
           if (
@@ -1699,7 +1709,6 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
             console.log("Objeto a retornar", objReturn);
             console.log("Categoria escogida", categorias[index]);
             return objReturn;
-            break;
           }
         }
       }
@@ -1719,7 +1728,6 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
         console.log("Objeto a retornar", objReturn);
         console.log("Categoria escogida", categorias[index]);
         return objReturn;
-        break;
       } else {
         if (
           totalSDE >= categorias[index + 1].montoMinimo &&
@@ -1728,84 +1736,11 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
           console.log("Objeto a retornar", objReturn);
           console.log("Categoria escogida", categorias[index]);
           return objReturn;
-          break;
         }
       }
     }
     index--;
   }
-  /*for (const categoria of categorias) {
-    const foundTrad = tradDiscounts.find(
-      (td) => td.categoria == categoria.categoria
-    );
-    const foundPas = pasDiscounts.find(
-      (td) => td.categoria == categoria.categoria
-    );
-    const foundNav = navDiscounts.find(
-      (td) => td.categoria == categoria.categoria
-    );
-    const foundHall = hallDiscounts.find(
-      (td) => td.categoria == categoria.categoria
-    );
-
-    let totalSDE =
-      foundTrad?.descontado +
-      foundPas?.descontado +
-      foundNav?.descontado +
-      foundHall?.descontado +
-      totalesTipo.especiales +
-      totalesTipo.sinDesc;
-    let totalCDE =
-      foundTrad?.descontado +
-      foundPas?.descontado +
-      foundNav?.descontado +
-      foundHall?.descontado +
-      totalesTipo.especialesCD +
-      totalesTipo.sinDesc;
-
-    if (foundPas.descontado == 0) {
-      if (index < 4) {
-        if (
-          totalSDE >= categoria.montoMinimo &&
-          totalSDE <= categoria.montoMaximo
-        ) {
-          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
-          console.log("Total calculado", totalCDE);
-        }
-      } else {
-        if (totalCDE >= categoria.montoMinimo) {
-          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
-          console.log("Total calculado", totalSDE);
-        }
-      }
-    } else {
-      if (index < 4) {
-        if (
-          totalSDE >= categoria.montoMinimo &&
-          totalSDE <= categoria.montoMaximo
-        ) {
-          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
-          console.log("Total calculado", totalCDE);
-        }
-      } else {
-        if (
-          totalCDE >= categoria.montoMinimo &&
-          totalCDE <= categoria.montoMaximo
-        ) {
-          console.log("SE DEBE APLICAR ESTA CATEGORIA", categoria);
-          console.log("Total calculado", totalSDE);
-        }
-      }
-    }
-    index++;
-  }*/
-
-  /*console.log("Rangos", categorias);
-
-  console.log("Totales trad", tradDiscounts);
-  console.log("Totales pas", pasDiscounts);
-  console.log("Totales hall", hallDiscounts);
-  console.log("Totales nav", navDiscounts);*/
 }
 
 export {

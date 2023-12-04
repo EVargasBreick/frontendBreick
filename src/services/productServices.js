@@ -29,6 +29,7 @@ const allProducts = (id) => {
 };
 
 const getProductsWithStock = (idAlmacen, id) => {
+  console.log("ID ALMACEN ACA", idAlmacen);
   return new Promise((resolve, reject) => {
     axios
       .get(

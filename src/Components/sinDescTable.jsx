@@ -2,8 +2,8 @@ import React from "react";
 import { Table } from "react-bootstrap";
 
 export default function SinDescTable({ sindDesc }) {
-  //console.log("Sin desc", sindDesc);
-  const isEspe = sindDesc.length > 0;
+  console.log("Sin desc", sindDesc);
+  const isEspe = sindDesc != undefined;
   return (
     <div>
       {isEspe ? (
