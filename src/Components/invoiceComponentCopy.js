@@ -3,7 +3,10 @@ import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
 import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
-import { roundToTwoDecimalPlaces } from "../services/mathServices";
+import {
+  roundToTwoDecimalPlaces,
+  rountWithMathFloor,
+} from "../services/mathServices";
 export const InvoiceComponentCopy = React.forwardRef(
   (
     {
@@ -123,9 +126,12 @@ export const InvoiceComponentCopy = React.forwardRef(
                 </tr>
                 <tr>
                   <td className="totals">Descuento</td>
-                  <td className="totalsData">{`${parseFloat(
-                    totalsData?.descuentoCalculado
-                  ).toFixed(2)}`}</td>
+                  <td className="totalsData">
+                    {" "}
+                    {`${rountWithMathFloor(
+                      totalsData?.total - totalsData?.totalDescontado
+                    )}`}
+                  </td>
                 </tr>
                 <tr>
                   <td className="totals">TOTAL FACT</td>

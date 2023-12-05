@@ -38,7 +38,7 @@ export const InvoiceComponent = React.forwardRef(
       const result = cuf.match(regex).join(" ");
       return result;
     }
-    console.log("Payment data", paymentData);
+    console.log("Payment data", totalsData);
     const inum = invoiceNumber;
     return (
       <div ref={ref} className="invoicePage">
@@ -286,9 +286,12 @@ export const InvoiceComponent = React.forwardRef(
                   </tr>
                   <tr>
                     <td className="totals">Descuento</td>
-                    <td className="totalsData">{`${parseFloat(
-                      totalsData?.descuentoCalculado
-                    ).toFixed(2)}`}</td>
+                    <td className="totalsData">
+                      {" "}
+                      {`${rountWithMathFloor(
+                        totalsData?.total - totalsData?.totalDescontado
+                      )}`}
+                    </td>
                   </tr>
                   <tr>
                     <td className="totals">TOTAL FACT</td>

@@ -1389,7 +1389,7 @@ function RecordModal(
                   <TipoPagoComponent
                     otherPayment={otherPayments}
                     setValeForm={setValeForm}
-                    total={total}
+                    total={totalDescontado}
                     setVale={setGiftCard}
                     vale={giftCard}
                   />

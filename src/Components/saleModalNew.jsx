@@ -11,11 +11,7 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
-import {
-  debouncedFullInvoiceProcess,
-  logIncompleteInvoice,
-} from "../services/invoiceServices";
-import Cookies from "js-cookie";
+import { debouncedFullInvoiceProcess } from "../services/invoiceServices";
 import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
@@ -62,7 +58,6 @@ function SaleModalNew(
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [cuf, setCuf] = useState("");
   const [invoiceMod, setInvoceMod] = useState(false);
-  const [invoiceId, setInvoiceId] = useState("");
   const componentRef = useRef();
   const [motivo, setMotivo] = useState("");
   const [isDrop, setIsDrop] = useState(false);
@@ -80,11 +75,7 @@ function SaleModalNew(
   );
   const [isDownloadable, setIsDownloadable] = useState(false);
   const [offlineText, setOfflineText] = useState("");
-  const [isEmailModal, setIsEmailModal] = useState(false);
   const [clientEmail, setClientEmail] = useState(emailCliente);
-  const [transactionId, setTransactionId] = useState("");
-
-  const [idFactura, setIdFactura] = useState("");
   const [noFactura, setNoFactura] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [auxClientEmail] = useState(emailCliente);
@@ -99,11 +90,9 @@ function SaleModalNew(
   const [tipoPago, setTipoPago] = useState(0);
   const [cambio, setCambio] = useState(0);
   const [cancelado, setCancelado] = useState(0);
-
   const [cardNumbersA, setCardNumbersA] = useState("");
   const [cardNumbersB, setCardNumbersB] = useState("");
   const canc = valeForm.cancelado ? valeForm.cancelado : cancelado;
-
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -628,7 +617,7 @@ function SaleModalNew(
               setIsAlertSec(true);
               setTimeout(() => {
                 window.location.reload();
-              }, 8000);
+              }, 5000);
             }
           }
         } else {
@@ -744,35 +733,6 @@ function SaleModalNew(
     }
   };
 
-  function logInnvoice() {
-    setAlertSec("Registrando factura para impresion posterior");
-    setIsAlertSec(true);
-    const UsuarioAct = Cookies.get("userAuth");
-    const idAlmacen = JSON.parse(UsuarioAct);
-    const PuntoDeVenta = Cookies.get("pdv");
-    console.log("Usuario", idAlmacen);
-    const object = {
-      idFactura: idFactura,
-      nroFactura: invoiceId,
-      idSucursal: branchInfo.nro,
-      puntoDeVenta: PuntoDeVenta,
-      nroTransaccion: transactionId,
-      idAlmacen: idAlmacen.idAlmacen,
-      correoCliente: clientEmail,
-    };
-    const logged = logIncompleteInvoice(object);
-    logged
-      .then((res) => {
-        console.log("Factura loggeada", res);
-        setTimeout(() => {
-          window.location.reload();
-        }, 4000);
-      })
-      .catch((err) => {
-        console.log("Error al loggear la factura");
-      });
-  }
-
   function handleClose() {
     setIsInvoice(false);
     setIsSaleModal(false);
@@ -886,35 +846,6 @@ function SaleModalNew(
             </Button>
           </div>
         </Modal.Body>
-      </Modal>
-
-      <Modal show={isEmailModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {
-              "Ingrese el correo del cliente, la factura se enviará en las siguientes 24 hrs"
-            }
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Control
-              value={clientEmail}
-              type="text"
-              placeholder="Ingrese correo"
-              onChange={(e) => handleEmail(e.target.value)}
-            />
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={() => {
-              logInnvoice();
-            }}
-          >
-            Registrar Correo y recargar
-          </Button>
-        </Modal.Footer>
       </Modal>
       <Modal show={invoiceMod}>
         <Modal.Header>
@@ -1068,7 +999,7 @@ function SaleModalNew(
                 handleDownloadPdfDrop();
                 setTimeout(() => {
                   window.location.reload();
-                }, 3000);
+                }, 2000);
               }}
             />
             <Button>
@@ -1399,51 +1330,6 @@ function SaleModalNew(
                     </div>
                   </div>
                 ) : (
-                  // <>
-                  //   <div className="modalRows">
-                  //     <div className="modalLabel"> A pagar en efectivo:</div>
-                  //     <div className="modalData"> {Number(
-                  //       Number(-giftCard) +
-                  //       total * (1 - datos.descuento / 100)
-                  //     ).toFixed(2)} Bs.
-                  //     </div>
-                  //   </div>
-                  //   {1 > 0 && datos.total - giftCard > 0 ? (
-                  //     <div>
-                  //       <div className="modalRows">
-                  //         <div className="modalLabel"> Cancelado:</div>
-                  //         <div className="modalData">
-                  //           <Form>
-                  //             <Form.Control
-                  //               ref={canceledRef}
-                  //               value={cancelado}
-                  //               type="number"
-                  //               onChange={(e) => setCancelado(e.target.value)}
-                  //               onKeyDown={(e) =>
-                  //                 e.key === "Enter"
-                  //                   ? validateFormOfPayment(e)
-                  //                   : null
-                  //               }
-                  //             />
-                  //           </Form>
-                  //         </div>
-                  //       </div>
-                  //       <div className="modalRows">
-                  //         <div className="modalLabel"> Cambio:</div>
-                  //         <div className="modalData">{`${cancelado -
-                  //           (total * (1 - datos.descuento / 100) - giftCard) <
-                  //           0
-                  //           ? "Ingrese un monto mayor"
-                  //           : `${(
-                  //             cancelado -
-                  //             datos.descuentoCalculado +
-                  //             Number(giftCard)
-                  //           ).toFixed(2)} Bs.`
-                  //           } `}</div>
-                  //       </div>
-                  //     </div>
-                  //   ) : null}
-                  // </>
                   <TipoPagoComponent
                     otherPayment={otherPayments}
                     setValeForm={setValeForm}
