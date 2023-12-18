@@ -268,6 +268,40 @@ const remainingDayGoal = (idUsuario, fecha) => {
   });
 };
 
+const samplesReport = (startDate, endDate, idAgencia) => {
+  console.log("PARAMS EN EL FRONT", startDate, endDate, idAgencia);
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/muestras?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+const samplesProductReport = (startDate, endDate, idAgencia) => {
+  console.log("PARAMS EN EL FRONT", startDate, endDate, idAgencia);
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/muestras/productos?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -283,4 +317,6 @@ export {
   salesByDayReport,
   monthlyGoalsReport,
   remainingDayGoal,
+  samplesReport,
+  samplesProductReport,
 };

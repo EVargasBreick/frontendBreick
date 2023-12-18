@@ -11,7 +11,11 @@ import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
 import { getStores } from "../services/storeServices";
 import { getProductsWithStock } from "../services/productServices";
-import { createTransfer, deleteTransfer } from "../services/transferServices";
+import {
+  composedTransfer,
+  createTransfer,
+  deleteTransfer,
+} from "../services/transferServices";
 import { sendOrderEmail, updateStock } from "../services/orderServices";
 import { dateString } from "../services/dateServices";
 import { OrderNote } from "./orderNote";
@@ -320,9 +324,123 @@ export default function FormNewTransfer() {
     }
   }
 
+  async function registerTransferAlt() {
+    if (idOrigen !== idDestino) {
+      const productsArray = selectedProducts.map((item) => {
+        const obj = {
+          codInterno: item.codInterno,
+          nombreProducto: item.nombreProducto,
+          cantidadProducto: item.cantProducto,
+        };
+        return obj;
+      });
+
+      setAlertSec("Validando Traspaso");
+      setIsAlertSec(true);
+      const zeroValidated = validateZero();
+      zeroValidated
+        .then((validated) => {
+          const quantitiesValidated = validateQuantities();
+          quantitiesValidated
+            .then((res) => {
+              console.log("Normal");
+              const transferObj = {
+                idOrigen: idOrigen,
+                idDestino: idDestino,
+                idUsuario: userId,
+                productos: selectedProducts,
+                transito: 0,
+                movil: idOrigen === "AL001" ? 1 : 0,
+                impreso: idOrigen === "AL001" ? 0 : 1,
+                listo: idOrigen === "AL001" || idDestino === "AL001" ? 0 : 1,
+              };
+              const stockObj = {
+                accion: "take",
+                idAlmacen: idOrigen,
+                productos: selectedProducts,
+              };
+              setAlertSec("Creando traspaso");
+              const newTransfer = composedTransfer({
+                traspaso: transferObj,
+                stock: stockObj,
+              });
+              newTransfer
+                .then((nt) => {
+                  console.log("DATA ACA", nt);
+                  const emailBody = {
+                    codigoPedido: nt.data.data.idCreado,
+                    correoUsuario: userEmail,
+                    fecha: dateString(),
+                    email: [userEmail],
+                    tipo: "Traspaso",
+                    header: "Traspaso Creado",
+                  };
+                  const emailSent = sendOrderEmail(emailBody);
+                  emailSent
+                    .then((response) => {
+                      const origenArray = nombreOrigen.split(" ");
+                      const outputOrigen = origenArray.slice(1).join(" ");
+                      const destinoArray = nombreDestino.split(" ");
+                      const outputDestino = destinoArray.slice(1).join(" ");
+                      const orderObj = [
+                        {
+                          rePrint: false,
+                          fechaSolicitud: dateString(),
+                          id: nt.data.data.idCreado,
+                          usuario: user,
+                          notas: "",
+                          productos: productsArray,
+                          origen: outputOrigen,
+                          destino: outputDestino,
+                        },
+                      ];
+                      setProductList(orderObj);
+                      setIsAlertSec(false);
+                      setAlert("Traspaso Creado correctamente");
+                      setIsAlert(true);
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 30000);
+                    })
+                    .catch((error) => {
+                      console.log("Error al enviar el correo", error);
+                    });
+                })
+                .catch((error) => {
+                  console.log("Error al crear el traspaso", error);
+                  updateCurrentStock();
+                  setIsAlertSec(false);
+                  setAlert(`Error al crear el traspaso`);
+                  setIsAlert(true);
+                });
+            })
+            .catch((err) => {
+              console.log("Error");
+              updateCurrentStock();
+              setIsAlertSec(false);
+              setAlert(
+                "La cantidad de un producto seleccionado no se encuentra disponible"
+              );
+              setIsAlert(true);
+            });
+        })
+        .catch((error) => {
+          updateCurrentStock();
+          setIsAlertSec(false);
+          setAlert(
+            "La cantidad de un producto seleccionado se encuentra en cero"
+          );
+          setIsAlert(true);
+        });
+    } else {
+      setAlert("El origen debe ser distinto al destino");
+      setIsAlert(true);
+    }
+  }
+
   function validateTransfer() {
     if (selectedProducts.length > 0 && idDestino != "") {
-      registerTransfer();
+      registerTransferAlt();
     } else {
       setAlert("El traspaso no puede tener destino vacío o no tener productos");
       setIsAlert(true);

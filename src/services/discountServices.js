@@ -1492,29 +1492,30 @@ function complexNewDiscountFunction(selectedProducts, discountList) {
   for (const product of selectedProducts) {
     if (product.tipoProducto == 1) {
       separatedProducts.tradicionales.push(product);
-      totalesTipo.tradicionales += product.totalProd;
+      totalesTipo.tradicionales += Number(product.totalProd);
       tradicionales.push(product);
     } else if (product.tipoProducto == 2) {
       separatedProducts.pascua.push(product);
-      totalesTipo.pascua += product.totalProd;
+      totalesTipo.pascua += Number(product.totalProd);
       pascua.push(product);
     } else if (product.tipoProducto == 3) {
       separatedProducts.navidad.push(product);
-      totalesTipo.navidad += product.totalProd;
+      totalesTipo.navidad += Number(product.totalProd);
       navidad.push(product);
     } else if (product.tipoProducto == 4) {
       separatedProducts.halloween.push(product);
-      totalesTipo.halloween += product.totalProd;
+      totalesTipo.halloween += Number(product.totalProd);
       halloween.push(product);
     } else if (product.tipoProducto == 5) {
       separatedProducts.sinDesc.push(product);
-      totalesTipo.sinDesc += product.totalProd;
+      totalesTipo.sinDesc += Number(product.totalProd);
       sinDesc.push(product);
     } else {
       separatedProducts.especiales.push(product);
-      totalesTipo.especiales += product.totalProd;
-      totalesTipo.especialesCD +=
-        product.precioDescuentoFijo * product.cantProducto;
+      totalesTipo.especiales += Number(product.totalProd);
+      totalesTipo.especialesCD += Number(
+        product.precioDescuentoFijo * product.cantProducto
+      );
       especiales.push(product);
     }
   }

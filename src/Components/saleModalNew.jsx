@@ -3,7 +3,7 @@ import { Modal, Button, Form, Image, FormControl } from "react-bootstrap";
 import loading2 from "../assets/loading2.gif";
 import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
-import { dateString } from "../services/dateServices";
+import { dateString, formatDate } from "../services/dateServices";
 import { registerDrop } from "../services/dropServices";
 import { updateStock } from "../services/orderServices";
 import { DropComponent } from "./dropComponent";
@@ -11,7 +11,10 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
-import { debouncedFullInvoiceProcess } from "../services/invoiceServices";
+import {
+  debouncedFullInvoiceProcess,
+  onlineInvoiceProcess,
+} from "../services/invoiceServices";
 import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
@@ -93,6 +96,8 @@ function SaleModalNew(
   const [cardNumbersA, setCardNumbersA] = useState("");
   const [cardNumbersB, setCardNumbersB] = useState("");
   const canc = valeForm.cancelado ? valeForm.cancelado : cancelado;
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [onlineDate, setOnlineDate] = useState({ fechaHora: "", emision: "" });
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -313,7 +318,7 @@ function SaleModalNew(
       setOfp(valeForm.ofp);
       setGiftCard(valeForm.vale);
     }
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
         setIsAlert(true);
@@ -402,8 +407,8 @@ function SaleModalNew(
             console.log("Entro aca");
             console.log("Valeform", valeForm);
             if (valeForm || tipoPago == 11) {
-              setAlertSec("Guardando baja");
-              setIsAlertSec(true);
+              //setAlertSec("Guardando baja");
+              //setIsAlertSec(true);
               const objBaja = {
                 motivo:
                   tipoPago == 4 &&
@@ -422,6 +427,9 @@ function SaleModalNew(
               const bajaRegistrada = registerDrop(objBaja);
               bajaRegistrada
                 .then((res) => {
+                  if (motivo == "online") {
+                    registerOnlineSale();
+                  }
                   setDropId(res.data.id);
                   const objStock = {
                     accion: "take",
@@ -737,6 +745,68 @@ function SaleModalNew(
     setIsInvoice(false);
     setIsSaleModal(false);
   }
+
+  function registerOnlineSale() {
+    console.log("REGISTRANDO VENTA ONLINE");
+    const saleBodyNew = {
+      pedido: {
+        idUsuarioCrea: userData.userId,
+        idCliente: clientId,
+        fechaCrea: dateString(),
+        fechaActualizacion: dateString(),
+        montoTotal: datos.total,
+        descuento: datos.descuento,
+        descCalculado: Number(datos.descuentoCalculado) + Number(giftCard),
+        montoFacturar: Number(datos.totalDescontado) - giftCard,
+        idPedido: "",
+        idFactura: 0,
+      },
+      productos: selectedProducts,
+    };
+
+    const invoiceBodyNew = {
+      idCliente: clientId,
+      nroFactura: invoiceNumber,
+      idSucursal: 0,
+      nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
+      fechaHora: onlineDate.fechaHora,
+      nitCliente: datos.nit,
+      razonSocial: datos.razonSocial,
+      tipoPago: tipoPago,
+      pagado: datos.totalDescontado,
+      cambio: 0,
+      cuf: "",
+      importeBase: Number(datos.totalDescontado),
+      debitoFiscal: Number(
+        roundToTwoDecimalPlaces(datos.totalDescontado) * 0.13
+      ).toFixed(2),
+      desembolsada: 0,
+      autorizacion: uniqueId,
+      nroTarjeta: "-",
+      cufd: "",
+      fechaEmision: onlineDate.emision,
+      nroTransaccion: 0,
+      idOtroPago: ofp,
+      vale: 0,
+      aPagar: aPagar,
+      puntoDeVenta: 10,
+      idAgencia: userData.userStore,
+      voucher: voucher,
+      pya: isPya,
+    };
+    return new Promise(async (resolve, reject) => {
+      try {
+        const onlineAdded = await onlineInvoiceProcess({
+          invoiceBody: invoiceBodyNew,
+          saleBody: saleBodyNew,
+        });
+        resolve(onlineAdded);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
   const handleDownloadPdfInv = async () => {
     console.log("Heigth in the function", invoiceHeight);
     const element = componentRef.current;
@@ -809,6 +879,15 @@ function SaleModalNew(
   function cancelEmail() {
     setCuf(altCuf);
     setIsNewEmail(false);
+  }
+
+  function handleOnlineDate(value) {
+    const formatted = formatDate(value).fullDate;
+    const obj = {
+      fechaHora: `${formatted} 00:00:00`,
+      emision: `${value} 00:00:00`,
+    };
+    setOnlineDate(obj);
   }
 
   return (
@@ -1353,6 +1432,34 @@ function SaleModalNew(
                       <option value="muestra">Muestra</option>
                       <option value="online">Venta en línea</option>
                     </Form.Select>
+                  }
+                </div>
+              </div>
+            ) : null}
+            {tipoPago == 11 && motivo == "online" ? (
+              <div className="modalRows">
+                <div className="modalLabel"> Numero de factura:</div>
+                <div className="modalData">
+                  {
+                    <Form.Control
+                      type="number"
+                      required
+                      onChange={(e) => setInvoiceNumber(e.target.value)}
+                    />
+                  }
+                </div>
+              </div>
+            ) : null}
+            {tipoPago == 11 && motivo == "online" ? (
+              <div className="modalRows">
+                <div className="modalLabel"> Fecha en la factura:</div>
+                <div className="modalData">
+                  {
+                    <Form.Control
+                      type="date"
+                      required
+                      onChange={(e) => handleOnlineDate(e.target.value)}
+                    />
                   }
                 </div>
               </div>

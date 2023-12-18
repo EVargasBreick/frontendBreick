@@ -76,6 +76,9 @@ import CancelInvoiceAltern from "./Components/cancelInvoiceAltern";
 import CancelDrop from "./Components/cancelDrop";
 import NewSaleNew from "./Components/newSaleNew";
 import RouteSaleNew from "./Components/routeSaleNew";
+import SamplesReport from "./Components/SamplesReport";
+import SamplesProductReport from "./Components/SamplesProductReport";
+import GroupedProducts from "./Components/groupedProducts";
 
 function App() {
   return (
@@ -641,6 +644,30 @@ function App() {
               element={
                 <RequireAuth>
                   <NewSaleNew />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/muestras/"
+              element={
+                <RequireAuth>
+                  <SamplesReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/muestras/productos"
+              element={
+                <RequireAuth>
+                  <SamplesProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/productos/grupos"
+              element={
+                <RequireAuth>
+                  <GroupedProducts />
                 </RequireAuth>
               }
             />

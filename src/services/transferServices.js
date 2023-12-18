@@ -191,6 +191,22 @@ const deleteTransfer = (id) => {
   });
 };
 
+const composedTransfer = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/traspaso`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
 export {
   createTransfer,
   transferList,
@@ -204,4 +220,5 @@ export {
   transitTransfer,
   acceptTransferById,
   deleteTransfer,
+  composedTransfer,
 };

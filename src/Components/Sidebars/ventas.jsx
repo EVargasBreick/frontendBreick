@@ -27,6 +27,7 @@ import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
 import { GoGoal } from "react-icons/go";
 import { TbDiscount2 } from "react-icons/tb";
+import { FaLayerGroup } from "react-icons/fa";
 import "../../styles/generalStyle.css";
 
 export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
@@ -124,6 +125,13 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         {" "}
         <Image src={HStar} className="icon inverted"></Image>
         Desarmar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/productos/grupos")}
+        className="menuItem"
+      >
+        <FaLayerGroup size="12%" style={{ paddingRight: "5px" }} />
+        Grupos de Productos
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/registrar/descuentos-temporada")}

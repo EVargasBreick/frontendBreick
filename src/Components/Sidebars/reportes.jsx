@@ -23,6 +23,7 @@ import { MdInventory } from "react-icons/md";
 import { TbCalendarTime } from "react-icons/tb";
 import { MdMoveUp } from "react-icons/md";
 import { BiSolidStoreAlt } from "react-icons/bi";
+import { FaBoxes, FaBoxOpen } from "react-icons/fa";
 export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
   return (
     <SubMenu
@@ -124,6 +125,20 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         className="menuItem"
       >
         <Image src={Hand} className="icon"></Image>Reporte libro de bajas
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/muestras")}
+        className="menuItem"
+      >
+        <FaBoxOpen size="35px" style={{ paddingRight: "5px" }} />
+        Reporte de muestras
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/muestras/productos")}
+        className="menuItem"
+      >
+        <FaBoxes size="35px" style={{ paddingRight: "5px" }} />
+        Reporte de productos en muestras
       </MenuItem>
     </SubMenu>
   );

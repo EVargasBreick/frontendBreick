@@ -173,19 +173,22 @@ export default function FormAllOrders() {
           const found = allProducts.find(
             (item) => item.nombreProducto === pr.nombreProducto
           );
-          sumatoria += verifySuper
-            ? found?.precioSuper * pr.cantidadProducto
-            : found?.precioDeFabrica * pr.cantidadProducto;
+          sumatoria +=
+            pr?.precio_producto != null
+              ? pr?.precio_producto * pr.cantidadProducto
+              : verifySuper
+              ? found?.precioSuper * pr.cantidadProducto
+              : found?.precioDeFabrica * pr.cantidadProducto;
           setTotalMuestra(sumatoria);
           const total =
             res.data.data[0].tipo === "normal"
               ? pr.totalProd
+              : pr?.precio_producto != null
+              ? pr?.precio_producto * pr.cantidadProducto
               : !verifySuper
               ? found?.precioDeFabrica * pr.cantidadProducto
               : found?.precioSuper * pr.cantidadProducto;
 
-          //console.log("Found", found);
-          console.log("IS SUPER", verifySuper);
           const pTable = {
             producto: pr.nombreProducto,
             cantidad: pr.cantidadProducto,

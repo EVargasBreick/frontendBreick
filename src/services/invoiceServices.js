@@ -288,6 +288,23 @@ async function invoiceRecordAndUpdate(body) {
   return response;
 }
 
+async function onlineInvoiceProcess(body) {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/online/facturar`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch(async (error) => {
+        debouncedFullInvoiceProcess.cancel();
+        reject(error);
+      });
+  });
+}
+
 export {
   createInvoice,
   deleteInvoice,
@@ -301,4 +318,5 @@ export {
   debouncedFullInvoiceProcess,
   debouncedFullInvoiceProcessConsignacion,
   invoiceRecordAndUpdate,
+  onlineInvoiceProcess,
 };
