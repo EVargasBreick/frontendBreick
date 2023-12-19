@@ -437,6 +437,11 @@ const updateMultipleVirtualStock = (body) => {
   });
 };
 
+const createOrderTransaction = (body) => {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/order`;
+  return axios.post(url, body);
+}
+
 export {
   createOrder,
   getOrderStatus,
@@ -466,4 +471,5 @@ export {
   updateMultipleStock,
   updateVirtualStock,
   updateMultipleVirtualStock,
+  createOrderTransaction
 };
