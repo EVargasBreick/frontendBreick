@@ -407,10 +407,15 @@ export default function FormNewTransfer() {
                     });
                 })
                 .catch((error) => {
-                  console.log("Error al crear el traspaso", error);
+                  const errMessage = error.response.data.error.includes(
+                    "stock_nonnegative"
+                  )
+                    ? "El stock requerido para algún producto seleccionado ya no se encuentra disponible"
+                    : "";
+                  console.log("Error al crear el traspaso", errMessage);
                   updateCurrentStock();
                   setIsAlertSec(false);
-                  setAlert(`Error al crear el traspaso`);
+                  setAlert(`Error al crear el traspaso: ${errMessage}`);
                   setIsAlert(true);
                 });
             })

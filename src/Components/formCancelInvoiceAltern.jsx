@@ -12,8 +12,6 @@ import "../styles/dynamicElements.css";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
 import debounce from "lodash/debounce";
-import { CancelInvoice } from "../Xml/cancelInvoice";
-import { updateStock } from "../services/orderServices";
 import { getMobileSalePoints } from "../services/storeServices";
 import { emizorService } from "../services/emizorService";
 

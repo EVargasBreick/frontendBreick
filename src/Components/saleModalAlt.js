@@ -11,7 +11,7 @@ import { SoapInvoice } from "../Xml/soapInvoice";
 import xml2js from "xml2js";
 import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
 import { dateString } from "../services/dateServices";
-import { registerDrop } from "../services/dropServices";
+import { composedDrop, registerDrop } from "../services/dropServices";
 import { updateStock } from "../services/orderServices";
 import { DropComponent } from "./dropComponent";
 import html2canvas from "html2canvas";
@@ -360,7 +360,7 @@ function SaleModalAlt(
       setOfp(valeForm.ofp);
       setGiftCard(valeForm.vale);
     }
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
         setIsAlert(true);
@@ -459,29 +459,31 @@ function SaleModalAlt(
                 vale: giftCard,
                 ci: datos.nit,
               };
-              console.log("OBJETO BAJA", objBaja);
-              const bajaRegistrada = registerDrop(objBaja);
-              bajaRegistrada
-                .then((res) => {
-                  setDropId(res.data.id);
-                  const objStock = {
-                    accion: "take",
-                    idAlmacen: userStore,
-                    productos: selectedProducts,
-                    detalle: `SPRBJ-${res.data.id}`,
-                  };
-                  const updatedStock = updateStock(objStock);
-                  updatedStock
-                    .then((res) => {
-                      setIsDrop(true);
-                    })
-                    .catch((err) => {
-                      console.log("Error al updatear stock", err);
-                    });
-                })
-                .catch((err) => {
-                  console.log("error al registrar la baja", err);
-                });
+              const objStock = {
+                accion: "take",
+                idAlmacen: userStore,
+                productos: selectedProducts,
+              };
+              const compObj = {
+                baja: objBaja,
+                stock: objStock,
+              };
+              try {
+                const createdDrop = await composedDrop(compObj);
+                console.log("Baja creada", createdDrop);
+                setDropId(createdDrop.data.idCreado);
+                setIsDrop(true);
+              } catch (error) {
+                const errMessage = error.response.data.data.includes(
+                  "stock_nonnegative"
+                )
+                  ? "El stock requerido de algun producto seleccionado ya no se encuentra disponible"
+                  : "";
+                console.log("Error al crear la baja", errMessage);
+                setIsAlertSec(false);
+                setAlert(`Error al crear la baja:  ${errMessage}`);
+                setIsAlert(true);
+              }
             }
           }
         }
