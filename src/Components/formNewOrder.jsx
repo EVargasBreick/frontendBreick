@@ -575,9 +575,12 @@ export default function FormNewOrder() {
           }, 3000);
         }
         catch (error) {
-          console.log("Error al crear el pedido", error);
-          setAlertSec(error.response.message || "Error en el Pedido");
+          console.log("Error al crear el pedido 1", error);
+          const errorMes = error.response.data.toString().includes("stock_nonnegative") ? "No hay stock suficiente para crear el pedido" : "Error en el Pedido";
+          setAlertSec(errorMes);
+
           setTimeout(() => {
+            window.location.reload();
             setIsAlertSec(false);
           }, 5000);
         }
@@ -723,8 +726,12 @@ export default function FormNewOrder() {
           }
           catch (error) {
             console.log("Error al crear el pedido", error);
-            setAlertSec(error.response.message || "Error en el Pedido");
+            console.log("Error al crear el pedido 1", error);
+            const errorMes = error.response.data.toString().includes("stock_nonnegative") ? "No hay stock suficiente para crear el pedido" : "Error en el Pedido";
+            setAlertSec(errorMes);
+  
             setTimeout(() => {
+              window.location.reload();
               setIsAlertSec(false);
             }, 5000);
           }
