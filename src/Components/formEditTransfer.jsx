@@ -18,7 +18,7 @@ import { Button, Form, Table } from "react-bootstrap";
 import { getProductsWithStock } from "../services/productServices";
 import { dateString } from "../services/dateServices";
 import LoadingModal from "./Modals/loadingModal";
-import { updateMultipleStock, updateStock } from "../services/orderServices";
+import { updateMultipleStock } from "../services/orderServices";
 import { set } from "lodash";
 export default function FormEditTransfer() {
   const [userId, setUserId] = useState("");

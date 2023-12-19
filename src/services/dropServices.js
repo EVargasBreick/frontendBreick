@@ -47,4 +47,20 @@ function cancelDrop(body) {
   });
 }
 
-export { registerDrop, searchDrop, cancelDrop };
+function composedDrop(body) {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/baja`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+export { registerDrop, searchDrop, cancelDrop, composedDrop };

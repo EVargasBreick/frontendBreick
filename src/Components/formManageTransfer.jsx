@@ -15,7 +15,6 @@ import {
   transferProducts,
   updateTransfer,
 } from "../services/transferServices";
-import { updateStock } from "../services/orderServices";
 import { dateString } from "../services/dateServices";
 export default function FormManageTransfer() {
   const navigate = useNavigate();

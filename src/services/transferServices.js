@@ -202,6 +202,7 @@ const composedTransfer = (body) => {
         resolve(response);
       })
       .catch((err) => {
+        console.log("ERROR EN EL TRASPASO COMPUESTO", err);
         reject(err);
       });
   });
