@@ -628,6 +628,12 @@ export default function FormNewTransfer() {
                 </thead>
                 <tbody>
                   {[...selectedProducts].map((product, index) => {
+                    console.log(
+                      "ENCONTRADO",
+                      auxProducts.find(
+                        (ap) => ap.idProducto == product.idProducto
+                      )
+                    );
                     const cActual = auxProducts.find(
                       (ap) => ap.idProducto == product.idProducto
                     )?.cant_Actual;

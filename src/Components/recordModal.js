@@ -455,7 +455,15 @@ function RecordModal(
                 setDropId(createdDrop.data.idCreado);
                 setIsDrop(true);
               } catch (error) {
-                console.log("Error al crear la baja", error);
+                const errMessage = error.response.data.data.includes(
+                  "stock_nonnegative"
+                )
+                  ? "El stock requerido de algun producto seleccionado ya no se encuentra disponible"
+                  : "";
+                console.log("Error al crear la baja", errMessage);
+                setIsAlertSec(false);
+                setAlert(`Error al crear la baja:  ${errMessage}`);
+                setIsAlert(true);
               }
             }
           }

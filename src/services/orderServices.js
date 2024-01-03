@@ -440,7 +440,38 @@ const updateMultipleVirtualStock = (body) => {
 const createOrderTransaction = (body) => {
   const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/order`;
   return axios.post(url, body);
-}
+};
+
+const getUserOrders = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/listar/pedidos/usuario?id=${id}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const logOrderUpdate = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/edicion/log`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
 
 export {
   createOrder,
@@ -471,5 +502,7 @@ export {
   updateMultipleStock,
   updateVirtualStock,
   updateMultipleVirtualStock,
-  createOrderTransaction
+  createOrderTransaction,
+  getUserOrders,
+  logOrderUpdate,
 };

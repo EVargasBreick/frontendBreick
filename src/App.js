@@ -79,6 +79,7 @@ import RouteSaleNew from "./Components/routeSaleNew";
 import SamplesReport from "./Components/SamplesReport";
 import SamplesProductReport from "./Components/SamplesProductReport";
 import GroupedProducts from "./Components/groupedProducts";
+import UserOrders from "./Components/userOrders";
 
 function App() {
   return (
@@ -668,6 +669,14 @@ function App() {
               element={
                 <RequireAuth>
                   <GroupedProducts />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/usuarios/pedidos/listar"
+              element={
+                <RequireAuth>
+                  <UserOrders />
                 </RequireAuth>
               }
             />

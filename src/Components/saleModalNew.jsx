@@ -156,7 +156,7 @@ function SaleModalNew(
     if (isSaved) {
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, 5000);
     }
   }, [isSaved]);
 
@@ -165,7 +165,7 @@ function SaleModalNew(
       invButtonRefAlt.current.click();
       setTimeout(() => {
         window.location.reload();
-      }, 2000);
+      }, 5000);
     }
   }, [isDownloadable]);
 
@@ -807,7 +807,6 @@ function SaleModalNew(
   }
 
   const handleDownloadPdfInv = async () => {
-    console.log("Heigth in the function", invoiceHeight);
     const element = componentRef.current;
     const canvas = await html2canvas(element);
     const data = canvas.toDataURL("image/png");
@@ -820,7 +819,7 @@ function SaleModalNew(
     const { height } = node.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     const mmHeight = height / ((dpr * 96) / 25.4);
-    console.log("Height in mm:", mmHeight);
+
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -838,7 +837,23 @@ function SaleModalNew(
     pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
     pdf.addPage();
     pdf.addImage(dataCopy, "PNG", 0, 0, pdfWidth, pdfHeightCopy);
-    pdf.save(`factura-${noFactura}-${datos.nit}.pdf`);
+
+    // Instead of directly saving the PDF, create a download link
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = pdfUrl;
+    downloadLink.download = `factura-${noFactura}-${datos.nit}.pdf`;
+    document.body.appendChild(downloadLink);
+
+    // Trigger a click on the download link
+    downloadLink.click();
+
+    // Clean up
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(pdfUrl);
+
     setIsSaved(true);
   };
 
@@ -1077,7 +1092,7 @@ function SaleModalNew(
                 handleDownloadPdfDrop();
                 setTimeout(() => {
                   window.location.reload();
-                }, 2000);
+                }, 5000);
               }}
             />
             <Button>

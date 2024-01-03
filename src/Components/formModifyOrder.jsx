@@ -9,6 +9,7 @@ import {
   getOrderDetail,
   getOrderProdList,
   getUserOrderList,
+  logOrderUpdate,
   updateDbOrder,
   updateMultipleStock,
   updateMultipleVirtualStock,
@@ -643,8 +644,10 @@ export default function FormModifyOrders() {
       var total = selectedProds.reduce((accumulator, object) => {
         return accumulator + object.totalProd;
       }, 0);
+      const userId = JSON.parse(Cookies.get("userAuth")).idUsuario;
       const objUpdateOrder = {
         idPedido: idPedido,
+        idUsuario: userId,
         montoFacturar: totalPrevio,
         montoTotal: totalFacturar,
         descuento: descuento,
@@ -665,6 +668,7 @@ export default function FormModifyOrders() {
               cantProducto: sp.cantProducto - sp.cantPrevia,
               totalProd:
                 sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
+              precio_producto: sp.precio_producto ?? sp.precioDeFabrica,
             };
             arrayTakes.push(objProd);
           } else {
@@ -673,6 +677,7 @@ export default function FormModifyOrders() {
               cantProducto: sp.cantPrevia - sp.cantProducto,
               totalProd:
                 sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
+              precio_producto: sp.precio_producto ?? sp.precioDeFabrica,
             };
             arrayAdds.push(objProd);
           }
@@ -685,6 +690,8 @@ export default function FormModifyOrders() {
               sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
             descuentoProd: sp.descuentoProd,
             idPedidoProducto: sp.idPedidoProducto,
+            precioDeFabrica: sp.precioDeFabrica,
+            precio_producto: sp.precio_producto ?? sp.precioDeFabrica,
           };
           objProductsAdded.push(objProd);
         } else {
@@ -696,7 +703,7 @@ export default function FormModifyOrders() {
               sp.cantProducto * (sp.precio_producto ?? sp.precioDeFabrica),
             descuentoProd: sp.descuentoProd,
             idPedidoProducto: sp.idPedidoProducto,
-            precio_producto: sp.precio_producto ?? null,
+            precio_producto: sp.precio_producto ?? sp.precioDeFabrica,
           };
           objProductsUpdated.push(objProd);
         }
@@ -778,22 +785,38 @@ export default function FormModifyOrders() {
                             "Updateado stock virtual",
                             updatedMultiple
                           );
-                          setTimeout(() => {
-                            setAlertSec("Pedido actualizado correctamente");
-                            setIsAlertSec(true);
-                            window.location.reload();
-                          }, 8000);
+                          try {
+                            await logOrderUpdate({
+                              pedido: objUpdateOrder,
+                              productos: selectedProds,
+                            });
+                            setTimeout(() => {
+                              setAlertSec("Pedido actualizado correctamente");
+                              setIsAlertSec(true);
+                              window.location.reload();
+                            }, 8000);
+                          } catch (error) {
+                            console.log("Error al loggear la edicion");
+                          }
                         } catch (err) {
                           console.log(
                             "Error al actualizar stock para consignacion"
                           );
                         }
                       } else {
-                        setTimeout(() => {
-                          setAlertSec("Pedido actualizado correctamente");
-                          setIsAlertSec(true);
-                          window.location.reload();
-                        }, 8000);
+                        try {
+                          await logOrderUpdate({
+                            pedido: objUpdateOrder,
+                            productos: selectedProds,
+                          });
+                          setTimeout(() => {
+                            setAlertSec("Pedido actualizado correctamente");
+                            setIsAlertSec(true);
+                            window.location.reload();
+                          }, 8000);
+                        } catch (error) {
+                          console.log("Error al loggear la edicion");
+                        }
                       }
                     })
                     .catch((error) => {

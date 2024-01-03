@@ -96,6 +96,7 @@ export default function FormOrdersToReady() {
           zona: dt.data[0].zona,
           origen: dt.data[0].origen,
           destino: dt.data[0].destino,
+          fecha_edicion: dt.data[0]?.fecha_edicion,
         },
       ];
       setProductList(list);
@@ -254,6 +255,7 @@ export default function FormOrdersToReady() {
               <th>Id Orden</th>
               <th>Usuario</th>
               <th>Fecha Creacion</th>
+              <th>Estado</th>
               <th colSpan={3} style={{ textAlign: "center" }}>
                 Acciones
               </th>
@@ -262,10 +264,23 @@ export default function FormOrdersToReady() {
           <tbody>
             {orderList.map((ol, index) => {
               return (
-                <tr key={index} className="tableRow">
+                <tr
+                  key={index}
+                  className="tableRow"
+                  style={
+                    ol.fecha_edicion && ol.fecha_edicion != "-"
+                      ? { backgroundColor: "#7a0918", color: "white" }
+                      : null
+                  }
+                >
                   <td>{ol.nroOrden}</td>
                   <td>{ol.usuario}</td>
                   <td>{ol.fechaCrea}</td>
+                  <td>
+                    {ol.fecha_edicion && ol.fecha_edicion != "-"
+                      ? "EDITADO"
+                      : "NUEVO"}
+                  </td>
                   <td className="columnButton">
                     <Button
                       variant="success"

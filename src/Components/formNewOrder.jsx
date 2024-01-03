@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import {
   availableProducts,
   getProducts,
+  getProductsWithStock,
   getUserStock,
   logShortage,
   productsDiscount,
@@ -23,6 +24,7 @@ import {
   createOrderTransaction,
   deleteOrder,
   getOrderList,
+  logOrderUpdate,
   sendOrderEmail,
   updateStock,
   updateVirtualStock,
@@ -149,7 +151,8 @@ export default function FormNewOrder() {
         setIsInterior(true);
       }
       setUserName(
-        `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${JSON.parse(UsuarioAct).apPaterno
+        `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${
+          JSON.parse(UsuarioAct).apPaterno
         }`
       );
       const currentDate = dateString();
@@ -269,6 +272,20 @@ export default function FormNewOrder() {
     setClientes(array);
     setIsSelected(true);
     prodTableRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function updateCurrentStock() {
+    setAvailable([]);
+    setAuxProducts([]);
+    const UsuarioAct = Cookies.get("userAuth");
+    const prods = availableProducts(JSON.parse(UsuarioAct).idUsuario);
+    prods.then((product) => {
+      console.log("TESTEANDO ACA", product);
+      const available = product.data.data.filter((prod) => prod.activo === 1);
+      console.log("disponibles", available);
+      setAvailable(available);
+      setAuxProducts(available);
+    });
   }
 
   function selectProduct(product) {
@@ -532,6 +549,7 @@ export default function FormNewOrder() {
         const objPedido = {
           pedido: {
             idUsuarioCrea: usuarioAct,
+            idUsuario: usuarioAct,
             idCliente: selectedClient,
             fechaCrea: dateString(),
             fechaActualizacion: dateString(),
@@ -552,7 +570,7 @@ export default function FormNewOrder() {
           objOrder: objPedido,
           userStore: userStore,
           products: selectedProds,
-        }
+        };
         try {
           const processOrder = await createOrderTransaction(objSubmit);
           console.log("Respuesta de creacion", processOrder.data);
@@ -566,23 +584,48 @@ export default function FormNewOrder() {
             header: "Pedido Creado",
           };
           const emailSent = await sendOrderEmail(emailBody);
+
+          const objPedidoNew = {
+            pedido: {
+              idPedido: processOrder.data.idCreado,
+              idUsuarioCrea: usuarioAct,
+              idUsuario: usuarioAct,
+              idCliente: selectedClient,
+              fechaCrea: dateString(),
+              fechaActualizacion: dateString(),
+              estado: 0,
+              montoFacturar: parseFloat(totalPrevio).toFixed(2),
+              montoTotal: parseFloat(totalFacturar).toFixed(2),
+              tipo: tipo,
+              descuento: descuento,
+              descCalculado: parseFloat(totalDesc).toFixed(2),
+              notas: observaciones,
+              impreso: isInterior ? 1 : 0,
+            },
+            productos: selectedProds,
+          };
+
+          await logOrderUpdate(objPedidoNew);
+
           setIsAlertSec(false);
           setAlert("Pedido Creado correctamente");
           setIsAlert(true);
+
           setTimeout(() => {
             window.location.reload();
             setisLoading(false);
           }, 3000);
-        }
-        catch (error) {
+        } catch (error) {
+          updateCurrentStock();
           console.log("Error al crear el pedido 1", error);
-          const errorMes = error.response.data.toString().includes("stock_nonnegative") ? "No hay stock suficiente para crear el pedido" : "Error en el Pedido";
-          setAlertSec(errorMes);
-
-          setTimeout(() => {
-            window.location.reload();
-            setIsAlertSec(false);
-          }, 5000);
+          const errorMes = error.response.data
+            .toString()
+            .includes("stock_nonnegative")
+            ? "Uno de los productos ya no cuenta con la cantidad solicitada de stock"
+            : "Error en el Pedido";
+          setIsAlertSec(false);
+          setAlert(errorMes);
+          setIsAlert(true);
         }
 
         // const newOrder = createOrder(objPedido);
@@ -656,6 +699,9 @@ export default function FormNewOrder() {
   }
 
   function saveSampleAndTransfer() {
+    const total = selectedProds.reduce((accumulator, object) => {
+      return accumulator + Number(object.totalProd);
+    }, 0);
     const arrayInZero = setTotalProductsToZero(selectedProds);
     arrayInZero.then((zero) => {
       const validatedOrder = structureOrder();
@@ -667,12 +713,13 @@ export default function FormNewOrder() {
           const objPedido = {
             pedido: {
               idUsuarioCrea: usuarioAct,
+              idUsuario: usuarioAct,
               idCliente: selectedClient,
               fechaCrea: dateString(),
               fechaActualizacion: dateString(),
               estado: 0,
-              montoFacturar: 0,
-              montoTotal: 0,
+              montoFacturar: total,
+              montoTotal: total,
               tipo: tipo,
               descuento: 0,
               descCalculado: 0,
@@ -686,7 +733,7 @@ export default function FormNewOrder() {
             objOrder: objPedido,
             userStore: userStore,
             products: zero.modificado,
-          }
+          };
           try {
             const processOrder = await createOrderTransaction(objSubmit);
             console.log("Respuesta de creacion", processOrder.data);
@@ -715,6 +762,8 @@ export default function FormNewOrder() {
 
             const emailSent = await sendOrderEmail(emailBody);
 
+            await logOrderUpdate(objPedido);
+
             setIsAlertSec(false);
             setAlert("Pedido Creado correctamente");
             setIsAlert(true);
@@ -723,19 +772,18 @@ export default function FormNewOrder() {
               window.location.reload();
               setisLoading(false);
             }, 3000);
-          }
-          catch (error) {
-            console.log("Error al crear el pedido", error);
+          } catch (error) {
+            updateCurrentStock();
             console.log("Error al crear el pedido 1", error);
-            const errorMes = error.response.data.toString().includes("stock_nonnegative") ? "No hay stock suficiente para crear el pedido" : "Error en el Pedido";
-            setAlertSec(errorMes);
-  
-            setTimeout(() => {
-              window.location.reload();
-              setIsAlertSec(false);
-            }, 5000);
+            const errorMes = error.response.data
+              .toString()
+              .includes("stock_nonnegative")
+              ? "Uno de los productos ya no cuenta con la cantidad solicitada de stock"
+              : "Error en el Pedido";
+            setIsAlertSec(false);
+            setAlert(errorMes);
+            setIsAlert(true);
           }
-
 
           // const newOrder = createOrder(objPedido);
           // newOrder
@@ -882,7 +930,7 @@ export default function FormNewOrder() {
       setTotalPrevio(
         Number(
           Number(objDescNew.totalEspecial) +
-          Number(objDescNew.totalDescontables)
+            Number(objDescNew.totalDescontables)
         )
       );
       setTotalFacturar(
@@ -911,21 +959,21 @@ export default function FormNewOrder() {
       setHallObject(discountObject.halloween);
       setTotalDesc(
         Number(discountObject.tradicionales.descCalculado) +
-        Number(discountObject.pascua.descCalculado) +
-        Number(discountObject.navidad.descCalculado) +
-        Number(discountObject.halloween.descCalculado)
+          Number(discountObject.pascua.descCalculado) +
+          Number(discountObject.navidad.descCalculado) +
+          Number(discountObject.halloween.descCalculado)
       );
       setTotalPrevio(
         Number(discountObject.tradicionales.total) +
-        Number(discountObject.pascua.total) +
-        Number(discountObject.navidad.total) +
-        Number(discountObject.halloween.total)
+          Number(discountObject.pascua.total) +
+          Number(discountObject.navidad.total) +
+          Number(discountObject.halloween.total)
       );
       setTotalFacturar(
         Number(discountObject.tradicionales.facturar) +
-        Number(discountObject.pascua.facturar) +
-        Number(discountObject.navidad.facturar) +
-        Number(discountObject.halloween.facturar)
+          Number(discountObject.pascua.facturar) +
+          Number(discountObject.navidad.facturar) +
+          Number(discountObject.halloween.facturar)
       );
       setIsSpecial(discountObject.tradicionales.especial);
       setDiscModalType(true);
@@ -1303,8 +1351,9 @@ export default function FormNewOrder() {
                     <th className="smallTableColumn">Codigo</th>
                     <th className="smallTableColumn">Nombre</th>
                     <th className="smallTableColumn">Precio Unidad /Kg</th>
-                    <th className="smallTableColumn">{`${isMobile ? "Cant" : "Cantidad"
-                      } /Peso (Gr)`}</th>
+                    <th className="smallTableColumn">{`${
+                      isMobile ? "Cant" : "Cantidad"
+                    } /Peso (Gr)`}</th>
                     <th className="smallTableColumn">Total</th>
                     <th style={{ width: "10%" }}>
                       {isMobile ? "Cant Disp" : "Disponible"}
@@ -1322,6 +1371,8 @@ export default function FormNewOrder() {
                     const isPaneton = datosPaneton.find(
                       (dp) => dp.codInterno == sp.codInterno
                     );
+                    console.log("REF ACTUAL", refActual);
+                    console.log("CANT ACTUALIZADA", cActual);
                     //console.log("IS PANETON", isPaneton);
                     return (
                       <tr className="tableRow" key={index}>
@@ -1378,7 +1429,11 @@ export default function FormNewOrder() {
                         <td className="smallTableColumn">
                           {sp.totalProd?.toFixed(2)}
                         </td>
-                        <td style={{ width: "10%" }}>{cActual}</td>
+                        <td
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                        >
+                          {cActual}
+                        </td>
                       </tr>
                     );
                   })}

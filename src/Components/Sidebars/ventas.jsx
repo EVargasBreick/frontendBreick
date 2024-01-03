@@ -73,7 +73,13 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={leftArrow} className="icon"></Image>
         Modificar/Cancelar Pedido
       </MenuItem>
-
+      <MenuItem
+        onClick={() => redirectOnClick("/usuarios/pedidos/listar")}
+        className="menuItem"
+      >
+        <FaLayerGroup size="12%" style={{ paddingRight: "5px" }} />
+        Mis Pedidos
+      </MenuItem>
       <div className="menuItem">Traspasos</div>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso")}

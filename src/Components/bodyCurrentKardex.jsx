@@ -18,10 +18,12 @@ import Pagination from "./pagination";
 import { ReportPDF } from "./reportPDF";
 import loading2 from "../assets/loading2.gif";
 import Cookies from "js-cookie";
+import { generateExcel } from "../services/utils";
 export default function BodyCurrentKardex() {
   const [isCriteria, setIsCriteria] = useState(false);
   const [criteria, setCriteria] = useState("");
   const [productList, setProductList] = useState([]);
+  const [auxProdList, setAuxProdList] = useState([]);
   const [storeList, setStoreList] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
@@ -49,6 +51,7 @@ export default function BodyCurrentKardex() {
   const [auxDataTable, setAuxDataTable] = useState([]);
   const [isReported, setIsReported] = useState(false);
   const showAll = [1, 9, 10, 8, 7, 6, 5, 2];
+  const [typeFilter, setTypeFilter] = useState("");
   const user = JSON.parse(Cookies.get("userAuth"));
   useEffect(() => {
     const userRol = JSON.parse(Cookies.get("userAuth")).rol;
@@ -57,7 +60,9 @@ export default function BodyCurrentKardex() {
     setSelectedDate(dia[2] + "/" + dia[1] + "/" + dia[3]);
     const productos = getProducts("all");
     productos.then((res) => {
-      setProductList(res.data.data);
+      const filteredProd = res.data.data.filter((rd) => (rd.activo = 1));
+      setProductList(filteredProd);
+      setAuxProdList(filteredProd);
     });
     const agencias = getStores();
     agencias.then((res) => {
@@ -285,6 +290,27 @@ export default function BodyCurrentKardex() {
     }
   }
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  function filterByType(value) {
+    setTypeFilter(value);
+    if (value == "all") {
+      setDataTable(auxDataTable);
+    } else {
+      const filtered = auxDataTable.filter((ad) => ad.tipoProducto == value);
+      setDataTable(filtered);
+    }
+  }
+
+  function filterByTypeProdList(value) {
+    setTypeFilter(value);
+    if (value == "all") {
+      setProductList(auxProdList);
+    } else {
+      const filtered = auxProdList.filter((ad) => ad.tipoProducto == value);
+      setProductList(filtered);
+    }
+  }
+
   return (
     <div>
       <div className="formLabel">REPORTE DE KARDEX EN TIEMPO REAL</div>
@@ -345,21 +371,36 @@ export default function BodyCurrentKardex() {
             </div>
           ) : (
             <div className="reportSelector">
-              <Form.Group className="reportOptionLarge">
-                <Form.Label>Seleccione Producto</Form.Label>
-                <Form.Select
-                  className="reportOptionDrop"
-                  onChange={(e) => selectProduct(e.target.value)}
-                >
-                  <option>Seleccione Producto</option>
-                  {productList.map((pr, index) => {
-                    return (
-                      <option key={index} value={pr.idProducto}>
-                        {pr.nombreProducto}
-                      </option>
-                    );
-                  })}
-                </Form.Select>
+              <Form.Group
+                className="reportOptionLarge"
+                style={{ display: "flex", justifyContent: "space-evenly" }}
+              >
+                <div style={{ width: "50%" }}>
+                  <Form.Label>Seleccione Producto</Form.Label>
+                  <Form.Select onChange={(e) => selectProduct(e.target.value)}>
+                    <option>Seleccione Producto</option>
+                    {productList.map((pr, index) => {
+                      return (
+                        <option key={index} value={pr.idProducto}>
+                          {pr.nombreProducto}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
+                </div>
+                <div>
+                  <Form.Label>Tipo de producto</Form.Label>
+                  <Form.Select
+                    onChange={(e) => filterByTypeProdList(e.target.value)}
+                    value={typeFilter}
+                  >
+                    <option value="all">Todos</option>
+                    <option value="1">Tradicionales</option>
+                    <option value="2">Pascua</option>
+                    <option value="4">Halloween</option>
+                    <option value="3">Navidad</option>
+                  </Form.Select>
+                </div>
               </Form.Group>
               <div className="reportButtonContainer">
                 <Button
@@ -381,11 +422,34 @@ export default function BodyCurrentKardex() {
             <Form.Group
               className="reportSearchL"
               controlId="rsearch"
-              onChange={(e) => searchItem(e.target.value)}
-              value={searchbox}
+              style={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "space-evenly",
+              }}
             >
-              <Form.Label>Buscar</Form.Label>
-              <Form.Control type="text" placeholder="..." />
+              <div>
+                <Form.Label>Buscar</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="..."
+                  onChange={(e) => searchItem(e.target.value)}
+                  value={searchbox}
+                />
+              </div>
+              <div>
+                <Form.Label>Filtrar por tipo de producto</Form.Label>
+                <Form.Select
+                  onChange={(e) => filterByType(e.target.value)}
+                  value={typeFilter}
+                >
+                  <option value="all">Todos</option>
+                  <option value="1">Tradicionales</option>
+                  <option value="2">Pascua</option>
+                  <option value="4">Halloween</option>
+                  <option value="3">Navidad</option>
+                </Form.Select>
+              </div>
             </Form.Group>
           </Form>
           <div className="tableScroll">
@@ -470,10 +534,9 @@ export default function BodyCurrentKardex() {
             <Button
               className="excelButton"
               onClick={() =>
-                ExportPastReport(
+                generateExcel(
                   dataTable,
-                  selectedStore != "" ? selectedStore : internal,
-                  selectedDate
+                  `Reporte de kardex actual ${selectedDate} - ${selectedStore}`
                 )
               }
               variant="success"
