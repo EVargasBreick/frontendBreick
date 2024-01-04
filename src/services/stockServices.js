@@ -153,6 +153,22 @@ const getProductsGroup = () => {
   });
 };
 
+const composedProductEntry = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/ingreso/productos`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   getLogStockProduct,
   getLogStockStore,
@@ -164,4 +180,5 @@ export {
   getStockCodes,
   getStockLogged,
   getProductsGroup,
+  composedProductEntry,
 };

@@ -208,6 +208,23 @@ const composedTransfer = (body) => {
   });
 };
 
+const composedAcceptTransfer = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/traspaso/aceptar`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        console.log("ERROR EN EL TRASPASO COMPUESTO", err);
+        reject(err);
+      });
+  });
+};
+
 export {
   createTransfer,
   transferList,
@@ -222,4 +239,5 @@ export {
   acceptTransferById,
   deleteTransfer,
   composedTransfer,
+  composedAcceptTransfer,
 };

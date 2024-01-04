@@ -7,7 +7,7 @@ import loading2 from "../assets/loading2.gif";
 import { getOnlyStores } from "../services/storeServices";
 import { getPacks } from "../services/packServices";
 import { getCurrentStockStore } from "../services/stockServices";
-import { updateMultipleStock, updateStock } from "../services/orderServices";
+import { updateMultipleStock } from "../services/orderServices";
 
 export default function FormAsignPack() {
   // Listas cargadas en render
@@ -103,7 +103,7 @@ export default function FormAsignPack() {
       ],
       detalle: `ACPACK-${selectedPackId}`,
     };
-    // const updatedForTake = updateStock(objProdsTake);
+
     const updateMultiple = await updateMultipleStock([
       objProdsTake,
       objProdsAdd,

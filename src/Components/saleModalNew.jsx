@@ -4,7 +4,11 @@ import loading2 from "../assets/loading2.gif";
 import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
 import { dateString, formatDate } from "../services/dateServices";
-import { composedDrop, registerDrop } from "../services/dropServices";
+import {
+  composedDrop,
+  debouncedComposedDrop,
+  registerDrop,
+} from "../services/dropServices";
 import { updateStock } from "../services/orderServices";
 import { DropComponent } from "./dropComponent";
 import html2canvas from "html2canvas";
@@ -407,8 +411,8 @@ function SaleModalNew(
             console.log("Entro aca");
             console.log("Valeform", valeForm);
             if (valeForm || tipoPago == 11) {
-              //setAlertSec("Guardando baja");
-              //setIsAlertSec(true);
+              setAlertSec("Guardando baja");
+              setIsAlertSec(true);
               const objBaja = {
                 motivo:
                   tipoPago == 4 &&
@@ -433,8 +437,11 @@ function SaleModalNew(
                 stock: objStock,
               };
               try {
-                const createdDrop = await composedDrop(compObj);
+                const createdDrop = await debouncedComposedDrop(compObj);
                 console.log("Baja creada", createdDrop);
+                if (motivo == "online") {
+                  await registerOnlineSale();
+                }
                 setDropId(createdDrop.data.idCreado);
                 setIsDrop(true);
               } catch (error) {
@@ -447,6 +454,7 @@ function SaleModalNew(
                 setIsAlertSec(false);
                 setAlert(`Error al crear la baja:  ${errMessage}`);
                 setIsAlert(true);
+                debouncedComposedDrop.cancel();
               }
             }
           }

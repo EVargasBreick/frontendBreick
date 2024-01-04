@@ -473,6 +473,22 @@ const logOrderUpdate = (body) => {
   });
 };
 
+const composedCancelOrder = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/pedido/cancelar`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   createOrder,
   getOrderStatus,
@@ -505,4 +521,5 @@ export {
   createOrderTransaction,
   getUserOrders,
   logOrderUpdate,
+  composedCancelOrder,
 };

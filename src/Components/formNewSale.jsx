@@ -37,6 +37,7 @@ import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 
 export default function FormNewSale() {
+  /*
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
   const [clientes, setClientes] = useState([]);
@@ -702,7 +703,7 @@ export default function FormNewSale() {
       });
     } else {
       handleModal();
-    }*/
+    }
   }
 
   function validateQuantities() {
@@ -1122,5 +1123,5 @@ export default function FormNewSale() {
         </Form>
       </div>
     </div>
-  );
+  );*/
 }

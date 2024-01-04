@@ -11,7 +11,7 @@ import {
   getCurrentStockStore,
   getProductsGroup,
 } from "../services/stockServices";
-import { updateMultipleStock, updateStock } from "../services/orderServices";
+import { updateMultipleStock } from "../services/orderServices";
 import { ConfirmModal } from "./Modals/confirmModal";
 import ToastComponent from "./Modals/Toast";
 import { Loader } from "./loader/Loader";
@@ -187,9 +187,6 @@ export default function FormRetirePackAlt() {
         productos: selectedProducts,
         detalle: `DVPACK-${selectedPackId}`,
       };
-
-      // const updatedForTake = updateStock(objProdsTake);
-      // const updatedForAdd = updateStock(objProdsAdd);
 
       const updateMultiple = updateMultipleStock([objProdsTake, objProdsAdd]);
 

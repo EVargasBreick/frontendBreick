@@ -1,4 +1,5 @@
 import axios from "axios";
+import debounce from "lodash/debounce";
 
 function registerDrop(body) {
   return new Promise((resolve, reject) => {
@@ -63,4 +64,14 @@ function composedDrop(body) {
   });
 }
 
-export { registerDrop, searchDrop, cancelDrop, composedDrop };
+const debouncedComposedDrop = debounce(composedDrop, 20000, {
+  leading: true,
+});
+
+export {
+  registerDrop,
+  searchDrop,
+  cancelDrop,
+  composedDrop,
+  debouncedComposedDrop,
+};

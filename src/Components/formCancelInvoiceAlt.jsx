@@ -125,7 +125,7 @@ export default function FormCancelInvoiceAlt() {
     );
     setFacturas([...newList]);
   }
-  async function cancelInvoice(invoice) {
+  /*async function cancelInvoice(invoice) {
     setIsCanceled(false);
     setIsAlert(true);
     setAlert("Anulando Factura");
@@ -160,11 +160,45 @@ export default function FormCancelInvoiceAlt() {
         errors.map((err) => {
           return err + "\n";
         })
-      );*/
+      );
 
       setTimeout(() => {
         setIsAlert(false);
       }, 3000);
+    }
+  }*/
+
+  async function cancelInvoiceAlt(invoice) {
+    setIsCanceled(false);
+    setIsAlert(true);
+    setAlert("Anulando Factura");
+    console.log("Datos factura anulando", invoice);
+    try {
+      const products = allFacts.filter(
+        (af) => af.idFactura == invoice.idFactura
+      );
+      const returnToStock = {
+        accion: "add",
+        idAlmacen: selectedInvoice.idAgencia,
+        productos: products,
+        detalle: `ANFAC-${invoice.idFactura}`,
+      };
+      const cancelar = await emizorService.composedAnularFactura(
+        invoice.cuf,
+        motivo,
+        returnToStock
+      );
+      console.log("cancelar", cancelar);
+      setAlert("Factura Anulada");
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
+    } catch (error) {
+      setIsAlert(false);
+      setAlert(error);
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
     }
   }
 
@@ -243,7 +277,7 @@ export default function FormCancelInvoiceAlt() {
         <Modal.Footer className="modalFooter">
           <Button
             variant="warning"
-            onClick={() => cancelInvoice(selectedInvoice)}
+            onClick={() => cancelInvoiceAlt(selectedInvoice)}
           >
             Anular
           </Button>

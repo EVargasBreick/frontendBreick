@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   acceptTransferById,
+  composedAcceptTransfer,
   transitTransfer,
 } from "../services/transferServices";
 import Cookies from "js-cookie";
@@ -115,7 +116,7 @@ export default function FormTransferReception() {
     if (lessArray.length > 0) {
       setIsLess(true);
     } else {
-      acceptTransfer(false);
+      acceptTransferAlt(false);
     }
   }
 
@@ -146,8 +147,6 @@ export default function FormTransferReception() {
           productos: transferProucts,
           detalle: `RPRTR-${transferDetails.idTraspaso}`,
         };
-        // const returned = await updateStock(returnBody);
-        // const added = await updateStock(addBody);
 
         const updateMultiple = await updateMultipleStock([returnBody, addBody]);
 
@@ -186,6 +185,54 @@ export default function FormTransferReception() {
     }
   }
 
+  async function acceptTransferAlt(condition) {
+    setAlertSec("Aceptando traspaso");
+    setIsAlertSec(true);
+
+    const body = condition
+      ? {
+          motivo: motivo,
+          idOrden: transferDetails.nroOrden,
+          idUsuario: userId,
+          fechaRegistro: dateString(),
+          tipo: "T",
+          intId: transferDetails.idTraspaso,
+        }
+      : {};
+    const returnBody = {
+      accion: "add",
+      idAlmacen: transferDetails.idOrigen,
+      productos: lessProducts,
+      detalle: `DVRTR-${transferDetails.idTraspaso}`,
+    };
+    const addBody = {
+      accion: "add",
+      idAlmacen: storeId,
+      productos: transferProucts,
+      detalle: `RPRTR-${transferDetails.idTraspaso}`,
+    };
+    const stock = !condition ? [addBody] : [returnBody, addBody];
+    try {
+      const accepted = await composedAcceptTransfer({
+        stock: stock,
+        transfer: transferDetails.idTraspaso,
+        condition: condition,
+        logRejected: body,
+      });
+      console.log("Aceptado", accepted);
+      setAlertSec("Traspaso aceptado correctamente");
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
+    } catch (error) {
+      setAlertSec("Error al aceptar traspaso", error);
+      console.log("Error al aceptar traspaso", error);
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    }
+  }
+
   return (
     <div>
       <div className="formLabel">RECEPCIÓN DE TRASPASOS</div>
@@ -215,7 +262,7 @@ export default function FormTransferReception() {
           <Button
             variant="success"
             onClick={() => {
-              acceptTransfer(true);
+              acceptTransferAlt(true);
             }}
           >
             Aceptar Traspaso

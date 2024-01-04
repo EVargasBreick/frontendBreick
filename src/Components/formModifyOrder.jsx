@@ -5,6 +5,7 @@ import { InputGroup } from "react-bootstrap";
 import {
   addProductToOrder,
   cancelOrder,
+  composedCancelOrder,
   deleteProductOrder,
   getOrderDetail,
   getOrderProdList,
@@ -14,7 +15,6 @@ import {
   updateMultipleStock,
   updateMultipleVirtualStock,
   updateOrderProduct,
-  updateStock,
   updateVirtualStock,
 } from "../services/orderServices";
 import loading2 from "../assets/loading2.gif";
@@ -598,37 +598,27 @@ export default function FormModifyOrders() {
         clientInfo: clientInfo,
         productos: auxSelectedProds,
       };
-      const reStocked = updateStock(objProdsDelete);
-      reStocked.then((rs) => {
-        const canceled = cancelOrder(idPedido);
-        canceled.then(async (cld) => {
-          if (orderType === "consignacion") {
-            try {
-              const updatedVirtual = await updateVirtualStock(
-                bodyVirtualDelete
-              );
-              console.log("Actualizado virtual", updatedVirtual);
-              setAlertSec(
-                "Pedido cancelado y kardex actualizado, redirigiendo..."
-              );
-              setIsAlertSec(true);
-              setTimeout(() => {
-                navigate("/principal");
-              }, 1500);
-            } catch (err) {
-              console.log("error al sacar kardex del almacen virtual");
-            }
-          } else {
-            setAlertSec(
-              "Pedido cancelado y kardex actualizado, redirigiendo..."
-            );
-            setIsAlertSec(true);
-            setTimeout(() => {
-              navigate("/principal");
-            }, 1500);
-          }
-        });
-      });
+
+      const compBody = {
+        stock: objProdsDelete,
+        order: selectedOrder,
+      };
+      try {
+        const canceled = await composedCancelOrder(compBody);
+        const updatedVirtual = await updateVirtualStock(bodyVirtualDelete);
+        console.log("Cancelado correctamente", canceled);
+        console.log("Actualizado virtual", updatedVirtual);
+        setAlertSec("Pedido cancelado y kardex actualizado, redirigiendo...");
+        setIsAlertSec(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } catch (error) {
+        setIsAlertSec(false);
+        console.log("Error al cancelar", error);
+        setAlert("Error al cancelar", error);
+        setIsAlert(true);
+      }
     }
   }
   function updateOrder() {
@@ -734,8 +724,7 @@ export default function FormModifyOrders() {
           productos: selectedProds,
           detalle: `SSEPD-${idPedido}`,
         };
-        // const updatedStock = updateStock(toUpdateTakes);
-        // const updatedStockThen = updateStock(toUpdateAdds);
+        
 
         const updateMultiple = updateMultipleStock([
           toUpdateTakes,

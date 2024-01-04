@@ -26,7 +26,6 @@ import {
   getOrderList,
   logOrderUpdate,
   sendOrderEmail,
-  updateStock,
   updateVirtualStock,
 } from "../services/orderServices";
 import { useNavigate } from "react-router-dom";
@@ -627,71 +626,6 @@ export default function FormNewOrder() {
           setAlert(errorMes);
           setIsAlert(true);
         }
-
-        // const newOrder = createOrder(objPedido);
-        // newOrder
-        //   .then((res) => {
-        //     console.log(
-        //       "respuesta de creacion del pedido",
-        //       res.data.data.idCreado
-        //     );
-        //     const idPedidoCreado = res.data.data.idCreado;
-        //     const stockObject = {
-        //       accion: "take",
-        //       idAlmacen: userStore,
-        //       productos: selectedProds,
-        //       detalle: `SPNPD-${idPedidoCreado}`,
-        //     };
-        //     const updatedStock = updateStock(stockObject);
-        //     updatedStock
-        //       .then((updatedRes) => {
-        //         console.log("Tipo", tipo);
-        //         const codPedido = getOrderList(res.data.data.idCreado);
-        //         codPedido.then((resp) => {
-        //           const emailBody = {
-        //             codigoPedido: res.data.data.idCreado,
-        //             correoUsuario: userEmail,
-        //             fecha: dateString(),
-        //             email: [userEmail],
-        //             tipo: "Pedido",
-        //             header: "Pedido Creado",
-        //           };
-        //           const emailSent = sendOrderEmail(emailBody);
-        //           emailSent
-        //             .then((response) => {
-        //               setIsAlertSec(false);
-        //               setAlert("Pedido Creado correctamente");
-        //               setIsAlert(true);
-        //               setTimeout(() => {
-        //                 window.location.reload();
-        //                 setisLoading(false);
-        //               }, 3000);
-        //             })
-        //             .catch((error) => {
-        //               console.log("Error al enviar el correo", error);
-        //             });
-        //         });
-        //       })
-        //       .catch((error) => {
-        //         const deleted = deleteOrder(idPedidoCreado);
-        //         deleted.then((res) => {
-        //           updateCurrentStock();
-        //           setisLoading(false);
-        //           setAlertSec(error);
-        //           setIsAlertSec(true);
-        //           setTimeout(() => {
-        //             setIsAlertSec(false);
-        //           }, 5000);
-        //         });
-        //       });
-        //   })
-        //   .catch((error) => {
-        //     console.log("Error", error);
-        //     setAlertSec(error.response.message || "Error en el Pedido");
-        //     setTimeout(() => {
-        //       setIsAlertSec(false);
-        //     }, 5000);
-        //   });
       } else {
         setIsAlert(true);
       }
@@ -784,101 +718,6 @@ export default function FormNewOrder() {
             setAlert(errorMes);
             setIsAlert(true);
           }
-
-          // const newOrder = createOrder(objPedido);
-          // newOrder
-          //   .then((res) => {
-          //     console.log("Respuesta de creacion", res.data.data.idCreado);
-          //     const idPedidoCreado = res.data.data.idCreado;
-          //     const codPedido = getOrderList(res.data.data.idCreado);
-          //     const stockObject = {
-          //       accion: "take",
-          //       idAlmacen: userStore,
-          //       productos: zero.modificados,
-          //       detalle: `SPNPD-${idPedidoCreado}`,
-          //     };
-          //     const updatedStock = updateStock(stockObject);
-          //     updatedStock
-          //       .then((updatedRes) => {
-          //         codPedido.then((resp) => {
-          //           const emailBody = {
-          //             codigoPedido: res.data.data.idCreado,
-          //             correoUsuario: userEmail,
-          //             fecha: dateString(),
-          //             email: [userEmail],
-          //             tipo: "pedido",
-          //             header: "Pedido Creado",
-          //           };
-          //           if (tipo == "consignacion") {
-          //             console.log("Actualizando stock virtual");
-          //             const virtualStockObject = {
-          //               accion: "add",
-          //               clientInfo: clientInfo,
-          //               productos: selectedProds,
-          //             };
-          //             const updatedVirtual =
-          //               updateVirtualStock(virtualStockObject);
-          //             updatedVirtual
-          //               .then((response) => {
-          //                 const emailSent = sendOrderEmail(emailBody);
-          //                 emailSent
-          //                   .then((response) => {
-          //                     setIsAlertSec(false);
-          //                     setAlert("Pedido Creado correctamente");
-          //                     setIsAlert(true);
-          //                     setTimeout(() => {
-          //                       window.location.reload();
-          //                       setisLoading(false);
-          //                     }, 3000);
-          //                   })
-          //                   .catch((error) => {
-          //                     console.log("Error al enviar el correo", error);
-          //                   });
-          //               })
-          //               .catch((err) => {
-          //                 console.log(
-          //                   "Error al actualizar el stock virtual",
-          //                   err
-          //                 );
-          //               });
-          //           } else {
-          //             const emailSent = sendOrderEmail(emailBody);
-          //             emailSent
-          //               .then((response) => {
-          //                 setIsAlertSec(false);
-          //                 setAlert("Pedido Creado correctamente");
-          //                 setIsAlert(true);
-          //                 setTimeout(() => {
-          //                   window.location.reload();
-          //                   setisLoading(false);
-          //                 }, 4000);
-          //               })
-          //               .catch((error) => {
-          //                 console.log("Error al enviar el correo", error);
-          //               });
-          //           }
-          //         });
-          //       })
-          //       .catch((error) => {
-          //         const deleted = deleteOrder(idPedidoCreado);
-          //         deleted.then((res) => {
-          //           updateCurrentStock();
-          //           setisLoading(false);
-          //           setAlertSec(error);
-          //           setIsAlertSec(true);
-          //           setTimeout(() => {
-          //             setIsAlertSec(false);
-          //           }, 5000);
-          //         });
-          //       });
-          //   })
-          //   .catch((error) => {
-          //     console.log("Error al crear el pedido", error);
-          //     setAlertSec(error.response.message || "Error en el Pedido");
-          //     setTimeout(() => {
-          //       setIsAlertSec(false);
-          //     }, 5000);
-          //   });
         } else {
           setIsAlert(true);
         }

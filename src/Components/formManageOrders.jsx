@@ -8,10 +8,10 @@ import "../styles/buttonsStyles.css";
 import {
   approveOrderFromId,
   cancelOrder,
+  composedCancelOrder,
   getOrderDetail,
   getOrderList,
   getOrderProdList,
-  updateStock,
 } from "../services/orderServices";
 import { useNavigate } from "react-router-dom";
 import { ExportToExcel } from "../services/exportServices";
@@ -265,6 +265,7 @@ export default function FormManageOrders() {
       buttonRef.current.click();
     }
   }, [isLoaded]);
+  /*
   function deleteOrderAndUpdate() {
     if (selectedOrder === "") {
       setAlert("Por favor, seleccione un pedido");
@@ -289,6 +290,40 @@ export default function FormManageOrders() {
           }, 1500);
         });
       });
+    }
+  }*/
+
+  async function deleteOrderAndUpdateAlt() {
+    if (selectedOrder === "") {
+      setAlert("Por favor, seleccione un pedido");
+      setIsAlert(true);
+    } else {
+      setAlertSec("Cancelando pedido y actualizando kardex");
+      setIsAlertSec(true);
+      const objProdsDelete = {
+        accion: "add",
+        idAlmacen: userStore,
+        productos: productList,
+        detalle: `DPCPD-${selectedOrder}`,
+      };
+      const compBody = {
+        stock: objProdsDelete,
+        order: selectedOrder,
+      };
+      try {
+        const canceled = await composedCancelOrder(compBody);
+        console.log("Cancelado correctamente", canceled);
+        setAlertSec("Pedido cancelado y kardex actualizado, redirigiendo...");
+        setIsAlertSec(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } catch (error) {
+        setIsAlertSec(false);
+        console.log("Error al cancelar", error);
+        setAlert("Error al cancelar", error);
+        setIsAlert(true);
+      }
     }
   }
   function filterOrders(value) {
@@ -565,7 +600,10 @@ export default function FormManageOrders() {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <Button variant="danger" onClick={() => deleteOrderAndUpdate()}>
+              <Button
+                variant="danger"
+                onClick={() => deleteOrderAndUpdateAlt()}
+              >
                 Cancelar Pedido
               </Button>
             </div>

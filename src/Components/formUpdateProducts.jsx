@@ -13,7 +13,10 @@ import { ExportTemplate } from "../services/exportServices";
 import { updateStock } from "../services/orderServices";
 import Cookies from "js-cookie";
 import { dateString } from "../services/dateServices";
-import { logProductEntry } from "../services/stockServices";
+import {
+  composedProductEntry,
+  logProductEntry,
+} from "../services/stockServices";
 export default function FormUpdateProducts() {
   const navigate = useNavigate();
   const [isAlertSec, setIsAlertSec] = useState(false);
@@ -137,7 +140,7 @@ export default function FormUpdateProducts() {
       }
     });
   }
-  function updateWarehouseStock() {
+  /*function updateWarehouseStock() {
     if (selectedProducts.length > 0) {
       setAlertSec("Actualizando productos");
       setIsAlertSec(true);
@@ -172,7 +175,44 @@ export default function FormUpdateProducts() {
       setAlert("Seleccione al menos un producto por favor");
       setIsAlert(true);
     }
+  }*/
+
+  async function updateWarehouseStockAlt() {
+    if (selectedProducts.length > 0) {
+      setAlertSec("Actualizando productos");
+      setIsAlertSec(true);
+      const logObj = {
+        idUsuarioCrea: userId,
+        fechaCrea: dateString(),
+        products: selectedProducts,
+      };
+
+      const objStock = {
+        accion: "add",
+        idAlmacen: "AL001",
+        productos: selectedProducts,
+      };
+
+      try {
+        const entered = await composedProductEntry({
+          stock: objStock,
+          log: logObj,
+        });
+        setAlertSec("Productos ingresados correctamente");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } catch (error) {
+        setIsAlertSec(false);
+        setAlert("Error al ingresar", error);
+        setIsAlert(true);
+      }
+    } else {
+      setAlert("Seleccione al menos un producto por favor");
+      setIsAlert(true);
+    }
   }
+
   function EraseData() {
     setSelectedProducts([]);
     fileRef.current.value = "";
@@ -330,7 +370,7 @@ export default function FormUpdateProducts() {
               <Button
                 variant="light"
                 className="cyan"
-                onClick={() => updateWarehouseStock()}
+                onClick={() => updateWarehouseStockAlt()}
               >
                 Actualizar productos
               </Button>
