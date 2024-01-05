@@ -282,7 +282,7 @@ export default function FormNewSaleNew() {
       const rounded =
         produc.unidadDeMedida == "Unidad"
           ? parseInt(modalQuantity)
-          : Number(modalQuantity).toFixed(2);
+          : Number(modalQuantity).toFixed(3);
 
       const productObj = {
         codInterno: produc.codInterno,
@@ -335,7 +335,7 @@ export default function FormNewSaleNew() {
   }
 
   function handleModalQuantity(cantidad) {
-    console.log(Number(cantidad).toFixed(2));
+    console.log(Number(cantidad).toFixed(3));
     setModalQuantity(cantidad);
   }
 
@@ -344,7 +344,7 @@ export default function FormNewSaleNew() {
     const rounded =
       prod.unidadDeMedida == "Unidad"
         ? parseInt(cantidad)
-        : Number(cantidad).toFixed(2);
+        : Number(cantidad).toFixed(3);
     const total = Number(Number(prod.precioDeFabrica * rounded).toFixed(2));
     let auxObj = {
       codInterno: prod.codInterno,
@@ -845,9 +845,11 @@ export default function FormNewSaleNew() {
 
                     <th className="smallTableColumn">{"Total: "}</th>
                     <th className="smallTableColumn">
-                      {`${selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + parseFloat(object.total);
-                      }, 0)} Bs.`}
+                      {`${roundToTwoDecimalPlaces(
+                        selectedProducts.reduce((accumulator, object) => {
+                          return accumulator + Number(object.total);
+                        }, 0)
+                      )} Bs.`}
                     </th>
                     <th className="smallTableColumn">
                       {isMobile ? "Total Descontado" : "Total descontado: "}

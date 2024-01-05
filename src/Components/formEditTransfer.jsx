@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   addProductToTransfer,
+  composedEditTransfer,
   deleteProductFromTransfer,
   transferList,
   transferProducts,
@@ -243,7 +244,7 @@ export default function FormEditTransfer() {
         const deleted = compareArrays(transferProductList, deletedProducts);
 
         const remaining = compareArrays(selectedProducts, transferProductList);
-        saveTransfer(added, deleted, remaining);
+        saveTransferAlt(added, deleted, remaining);
       }
     }
   }
@@ -343,6 +344,65 @@ export default function FormEditTransfer() {
           setIsAlertSec(false);
         }, 5000);
       });
+  }
+
+  async function saveTransferAlt(added, deleted, remaining) {
+    console.log("Devolviendo stock", transferProductList);
+    const updateToreturn = {
+      accion: "add",
+      idAlmacen: transferOrigin,
+      productos: transferProductList,
+      detalle: `DSETR-${selectedTransfer.idTraspaso}`,
+    };
+    const updateToTake = {
+      accion: "take",
+      idAlmacen: transferOrigin,
+      productos: selectedProducts,
+      detalle: `SSETR-${selectedTransfer.idTraspaso}`,
+    };
+
+    const addProduct = {
+      idTraspaso: selectedTransfer.idTraspaso,
+      productos: added,
+    };
+
+    const deleteProduct = {
+      idTraspaso: selectedTransfer.idTraspaso,
+      productos: deleted,
+    };
+
+    const updateProduct = {
+      idTraspaso: selectedTransfer.idTraspaso,
+      productos: remaining,
+    };
+
+    const editTransfer = {
+      fechaActualizacion: dateString(),
+      idTraspaso: selectedTransfer.idTraspaso,
+    };
+
+    const stock = { updateToreturn, updateToTake };
+
+    try {
+      await composedEditTransfer({
+        addProduct,
+        deleteProduct,
+        updateProduct,
+        editTransfer,
+        stock,
+      });
+      setAlertSec("Traspaso actualizado correctamente");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    } catch (error) {
+      console.log("ERROR AL EDITAR EL TRASPASO", error);
+      setAlertSec("Error al editar el traspaso:", error);
+      setTimeout(() => {
+        // window.location.reload()
+      }, 5000);
+    }
   }
 
   function verifyQuantities() {

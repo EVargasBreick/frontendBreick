@@ -195,7 +195,7 @@ export default function FormNewTransfer() {
     auxArray.splice(index, 1);
     setSelectedProducts(auxArray);
   }
-  function registerTransfer() {
+  /*function registerTransfer() {
     if (idOrigen !== idDestino) {
       const productsArray = selectedProducts.map((item) => {
         const obj = {
@@ -322,7 +322,7 @@ export default function FormNewTransfer() {
       setAlert("El origen debe ser distinto al destino");
       setIsAlert(true);
     }
-  }
+  }*/
 
   async function registerTransferAlt() {
     if (idOrigen !== idDestino) {
@@ -342,7 +342,7 @@ export default function FormNewTransfer() {
         .then((validated) => {
           const quantitiesValidated = validateQuantities();
           quantitiesValidated
-            .then((res) => {
+            .then(async (res) => {
               console.log("Normal");
               const transferObj = {
                 idOrigen: idOrigen,
@@ -359,65 +359,45 @@ export default function FormNewTransfer() {
                 idAlmacen: idOrigen,
                 productos: selectedProducts,
               };
-              setAlertSec("Creando traspaso");
-              const newTransfer = composedTransfer({
-                traspaso: transferObj,
-                stock: stockObj,
-              });
-              newTransfer
-                .then((nt) => {
-                  console.log("DATA ACA", nt);
-                  const emailBody = {
-                    codigoPedido: nt.data.data.idCreado,
-                    correoUsuario: userEmail,
-                    fecha: dateString(),
-                    email: [userEmail],
-                    tipo: "Traspaso",
-                    header: "Traspaso Creado",
-                  };
-                  const emailSent = sendOrderEmail(emailBody);
-                  emailSent
-                    .then((response) => {
-                      const origenArray = nombreOrigen.split(" ");
-                      const outputOrigen = origenArray.slice(1).join(" ");
-                      const destinoArray = nombreDestino.split(" ");
-                      const outputDestino = destinoArray.slice(1).join(" ");
-                      const orderObj = [
-                        {
-                          rePrint: false,
-                          fechaSolicitud: dateString(),
-                          id: nt.data.data.idCreado,
-                          usuario: user,
-                          notas: "",
-                          productos: productsArray,
-                          origen: outputOrigen,
-                          destino: outputDestino,
-                        },
-                      ];
-                      setProductList(orderObj);
-                      setIsAlertSec(false);
-                      setAlert("Traspaso Creado correctamente");
-                      setIsAlert(true);
-                      setTimeout(() => {
-                        window.location.reload();
-                      }, 30000);
-                    })
-                    .catch((error) => {
-                      console.log("Error al enviar el correo", error);
-                    });
-                })
-                .catch((error) => {
-                  const errMessage = error.response.data.error.includes(
-                    "stock_nonnegative"
-                  )
-                    ? "El stock requerido para algún producto seleccionado ya no se encuentra disponible"
-                    : "";
-                  console.log("Error al crear el traspaso", errMessage);
-                  updateCurrentStock();
-                  setIsAlertSec(false);
-                  setAlert(`Error al crear el traspaso: ${errMessage}`);
-                  setIsAlert(true);
+
+              try {
+                setAlertSec("Creando traspaso");
+                const nt = await composedTransfer({
+                  traspaso: transferObj,
+                  stock: stockObj,
                 });
+
+                const origenArray = nombreOrigen.split(" ");
+                const outputOrigen = origenArray.slice(1).join(" ");
+                const destinoArray = nombreDestino.split(" ");
+                const outputDestino = destinoArray.slice(1).join(" ");
+                const orderObj = [
+                  {
+                    rePrint: false,
+                    fechaSolicitud: dateString(),
+                    id: nt.data.data.idCreado,
+                    usuario: user,
+                    notas: "",
+                    productos: productsArray,
+                    origen: outputOrigen,
+                    destino: outputDestino,
+                  },
+                ];
+                setProductList(orderObj);
+
+                setIsAlertSec(false);
+                setAlert("Traspaso Creado correctamente");
+                setIsAlert(true);
+                setTimeout(() => {
+                  // window.location.reload();
+                }, 5000);
+              } catch (error) {
+                console.log("Error al crear el traspaso", error);
+                updateCurrentStock();
+                setIsAlertSec(false);
+                setAlert(`Error al crear el traspaso`);
+                setIsAlert(true);
+              }
             })
             .catch((err) => {
               console.log("Error");

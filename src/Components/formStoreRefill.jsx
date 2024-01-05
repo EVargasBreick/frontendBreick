@@ -183,7 +183,7 @@ export default function FormStoreRefill() {
     setSelectedProducts(auxArray);
   }
 
-  function registerTransfer() {
+  /*function registerTransfer() {
     if (idOrigen !== idDestino) {
       setAlertSec("Validando Traspasos");
       console.log("Is interior", isInterior);
@@ -291,7 +291,7 @@ export default function FormStoreRefill() {
       setAlert("El origen debe ser distinto al destino");
       setIsAlert(true);
     }
-  }
+  }*/
 
   async function registerTransferAlt() {
     if (idOrigen !== idDestino) {
@@ -311,7 +311,7 @@ export default function FormStoreRefill() {
         .then((validated) => {
           const quantitiesValidated = validateQuantities();
           quantitiesValidated
-            .then((res) => {
+            .then(async (res) => {
               console.log("Normal");
               const transferObj = {
                 idOrigen: idOrigen,
@@ -328,34 +328,44 @@ export default function FormStoreRefill() {
                 idAlmacen: idOrigen,
                 productos: selectedProducts,
               };
-              setAlertSec("Creando traspaso");
-              const newTransfer = composedTransfer({
-                traspaso: transferObj,
-                stock: stockObj,
-              });
-              newTransfer
-                .then((nt) => {
-                  console.log("DATA ACA", nt);
 
-                  setIsAlertSec(false);
-                  setAlert("Traspaso Creado correctamente");
-                  setIsAlert(true);
-                  setTimeout(() => {
-                    window.location.reload();
-                  }, 30000);
-                })
-                .catch((error) => {
-                  const errMessage = error.response.data.error.includes(
-                    "stock_nonnegative"
-                  )
-                    ? "El stock requerido para algún producto seleccionado ya no se encuentra disponible"
-                    : "";
-                  console.log("Error al crear el traspaso", errMessage);
-                  updateCurrentStock();
-                  setIsAlertSec(false);
-                  setAlert(`Error al crear el traspaso: ${errMessage}`);
-                  setIsAlert(true);
+              try {
+                setAlertSec("Creando traspaso");
+                const nt = await composedTransfer({
+                  traspaso: transferObj,
+                  stock: stockObj,
                 });
+
+                setIsAlertSec(false);
+                setAlert("Traspaso Creado correctamente");
+                setIsAlert(true);
+                const origenArray = nombreOrigen.split(" ");
+                const outputOrigen = origenArray.slice(1).join(" ");
+                const destinoArray = nombreDestino.split(" ");
+                const outputDestino = destinoArray.slice(1).join(" ");
+                const orderObj = [
+                  {
+                    rePrint: false,
+                    fechaSolicitud: dateString(),
+                    id: nt.data.data.idCreado,
+                    usuario: user,
+                    notas: "",
+                    productos: productsArray,
+                    origen: outputOrigen,
+                    destino: outputDestino,
+                  },
+                ];
+                setProductList(orderObj);
+                setTimeout(() => {
+                  //window.location.reload();
+                }, 5000);
+              } catch (error) {
+                console.log("Error al crear el traspaso", error);
+                updateCurrentStock();
+                setIsAlertSec(false);
+                setAlert(`Error al crear el traspaso`);
+                setIsAlert(true);
+              }
             })
             .catch((err) => {
               console.log("Error");
@@ -380,7 +390,6 @@ export default function FormStoreRefill() {
       setIsAlert(true);
     }
   }
-
   function validateZero() {
     var valQuan = true;
     return new Promise((resolve, reject) => {

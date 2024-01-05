@@ -154,9 +154,9 @@ export default function FormCancelInvoiceAlt() {
     } catch (error) {
       /*const errors = error.response?.data?.data?.data?.errors ?? [
         "Error al anular factura",
-      ];*/
+      ];
       console.log("ERROR AL ANULAR", JSON.parse(error));
-      /*setAlert(
+      setAlert(
         errors.map((err) => {
           return err + "\n";
         })

@@ -52,6 +52,7 @@ import SpecialsTable from "./specialsTable";
 import { getDiscountType } from "../services/discountEndpoints";
 
 export default function FormRouteSale() {
+  /*
   const [discountType, setDiscountType] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
@@ -269,7 +270,7 @@ export default function FormRouteSale() {
         disponibles.then((fetchedAvailable) => {
           setAvailable(fetchedAvailable.data[0]);
         });
-      }, 60000);*/
+      }, 60000);
       const dl = productsDiscount(
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
@@ -1328,5 +1329,5 @@ export default function FormRouteSale() {
         </Form>
       </div>
     </div>
-  );
+  );*/
 }

@@ -120,7 +120,7 @@ export default function FormTransferReception() {
     }
   }
 
-  function acceptTransfer(condition) {
+  /*function acceptTransfer(condition) {
     setAlertSec("Aceptando traspaso");
     setIsAlertSec(true);
     if (condition) {
@@ -183,7 +183,7 @@ export default function FormTransferReception() {
         });
       });
     }
-  }
+  }*/
 
   async function acceptTransferAlt(condition) {
     setAlertSec("Aceptando traspaso");
