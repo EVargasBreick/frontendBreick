@@ -11,6 +11,7 @@ import { logRejected } from "../services/rejectedServices";
 import { updateMultipleStock, updateStock } from "../services/orderServices";
 import { dateString } from "../services/dateServices";
 import LoadingModal from "./Modals/loadingModal";
+import { getStores } from "../services/storeServices";
 export default function FormTransferReception() {
   const [storeId, setStoreId] = useState();
   const [transferList, setTransferList] = useState([]);
@@ -25,12 +26,24 @@ export default function FormTransferReception() {
   const [userId, setUserId] = useState("");
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
+  const [storeList, setStoreList] = useState([]);
+  const [originDestinyData, setOriginDestinyData] = useState({});
   useEffect(() => {
+    const sList = getStores();
+    sList.then((data) => {
+      console.log("Lista tiendas", data.data);
+      setStoreList(data.data);
+    });
+
     const UsuarioAct = Cookies.get("userAuth");
+    const sudostore = Cookies.get("sudostore");
+    const selectedStore = sudostore
+      ? sudostore
+      : JSON.parse(UsuarioAct).idAlmacen;
     if (UsuarioAct) {
-      setStoreId(JSON.parse(UsuarioAct).idAlmacen);
+      setStoreId(selectedStore);
       setUserId(JSON.parse(UsuarioAct).idUsuario);
-      const pl = transitTransfer(JSON.parse(UsuarioAct).idAlmacen);
+      const pl = transitTransfer(selectedStore);
       pl.then((response) => {
         console.log("En transito", response);
         setFullTransfers(response.data);
@@ -49,7 +62,15 @@ export default function FormTransferReception() {
     const id = JSON.parse(transfer).idTraspaso;
     setSelectedTransferId(id);
     setTransferDetails(JSON.parse(transfer));
-
+    const parsedTransfer = JSON.parse(transfer);
+    const origen = storeList
+      .find((sl) => sl.idAgencia == parsedTransfer.idOrigen)
+      ?.Nombre.substring(parsedTransfer.idOrigen.length + 1);
+    const destino = storeList
+      .find((sl) => sl.idAgencia == parsedTransfer.idDestino)
+      ?.Nombre.substring(parsedTransfer.idDestino.length + 1);
+    setOriginDestinyData({ origen, destino });
+    console.log("Origen y destino", origen, destino);
     const filtered = fullTransfers.filter((ft) => ft.idTraspaso == id);
     const arrayProd = [];
     filtered.map((ft) => {
@@ -197,6 +218,8 @@ export default function FormTransferReception() {
           fechaRegistro: dateString(),
           tipo: "T",
           intId: transferDetails.idTraspaso,
+          productos: lessProducts,
+          withProds: true,
         }
       : {};
     const returnBody = {
@@ -211,7 +234,7 @@ export default function FormTransferReception() {
       productos: transferProucts,
       detalle: `RPRTR-${transferDetails.idTraspaso}`,
     };
-    const stock = !condition ? [addBody] : [returnBody, addBody];
+    const stock = [addBody];
     try {
       const accepted = await composedAcceptTransfer({
         stock: stock,
@@ -304,6 +327,14 @@ export default function FormTransferReception() {
               <tr className="tableRow">
                 <td colSpan={2}>{transferDetails.nroOrden}</td>
                 <td colSpan={2}>{transferDetails.fechaCrea}</td>
+              </tr>
+              <tr className="tableHeader">
+                <th colSpan={2}>Origen</th>
+                <th colSpan={2}>Destino</th>
+              </tr>
+              <tr className="tableRow">
+                <td colSpan={2}>{originDestinyData.origen}</td>
+                <td colSpan={2}>{originDestinyData.destino}</td>
               </tr>
               <tr className="tableHeader">
                 <td colSpan={4}>Detalle productos</td>

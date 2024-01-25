@@ -41,13 +41,8 @@ export default function BodySalesByProductReport() {
   function generateReport() {
     setSearchBox("");
     setIsReportLoading(true);
-    const id =
-      userAct.rol == 1 ||
-      userAct.rol == 9 ||
-      userAct.rol == 10 ||
-      userAct.rol == 8
-        ? ""
-        : userAct.idAlmacen;
+    const sudo = [1, 5, 8, 9, 10, 12];
+    const id = sudo.includes(userAct.rol) ? "" : userAct.idAlmacen;
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       const reportData = getProductSalesReport(

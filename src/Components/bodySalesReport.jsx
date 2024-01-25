@@ -46,14 +46,8 @@ export default function BodySalesReport() {
   }
   function generateReport() {
     setIsReportLoading(true);
-    const id =
-      userAct.rol == 1 ||
-      userAct.rol == 9 ||
-      userAct.rol == 10 ||
-      userAct.rol == 8 ||
-      userAct.rol == 5
-        ? ""
-        : userAct.idAlmacen;
+    const sudo = [1, 5, 8, 9, 10, 12];
+    const id = sudo.includes(userAct.rol) ? "" : userAct.idAlmacen;
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       const reportData = getGeneralSalesReport(

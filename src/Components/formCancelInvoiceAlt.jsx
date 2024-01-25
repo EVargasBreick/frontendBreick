@@ -98,6 +98,7 @@ export default function FormCancelInvoiceAlt() {
     facturas.then((fc) => {
       const filteredDates = filterDates(fc.data);
       filteredDates.then((res) => {
+        console.log("ENTRANDO ACA FLAG 2");
         setAllFacts(res);
         let uniqueArray = res.reduce((acc, curr) => {
           if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
@@ -219,16 +220,16 @@ export default function FormCancelInvoiceAlt() {
     const mes_actual = today.getMonth() + 1;
     const anio_actual = today.getFullYear();
     const filtered = [];
-
     array.map((ar) => {
       const fecha = ar.fechaHora.split(" ").shift();
       const fechaParts = fecha.split("/");
       const anio_fac = fechaParts[2];
       const mes_fac = fechaParts[1];
       if (anio_actual > anio_fac) {
+        console.log("FLAG 1");
         if (mes_actual === 1) {
           if (13 - mes_fac < 2) {
-            if (dia_actual < 11) {
+            if (dia_actual < 10) {
               filtered.push(ar);
             }
           }

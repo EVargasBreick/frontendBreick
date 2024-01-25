@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import { generateExcel } from "../services/utils";
 export default function BodyLoggedStockReport() {
   useEffect(() => {
-    const sudos = [1, 8, 10, 9, 7];
+    const sudos = [1, 8, 10, 9, 7, 12];
     const userRol = JSON.parse(Cookies.get("userAuth")).rol;
     const allStores = getAllStores();
     allStores.then((res) => {

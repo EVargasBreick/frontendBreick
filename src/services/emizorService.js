@@ -31,8 +31,8 @@ export const emizorService = {
     return response.data;
   },
 
-  async getFacturas(nit) {
-    const url = `/emizor/facturasdb/${nit}`;
+  async getFacturas(nit, userStore, date) {
+    const url = `/emizor/facturasdb/${nit}?userStore=${userStore}&date=${date}`;
     const response = await emizorInstance.get(url);
     return response.data;
   },

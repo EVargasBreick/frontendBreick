@@ -36,11 +36,16 @@ export default function FormCancelInvoiceAltern() {
 
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
+    const superUsuario = Cookies.get("sudostore");
     if (UsuarioAct) {
       setUsuact(UsuarioAct);
-      setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+      setUserStore(
+        superUsuario ? superUsuario : JSON.parse(UsuarioAct).idAlmacen
+      );
       const mobilepdvdata = getMobileSalePoints(
-        JSON.parse(UsuarioAct).idAlmacen == "AL001"
+        superUsuario
+          ? superUsuario
+          : JSON.parse(UsuarioAct).idAlmacen == "AL001"
           ? ""
           : JSON.parse(UsuarioAct).idAlmacen
       );
@@ -50,7 +55,10 @@ export default function FormCancelInvoiceAltern() {
           const pdve = Cookies.get("pdv");
           const PuntoDeVentas = pdve != undefined ? pdve : 0;
           setPointOfSale(PuntoDeVentas);
-          getInvoices(UsuarioAct, PuntoDeVentas);
+          getInvoices(
+            superUsuario ? superUsuario : JSON.parse(UsuarioAct).idAlmacen,
+            PuntoDeVentas
+          );
         } else {
           //setPointOfSale(datos.nroPuntoDeVenta);
           //Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
@@ -88,11 +96,8 @@ export default function FormCancelInvoiceAltern() {
     }
   }, [dateStart, dateEnd]);
 
-  function getInvoices(UsuarioAct, PuntoDeVentas) {
-    const facturas = getStoreInvoices(
-      JSON.parse(UsuarioAct).idAlmacen,
-      PuntoDeVentas
-    );
+  function getInvoices(store, PuntoDeVentas) {
+    const facturas = getStoreInvoices(store, PuntoDeVentas);
     facturas.then((fc) => {
       setAllFacts(fc.data);
       let uniqueArray = fc.data.reduce((acc, curr) => {

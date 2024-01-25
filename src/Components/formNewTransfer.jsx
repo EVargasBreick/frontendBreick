@@ -47,15 +47,16 @@ export default function FormNewTransfer() {
 
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
+    const sudoStore = Cookies.get("sudostore");
+    const selectedStore = sudoStore
+      ? sudoStore
+      : JSON.parse(UsuarioAct).idAlmacen;
     if (UsuarioAct) {
       setUserId(JSON.parse(Cookies.get("userAuth")).idUsuario);
       setUserEmail(JSON.parse(UsuarioAct).correo);
       setUser(JSON.parse(UsuarioAct).usuario);
-      setIdOrigen(JSON.parse(UsuarioAct).idAlmacen);
-      const prods = getProductsWithStock(
-        JSON.parse(UsuarioAct).idAlmacen,
-        "all"
-      );
+      setIdOrigen(selectedStore);
+      const prods = getProductsWithStock(selectedStore, "all");
       prods.then((product) => {
         const available = product.data.filter(
           (prod) => prod.cant_Actual > 0 && prod.activo === 1
@@ -71,14 +72,10 @@ export default function FormNewTransfer() {
       setAlmacen(store.data);
       console.log(
         "Prueiblla",
-        store.data.find(
-          (al) => al.idAgencia == JSON.parse(UsuarioAct).idAlmacen
-        )
+        store.data.find((al) => al.idAgencia == selectedStore)
       );
       setNombreOrigen(
-        store.data.find(
-          (al) => al.idAgencia == JSON.parse(UsuarioAct).idAlmacen
-        ).Nombre
+        store.data.find((al) => al.idAgencia == selectedStore).Nombre
       );
       console.log("Datos almacen", store.data);
     });
@@ -102,8 +99,11 @@ export default function FormNewTransfer() {
     setProductos([]);
     setAuxProducts([]);
     const UsuarioAct = Cookies.get("userAuth");
-
-    const prods = getProductsWithStock(JSON.parse(UsuarioAct).idAlmacen, "all");
+    const sudoStore = Cookies.get("sudostore");
+    const selectedStore = sudoStore
+      ? sudoStore
+      : JSON.parse(UsuarioAct).idAlmacen;
+    const prods = getProductsWithStock(selectedStore, "all");
     prods.then((product) => {
       const available = product.data.filter(
         (prod) => prod.cant_Actual > 0 && prod.activo === 1

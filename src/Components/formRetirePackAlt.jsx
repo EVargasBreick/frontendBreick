@@ -24,7 +24,6 @@ export default function FormRetirePackAlt() {
   const [agencias, setAgencias] = useState([]);
   const [packs, setPacks] = useState([]);
   const [allPacks, setAllPacks] = useState([]);
-  const userAlmacen = JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
   const [productGroupList, setProductGroupList] = useState([]);
   const [branchInfo, setBranchInfo] = useState({});
   // Listas y valores cargados manualmente
@@ -50,6 +49,12 @@ export default function FormRetirePackAlt() {
   const [changed, setChanged] = useState(false);
   const dropRef = useRef();
   const invoiceRef = useRef();
+
+  const sudostore = Cookies.get("sudostore");
+
+  const userAlmacen = sudostore
+    ? sudostore
+    : JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
 
   const [modalText, setModalText] = useState("");
   useEffect(() => {
@@ -81,7 +86,9 @@ export default function FormRetirePackAlt() {
     const suc = getBranchesPs();
     suc.then((resp) => {
       const sucursales = resp.data;
-      const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+      const alm = sudostore
+        ? sudostore
+        : JSON.parse(Cookies.get("userAuth")).idAlmacen;
 
       const sucur =
         sucursales.find((sc) => alm == sc.idAgencia) == undefined

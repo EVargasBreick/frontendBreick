@@ -14,7 +14,7 @@ export default function CurrentKardexReport() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol < 12) {
+      if (JSON.parse(Cookies.get("userAuth")).rol < 14) {
       } else {
         navigate("/principal");
       }

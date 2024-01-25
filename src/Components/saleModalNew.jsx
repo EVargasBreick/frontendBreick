@@ -533,9 +533,9 @@ function SaleModalNew(
         nitCliente: datos.nit,
         razonSocial: datos.razonSocial,
         tipoPago: tipoPago,
-        pagado: cancelado,
+        pagado: canc,
         cambio:
-          Number(cancelado) - Number(datos.totalDescontado) - Number(giftCard),
+          Number(canc) - (Number(datos.totalDescontado) - Number(giftCard)),
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
         cuf: "",
         importeBase: Number(Number(datos.totalDescontado) - giftCard).toFixed(
@@ -557,7 +557,12 @@ function SaleModalNew(
         voucher: voucher,
         pya: isPya,
       };
-      console.log("DESCUENTO ADICIONAL TEST", descAdicional);
+      console.log(
+        "TESTEANDO DATOS",
+        cancelado,
+        datos.totalDescontado,
+        giftCard
+      );
       const emizorBody = {
         numeroFactura: 0,
         nombreRazonSocial: datos.razonSocial,
@@ -603,6 +608,7 @@ function SaleModalNew(
         stock: updateStockBody,
         storeInfo: storeInfo,
       };
+      console.log("Facturar body", invoiceBodyNew);
       try {
         const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
         console.log("Respuesta de la fac", invocieResponse);

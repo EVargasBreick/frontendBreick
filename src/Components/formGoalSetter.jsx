@@ -250,8 +250,8 @@ export default function FormGoalSetter() {
           const foundEntry = filteredDays.filter(
             (fld) => fld.idUsuario == user.idUsuario
           );
-          fullDataObj[day.fullDate][user.idUsuario] = foundEntry[0].meta;
-          fullObsObj[day.fullDate][user.idUsuario] = foundEntry[0].notas;
+          fullDataObj[day.fullDate][user.idUsuario] = foundEntry[0]?.meta;
+          fullObsObj[day.fullDate][user.idUsuario] = foundEntry[0]?.notas;
         }
       }
       resolve({ fullDataObj, fullObsObj });

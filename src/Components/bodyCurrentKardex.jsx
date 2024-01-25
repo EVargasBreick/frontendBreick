@@ -3,18 +3,14 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { Button, Form, Table, Modal, Image } from "react-bootstrap";
-import { ExportPastReport } from "../services/exportServices";
 import { getProducts } from "../services/productServices";
 import {
   getCurrentStockProduct,
   getCurrentStockStore,
-  getLogStockProduct,
-  getLogStockStore,
 } from "../services/stockServices";
 import { getStores } from "../services/storeServices";
 import "../styles/generalStyle.css";
 import "../styles/reportStyles.css";
-import Pagination from "./pagination";
 import { ReportPDF } from "./reportPDF";
 import loading2 from "../assets/loading2.gif";
 import Cookies from "js-cookie";
@@ -29,28 +25,13 @@ export default function BodyCurrentKardex() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedStore, setSelectedStore] = useState("");
   const [dataTable, setDataTable] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(25);
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentData = dataTable.slice(indexOfFirstRecord, indexOfLastRecord);
-  const [quantitySorted, setQuantitySorted] = useState(0);
-  const [storeSorted, setStoreSorted] = useState(0);
-  const [productSorted, setProductSorted] = useState();
-  const [isPSorted, setIsPSorted] = useState(false);
-  const [isQSorted, setIsQSorted] = useState(false);
-  const [isSSorted, setIsSSorted] = useState(false);
-  const [codeSorted, setCodeSorted] = useState(0);
-  const [isCSorted, setIsCSorted] = useState(false);
-  const [priceSorted, setPriceSorted] = useState(0);
-  const [isPrSorted, setIsPrSorted] = useState(false);
   const [internal, setInternal] = useState("");
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
   const [searchbox, setSearchbox] = useState("");
   const [auxDataTable, setAuxDataTable] = useState([]);
   const [isReported, setIsReported] = useState(false);
-  const showAll = [1, 9, 10, 8, 7, 6, 5, 2];
+  const showAll = [1, 9, 10, 8, 7, 6, 5, 2, 12];
   const [typeFilter, setTypeFilter] = useState("");
   const user = JSON.parse(Cookies.get("userAuth"));
   useEffect(() => {
@@ -89,13 +70,12 @@ export default function BodyCurrentKardex() {
     }
   }
   function searchItem(value) {
-    setCurrentPage(1);
     setSearchbox(value);
     const newList = auxDataTable.filter(
       (dt) =>
         dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
         dt.codInterno.toString().includes(value.toString())
-    ); //
+    );
     setDataTable([...newList]);
   }
   function selectProduct(prod) {
@@ -103,152 +83,11 @@ export default function BodyCurrentKardex() {
 
     setInternal(productList.find((pr) => pr.idProducto == prod).codInterno);
   }
-  function sortBy(atributo) {
-    const sorted = sortedFun(atributo);
-    sorted.then((sr) => {
-      setDataTable([...sr]);
-    });
-  }
-  function sortedFun(atributo) {
-    return new Promise((resolve) => {
-      if (atributo == "cantidad") {
-        setIsQSorted(true);
-        setIsSSorted(false);
-        setIsPSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(false);
-        if (quantitySorted == 0) {
-          setQuantitySorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.cantidad < p2.cantidad ? 1 : p1.cantidad > p2.cantidad ? -1 : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setQuantitySorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.cantidad > p2.cantidad ? 1 : p1.cantidad < p2.cantidad ? -1 : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "agencia") {
-        setIsPSorted(false);
-        setIsSSorted(true);
-        setIsQSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(false);
-        if (storeSorted == 0) {
-          setStoreSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.NombreAgencia < p2.NombreAgencia
-              ? 1
-              : p1.NombreAgencia > p2.NombreAgencia
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setStoreSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.NombreAgencia > p2.NombreAgencia
-              ? 1
-              : p1.NombreAgencia < p2.NombreAgencia
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "producto") {
-        setIsPSorted(true);
-        setIsSSorted(false);
-        setIsQSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(false);
-        if (productSorted == 0) {
-          setProductSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.nombreProducto < p2.nombreProducto
-              ? 1
-              : p1.nombreProducto > p2.nombreProducto
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setProductSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.nombreProducto > p2.nombreProducto
-              ? 1
-              : p1.nombreProducto < p2.nombreProducto
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "codigo") {
-        setIsPSorted(false);
-        setIsSSorted(false);
-        setIsQSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(true);
-        if (codeSorted == 0) {
-          setCodeSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.codInterno < p2.codInterno
-              ? 1
-              : p1.codInterno > p2.codInterno
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setCodeSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.codInterno > p2.codInterno
-              ? 1
-              : p1.codInterno < p2.codInterno
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "precio") {
-        setIsPSorted(false);
-        setIsSSorted(false);
-        setIsQSorted(false);
-        setIsPrSorted(true);
-        setIsCSorted(false);
-        if (priceSorted == 0) {
-          setPriceSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.precioDeFabrica < p2.precioDeFabrica
-              ? 1
-              : p1.precioDeFabrica > p2.precioDeFabrica
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setPriceSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.precioDeFabrica > p2.precioDeFabrica
-              ? 1
-              : p1.precioDeFabrica < p2.precioDeFabrica
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-    });
-  }
+
   function generateReport() {
     setAlertSec("Generando Reporte");
     setIsAlertSec(true);
-    setCurrentPage(1);
+
     setDataTable([]);
 
     if (criteria != "") {
@@ -289,7 +128,6 @@ export default function BodyCurrentKardex() {
     } else {
     }
   }
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   function filterByType(value) {
     setTypeFilter(value);
@@ -417,7 +255,7 @@ export default function BodyCurrentKardex() {
       </Form>
 
       {isReported ? (
-        <div className="reportTable">
+        <div>
           <Form>
             <Form.Group
               className="reportSearchL"
@@ -452,64 +290,21 @@ export default function BodyCurrentKardex() {
               </div>
             </Form.Group>
           </Form>
-          <div className="tableScroll">
+          <div>
             <Table bordered>
               <thead className="sticky">
                 <tr className="tableHeaderReport">
                   <td className="tableHeaderColS">Nº</td>
 
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("codigo");
-                    }}
-                  >
-                    {`Codigo  ${
-                      !isCSorted ? "-" : codeSorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
-                  <td
-                    className="tableHeaderColL"
-                    onClick={() => {
-                      sortBy("producto");
-                    }}
-                  >
-                    {`Producto  ${
-                      !isPSorted ? "-" : productSorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("precio");
-                    }}
-                  >{`Precio  ${
-                    !isPrSorted ? "-" : priceSorted == 0 ? "▲" : "▼"
-                  }`}</td>
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("cantidad");
-                    }}
-                  >
-                    {`Cantidad  ${
-                      !isQSorted ? "-" : quantitySorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("agencia");
-                    }}
-                  >
-                    {`Agencia/Almacen  ${
-                      !isSSorted ? "-" : storeSorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
+                  <td className="tableHeaderColM">{`Codigo  `}</td>
+                  <td className="tableHeaderColL">{`Producto `}</td>
+                  <td className="tableHeaderColM">{`Precio  `}</td>
+                  <td className="tableHeaderColM">{`Cantidad  `}</td>
+                  <td className="tableHeaderColM">{`Agencia/Almacen  `}</td>
                 </tr>
               </thead>
               <tbody>
-                {currentData.map((dt, index) => {
+                {dataTable.map((dt, index) => {
                   return (
                     <tr className="tableBodyReport" key={index}>
                       <td>{index + 1}</td>
@@ -524,11 +319,6 @@ export default function BodyCurrentKardex() {
                 })}
               </tbody>
             </Table>
-            <Pagination
-              postsperpage={recordsPerPage}
-              totalposts={dataTable.length}
-              paginate={paginate}
-            />
           </div>
           <div className="reportButtonGroup">
             <Button

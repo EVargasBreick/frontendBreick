@@ -20,14 +20,23 @@ export default function FormRejectedOrders() {
   const [isDetails, setIsDetails] = useState(false);
   const [orderDetails, setOrderDetails] = useState({});
   const [isReviewed, setIsReviewed] = useState(false);
+  const [complexRejected, setComplexRejected] = useState({});
+  const [complexDetails, setComplexDetails] = useState([]);
   useEffect(() => {
     const orders = getRejected();
     orders.then((res) => {
-      setOrderList(res.data);
+      console.log("Respuesta de la data", res.data);
+      setOrderList(res.data.logged);
+      setComplexRejected(res.data.details);
     });
   }, []);
 
   function viewDetails(ol) {
+    const filtered = complexRejected.filter(
+      (cr) => cr.idTraspaso == ol.intId && ol.fechaRegistro == cr.fechaHora
+    );
+    console.log("Detalles filtrados", filtered);
+    setComplexDetails(filtered);
     const details = rePrintTransferOrder(ol.intId, ol.tipo);
     details.then((dt) => {
       console.log("Detalles", dt);
@@ -60,14 +69,14 @@ export default function FormRejectedOrders() {
       {isDetails ? (
         <Modal size="xl" show={isDetails}>
           <Modal.Header className="modalHeaderAlt">
-            Detalles del Pedido Rechazado
+            Detalles del Pedido/Traspaso Rechazado
           </Modal.Header>
           <Modal.Body>
             <div>
               <Table>
                 <tbody>
                   <tr className="tableHeaderAlt">
-                    <th colSpan={3}>Datos del Pedido</th>
+                    <th colSpan={3}>Datos del Pedido/Traspaso</th>
                   </tr>
                   <tr className="tableHeaderYellow">
                     <th>Id del pedido/traspaso</th>
@@ -113,6 +122,27 @@ export default function FormRejectedOrders() {
                   <tr className="tableRowSimple">
                     <td colSpan={3}>{orderDetails.detalles.motivo}</td>
                   </tr>
+                  {complexDetails.length > 0 && (
+                    <tr className="tableHeaderAlt">
+                      <th colSpan={3}>Productos a devolver a origen</th>
+                    </tr>
+                  )}
+                  {complexDetails.length > 0 && (
+                    <tr className="tableHeaderYellow">
+                      <th>Codigo Interno</th>
+                      <th>Nombre Producto</th>
+                      <th>Cantidad</th>
+                    </tr>
+                  )}
+                  {complexDetails.map((cd, index) => {
+                    return (
+                      <tr key={index} className="tableRowSimple">
+                        <td>{cd.codInterno}</td>
+                        <td>{cd.nombreProducto}</td>
+                        <td>{cd.cantProducto}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </Table>
             </div>

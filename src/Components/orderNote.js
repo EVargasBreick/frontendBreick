@@ -6,13 +6,13 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
   return (
     <div ref={ref} className="invoicePage">
       {productList.map((pl, index) => {
-        const tipo = pl.id.toString().toLowerCase().includes("tras")
-          ? "TRASPASO"
+        const tipo = pl.id.toString().toLowerCase().includes("mues")
+          ? "MUESTRA"
           : pl.id.toString().toLowerCase().includes("normal")
           ? "PEDIDO"
           : pl.id.toString().toLowerCase().includes("reser")
           ? "RESERVA"
-          : "MUESTRA";
+          : "TRASPASO";
         return (
           <div key={index} style={{ pageBreakAfter: "always" }}>
             <div className="invoiceTittle">Incadex S.R.L</div>

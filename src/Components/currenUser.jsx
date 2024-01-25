@@ -38,6 +38,7 @@ export default function CurrentUser() {
   function logOut() {
     Cookies.remove("userAuth");
     Cookies.remove("pdv");
+    Cookies.remove("sudostore");
     navigate("/");
   }
 

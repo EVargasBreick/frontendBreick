@@ -33,8 +33,11 @@ export default function FormProductDrop() {
   const [dropId, setDropId] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
+    const sudostore = Cookies.get("sudostore");
     if (UsuarioAct) {
-      const idAlmacen = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+      const idAlmacen = sudostore
+        ? sudostore
+        : JSON.parse(UsuarioAct).idAlmacen;
       setUserid(JSON.parse(Cookies.get("userAuth")).idUsuario);
       setStoreId(idAlmacen);
       console.log("Id almacen", idAlmacen);
@@ -46,8 +49,7 @@ export default function FormProductDrop() {
       const suc = getBranchesPs();
       suc.then((resp) => {
         const sucursales = resp.data;
-        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
-
+        const alm = idAlmacen;
         const sucur =
           sucursales.find((sc) => alm == sc.idAgencia) == undefined
             ? sucursales.find((sc) => "AL001" == sc.idAgencia)

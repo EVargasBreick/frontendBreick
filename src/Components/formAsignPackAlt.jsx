@@ -29,7 +29,6 @@ export default function FormAsignPack() {
   const [isAgency, setIsAgency] = useState(false);
   const [isPack, setIsPack] = useState(false);
 
-  const userAlmacen = JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
   const [showModal, setShowModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastText, setToastText] = useState("");
@@ -48,6 +47,12 @@ export default function FormAsignPack() {
   const invoiceRef = useRef();
 
   const refRestante = useRef([]);
+
+  const sudostore = Cookies.get("sudostore");
+
+  const userAlmacen = sudostore
+    ? sudostore
+    : JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
 
   useEffect(() => {
     try {
@@ -76,7 +81,9 @@ export default function FormAsignPack() {
       const suc = getBranchesPs();
       suc.then((resp) => {
         const sucursales = resp.data;
-        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+        const alm = sudostore
+          ? sudostore
+          : JSON.parse(Cookies.get("userAuth")).idAlmacen;
 
         const sucur =
           sucursales.find((sc) => alm == sc.idAgencia) == undefined

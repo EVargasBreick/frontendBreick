@@ -82,7 +82,9 @@ const ProgressToastComponent = ({
           <div style={{ marginTop: "20px" }}>
             <CustomProgressBar
               bgcolor={getVariant(batteryFillPercentage)}
-              progress={batteryFillPercentage}
+              progress={
+                batteryFillPercentage < 100 ? batteryFillPercentage : 100
+              }
               height={25}
             />
           </div>

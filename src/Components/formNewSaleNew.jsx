@@ -13,15 +13,18 @@ import { verifyQuantities } from "../services/saleServices";
 import {
   getBranchesPs,
   getMobileSalePoints,
+  getOnlyStores,
   getSalePoints,
 } from "../services/storeServices";
 import { otherPaymentsList } from "../services/invoiceServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import {
   roundToTwoDecimalPlaces,
+  roundWithFixed,
   rountWithMathFloor,
 } from "../services/mathServices";
 import SaleModalNew from "./saleModalNew";
+import { StoreListModal } from "./Modals/storeListModal";
 
 export default function FormNewSaleNew() {
   const [isClient, setIsClient] = useState(false);
@@ -73,6 +76,10 @@ export default function FormNewSaleNew() {
   const saleModalRef = useRef();
   const [clientEmail, setClientEmail] = useState("");
   const [testArray, setTestArray] = useState([]);
+  const [storeList, setStoreList] = useState([]);
+  const [isSudoStoreSelected, setIsSudoStoreSelected] = useState(true);
+  const [sudoStoreSelected, setSudoStoreSelected] = useState("");
+  const [currentStore, setCurrentStore] = useState("");
   //Procesos al montarse el componente por primera vez
 
   useEffect(() => {
@@ -82,74 +89,163 @@ export default function FormNewSaleNew() {
       setSearch(newly);
       Cookies.remove("nit");
     }
+
+    const sList = getOnlyStores();
+    sList.then((stores) => {
+      console.log("STORE LIST", stores.data);
+      setStoreList(stores.data);
+    });
+
     const UsuarioAct = Cookies.get("userAuth");
     const parsedUser = JSON.parse(UsuarioAct);
     if (UsuarioAct) {
-      const PuntoDeVenta = Cookies.get("pdv");
-      console.log("Datos punto de venta", PuntoDeVenta);
-      if (PuntoDeVenta) {
-        setIsPoint(true);
-        setPointOfsale(PuntoDeVenta);
-      } else {
-        const mobilepdvdata = getMobileSalePoints(parsedUser.idAlmacen);
-        mobilepdvdata.then((res) => {
-          const datos = res.data[0];
-          if (datos == undefined) {
-            setIsPoint(false);
-          } else {
+      const isSudoStore = [1, 9, 7, 8, 12].includes(parsedUser.rol);
+      const sudStore = Cookies.get("sudostore");
+      console.log("SUDSTORE", sudStore);
+      if (isSudoStore) {
+        if (sudStore) {
+          const PuntoDeVenta = Cookies.get("pdv");
+          console.log("Datos punto de venta", PuntoDeVenta);
+          if (PuntoDeVenta) {
             setIsPoint(true);
-            setPointOfsale(datos.nroPuntoDeVenta);
-            Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+            setPointOfsale(PuntoDeVenta);
+          } else {
+            const mobilepdvdata = getMobileSalePoints(sudStore);
+            mobilepdvdata.then((res) => {
+              const datos = res.data[0];
+              if (datos == undefined) {
+                setIsPoint(false);
+              } else {
+                setIsPoint(true);
+                setPointOfsale(datos.nroPuntoDeVenta);
+                Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+              }
+            });
           }
+
+          const pl = getSalePoints(sudStore);
+          pl.then((res) => {
+            setPointList(res.data);
+          });
+          const suc = getBranchesPs();
+          suc.then((resp) => {
+            const sucursales = resp.data;
+            const alm = sudStore;
+            const sucur =
+              sucursales.find((sc) => alm == sc.idAgencia) == undefined
+                ? sucursales.find((sc) => "AL001" == sc.idAgencia)
+                : sucursales.find((sc) => alm == sc.idAgencia);
+            const branchData = {
+              nombre: sucur.nombre,
+              dir: sucur.direccion,
+              tel: sucur.telefono,
+              ciudad: sucur.ciudad,
+              nro: sucur.idImpuestos,
+            };
+            setBranchInfo(branchData);
+          });
+
+          if (Cookies.get("userAuth")) {
+            const uData = {
+              userName: parsedUser.usuario,
+              userStore: sudStore,
+              userId: parsedUser.idUsuario,
+            };
+
+            setUserData(uData);
+
+            const otrosPagos = otherPaymentsList();
+            otrosPagos
+              .then((op) => {
+                setOtherPayments(op.data);
+              })
+              .catch((err) => {
+                console.log("Otros pagos?", err);
+              });
+            console.log("PARSED USER", parsedUser);
+            const disponibles = getProductsWithStock(sudStore, "all");
+            disponibles.then((fetchedAvailable) => {
+              const filtered = fetchedAvailable.data.filter(
+                (fa) => fa.activo === 1
+              );
+              setAvailable(filtered);
+              setAuxProducts(filtered);
+            });
+          }
+        } else {
+          console.log("TRIGGERED");
+          setIsSudoStoreSelected(false);
+        }
+      } else {
+        const PuntoDeVenta = Cookies.get("pdv");
+        console.log("Datos punto de venta", PuntoDeVenta);
+        if (PuntoDeVenta) {
+          setIsPoint(true);
+          setPointOfsale(PuntoDeVenta);
+        } else {
+          const mobilepdvdata = getMobileSalePoints(parsedUser.idAlmacen);
+          mobilepdvdata.then((res) => {
+            const datos = res.data[0];
+            if (datos == undefined) {
+              setIsPoint(false);
+            } else {
+              setIsPoint(true);
+              setPointOfsale(datos.nroPuntoDeVenta);
+              Cookies.set("pdv", datos.nroPuntoDeVenta, { expires: 0.5 });
+            }
+          });
+        }
+
+        const pl = getSalePoints(parsedUser.idAlmacen);
+        pl.then((res) => {
+          setPointList(res.data);
         });
+        const suc = getBranchesPs();
+        suc.then((resp) => {
+          const sucursales = resp.data;
+          const alm = parsedUser.idAlmacen;
+          const sucur =
+            sucursales.find((sc) => alm == sc.idAgencia) == undefined
+              ? sucursales.find((sc) => "AL001" == sc.idAgencia)
+              : sucursales.find((sc) => alm == sc.idAgencia);
+          const branchData = {
+            nombre: sucur.nombre,
+            dir: sucur.direccion,
+            tel: sucur.telefono,
+            ciudad: sucur.ciudad,
+            nro: sucur.idImpuestos,
+          };
+          setBranchInfo(branchData);
+        });
+
+        if (Cookies.get("userAuth")) {
+          const uData = {
+            userName: parsedUser.usuario,
+            userStore: parsedUser.idAlmacen,
+            userId: parsedUser.idUsuario,
+          };
+
+          setUserData(uData);
+
+          const otrosPagos = otherPaymentsList();
+          otrosPagos
+            .then((op) => {
+              setOtherPayments(op.data);
+            })
+            .catch((err) => {
+              console.log("Otros pagos?", err);
+            });
+          console.log("PARSED USER", parsedUser);
+          const disponibles = getProductsWithStock(parsedUser.idAlmacen, "all");
+          disponibles.then((fetchedAvailable) => {
+            const filtered = fetchedAvailable.data.filter(
+              (fa) => fa.activo === 1
+            );
+            setAvailable(filtered);
+            setAuxProducts(filtered);
+          });
+        }
       }
-
-      const pl = getSalePoints(parsedUser.idAlmacen);
-      pl.then((res) => {
-        setPointList(res.data);
-      });
-      const suc = getBranchesPs();
-      suc.then((resp) => {
-        const sucursales = resp.data;
-        const alm = parsedUser.idAlmacen;
-        const sucur =
-          sucursales.find((sc) => alm == sc.idAgencia) == undefined
-            ? sucursales.find((sc) => "AL001" == sc.idAgencia)
-            : sucursales.find((sc) => alm == sc.idAgencia);
-        const branchData = {
-          nombre: sucur.nombre,
-          dir: sucur.direccion,
-          tel: sucur.telefono,
-          ciudad: sucur.ciudad,
-          nro: sucur.idImpuestos,
-        };
-        setBranchInfo(branchData);
-      });
-    }
-    if (Cookies.get("userAuth")) {
-      const uData = {
-        userName: parsedUser.usuario,
-        userStore: parsedUser.idAlmacen,
-        userId: parsedUser.idUsuario,
-      };
-
-      setUserData(uData);
-
-      const otrosPagos = otherPaymentsList();
-      otrosPagos
-        .then((op) => {
-          setOtherPayments(op.data);
-        })
-        .catch((err) => {
-          console.log("Otros pagos?", err);
-        });
-      console.log("PARSED USER", parsedUser);
-      const disponibles = getProductsWithStock(parsedUser.idAlmacen, "all");
-      disponibles.then((fetchedAvailable) => {
-        const filtered = fetchedAvailable.data.filter((fa) => fa.activo === 1);
-        setAvailable(filtered);
-        setAuxProducts(filtered);
-      });
     }
   }, []);
 
@@ -184,6 +280,15 @@ export default function FormNewSaleNew() {
       quantref.current.focus();
     }
   }, [isQuantity]);
+
+  const handleSelection = (value) => {
+    setSudoStoreSelected(value);
+    Cookies.set("sudostore", value, { expires: 0.5 });
+    setTimeout(() => {
+      Cookies.remove("pdv");
+      window.location.reload();
+    }, 500);
+  };
 
   //Busqueda de clientes
 
@@ -340,12 +445,14 @@ export default function FormNewSaleNew() {
   }
 
   function changeQuantities(index, cantidad, prod) {
-    console.log("Entrando aca en cantidades", auxSelectedProducts);
+    console.log("CANTIDAD", cantidad);
     const rounded =
       prod.unidadDeMedida == "Unidad"
-        ? parseInt(cantidad)
-        : Number(cantidad).toFixed(3);
+        ? Math.floor(cantidad)
+        : parseFloat(Number(cantidad).toFixed(3));
+    console.log("ROUNDED", rounded);
     const total = Number(Number(prod.precioDeFabrica * rounded).toFixed(2));
+    console.log("TOTAL TESTEANDO DEC", total);
     let auxObj = {
       codInterno: prod.codInterno,
       cantProducto: rounded,
@@ -417,13 +524,16 @@ export default function FormNewSaleNew() {
       const descCalculadoCompuesto =
         Math.round((product.total - descCalcTot) * 100) / 100;
 
-      totalNeto += Number(product.total);
-      descuentoCalculado += Number(descCalculadoCompuesto);
+      totalNeto += Number(roundToTwoDecimalPlaces(product.total));
+      descuentoCalculado += Number(
+        roundToTwoDecimalPlaces(descCalculadoCompuesto)
+      );
 
       // Create a new object to avoid modifying the original object
       const auxProd = { ...product, descuentoProd: descCalculadoCompuesto };
       array.push(auxProd);
     }
+    console.log("TOTAL NETO", totalNeto);
     setTotalPrevio(rountWithMathFloor(totalNeto));
     setTotalDesc(rountWithMathFloor(descuentoCalculado));
     setTotalFacturar(rountWithMathFloor(totalNeto - descuentoCalculado));
@@ -476,7 +586,16 @@ export default function FormNewSaleNew() {
 
   return (
     <div>
-      <div className="formLabel">VENTAS AGENCIA</div>
+      <div className="formLabel">{`VENTAS AGENCIA ${
+        storeList.find((sl) => sl.idAgencia == userData.userStore)?.Nombre
+      }`}</div>
+
+      <StoreListModal
+        sudoStoreSelected={sudoStoreSelected}
+        show={isSudoStoreSelected}
+        handleSelection={handleSelection}
+      />
+
       <Modal show={!isPoint}>
         <Modal.Header className="modalHeader">Seleccion de Caja</Modal.Header>
         <Modal.Body>

@@ -242,6 +242,22 @@ const composedEditTransfer = (body) => {
   });
 };
 
+const transferProductList = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos/lista?id=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        console.log("ERROR EN EL TRASPASO COMPUESTO", err);
+        reject(err);
+      });
+  });
+};
+
 export {
   createTransfer,
   transferList,
@@ -258,4 +274,5 @@ export {
   composedTransfer,
   composedAcceptTransfer,
   composedEditTransfer,
+  transferProductList,
 };

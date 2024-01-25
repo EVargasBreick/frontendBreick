@@ -5,7 +5,10 @@ import "../styles/generalStyle.css";
 import "../styles/tableStyles.css";
 import { Button, Modal, Table } from "react-bootstrap";
 import { OrderNote } from "./orderNote";
-import { rePrintTransferOrder } from "../services/printServices";
+import {
+  rePrintTransferOrder,
+  transferOrderProducts,
+} from "../services/printServices";
 import ReactToPrint from "react-to-print";
 import Cookies from "js-cookie";
 import { dateString } from "../services/dateServices";
@@ -122,8 +125,9 @@ export default function FormOrdersToReady() {
     setIsPrint(false);
   }
 
-  function rejectOrder() {
+  async function rejectOrder() {
     if (motivo.length > 0) {
+      console.log("Datos rejected order", rejectOrder);
       const ol = rejectedOrder;
       const body = {
         motivo: motivo,
@@ -132,6 +136,8 @@ export default function FormOrdersToReady() {
         fechaRegistro: dateString(),
         tipo: ol.tipo,
         intId: ol.idOrden,
+        productos: [],
+        withProds: false,
       };
 
       const logged = logRejected(body);
@@ -298,6 +304,7 @@ export default function FormOrdersToReady() {
                       onClick={() => {
                         setIsRejected(true);
                         setRejectedOrder(ol);
+                        console.log("Rejected data", ol);
                       }}
                     >
                       Rechazar
