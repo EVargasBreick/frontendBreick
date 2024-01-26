@@ -29,6 +29,7 @@ export default function FormEditTransfer() {
   const [addedProducts, setAddedProducts] = useState([]);
   const [deletedProducts, setDeletedProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [auxSelectedProducts, setAuxSelectedProducts] = useState([]);
   const [stockList, setStockList] = useState([]);
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
@@ -89,6 +90,7 @@ export default function FormEditTransfer() {
         console.log("Detalles traspaso", res);
         setTransferProductList(res.data.response);
         setSelectedProducts(res.data.response);
+        setAuxSelectedProducts(res.data.response);
         setIsAlertSec(false);
         // setTransferId("");
       });
@@ -106,7 +108,7 @@ export default function FormEditTransfer() {
       stock: {
         accion: "add",
         idAlmacen: transferOrigin,
-        productos: selectedProducts,
+        productos: auxSelectedProducts,
         detalle: `DPCTR-${transferId}`,
       },
     });

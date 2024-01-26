@@ -33,6 +33,7 @@ export default function BodyCurrentKardex() {
   const [isReported, setIsReported] = useState(false);
   const showAll = [1, 9, 10, 8, 7, 6, 5, 2, 12];
   const [typeFilter, setTypeFilter] = useState("");
+  const [searchProduct, setSearchProduct] = useState("");
   const user = JSON.parse(Cookies.get("userAuth"));
   useEffect(() => {
     const userRol = JSON.parse(Cookies.get("userAuth")).rol;
@@ -149,6 +150,17 @@ export default function BodyCurrentKardex() {
     }
   }
 
+  function filterBySingleProduct(value) {
+    setSearchProduct(value);
+    const newList = auxProdList.filter(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
+        dt.codInterno.toString().includes(value.toString()) ||
+        dt.codigoBarras.toString().includes(value.toString())
+    );
+    setProductList(newList);
+  }
+
   return (
     <div>
       <div className="formLabel">REPORTE DE KARDEX EN TIEMPO REAL</div>
@@ -238,6 +250,13 @@ export default function BodyCurrentKardex() {
                     <option value="4">Halloween</option>
                     <option value="3">Navidad</option>
                   </Form.Select>
+                </div>
+                <div>
+                  <Form.Label>Buscar Producto</Form.Label>
+                  <Form.Control
+                    value={searchProduct}
+                    onChange={(e) => filterBySingleProduct(e.target.value)}
+                  />
                 </div>
               </Form.Group>
               <div className="reportButtonContainer">

@@ -355,23 +355,6 @@ export default function BodySalesReport() {
                 <option value="1">Anuladas</option>
               </Form.Select>
             </div>
-            <div>
-              <Form.Label>Ordenar por</Form.Label>
-              <Form.Select
-                className="reportOptionDrop"
-                value={sort}
-                onChange={(e) => sortData(e.target.value)}
-              >
-                <option value="fecha asc">Fecha</option>
-                <option value="nroFactura asc">Nro Factura</option>
-                <option value="nitCliente asc">Nit</option>
-                <option value="razonSocial asc">Razon social</option>
-                <option value="nombreCompleto asc">Vendedor</option>
-                <option value="Agencia asc">Agencia</option>
-                <option value="hora">Hora</option>
-                <option value="montoFacturar desc">Importe Base</option>
-              </Form.Select>
-            </div>
           </Form.Group>
 
           <div className="reportTittle">{`LIBRO DE VENTAS ESTANDAR`}</div>
