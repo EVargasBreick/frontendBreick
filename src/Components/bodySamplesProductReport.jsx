@@ -4,11 +4,13 @@ import { getStockCodes, getStockLogged } from "../services/stockServices";
 import { Button, Form, Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
 import Cookies from "js-cookie";
-import { generateExcel } from "../services/utils";
+import { generateExcel, generateExcelDoubleSheets } from "../services/utils";
 import {
   samplesProductReport,
   samplesReport,
 } from "../services/reportServices";
+import { Loader } from "./loader/Loader";
+//import { roundToTwoDecimalPlaces } from "../services/mathServices";
 export default function BodySamplesProductReport() {
   useEffect(() => {
     const sudos = [1, 8, 10, 9, 7];
@@ -43,18 +45,55 @@ export default function BodySamplesProductReport() {
   const [auxTableData, setAuxTableData] = useState([]);
   const isSudo = JSON.parse(Cookies.get("userAuth")).rol == 1 ? true : false;
   const [filtered, setFiltered] = useState("");
+  const [fullTable, setFullTable] = useState({});
+  const [proddList, setProddList] = useState([]);
+  const [iddList, setIddList] = useState([]);
+  const [reportType, setReportType] = useState(1);
+
   const handleStore = (value) => {
     setSelectedStore(value);
   };
-  const getReport = () => {
+  async function getReport() {
     const dataReport = samplesProductReport(fromDate, toDate, selectedStore);
     dataReport.then((res) => {
-      console.log("Data", res);
+      //console.log("Data", res);
+      const fullList = res.data;
+      let prodList = [];
+      let idList = [];
+      for (const product of res.data) {
+        const found = prodList.find(
+          (pl) => pl?.idProducto == product.idProducto
+        );
+        if (!found) {
+          prodList.push(product);
+        }
+
+        const foundId = idList.find((il) => il?.tipo == product.tipo);
+
+        if (!foundId) {
+          idList.push(product);
+        }
+      }
+      setProddList(prodList);
+      setIddList(idList);
+      const dynamic = {};
+      for (const prod of prodList) {
+        dynamic[prod.codInterno] = {};
+        for (const id of idList) {
+          const found = fullList.find(
+            (fl) => fl.codInterno == prod?.codInterno && fl.tipo == id?.tipo
+          );
+          dynamic[prod.codInterno][id.tipo] = found ? found.cantidad : 0;
+        }
+      }
+
+      console.log("DYNAMIC", dynamic);
+      setFullTable(dynamic);
       setTableData(res.data);
       setAuxTableData(res.data);
       setIsReport(true);
     });
-  };
+  }
 
   const filter = (value) => {
     setFiltered(value);
@@ -66,11 +105,40 @@ export default function BodySamplesProductReport() {
     setTableData(filtered);
   };
 
+  const roundToTwoDecimals = (num) => {
+    if (Number.isInteger(num)) {
+      return num;
+    }
+    return parseFloat(num.toFixed(2));
+  };
+
   const exportToExcel = () => {
-    generateExcel(
+    const dataToExport = [];
+    for (const product of proddList) {
+      var obj = {};
+      obj["CODIGO_PRODUCTO"] = product.codInterno;
+      obj["NOMBRE_PRODUCTO"] = product.nombreProducto;
+      obj["PRECIO_A"] = product.precioDeFabrica;
+      for (const id of iddList) {
+        obj[id.tipo] = roundToTwoDecimals(
+          fullTable[product.codInterno][id.tipo]
+        );
+      }
+      dataToExport.push(obj);
+    }
+
+    generateExcelDoubleSheets(
+      dataToExport,
+      tableData,
+      `Reporte de productos en muestras en ${selectedStore} ${fromDate} - ${toDate}`,
+      "Datos agrupados",
+      "Datos con detalles"
+    );
+
+    /*generateExcel(
       tableData,
       `Reporte de productos en muestras en ${selectedStore} ${fromDate} - ${toDate}`
-    );
+    );*/
   };
 
   return (
@@ -123,48 +191,95 @@ export default function BodySamplesProductReport() {
       )}
       {isReport ? (
         <div>
-          <Form>
-            <Form.Label>Filtrar por nit/razon social</Form.Label>
-            <Form.Control
-              type="text"
-              onChange={(e) => filter(e.target.value)}
-            />
+          <Form style={{ marginBottom: "15px" }}>
+            <Form.Label>Tipo de reporte</Form.Label>
+            <Form.Select onChange={(e) => setReportType(e.target.value)}>
+              <option value={1}>Reporte Agrupado</option>
+              <option value={2}>Reporte con detalle</option>
+            </Form.Select>
           </Form>
+
+          {reportType == 2 && (
+            <Form>
+              <Form.Label>Filtrar por nit/razon social</Form.Label>
+              <Form.Control
+                type="text"
+                onChange={(e) => filter(e.target.value)}
+              />
+            </Form>
+          )}
+
           <div className="formLabel">Reporte de muestras</div>
           <div style={{ maxHeight: "70vh", overflow: "auto" }}>
-            <Table>
-              <thead>
-                <tr
-                  style={{ position: "sticky", top: 0 }}
-                  className="tableHeaderReport"
-                >
-                  <th>Id Muestra</th>
-                  <th>Razon Social</th>
-                  <th>Fecha</th>
-                  <th>Cod Interno</th>
-                  <th>Producto</th>
-                  <th>Cantidad</th>
-                  <th>Notas</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tableData.map((td, index) => {
-                  return (
-                    <tr key={index} className="tableBodyReport">
-                      <td>{td.idBaja}</td>
-                      <td>{td.cliente_razon_social}</td>
-                      <td>{td.fecha}</td>
-                      <td>{td.codInterno}</td>
-                      <td>{td.nombreProducto}</td>
-                      <td>{td.cantidad}</td>
-                      <td>{td.notas}</td>
-                      <td>{td.estado}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
+            {reportType == 1 ? (
+              <Table>
+                <thead>
+                  <tr
+                    style={{ position: "sticky", top: 0 }}
+                    className="tableHeaderReport"
+                  >
+                    <th>Cod Interno</th>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    {iddList.map((header) => {
+                      return <th key={header.tipo}>{header.tipo}</th>;
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {proddList.map((product, index) => {
+                    return (
+                      <tr key={index} className="tableRow">
+                        <td>{product.codInterno}</td>
+                        <td>{product.nombreProducto}</td>
+                        <td>{`${product.precioDeFabrica} Bs`}</td>
+                        {iddList.map((id, index) => {
+                          return (
+                            <td key={index}>
+                              {fullTable[product.codInterno][id.tipo]}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            ) : (
+              <Table>
+                <thead>
+                  <tr
+                    style={{ position: "sticky", top: 0 }}
+                    className="tableHeaderReport"
+                  >
+                    <th>Id Muestra</th>
+                    <th>Razon Social</th>
+                    <th>Fecha</th>
+                    <th>Cod Interno</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Notas</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableData.map((td, index) => {
+                    return (
+                      <tr key={index} className="tableBodyReport">
+                        <td>{td.idBaja}</td>
+                        <td>{td.cliente_razon_social}</td>
+                        <td>{td.fecha}</td>
+                        <td>{td.codInterno}</td>
+                        <td>{td.nombreProducto}</td>
+                        <td>{td.cantidad}</td>
+                        <td>{td.notas}</td>
+                        <td>{td.estado}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            )}
           </div>
           <div style={{ paddingTop: "5%" }}>
             <Button

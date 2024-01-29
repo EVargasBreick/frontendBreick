@@ -83,7 +83,7 @@ export default function FormViewTransferAgency() {
               <th className="tableColumn">Destino</th>
               <th className="tableColumn">Fecha Solicitud</th>
               <th className="tableColumnMedium">Estado</th>
-              <th className="tableColumnMedium">Listo</th>
+
               <th className="tableColumnMedium">Recibido</th>
               <th className="tableColumnMedium">Detalles</th>
             </tr>
@@ -113,11 +113,7 @@ export default function FormViewTransferAgency() {
                         : "Cancelado"}
                     </Badge>
                   </th>
-                  <th className="tableColumnMedium">
-                    <Badge bg={tl.listo == 0 ? "warning" : "success"}>
-                      {tl.listo == 0 ? "No" : "Si"}
-                    </Badge>
-                  </th>
+
                   <th className="tableColumnMedium">
                     <Badge bg={tl.transito == 0 ? "warning" : "success"}>
                       {tl.transito == 0 ? "No" : "Si"}

@@ -25,6 +25,7 @@ import {
 } from "../services/mathServices";
 import SaleModalNew from "./saleModalNew";
 import { StoreListModal } from "./Modals/storeListModal";
+import { Loader } from "./loader/Loader";
 
 export default function FormNewSaleNew() {
   const [isClient, setIsClient] = useState(false);
@@ -80,6 +81,7 @@ export default function FormNewSaleNew() {
   const [isSudoStoreSelected, setIsSudoStoreSelected] = useState(true);
   const [sudoStoreSelected, setSudoStoreSelected] = useState("");
   const [currentStore, setCurrentStore] = useState("");
+  const [loading, setLoading] = useState(false);
   //Procesos al montarse el componente por primera vez
 
   useEffect(() => {
@@ -282,6 +284,9 @@ export default function FormNewSaleNew() {
   }, [isQuantity]);
 
   const handleSelection = (value) => {
+    setLoading(true);
+    setIsPoint(true);
+    setIsSudoStoreSelected(true);
     setSudoStoreSelected(value);
     Cookies.set("sudostore", value, { expires: 0.5 });
     setTimeout(() => {
@@ -1018,6 +1023,7 @@ export default function FormNewSaleNew() {
           ) : null}
         </Form>
       </div>
+      {loading && <Loader />}
     </div>
   );
 }
