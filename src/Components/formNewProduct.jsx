@@ -60,63 +60,69 @@ export default function FormNewProduct() {
       .catch((err) => {});
   }, []);
   function saveProduct() {
-    setAlertSec("Agregando producto");
-    setIsAlertSec(true);
-    const validated = validateCodes();
-    validated
-      .then((res) => {
-        const objProd = {
-          codInterno: codInterno,
-          nombreProducto: nombre,
-          descProducto: desc,
-          gramajeProducto: gramaje,
-          precioDeFabrica: pdv,
-          codigoBarras: codigoBarras,
-          cantCajon: 0,
-          unidadDeMedida: unidadMedida,
-          tiempoDeVida: tiempoVida,
-          activo: 1,
-          precioPDV: pdv,
-          cantDisplay: 0,
-          aplicaDescuento: tipo == 5 || tipo == 6 ? "No" : "Si",
-          tipoProducto: tipo,
-          precioDescuentoFijo: precioDescuento == "" ? pdv : precioDescuento,
-          actividadEconomica: 107900,
-          codigoSin: 99100,
-          codigoUnidad: unidadMedida == "unidad" ? 57 : 22,
-          origenProducto: origen,
-        };
-        const added = newProduct(objProd);
-        added
-          .then((res) => {
-            const inicializado = initializeStock({
-              idProducto: res.data.id,
-              fechaHora: dateString(),
+    if (unidadMedida == "") {
+      setIsAlertSec(false);
+      setAlert("Por favor seleccione una unidad de medida");
+      setIsAlert(true);
+    } else {
+      setAlertSec("Agregando producto");
+      setIsAlertSec(true);
+      const validated = validateCodes();
+      validated
+        .then((res) => {
+          const objProd = {
+            codInterno: codInterno,
+            nombreProducto: nombre,
+            descProducto: desc,
+            gramajeProducto: gramaje,
+            precioDeFabrica: pdv,
+            codigoBarras: codigoBarras,
+            cantCajon: 0,
+            unidadDeMedida: unidadMedida,
+            tiempoDeVida: tiempoVida,
+            activo: 1,
+            precioPDV: pdv,
+            cantDisplay: 0,
+            aplicaDescuento: tipo == 5 || tipo == 6 ? "No" : "Si",
+            tipoProducto: tipo,
+            precioDescuentoFijo: precioDescuento == "" ? pdv : precioDescuento,
+            actividadEconomica: 107900,
+            codigoSin: 99100,
+            codigoUnidad: unidadMedida == "unidad" ? 57 : 22,
+            origenProducto: origen,
+          };
+          const added = newProduct(objProd);
+          added
+            .then((res) => {
+              const inicializado = initializeStock({
+                idProducto: res.data.id,
+                fechaHora: dateString(),
+              });
+              inicializado.then((response) => {
+                setAlertSec("Producto agregado correctamente");
+                setIsAlertSec(true);
+                setTimeout(() => {
+                  window.location.reload(false);
+                }, 2000);
+              });
+            })
+            .catch((err) => {
+              console.log("Error al crear producto", err);
+              setIsAlertSec(false);
             });
-            inicializado.then((response) => {
-              setAlertSec("Producto agregado correctamente");
-              setIsAlertSec(true);
-              setTimeout(() => {
-                window.location.reload(false);
-              }, 2000);
-            });
-          })
-          .catch((err) => {
-            console.log("Error al crear producto", err);
-            setIsAlertSec(false);
-          });
-      })
-      .catch((err) => {
-        const mensajeError =
-          err == "ambos"
-            ? "El codigo de barras y el codigo interno ya se encuentran registrados"
-            : err == "codInterno"
-            ? "El codigo interno ya se encuentra registrado"
-            : "El codigo de barras ya se encuentra registrado";
-        setIsAlertSec(false);
-        setAlert(mensajeError);
-        setIsAlert(true);
-      });
+        })
+        .catch((err) => {
+          const mensajeError =
+            err == "ambos"
+              ? "El codigo de barras y el codigo interno ya se encuentran registrados"
+              : err == "codInterno"
+              ? "El codigo interno ya se encuentra registrado"
+              : "El codigo de barras ya se encuentra registrado";
+          setIsAlertSec(false);
+          setAlert(mensajeError);
+          setIsAlert(true);
+        });
+    }
   }
   function validateCodes() {
     return new Promise((resolve, reject) => {

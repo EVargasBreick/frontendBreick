@@ -13,7 +13,7 @@ import ProgressToastComponent from "./Modals/progressToast";
 import FormNewSaleNew from "./formNewSaleNew";
 export default function NewSaleNew() {
   const navigate = useNavigate();
-  const permittedRoles = [1, 2, 6, 7, 9, 12];
+  const permittedRoles = [1, 2, 6, 7, 8, 9, 12];
   const [showToast, setShowToast] = useState(false);
   const [toastText, setToastText] = useState("");
   const [toastType, setToastType] = useState("");

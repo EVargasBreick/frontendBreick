@@ -21,8 +21,8 @@ export default function FormSalesSeller() {
       const reportData = await salesBySellerReport(
         dateStart,
         dateEnd,
-        hourStart,
-        hourEnd
+        hourStart == "" ? "00:00" : hourStart,
+        hourEnd == "" ? "23:59" : hourEnd
       );
       console.log("Reporte data", reportData);
       setReports(reportData.data);
@@ -79,7 +79,6 @@ export default function FormSalesSeller() {
               <Form.Control
                 type="time"
                 value={hourStart}
-                required
                 onChange={(e) => setHourStart(e.target.value)}
               />
             </Form.Group>
@@ -88,7 +87,6 @@ export default function FormSalesSeller() {
               <Form.Control
                 type="time"
                 value={hourEnd}
-                required
                 onChange={(e) => setHourEnd(e.target.value)}
               />
             </Form.Group>

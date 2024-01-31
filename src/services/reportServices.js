@@ -36,7 +36,7 @@ const getEndOfDayReport = (params) => {
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}&idAgencia='${params.idAgencia}'&ruta=${params.ruta}&fecha='${params.fecha}'`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/cierre?idSucursal='${params.idSucursal}'&idPdv=${params.idPuntoDeVenta}&idAgencia='${params.idAgencia}'&ruta=${params.ruta}&fecha=${params.fecha}&fromHour=${params.fromHour}&toHour=${params.toHour}`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -268,12 +268,12 @@ const remainingDayGoal = (idUsuario, fecha) => {
   });
 };
 
-const samplesReport = (startDate, endDate, idAgencia) => {
+const samplesReport = (startDate, endDate, idAgencia, tipo) => {
   console.log("PARAMS EN EL FRONT", startDate, endDate, idAgencia);
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/muestras?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/muestras?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}&tipo=${tipo}`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -285,12 +285,46 @@ const samplesReport = (startDate, endDate, idAgencia) => {
   });
 };
 
-const samplesProductReport = (startDate, endDate, idAgencia) => {
+const samplesProductReport = (startDate, endDate, idAgencia, orderType) => {
   console.log("PARAMS EN EL FRONT", startDate, endDate, idAgencia);
   return new Promise((resolve, reject) => {
     axios
       .get(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/muestras/productos?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}`
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/muestras/productos?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}&tipo=${orderType}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+const transferProductReport = (startDate, endDate, idAgencia) => {
+  console.log("PARAMS EN EL FRONT", startDate, endDate, idAgencia);
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/traspasos/productos?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+const simpleTransferReport = (startDate, endDate, idAgencia) => {
+  console.log("PARAMS EN EL FRONT", startDate, endDate, idAgencia);
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/traspasos/simple?startDate=${startDate}&endDate=${endDate}&idAgencia=${idAgencia}`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -319,4 +353,6 @@ export {
   remainingDayGoal,
   samplesReport,
   samplesProductReport,
+  transferProductReport,
+  simpleTransferReport,
 };

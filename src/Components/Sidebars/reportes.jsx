@@ -24,6 +24,7 @@ import { TbCalendarTime } from "react-icons/tb";
 import { MdMoveUp } from "react-icons/md";
 import { BiSolidStoreAlt } from "react-icons/bi";
 import { FaBoxes, FaBoxOpen } from "react-icons/fa";
+import { TbTransferIn } from "react-icons/tb";
 export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
   return (
     <SubMenu
@@ -84,6 +85,13 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         traspasos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/reportes/traspasos/productos")}
+        className="menuItem"
+      >
+        <TbTransferIn size="40px" style={{ paddingRight: "5px" }} />
+        Reporte de prod. por traspaso
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/reportes/vendedor/productos")}
         className="menuItem"
       >
@@ -139,6 +147,13 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       >
         <FaBoxes size="35px" style={{ paddingRight: "5px" }} />
         Reporte de productos en muestras
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/traspasos/simple")}
+        className="menuItem"
+      >
+        <FaBoxOpen size="35px" style={{ paddingRight: "5px" }} />
+        Reporte simple de traspasos
       </MenuItem>
     </SubMenu>
   );

@@ -5,14 +5,19 @@ import { Button, Form, Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
 import Cookies from "js-cookie";
 import { generateExcel } from "../services/utils";
-import { samplesReport } from "../services/reportServices";
-export default function BodySamplesReport() {
+import {
+  samplesReport,
+  simpleTransferReport,
+} from "../services/reportServices";
+export default function BodySimpleTransferReport() {
+  const [allSts, setAllSts] = useState([]);
   useEffect(() => {
     const sudos = [1, 8, 10, 9, 7, 12];
     const userRol = JSON.parse(Cookies.get("userAuth")).rol;
     const allStores = getAllStores();
     allStores.then((res) => {
       console.log("Agencias", res.data);
+      setAllSts(res.data);
       if (sudos.includes(userRol)) {
         console.log("Todas las tiendas");
         setStoreList(res.data);
@@ -40,17 +45,12 @@ export default function BodySamplesReport() {
   const [auxTableData, setAuxTableData] = useState([]);
   const isSudo = JSON.parse(Cookies.get("userAuth")).rol == 1 ? true : false;
   const [filtered, setFiltered] = useState("");
-  const [orderType, setOrderType] = useState("muestra");
+
   const handleStore = (value) => {
     setSelectedStore(value);
   };
   const getReport = () => {
-    const dataReport = samplesReport(
-      fromDate,
-      toDate,
-      selectedStore,
-      orderType
-    );
+    const dataReport = simpleTransferReport(fromDate, toDate, selectedStore);
     dataReport.then((res) => {
       console.log("Data", res);
       setTableData(res.data);
@@ -70,9 +70,10 @@ export default function BodySamplesReport() {
   };
 
   const exportToExcel = () => {
+    const store = allSts.find((as) => as.idAgencia == selectedStore).nombre;
     generateExcel(
       tableData,
-      `Reporte de muestras en ${selectedStore} ${fromDate} - ${toDate}`
+      `Reporte de traspasos en ${store} ${fromDate} - ${toDate}`
     );
   };
 
@@ -109,27 +110,7 @@ export default function BodySamplesReport() {
           </Form.Select>
         </Form.Group>
       </Form>
-      <Form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          marginBottom: "15px",
-          marginTop: "15px",
-          maxWidth: "100vw",
-          alignItems: "center",
-        }}
-      >
-        <Form.Label style={{ maxWidth: "50vw" }}>
-          Muestra o Consignación
-        </Form.Label>
-        <Form.Select
-          style={{ maxWidth: "30vw" }}
-          onChange={(e) => setOrderType(e.target.value)}
-        >
-          <option value={"muestra"}>Muestra</option>
-          <option value={"consignacion"}>Consignación</option>
-        </Form.Select>
-      </Form>
+
       {selectedStore != "" && fromDate != "" && toDate != "" ? (
         <div style={{ margin: "50px" }}>
           <Button
@@ -151,6 +132,7 @@ export default function BodySamplesReport() {
             <Form.Label>Filtrar por nit/razon social</Form.Label>
             <Form.Control
               type="text"
+              value={filtered}
               onChange={(e) => filter(e.target.value)}
             />
           </Form>
@@ -162,30 +144,28 @@ export default function BodySamplesReport() {
                   style={{ position: "sticky", top: 0 }}
                   className="tableHeaderReport"
                 >
-                  <th>Id Muestra</th>
-                  <th>Nit</th>
-                  <th>Razon Social</th>
+                  <th>Id Traspaso</th>
+                  <th>Origen</th>
+                  <th>Destino</th>
                   <th>Fecha</th>
                   <th>Usuario</th>
-                  <th>Notas</th>
-                  <th>Estado</th>
-                  <th>Agencia</th>
-                  <th>Tipo</th>
                 </tr>
               </thead>
               <tbody>
                 {tableData.map((td, index) => {
+                  const origen = allSts.find(
+                    (as) => as.idagencia == td.idOrigen
+                  )?.nombre;
+                  const destino = allSts.find(
+                    (as) => as.idagencia == td.idDestino
+                  )?.nombre;
                   return (
                     <tr key={index} className="tableBodyReport">
-                      <td>{td.idBaja}</td>
-                      <td>{td.ci}</td>
-                      <td>{td.cliente_razon_social}</td>
-                      <td>{td.fecha}</td>
+                      <td>{td.idTraspaso}</td>
+                      <td>{origen}</td>
+                      <td>{destino}</td>
+                      <td>{td.fechaCrea}</td>
                       <td>{td.usuario}</td>
-                      <td>{td.notas}</td>
-                      <td>{td.estado}</td>
-                      <td>{td.idAgencia}</td>
-                      <td>{td.tipoMuestra}</td>
                     </tr>
                   );
                 })}

@@ -80,6 +80,8 @@ import SamplesReport from "./Components/SamplesReport";
 import SamplesProductReport from "./Components/SamplesProductReport";
 import GroupedProducts from "./Components/groupedProducts";
 import UserOrders from "./Components/userOrders";
+import TransferProductReport from "./Components/transferProductReport";
+import SimpleTransferReport from "./Components/simpleTransferReport";
 
 function App() {
   return (
@@ -661,6 +663,22 @@ function App() {
               element={
                 <RequireAuth>
                   <SamplesProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/traspasos/productos"
+              element={
+                <RequireAuth>
+                  <TransferProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/traspasos/simple"
+              element={
+                <RequireAuth>
+                  <SimpleTransferReport />
                 </RequireAuth>
               }
             />

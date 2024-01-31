@@ -49,12 +49,26 @@ export default function BodySamplesProductReport() {
   const [proddList, setProddList] = useState([]);
   const [iddList, setIddList] = useState([]);
   const [reportType, setReportType] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [orderType, setOrderType] = useState("muestra");
 
   const handleStore = (value) => {
+    if (
+      !["AL001", "AL002", "AG006", "AG007", "AG010", "AG005"].includes(value)
+    ) {
+      setOrderType("muestra");
+    }
+
     setSelectedStore(value);
   };
   async function getReport() {
-    const dataReport = samplesProductReport(fromDate, toDate, selectedStore);
+    setLoading(true);
+    const dataReport = samplesProductReport(
+      fromDate,
+      toDate,
+      selectedStore,
+      orderType
+    );
     dataReport.then((res) => {
       //console.log("Data", res);
       const fullList = res.data;
@@ -92,6 +106,7 @@ export default function BodySamplesProductReport() {
       setTableData(res.data);
       setAuxTableData(res.data);
       setIsReport(true);
+      setLoading(false);
     });
   }
 
@@ -174,6 +189,33 @@ export default function BodySamplesProductReport() {
           </Form.Select>
         </Form.Group>
       </Form>
+
+      {["AL001", "AL002", "AG006", "AG007", "AG010", "AG005"].includes(
+        selectedStore
+      ) && (
+        <Form
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            marginBottom: "15px",
+            marginTop: "15px",
+            maxWidth: "100vw",
+            alignItems: "center",
+          }}
+        >
+          <Form.Label style={{ maxWidth: "50vw" }}>
+            Muestra o Consignación
+          </Form.Label>
+          <Form.Select
+            style={{ maxWidth: "30vw" }}
+            onChange={(e) => setOrderType(e.target.value)}
+          >
+            <option value={"muestra"}>Muestra</option>
+            <option value={"consignacion"}>Consignación</option>
+          </Form.Select>
+        </Form>
+      )}
+
       {selectedStore != "" && fromDate != "" && toDate != "" ? (
         <div style={{ margin: "50px" }}>
           <Button
@@ -294,6 +336,7 @@ export default function BodySamplesProductReport() {
           </div>
         </div>
       ) : null}
+      {loading && <Loader />}
     </div>
   );
 }

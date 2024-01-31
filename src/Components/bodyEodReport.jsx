@@ -51,6 +51,8 @@ export default function BodyEodReport() {
   const [parsedDate, setParsedDate] = useState("");
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
+  const [fromHour, setFromHour] = useState("");
+  const [toHour, setToHour] = useState("");
   const componentRef = useRef();
   useEffect(() => {
     setFecha(dateString().split(" ").shift());
@@ -133,11 +135,6 @@ export default function BodyEodReport() {
     const current = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    setSelectedDate(current);
-    console.log("Current", current);
-    if (selectedDate == "") {
-      setSelectedDate(current);
-    }
 
     const report = getEndOfDayReport({
       idSucursal: idSucursal,
@@ -145,6 +142,8 @@ export default function BodyEodReport() {
       idAgencia: userStore,
       ruta: userRol == 4 ? true : false,
       fecha: selectedDate === "" ? current : selectedDate,
+      fromHour,
+      toHour,
     });
     report.then((rp) => {
       const data = rp.data;
@@ -230,7 +229,7 @@ export default function BodyEodReport() {
       });
       details.then((dt) => {
         const det = dt.data[0];
-        setSelectedDate("");
+
         setNumberInv(det.CantidadFacturas);
         setFirstInv(det.PrimeraFactura);
         setLastInv(det.UltimaFactura);
@@ -265,6 +264,15 @@ export default function BodyEodReport() {
     console.log("Selected date", value);
   }
 
+  function handleHour(value, type) {
+    if (type === 1) {
+      setFromHour(value);
+    } else {
+      setToHour(value);
+    }
+    console.log(value);
+  }
+
   return (
     <div>
       <div>
@@ -279,6 +287,8 @@ export default function BodyEodReport() {
                 <th>Agencia</th>
                 <th>Caja</th>
                 <th>Fecha</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
               </tr>
             </thead>
             <tbody>
@@ -296,11 +306,33 @@ export default function BodyEodReport() {
                     </Form>
                   }
                 </td>
+                <td>
+                  {
+                    <Form>
+                      <Form.Control
+                        type="time"
+                        value={fromHour}
+                        onChange={(e) => handleHour(e.target.value, 1)}
+                      />
+                    </Form>
+                  }
+                </td>
+                <td>
+                  {
+                    <Form>
+                      <Form.Control
+                        type="time"
+                        value={toHour}
+                        onChange={(e) => handleHour(e.target.value, 2)}
+                      />
+                    </Form>
+                  }
+                </td>
               </tr>
             </tbody>
             <tfoot className="tableHeader">
               <tr>
-                <th colSpan={3}></th>
+                <th colSpan={5}></th>
               </tr>
             </tfoot>
           </Table>
