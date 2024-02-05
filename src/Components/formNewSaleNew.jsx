@@ -591,8 +591,14 @@ export default function FormNewSaleNew() {
 
   return (
     <div>
-      <div className="formLabel">{`VENTAS AGENCIA ${
-        storeList.find((sl) => sl.idAgencia == userData.userStore)?.Nombre
+      <div className="formLabel">{`Ventas ${
+        storeList
+          .find((sl) => sl.idAgencia == userData.userStore)
+          ?.Nombre?.substring(5)
+          ? storeList
+              .find((sl) => sl.idAgencia == userData.userStore)
+              ?.Nombre?.substring(5)
+          : "Detectando ..."
       }`}</div>
 
       <StoreListModal

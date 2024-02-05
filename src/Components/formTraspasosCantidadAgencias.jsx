@@ -83,7 +83,9 @@ export default function FormTraspasosCantidadAgencias() {
 
   return (
     <section>
-      <p className="formLabel">REPORTE DE TRASPASOS POR AGENCIA(CANTIDAD)</p>
+      <p className="formLabel">
+        REPORTE DE TRASPASOS ENTRANTES POR AGENCIA(CANTIDAD)
+      </p>
       <Form
         className="d-flex justify-content-center p-3 flex-column gap-3"
         onSubmit={handleSubmit}

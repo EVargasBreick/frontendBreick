@@ -80,12 +80,14 @@ export default function FormAllOrders() {
     const listaPedidos = getAllOrderList("");
     listaPedidos.then((res) => {
       if (permitedRols.includes(rol)) {
-        console.log("Lista pedidos", res.data.data);
-        setPedidosList(res.data.data);
-        setAuxPedidosList(res.data.data);
+        const sorted = res.data.data.sort((a, b) => b.idPedido - a.idPedido);
+        console.log("Lista pedidos", sorted);
+        setPedidosList(sorted);
+        setAuxPedidosList(sorted);
       } else {
-        console.log("Lista pedidos", res.data.data);
-        const filtered = res.data.data.filter((rd) => rd.idUsuario == idUs);
+        const sorted = res.data.data.sort((a, b) => b.idPedido - a.idPedido);
+        console.log("Lista pedidos", sorted);
+        const filtered = sorted.filter((rd) => rd.idUsuario == idUs);
         setPedidosList(filtered);
         setAuxPedidosList(filtered);
       }

@@ -139,7 +139,7 @@ export default function FormCancelInvoiceAltern() {
       accion: "add",
       idAlmacen: selectedInvoice.idAgencia,
       productos: products,
-      detalle: `ANFAC-${invoice.idFactura}`,
+      detalle: `ANFAC-${invoice.nroFactura}`,
     };
     console.log("Return to stock", returnToStock);
     try {

@@ -69,17 +69,33 @@ export default function BodySimpleTransferReport() {
     setTableData(filtered);
   };
 
-  const exportToExcel = () => {
-    const store = allSts.find((as) => as.idAgencia == selectedStore).nombre;
+  const exportToExcel = async () => {
+    console.log("All stores", allSts);
+    const formatedTable = [];
+    for (const entry of tableData) {
+      const origen = allSts.find((as) => as.idagencia == entry.idOrigen).nombre;
+      const destino = allSts.find(
+        (as) => as.idagencia == entry.idDestino
+      ).nombre;
+      const obj = {
+        ["Id Traspaso"]: entry.idTraspaso,
+        Origen: origen,
+        Destino: destino,
+        ["Fecha y hora"]: entry.fechaCrea,
+        Usuario: entry.usuario,
+      };
+      formatedTable.push(obj);
+    }
+    const store = allSts.find((as) => as.idagencia == selectedStore).nombre;
     generateExcel(
-      tableData,
+      formatedTable,
       `Reporte de traspasos en ${store} ${fromDate} - ${toDate}`
     );
   };
 
   return (
     <div>
-      <div className="formLabel">REPORTE DE MUESTRAS</div>
+      <div className="formLabel">REPORTE DE SIMPLE DE TRASPASOS</div>
       <div className="formLabel">Seleccione rango de fechas</div>
       <Form style={{ display: "flex", justifyContent: "space-evenly" }}>
         <Form.Group style={{ width: "30%" }}>
@@ -136,7 +152,7 @@ export default function BodySimpleTransferReport() {
               onChange={(e) => filter(e.target.value)}
             />
           </Form>
-          <div className="formLabel">Reporte de muestras</div>
+          <div className="formLabel">Reporte simple de traspasos</div>
           <div style={{ maxHeight: "70vh", overflow: "auto" }}>
             <Table>
               <thead>

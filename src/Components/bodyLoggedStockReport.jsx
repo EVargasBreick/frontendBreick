@@ -5,6 +5,7 @@ import { Button, Form, Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
 import Cookies from "js-cookie";
 import { generateExcel } from "../services/utils";
+import { Loader } from "./loader/Loader";
 export default function BodyLoggedStockReport() {
   useEffect(() => {
     const sudos = [1, 8, 10, 9, 7, 12];
@@ -39,10 +40,13 @@ export default function BodyLoggedStockReport() {
   const [auxTableData, setAuxTableData] = useState([]);
   const isSudo = JSON.parse(Cookies.get("userAuth")).rol == 1 ? true : false;
   const [filtered, setFiltered] = useState("");
+  const [searchId, setSearchId] = useState("");
+  const [loading, setLoading] = useState(false);
   const handleStore = (value) => {
     setSelectedStore(value);
   };
   const getReport = () => {
+    setLoading(true);
     console.log(fromDate, toDate, selectedStore);
     const dataReport = getStockLogged({
       idAgencia: selectedStore,
@@ -54,6 +58,7 @@ export default function BodyLoggedStockReport() {
       setTableData(res.data);
       setAuxTableData(res.data);
       setIsReport(true);
+      setLoading(false);
     });
   };
   const filter = (value) => {
@@ -123,6 +128,20 @@ export default function BodyLoggedStockReport() {
     });
   }
 
+  const filterById = (value) => {
+    console.log("Aux data table", auxTableData);
+    setSearchId(value);
+    const filtered = auxTableData.filter(
+      (ad) => ad.detalle.split("-").pop() == value
+    );
+    console.log("FIltered", filtered);
+    if (filtered.length > 0) {
+      setTableData(filtered);
+    } else {
+      setTableData(auxTableData);
+    }
+  };
+
   function exportUpdateSqlData() {
     const toExport = [];
     for (const entry of tableData) {
@@ -143,6 +162,7 @@ export default function BodyLoggedStockReport() {
 
   return (
     <div>
+      {loading && <Loader />}
       <div className="formLabel">REPORTE DE MOVIMIENTOS DE KARDEX</div>
       <div className="formLabel">Seleccione rango de fechas</div>
       <Form style={{ display: "flex", justifyContent: "space-evenly" }}>
@@ -196,6 +216,17 @@ export default function BodyLoggedStockReport() {
             <Form.Control
               type="text"
               onChange={(e) => filter(e.target.value)}
+              value={filtered}
+            />
+          </Form>
+          <Form style={{ marginTop: "10px" }}>
+            <Form.Label>
+              Filtrar por id de Pedido / Traspaso / Baja / Nro de factura
+            </Form.Label>
+            <Form.Control
+              type="number"
+              onChange={(e) => filterById(e.target.value)}
+              value={searchId}
             />
           </Form>
           <div className="formLabel">Reporte de movimientos</div>
@@ -211,7 +242,7 @@ export default function BodyLoggedStockReport() {
                   <th>Cantidad</th>
                   <th>Tipo</th>
                   <th>Detalle</th>
-                  <th>Id</th>
+                  <th>Id/Nro Factura</th>
                   <th>Fecha - Hora</th>
                 </tr>
               </thead>
