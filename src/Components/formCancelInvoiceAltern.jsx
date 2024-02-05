@@ -97,9 +97,12 @@ export default function FormCancelInvoiceAltern() {
   }, [dateStart, dateEnd]);
 
   function getInvoices(store, PuntoDeVentas) {
-    const facturas = getStoreInvoices(store, PuntoDeVentas);
+    //console.log("Store", JSON.parse(store), "PDV", PuntoDeVentas);
+    const storeId = store.length > 5 ? `${JSON.parse(store).idAlmacen}` : store;
+    const facturas = getStoreInvoices(storeId, PuntoDeVentas);
     facturas.then((fc) => {
       setAllFacts(fc.data);
+      console.log("all facts", fc);
       let uniqueArray = fc.data.reduce((acc, curr) => {
         if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
           acc.push(curr);

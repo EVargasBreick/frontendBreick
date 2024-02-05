@@ -25,6 +25,7 @@ export default function FormProductUpdate() {
     setLoading(true);
     const data = productsService.getAllProducts();
     data.then((res) => {
+      console.log("LISTA DE PRODUCTOS", res);
       setProductList(res);
       setLoading(false);
     });

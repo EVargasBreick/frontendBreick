@@ -20,7 +20,7 @@ import {
 import { dateString } from "../services/dateServices";
 import Cookies from "js-cookie";
 import { getBranchesPs } from "../services/storeServices";
-import { set, update } from "lodash";
+import { filter, set, update } from "lodash";
 import ToastComponent from "./Modals/Toast";
 export default function FormEditPack() {
   // Listas cargadas en render
@@ -56,6 +56,8 @@ export default function FormEditPack() {
   const [changeTotal, setChangeTotal] = useState(false);
   const [packId, setPackId] = useState("");
   const [packStatus, setPackStatus] = useState("");
+  const [filtered, setFiltered] = useState("");
+  const [auxPacks, setAuxPacks] = useState([]);
   useEffect(() => {
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
@@ -110,7 +112,8 @@ export default function FormEditPack() {
           }
           return acc;
         }, []);
-
+        console.log("Unique array", uniqueArray);
+        setAuxPacks(uniqueArray);
         setPacks(uniqueArray);
       });
       getStoreStock(userAlmacen);
@@ -184,6 +187,14 @@ export default function FormEditPack() {
       setProductStock(st.data);
       setIsAgency(true);
     });
+  }
+
+  function filterPack(value) {
+    setFiltered(value);
+    const filtered = auxPacks.filter((ap) =>
+      ap.nombrePack.toLowerCase().includes(value.toLowerCase())
+    );
+    setPacks(filtered);
   }
 
   const handleClose = () => {
@@ -351,8 +362,9 @@ export default function FormEditPack() {
       />
       <div className="formLabel">EDITAR PACKS BREICK</div>
       <div className="formLabelAlt">Seleccionar Pack</div>
-      <Form>
+      <Form style={{ display: "flex", justifyContent: "space-evenly" }}>
         <Form.Select
+          style={{ width: "40%" }}
           onChange={(e) => {
             selectPack(e.target.value);
             setSelectedPack(e.target.value);
@@ -368,7 +380,14 @@ export default function FormEditPack() {
             );
           })}
         </Form.Select>
+        <Form.Control
+          style={{ width: "40%" }}
+          placeholder="buscar por nombre"
+          value={filtered}
+          onChange={(e) => filterPack(e.target.value)}
+        />
       </Form>
+
       <Modal show={isAlertSec}>
         <Modal.Header closeButton>
           <Modal.Title>{alertSec}</Modal.Title>

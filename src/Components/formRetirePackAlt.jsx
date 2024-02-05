@@ -47,6 +47,9 @@ export default function FormRetirePackAlt() {
   const [toastType, setToastType] = useState("");
   const [loading, setLoading] = useState(false);
   const [changed, setChanged] = useState(false);
+  const [filtered, setFiltered] = useState("");
+  const [auxPacks, setAuxPacks] = useState([]);
+
   const dropRef = useRef();
   const invoiceRef = useRef();
 
@@ -79,7 +82,7 @@ export default function FormRetirePackAlt() {
           }
           return acc;
         }, []);
-
+        setAuxPacks(uniqueArray);
         setPacks(uniqueArray);
       })
       .catch((err) => {});
@@ -230,6 +233,14 @@ export default function FormRetirePackAlt() {
     }
   }
 
+  function filterPack(value) {
+    setFiltered(value);
+    const filtered = auxPacks.filter((ap) =>
+      ap.nombrePack.toLowerCase().includes(value.toLowerCase())
+    );
+    setPacks(filtered);
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const packsAll = await getPacks();
@@ -327,9 +338,15 @@ export default function FormRetirePackAlt() {
 
       {selectedStoreId != "" ? (
         <div>
-          <Form>
-            <div className="formLabel">Packs</div>
+          <Form
+            style={{
+              display: "flex",
+              justifyContent: "space-evenly",
+              marginBottom: "10px",
+            }}
+          >
             <Form.Select
+              style={{ width: "40%" }}
               onChange={(e) => {
                 selectPack(e.target.value);
               }}
@@ -343,7 +360,15 @@ export default function FormRetirePackAlt() {
                 );
               })}
             </Form.Select>
-            <div className="formLabel">
+            <Form.Control
+              style={{ width: "40%" }}
+              placeholder="buscar por nombre"
+              value={filtered}
+              onChange={(e) => filterPack(e.target.value)}
+            />
+          </Form>
+          <Form>
+            <div>
               {isPack ? (
                 <Table>
                   <thead className="tableHeader">

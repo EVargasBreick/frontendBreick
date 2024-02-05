@@ -41,6 +41,8 @@ export default function FormAsignPack() {
   const [showButtons, setShowButtons] = useState(true);
   const [isAlert, setIsAlert] = useState(false);
   const [alert, setAlert] = useState("");
+  const [filtered, setFiltered] = useState("");
+  const [auxPacks, setAuxPacks] = useState([]);
   // ref
   const dropRef = useRef();
   const [branchInfo, setBranchInfo] = useState({});
@@ -68,7 +70,7 @@ export default function FormAsignPack() {
           }
           return acc;
         }, []);
-
+        setAuxPacks(uniqueArray);
         setPacks(uniqueArray);
       });
       getStoreStock(userAlmacen);
@@ -312,6 +314,14 @@ export default function FormAsignPack() {
     }
   };
 
+  function filterPack(value) {
+    setFiltered(value);
+    const filtered = auxPacks.filter((ap) =>
+      ap.nombrePack.toLowerCase().includes(value.toLowerCase())
+    );
+    setPacks(filtered);
+  }
+
   function handleProductChange(index, idProducto) {
     if (productList[index].idProducto !== idProducto) {
       const auxProdList = [...productList];
@@ -355,8 +365,15 @@ export default function FormAsignPack() {
       />
       <LoadingModal isAlertSec={isAlert} alertSec={alert} />
 
-      <Form>
+      <Form
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly",
+          marginBottom: "10px",
+        }}
+      >
         <Form.Select
+          style={{ width: "40%" }}
           onChange={(e) => {
             selectPack(e.target.value);
             setSelectedPack(e.target.value);
@@ -372,6 +389,12 @@ export default function FormAsignPack() {
             );
           })}
         </Form.Select>
+        <Form.Control
+          style={{ width: "40%" }}
+          placeholder="buscar por nombre"
+          value={filtered}
+          onChange={(e) => filterPack(e.target.value)}
+        />
       </Form>
 
       <div className="formLabel">Detalles pack seleccionado</div>
