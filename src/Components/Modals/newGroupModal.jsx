@@ -7,7 +7,7 @@ import {
 } from "../../services/productServices";
 import { Badge, Button, Form, Modal, Table } from "react-bootstrap";
 import AlertModal from "./alertModal";
-export default function NewGroupProdModal({ show, handleClose }) {
+export default function NewGroupProdModal({ show, handleClose, setLoading }) {
   const [productList, setProductList] = useState([]);
   const [auxProductList, setAuxProductList] = useState([]);
   const [search, setSearch] = useState("");
@@ -17,6 +17,7 @@ export default function NewGroupProdModal({ show, handleClose }) {
   const [alert, setAlert] = useState("");
   const [fullList, setFullList] = useState([]);
   const [isConfirm, setIsConfirm] = useState(false);
+  const [disabled, setDisabled] = useState(false);
   useEffect(() => {
     const pList = getProducts("all");
     pList
@@ -74,6 +75,8 @@ export default function NewGroupProdModal({ show, handleClose }) {
   };
 
   const saveChanges = async () => {
+    setLoading(true);
+    setDisabled(true);
     if (groupName != "") {
       setAlert("Creando grupo ...");
       setIsConfirm(true);
@@ -90,7 +93,7 @@ export default function NewGroupProdModal({ show, handleClose }) {
         setTimeout(() => {
           setIsConfirm(false);
           window.location.reload();
-        }, 20000);
+        }, 3000);
       } catch (err) {
         setAlert("Error al crear el grupo");
         setIsConfirm(true);
@@ -210,10 +213,18 @@ export default function NewGroupProdModal({ show, handleClose }) {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="success" onClick={() => saveChanges()}>
+          <Button
+            variant="success"
+            onClick={() => saveChanges()}
+            disabled={disabled}
+          >
             Crear grupo
           </Button>
-          <Button variant="danger" onClick={() => handleClose()}>
+          <Button
+            variant="danger"
+            onClick={() => handleClose()}
+            disabled={disabled}
+          >
             Cerrar
           </Button>
         </Modal.Footer>

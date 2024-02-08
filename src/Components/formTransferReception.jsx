@@ -28,6 +28,7 @@ export default function FormTransferReception() {
   const [alertSec, setAlertSec] = useState("");
   const [storeList, setStoreList] = useState([]);
   const [originDestinyData, setOriginDestinyData] = useState({});
+
   useEffect(() => {
     const sList = getStores();
     sList.then((data) => {
@@ -238,7 +239,7 @@ export default function FormTransferReception() {
     try {
       const accepted = await composedAcceptTransfer({
         stock: stock,
-        transfer: transferDetails.idTraspaso,
+        transfer: { id: transferDetails.idTraspaso, userId: userId },
         condition: condition,
         logRejected: body,
       });

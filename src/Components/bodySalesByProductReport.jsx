@@ -133,6 +133,10 @@ export default function BodySalesByProductReport() {
           "precio unitario": rt.precioDeFabrica,
           "total Producto": rt.totalProd,
           "descuento producto": rt.descuentoProducto,
+          ["descuento % producto"]: (
+            (rt.descuentoProducto / Number(rt.totalProd)) *
+            100
+          ).toFixed(2),
           vendedor: rt.nombreCompleto,
           agencia: rt.Agencia,
         };
@@ -281,6 +285,7 @@ export default function BodySalesByProductReport() {
 
                   <th className="reportColumnMedium">TOTAL PROD</th>
                   <th className="reportColumnMedium">DESCUENTO PROD</th>
+                  <th className="reportColumnMedium">DESC PROD %</th>
                   <th className="reportColumnMedium ">VENDEDOR</th>
                   <th className="reportColumnMedium ">AGENCIA</th>
                 </tr>
@@ -325,6 +330,13 @@ export default function BodySalesByProductReport() {
                       <td className="reportColumnMedium">
                         {rt.descuentoProducto.toFixed(2)}
                       </td>
+                      <td className="reportColumnMedium">
+                        {(
+                          (rt.descuentoProducto / Number(rt.totalProd)) *
+                          100
+                        )?.toFixed(2)}
+                      </td>
+
                       <td className="reportColumnMedium">
                         {rt.nombreCompleto}
                       </td>

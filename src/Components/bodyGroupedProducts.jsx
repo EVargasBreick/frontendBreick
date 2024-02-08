@@ -12,6 +12,7 @@ export default function BodyGroupedProducts() {
   const [showEdit, setShowEdit] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const groupL = getProductGroups();
     groupL
@@ -106,10 +107,15 @@ export default function BodyGroupedProducts() {
           handleClose={handleClose}
           group={selectedGroup}
           fullList={fullList}
+          setLoading={setLoading}
         />
       )}
       {showCreate && (
-        <NewGroupProdModal show={showCreate} handleClose={handleClose} />
+        <NewGroupProdModal
+          show={showCreate}
+          handleClose={handleClose}
+          setLoading={setLoading}
+        />
       )}
       {loading && <Loader />}
     </div>

@@ -140,11 +140,13 @@ export default function SidebarStoreSales() {
             BREICK
           </MenuItem>
           <Menu iconShape="square">
-            <Agencias
-              toggleSub={toggleSub}
-              redirectOnClick={redirectOnClick}
-              toggledAg={toggledAg}
-            />
+            <div>
+              <Agencias
+                toggleSub={toggleSub}
+                redirectOnClick={redirectOnClick}
+                toggledAg={toggledAg}
+              />
+            </div>
           </Menu>
         </Menu>
       </ProSidebar>

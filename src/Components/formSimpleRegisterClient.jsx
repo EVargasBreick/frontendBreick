@@ -66,6 +66,7 @@ export default function FormSimpleRegisterClient(props) {
   const [pTested, setpTested] = useState(false);
   const [dTested, setdTested] = useState(false);
   const razonSocialref = useRef();
+  const { handleCloseProp } = props;
   const navigate = useNavigate();
   const [idUsuarioActual, setIdUsuarioActual] = useState();
   const zonasDefault = {
@@ -126,7 +127,7 @@ export default function FormSimpleRegisterClient(props) {
     });
   }, []);
 
-  function verifyInputs() {
+  function verifyInputsAlt() {
     const obFields = verifyOblFields(
       razonSocial,
       nit,
@@ -289,6 +290,121 @@ export default function FormSimpleRegisterClient(props) {
         setIsAlert(true);
       });
   }
+
+  async function verifyInputs() {
+    try {
+      const obFields = await verifyOblFields(
+        razonSocial,
+        nit,
+        zona,
+        idioma,
+        tipoP,
+        frecuencia,
+        usuario,
+        nombreca,
+        telefca
+      );
+
+      const response = await verifyClientEmail(correo, isCorreoA);
+      setcTested(true);
+
+      const phoneRes = await verifyClientPhone(tela, isPhoneA);
+      setpTested(true);
+
+      const addressRes = await verifyClientAdress(dira, isAdress);
+      setdTested(true);
+
+      const clientObject = await structureClient(
+        razonSocial,
+        nit,
+        correo,
+        zona,
+        active ? "1" : "0",
+        dira,
+        dirb,
+        dirc,
+        cpa,
+        cpb,
+        cpc,
+        tela,
+        telb,
+        telc,
+        idioma,
+        tipoP,
+        frecuencia,
+        idUsuarioActual,
+        notas,
+        idUsuarioActual,
+        tipoDoc == undefined ? 1 : tipoDoc
+      );
+
+      if (
+        (nombrecb && telefcb) ||
+        (nombrecc && telefcc) ||
+        (!nombrecb && !nombrecc && !telefcb && !telefcc)
+      ) {
+        const contactosObject = await structureContacts(
+          nombreca,
+          correoca,
+          telefca,
+          nombrecb,
+          correocb,
+          telefcb,
+          nombrecc,
+          correocc,
+          telefcc
+        );
+
+        setisLoading(true);
+
+        const newClient = await createClient(clientObject);
+        const newId = newClient.data.createdId;
+
+        await Promise.all(
+          contactosObject.map(async (contact) => {
+            const newContact = await createContact(contact, newId);
+            setIsAlert(true);
+            setAlert("Cliente creado correctamente");
+            if (props.isModal) {
+              Cookies.set("nit", nit);
+              setTimeout(() => {
+                handleCloseProp();
+              }, 2000);
+            } else {
+              navigate("/principal");
+            }
+            setisLoading(false);
+          })
+        );
+      } else {
+        setIsAlert(true);
+        setAlert(
+          "En caso de proveer información de contacto, ingresar tanto nombre como teléfono de manera obligatoria"
+        );
+      }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        const errorMessage = err.response.data.message;
+        if (errorMessage.includes("The duplicate key value is")) {
+          const errorDisplay =
+            "La combinación de Nit y Zona ya se encuentran registrada en la base de datos";
+          setAlert(errorDisplay);
+        } else if (
+          errorMessage === "Recuerde preguntar el correo del cliente"
+        ) {
+          setAlert(errorMessage);
+          setIsButton(true);
+        } else {
+          setAlert(errorMessage);
+        }
+      } else {
+        setAlert(err);
+      }
+      setIsAlert(true);
+      setisLoading(false);
+    }
+  }
+
   return (
     <div>
       <div className="formLabel">REGISTRAR CLIENTES</div>

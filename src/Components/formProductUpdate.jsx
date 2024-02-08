@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { Button, Form, Table, Image, Modal } from "react-bootstrap";
 import {

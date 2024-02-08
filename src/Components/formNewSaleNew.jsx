@@ -511,6 +511,7 @@ export default function FormNewSaleNew() {
     setSelectedProducts(auxSelected);
     setAuxSelectedProducts(auxSelected);
     setTestArray(auxSelected);
+    setDescuento(0);
   }
 
   //Calcular totales
@@ -725,6 +726,8 @@ export default function FormNewSaleNew() {
             isModal={true}
             idUsuario={usuarioAct}
             nit={search}
+            setIsCreate={setIsCreate}
+            handleCloseProp={handleClose}
           />
         </Modal.Body>
         <Modal.Footer>
@@ -1004,6 +1007,9 @@ export default function FormNewSaleNew() {
                   <div className="formLabel">DESCUENTO (%)</div>
                   <div className="percent">
                     <Form.Control
+                      disabled={auxSelectedProducts.find(
+                        (as) => as.descuentoProd > 0
+                      )}
                       min="0"
                       max="100"
                       value={descuento}

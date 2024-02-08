@@ -5,7 +5,10 @@ import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
 
 export const DropComponent = React.forwardRef(
-  ({ branchInfo, selectedProducts, cliente, dropId, total, vale }, ref) => {
+  (
+    { branchInfo, selectedProducts, cliente, dropId, total, vale, motivo },
+    ref
+  ) => {
     console.log("Selectedproducts", selectedProducts);
     const splittedDate = dateString().split(" ");
     const date = splittedDate[0];
@@ -22,6 +25,10 @@ export const DropComponent = React.forwardRef(
           <div> {`Sucursal No ${branchInfo?.nro}`}</div>
           <div className="simpleSeparator"></div>
           <div>{`NOTA DE ENTREGA/BAJA ${dropId}`}</div>
+          <div className="simpleSeparator"></div>
+          <div className="simpleSeparator"></div>
+          <div>{`MOTIVO:`}</div>
+          <div>{motivo}</div>
           <div className="simpleSeparator"></div>
           <div className="simpleSeparator"></div>
           <div className="textWithLine"></div>

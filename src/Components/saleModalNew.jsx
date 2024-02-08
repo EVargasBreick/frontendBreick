@@ -102,6 +102,7 @@ function SaleModalNew(
   const canc = valeForm.cancelado ? valeForm.cancelado : cancelado;
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [onlineDate, setOnlineDate] = useState({ fechaHora: "", emision: "" });
+  const [motivoDetalle, setMotivoDetalle] = useState("");
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -418,7 +419,7 @@ function SaleModalNew(
                   tipoPago == 4 &&
                   roundToTwoDecimalPlaces(datos.totalDescontado) <= giftCard
                     ? "vale"
-                    : motivo,
+                    : `${motivo} : ${motivoDetalle}`,
                 fechaBaja: dateString(),
                 idUsuario: userData.userId,
                 idAlmacen: userData.userStore,
@@ -1121,6 +1122,7 @@ function SaleModalNew(
                 dropId={dropId}
                 total={roundToTwoDecimalPlaces(datos.totalDescontado)}
                 vale={giftCard}
+                motivo={`${motivo} - ${motivoDetalle}`}
               />
             </Button>
           </div>
@@ -1356,7 +1358,10 @@ function SaleModalNew(
             ) : tipoPago == 10 ? (
               <div>
                 <div className="modalRows">
-                  <div className="modalLabel"> Monto cancelado:</div>
+                  <div className="modalLabel">
+                    {" "}
+                    Monto cancelado en efectivo:
+                  </div>
                   <div className="modalData">
                     <div>
                       <Form.Control
@@ -1455,11 +1460,33 @@ function SaleModalNew(
                     <Form.Select onChange={(e) => setMotivo(e.target.value)}>
                       <option>Seleccione Motivo</option>
                       <option value="socio">Socio</option>
-
-                      <option value="promo">Promoción</option>
                       <option value="muestra">Muestra</option>
                       <option value="online">Venta en línea</option>
                     </Form.Select>
+                  }
+                </div>
+              </div>
+            ) : null}
+            {tipoPago == 11 ? (
+              <div className="modalRows">
+                <div className="modalLabel"> Detalle del motivo:</div>
+                <div className="modalData">
+                  {
+                    <div>
+                      <Form.Control
+                        value={motivoDetalle}
+                        as="textarea"
+                        rows={3}
+                        onChange={(e) => {
+                          (motivoDetalle.length < 100 ||
+                            motivoDetalle >= e.target.value) &&
+                            setMotivoDetalle(e.target.value);
+                        }}
+                      />
+                      <div>{`${
+                        100 - motivoDetalle.length
+                      } Caracteres restantes`}</div>
+                    </div>
                   }
                 </div>
               </div>

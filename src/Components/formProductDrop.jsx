@@ -437,6 +437,7 @@ export default function FormProductDrop() {
                 razonSocial: "INCADEX S.R.L.",
               }}
               dropId={dropId}
+              motivo={`${motivo} - ${detalleMotivo}`}
               total={selectedProduct.reduce((accumulator, object) => {
                 return accumulator + object.total;
               }, 0)}

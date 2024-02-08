@@ -12,6 +12,7 @@ import {
   transferProductList,
 } from "../services/transferServices";
 import { useRef } from "react";
+import { userService } from "../services/userServices";
 export default function FormViewTransferAgency() {
   const [list, setList] = useState([]);
   const [auxList, setAuxList] = useState([]);
@@ -22,6 +23,7 @@ export default function FormViewTransferAgency() {
     : JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
   const [transferDetaillist, setTransferDetaillist] = useState({});
   const [isDetails, setIsDetails] = useState(false);
+  const [userList, setUserList] = useState([]);
 
   useEffect(() => {
     // get user cookies
@@ -32,6 +34,16 @@ export default function FormViewTransferAgency() {
       tl.data = tl.data.filter((t) => t.idOrigen == userStore);
       setList(tl.data);
     });
+
+    const userData = userService.getAll();
+    userData
+      .then((res) => {
+        setUserList(res);
+        console.log("User data", res);
+      })
+      .catch((err) => {
+        console.log("Error al cargar los usuarios", err);
+      });
   }, []);
 
   function filtrarOrigenDestino(value) {
@@ -49,8 +61,16 @@ export default function FormViewTransferAgency() {
   async function transferDetails(tl) {
     try {
       const parsed = JSON.parse(tl);
+      const foundId = userList.find(
+        (ul) => ul.idUsuario == parsed.id_usuario_acepta
+      );
+      console.log("Found id", foundId);
       const productList = await transferProductList(parsed.idTraspaso);
-      setTransferDetaillist({ detalles: parsed, productos: productList.data });
+      setTransferDetaillist({
+        detalles: parsed,
+        productos: productList.data,
+        usuarioAcepta: foundId,
+      });
       setIsDetails(true);
       console.log("Detalles del traspaso", productList);
     } catch (error) {
@@ -159,6 +179,18 @@ export default function FormViewTransferAgency() {
                   <td>{transferDetaillist.detalles.nombreOrigen}</td>
                   <td>{transferDetaillist.detalles.nombreDestino}</td>
                 </tr>
+                {transferDetaillist.usuarioAcepta && (
+                  <tr className="tableHeader">
+                    <th colSpan={3}>Usuario que acepto</th>
+                  </tr>
+                )}
+                {transferDetaillist.usuarioAcepta && (
+                  <tr className="tableRow">
+                    <td colSpan={3}>
+                      {`${transferDetaillist.usuarioAcepta?.nombre} ${transferDetaillist.usuarioAcepta?.apPaterno} - ${transferDetaillist.usuarioAcepta?.usuario}`}
+                    </td>
+                  </tr>
+                )}
               </thead>
               <tbody>
                 <tr className="tableHeader">

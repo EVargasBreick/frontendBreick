@@ -184,13 +184,14 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         <Image src={newClient} className="icon"></Image>Reasignar Agencias
       </MenuItem>
-      {/*<MenuItem
+      <MenuItem
         onClick={() => redirectOnClick("/reportes/log/kardex")}
         className="menuItem"
       >
         <Image src={Lines} className="icon"></Image>
         Reporte Kardex Pasado
       </MenuItem>
+      {/*
       <MenuItem
         onClick={() => redirectOnClick("/reportes/actual/kardex")}
         className="menuItem"

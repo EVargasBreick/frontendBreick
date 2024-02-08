@@ -170,6 +170,8 @@ export default function FormRouteSaleNew() {
     "707015",
     "707016",
     "707017",
+    "703001",
+    "703002",
   ];
 
   async function listDiscounts(currentDate, tipo) {

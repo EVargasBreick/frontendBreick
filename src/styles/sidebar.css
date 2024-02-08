@@ -41,3 +41,8 @@
     background-color: white;
   }
 }
+.submenu-scrollable {
+  max-height: calc(100vh - 150px); /* Adjust as needed */
+  overflow-y: auto;
+  height: 50%;
+}
