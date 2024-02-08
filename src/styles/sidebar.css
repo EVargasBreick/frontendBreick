@@ -46,3 +46,8 @@
   overflow-y: auto;
   height: 50%;
 }
+
+.pro-sidebar.collapsed .pro-menu > ul > .pro-menu-item.pro-sub-menu > .pro-inner-list-item {
+   height: 20em !important;
+   overflow: scroll !important;
+}
