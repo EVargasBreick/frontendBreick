@@ -89,8 +89,10 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={leftArrow} className="icon"></Image>
         Modificar Traspaso
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}>
-        <Image src={Check} className="icon"></Image>Aprobar Traspasos
+      <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}
+        className="menuItem"
+      >
+        <Image src={Check} className="icon"></Image>Aprobar Traspasoss
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/verTraspaso")}
