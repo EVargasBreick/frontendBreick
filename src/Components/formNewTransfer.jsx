@@ -153,6 +153,14 @@ export default function FormNewTransfer() {
         getDestinationStock(id + "");
       }
     }
+    Cookies.set(
+      "draft_transfer",
+      JSON.stringify({
+        idDestino: idDestino,
+        selectedProducts: selectedProducts,
+      }),
+      { expires: 0.5 }
+    );
   }
   function addProductToList(product) {
     const produc = JSON.parse(product);
@@ -175,6 +183,15 @@ export default function FormNewTransfer() {
         cantidadRestante: produc.cant_Actual,
       };
       setSelectedProducts([...selectedProducts, productObj]);
+
+      Cookies.set(
+        "draft_transfer",
+        JSON.stringify({
+          idDestino: idDestino,
+          selectedProducts: selectedProducts,
+        }),
+        { expires: 0.5 }
+      );
     }
   }
   function changeQuantities(index, cantidad, prod) {
@@ -189,11 +206,27 @@ export default function FormNewTransfer() {
     let auxSelected = [...selectedProducts];
     auxSelected[index] = auxObj;
     setSelectedProducts(auxSelected);
+    Cookies.set(
+      "draft_transfer",
+      JSON.stringify({
+        idDestino: idDestino,
+        selectedProducts: auxSelected,
+      }),
+      { expires: 0.5 }
+    );
   }
   function deleteProduct(index) {
     const auxArray = [...selectedProducts];
     auxArray.splice(index, 1);
     setSelectedProducts(auxArray);
+    Cookies.set(
+      "draft_transfer",
+      JSON.stringify({
+        idDestino: idDestino,
+        selectedProducts: auxArray,
+      }),
+      { expires: 0.5 }
+    );
   }
   /*function registerTransfer() {
     if (idOrigen !== idDestino) {
