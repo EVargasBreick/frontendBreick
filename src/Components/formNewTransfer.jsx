@@ -20,6 +20,7 @@ import { sendOrderEmail, updateStock } from "../services/orderServices";
 import { dateString } from "../services/dateServices";
 import { OrderNote } from "./orderNote";
 import ReactToPrint from "react-to-print";
+import { Loader } from "./loader/Loader";
 export default function FormNewTransfer() {
   const navigate = useNavigate();
   const [alert, setAlert] = useState("");
@@ -41,11 +42,29 @@ export default function FormNewTransfer() {
   const [nombreOrigen, setNombreOrigen] = useState("");
   const [nombreDestino, setNombreDestino] = useState();
   const [destinationStock, setDestinationStock] = useState([]);
+  const [loading, setLoading] = useState(true);
   const componentRef = useRef();
   const buttonRef = useRef();
   const productRef = useRef([]);
 
   useEffect(() => {
+    const draft_transfer = Cookies.get("draft_transfer");
+    if (draft_transfer) {
+      console.log("Transfer drafteado existente");
+      const parsedDraft = JSON.parse(draft_transfer);
+      console.log("Parsed draft", parsedDraft);
+      setSelectedProducts(parsedDraft.selectedProducts);
+      setIdDestino(parsedDraft.idDestino);
+      if (parsedDraft.idDestino != "") {
+        getDestinationStock(parsedDraft.idDestino);
+
+        console.log(
+          "Estito",
+          almacen.find((al) => al.idAgencia == parsedDraft.idDestino)?.Nombre
+        );
+      }
+    }
+
     const UsuarioAct = Cookies.get("userAuth");
     const sudoStore = Cookies.get("sudostore");
     const selectedStore = sudoStore
@@ -70,14 +89,17 @@ export default function FormNewTransfer() {
     const stores = getStores();
     stores.then((store) => {
       setAlmacen(store.data);
-      console.log(
-        "Prueiblla",
-        store.data.find((al) => al.idAgencia == selectedStore)
-      );
       setNombreOrigen(
         store.data.find((al) => al.idAgencia == selectedStore).Nombre
       );
+      if (draft_transfer) {
+        const parsedDraft = JSON.parse(draft_transfer);
+        setNombreDestino(
+          store.data.find((al) => al.idAgencia == parsedDraft.idDestino)?.Nombre
+        );
+      }
       console.log("Datos almacen", store.data);
+      setLoading(false);
     });
   }, []);
   const handleClose = () => {
@@ -94,6 +116,20 @@ export default function FormNewTransfer() {
       buttonRef.current.click();
     }
   }, [isPrint]);
+
+  useEffect(() => {
+    console.log("Setteando cookies para draft", selectedProducts);
+    if (selectedProducts.length > 0 || idDestino != "") {
+      Cookies.set(
+        "draft_transfer",
+        JSON.stringify({
+          idDestino: idDestino,
+          selectedProducts: selectedProducts,
+        }),
+        { expires: 0.5 }
+      );
+    }
+  }, [selectedProducts, idDestino]);
 
   function updateCurrentStock() {
     setProductos([]);
@@ -149,18 +185,11 @@ export default function FormNewTransfer() {
         getDestinationStock(idSub[0]);
       } else {
         setIdDestino(id + "");
+
         setNombreDestino(almacen.find((al) => al.idAgencia == id)?.Nombre);
         getDestinationStock(id + "");
       }
     }
-    Cookies.set(
-      "draft_transfer",
-      JSON.stringify({
-        idDestino: idDestino,
-        selectedProducts: selectedProducts,
-      }),
-      { expires: 0.5 }
-    );
   }
   function addProductToList(product) {
     const produc = JSON.parse(product);
@@ -183,15 +212,6 @@ export default function FormNewTransfer() {
         cantidadRestante: produc.cant_Actual,
       };
       setSelectedProducts([...selectedProducts, productObj]);
-
-      Cookies.set(
-        "draft_transfer",
-        JSON.stringify({
-          idDestino: idDestino,
-          selectedProducts: selectedProducts,
-        }),
-        { expires: 0.5 }
-      );
     }
   }
   function changeQuantities(index, cantidad, prod) {
@@ -206,27 +226,11 @@ export default function FormNewTransfer() {
     let auxSelected = [...selectedProducts];
     auxSelected[index] = auxObj;
     setSelectedProducts(auxSelected);
-    Cookies.set(
-      "draft_transfer",
-      JSON.stringify({
-        idDestino: idDestino,
-        selectedProducts: auxSelected,
-      }),
-      { expires: 0.5 }
-    );
   }
   function deleteProduct(index) {
     const auxArray = [...selectedProducts];
     auxArray.splice(index, 1);
     setSelectedProducts(auxArray);
-    Cookies.set(
-      "draft_transfer",
-      JSON.stringify({
-        idDestino: idDestino,
-        selectedProducts: auxArray,
-      }),
-      { expires: 0.5 }
-    );
   }
   /*function registerTransfer() {
     if (idOrigen !== idDestino) {
@@ -420,6 +424,7 @@ export default function FormNewTransfer() {
 
                 setIsAlertSec(false);
                 setAlert("Traspaso Creado correctamente");
+                Cookies.remove("draft_transfer");
                 setIsAlert(true);
                 setTimeout(() => {
                   // window.location.reload();
@@ -572,9 +577,15 @@ export default function FormNewTransfer() {
               prepareStoreId(e.target.value, "destino");
             }}
           >
-            <option>Seleccione destino</option>
+            {idDestino == "" ? (
+              <option>Seleccione destino</option>
+            ) : (
+              <option>
+                {almacen.find((al) => al.Nombre.includes(idDestino))?.Nombre}
+              </option>
+            )}
             {almacen.map((ag) => {
-              if (ag.idAgencia != idOrigen) {
+              if (ag.idAgencia != idOrigen && ag.idAgencia != idDestino) {
                 return (
                   <option value={ag.Nombre} key={ag.Nombre}>
                     {ag.Nombre}
@@ -641,12 +652,6 @@ export default function FormNewTransfer() {
                 </thead>
                 <tbody>
                   {[...selectedProducts].map((product, index) => {
-                    console.log(
-                      "ENCONTRADO",
-                      auxProducts.find(
-                        (ap) => ap.idProducto == product.idProducto
-                      )
-                    );
                     const cActual = auxProducts.find(
                       (ap) => ap.idProducto == product.idProducto
                     )?.cant_Actual;
@@ -656,7 +661,7 @@ export default function FormNewTransfer() {
                     const stockDestino = destinationStock.find(
                       (ds) => ds.idProducto == product.idProducto
                     );
-                    console.log("Stock destino", stockDestino);
+
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -745,6 +750,7 @@ export default function FormNewTransfer() {
           />
         </div>
       ) : null}
+      {loading && <Loader />}
     </div>
   );
 }
