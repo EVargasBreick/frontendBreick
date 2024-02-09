@@ -34,6 +34,7 @@ export default function BodyCurrentKardex() {
   const showAll = [1, 9, 10, 8, 7, 6, 5, 2, 12];
   const [typeFilter, setTypeFilter] = useState("");
   const [searchProduct, setSearchProduct] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const user = JSON.parse(Cookies.get("userAuth"));
   useEffect(() => {
     const userRol = JSON.parse(Cookies.get("userAuth")).rol;
@@ -59,6 +60,19 @@ export default function BodyCurrentKardex() {
         console.log("Filtered", filtered);
       }
     });
+
+    function handleResize() {
+      if (window.innerWidth < 700) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    }
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   function handleCriteria(valor) {
@@ -220,12 +234,24 @@ export default function BodyCurrentKardex() {
               </div>
             </div>
           ) : (
-            <div className="reportSelector">
+            <div
+              className="reportSelector"
+              style={{
+                flexDirection: isMobile ? "column" : "row",
+                alignItems: isMobile && "center",
+              }}
+            >
               <Form.Group
                 className="reportOptionLarge"
-                style={{ display: "flex", justifyContent: "space-evenly" }}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  width: isMobile ? "100%" : "80%",
+                  flexDirection: isMobile ? "column" : "row",
+                  alignItems: isMobile && "center",
+                }}
               >
-                <div style={{ width: "50%" }}>
+                <div style={{ width: isMobile ? "80%" : "45%" }}>
                   <Form.Label>Seleccione Producto</Form.Label>
                   <Form.Select onChange={(e) => selectProduct(e.target.value)}>
                     <option>Seleccione Producto</option>
@@ -238,7 +264,7 @@ export default function BodyCurrentKardex() {
                     })}
                   </Form.Select>
                 </div>
-                <div>
+                <div style={{ width: isMobile ? "80%" : "25%" }}>
                   <Form.Label>Tipo de producto</Form.Label>
                   <Form.Select
                     onChange={(e) => filterByTypeProdList(e.target.value)}
@@ -251,7 +277,7 @@ export default function BodyCurrentKardex() {
                     <option value="3">Navidad</option>
                   </Form.Select>
                 </div>
-                <div>
+                <div style={{ width: isMobile ? "80%" : "25%" }}>
                   <Form.Label>Buscar Producto</Form.Label>
                   <Form.Control
                     value={searchProduct}

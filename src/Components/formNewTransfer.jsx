@@ -49,27 +49,35 @@ export default function FormNewTransfer() {
 
   useEffect(() => {
     const draft_transfer = Cookies.get("draft_transfer");
+    const UsuarioAct = Cookies.get("userAuth");
+    const sudoStore = Cookies.get("sudostore");
+
     if (draft_transfer) {
-      console.log("Transfer drafteado existente");
       const parsedDraft = JSON.parse(draft_transfer);
       console.log("Parsed draft", parsedDraft);
       setSelectedProducts(parsedDraft.selectedProducts);
       setIdDestino(parsedDraft.idDestino);
       if (parsedDraft.idDestino != "") {
         getDestinationStock(parsedDraft.idDestino);
-
-        console.log(
-          "Estito",
-          almacen.find((al) => al.idAgencia == parsedDraft.idDestino)?.Nombre
-        );
+      }
+      if (parsedDraft.idOrigen == "") {
+        setIdOrigen(JSON.parse(UsuarioAct).idAlmacen);
       }
     }
 
-    const UsuarioAct = Cookies.get("userAuth");
-    const sudoStore = Cookies.get("sudostore");
-    const selectedStore = sudoStore
-      ? sudoStore
-      : JSON.parse(UsuarioAct).idAlmacen;
+    const draftOrigen = draft_transfer
+      ? JSON.parse(draft_transfer)?.idOrigen
+      : "";
+
+    console.log("Draft origen", draftOrigen);
+
+    const selectedStore =
+      draftOrigen != ""
+        ? draftOrigen
+        : sudoStore
+        ? sudoStore
+        : JSON.parse(UsuarioAct).idAlmacen;
+    console.log("Selected store", selectedStore);
     if (UsuarioAct) {
       setUserId(JSON.parse(Cookies.get("userAuth")).idUsuario);
       setUserEmail(JSON.parse(UsuarioAct).correo);
@@ -124,12 +132,13 @@ export default function FormNewTransfer() {
         "draft_transfer",
         JSON.stringify({
           idDestino: idDestino,
+          idOrigen: idOrigen,
           selectedProducts: selectedProducts,
         }),
         { expires: 0.5 }
       );
     }
-  }, [selectedProducts, idDestino]);
+  }, [selectedProducts, idDestino, idOrigen]);
 
   function updateCurrentStock() {
     setProductos([]);

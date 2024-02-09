@@ -14,12 +14,14 @@ import ChangePasswordModal from "./Modals/ChangePasswordModal";
 import { allProducts } from "../services/productServices";
 import { generateExcel } from "../services/utils";
 import ClientInfo from "./Modals/clientInfo";
+import ChangeStoreModal from "./Modals/changeStoreModal";
 export default function CurrentUser() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
   const { setIsAuth, setuserData } = useContext(UserContext);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [showSearchClientModal, setShowSearchClientModal] = useState(false);
+  const [isChangeStore, setIsChangeStore] = useState(false);
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
 
@@ -106,6 +108,13 @@ export default function CurrentUser() {
           >
             Buscar cliente
           </Dropdown.Item>
+          <Dropdown.Item
+            onClick={() => {
+              setIsChangeStore(true);
+            }}
+          >
+            Cambiar Agencia
+          </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
       <ChangePasswordModal
@@ -116,6 +125,12 @@ export default function CurrentUser() {
         setShowSearchClientModal={setShowSearchClientModal}
         showSearchClientModal={showSearchClientModal}
       />
+      {isChangeStore && (
+        <ChangeStoreModal
+          setIsChangeStore={setIsChangeStore}
+          isChangeStore={isChangeStore}
+        />
+      )}
     </>
   );
 }
