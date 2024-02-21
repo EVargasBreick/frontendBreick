@@ -94,9 +94,12 @@ export default function BodyCurrentKardex() {
     setDataTable([...newList]);
   }
   function selectProduct(prod) {
-    setSelectedProduct(prod);
+    console.log("PRODUCTO SELECIONADO", prod);
+    if (prod != "false") {
+      setSelectedProduct(prod);
 
-    setInternal(productList.find((pr) => pr.idProducto == prod).codInterno);
+      setInternal(productList.find((pr) => pr.idProducto == prod).codInterno);
+    }
   }
 
   function generateReport() {
@@ -253,8 +256,11 @@ export default function BodyCurrentKardex() {
               >
                 <div style={{ width: isMobile ? "80%" : "45%" }}>
                   <Form.Label>Seleccione Producto</Form.Label>
-                  <Form.Select onChange={(e) => selectProduct(e.target.value)}>
-                    <option>Seleccione Producto</option>
+                  <Form.Select
+                    onChange={(e) => selectProduct(e.target.value)}
+                    onMouseDown={(e) => selectProduct(e.target.value)}
+                  >
+                    <option value={false}>Seleccione Producto</option>
                     {productList.map((pr, index) => {
                       return (
                         <option key={index} value={pr.idProducto}>
