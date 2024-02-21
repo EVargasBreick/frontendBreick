@@ -82,6 +82,7 @@ export default function FormNewSaleNew() {
   const [sudoStoreSelected, setSudoStoreSelected] = useState("");
   const [currentStore, setCurrentStore] = useState("");
   const [loading, setLoading] = useState(false);
+  const [disabledDiscount, setDisabledDiscount] = useState(false);
   //Procesos al montarse el componente por primera vez
 
   useEffect(() => {
@@ -250,6 +251,20 @@ export default function FormNewSaleNew() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedProducts.length > 0) {
+      const foundDisc = selectedProducts.filter((sp) => sp.descuentoProd > 0);
+      const foundWD = selectedProducts.filter((sp) => sp.tipoProducto > 4);
+      if (foundDisc.length > 0 || foundWD.length > 0) {
+        setDisabledDiscount(true);
+        setDescuento(0);
+      } else {
+        setDisabledDiscount(false);
+        setDescuento(0);
+      }
+    }
+  }, [selectedProducts]);
 
   //Maneja el ancho de la pantalla para determinar display movil o pc
 
@@ -927,6 +942,7 @@ export default function FormNewSaleNew() {
                               min={0}
                               max={100}
                               value={sp.descuentoProd}
+                              disabled={sp.tipoProducto > 4}
                               onChange={(e) => {
                                 const inputRes = Number(e.target.value);
 
@@ -1009,9 +1025,7 @@ export default function FormNewSaleNew() {
                   <div className="formLabel">DESCUENTO (%)</div>
                   <div className="percent">
                     <Form.Control
-                      disabled={auxSelectedProducts.find(
-                        (as) => as.descuentoProd > 0
-                      )}
+                      disabled={disabledDiscount}
                       min="0"
                       max="100"
                       value={descuento}
