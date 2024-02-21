@@ -13,7 +13,10 @@ export default function UserOrders() {
     const user = Cookies.get("userAuth");
 
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol < 11) {
+      if (
+        JSON.parse(Cookies.get("userAuth")).rol < 11 ||
+        JSON.parse(Cookies.get("userAuth")).rol > 12
+      ) {
       } else {
         navigate("/principal");
       }

@@ -61,12 +61,24 @@ export default function BodySimpleTransferReport() {
 
   const filter = (value) => {
     setFiltered(value);
-    const filtered = auxTableData.filter(
-      (ad) =>
-        ad.cliente_razon_social.toLowerCase().includes(value.toLowerCase()) ||
-        ad.ci == value
-    );
-    setTableData(filtered);
+    if (value == "todo") {
+      setTableData(auxTableData);
+    } else {
+      if (value == "0") {
+        const filtered = auxTableData.filter(
+          (ad) => ad.estado == 0 && ad.movil == 0
+        );
+        setTableData(filtered);
+      } else {
+        const filtered =
+          value == "1"
+            ? auxTableData.filter(
+                (ad) => ad.estado == 1 || (ad.estado == 0 && ad.movil == 1)
+              )
+            : auxTableData.filter((ad) => ad.estado == "2");
+        setTableData(filtered);
+      }
+    }
   };
 
   const exportToExcel = async () => {
@@ -145,12 +157,17 @@ export default function BodySimpleTransferReport() {
       {isReport ? (
         <div>
           <Form>
-            <Form.Label>Filtrar por nit/razon social</Form.Label>
-            <Form.Control
-              type="text"
+            <Form.Label>Filtrar estado</Form.Label>
+            <Form.Select
               value={filtered}
               onChange={(e) => filter(e.target.value)}
-            />
+            >
+              <option>Seleccione estado</option>
+              <option value={"todo"}>Todos</option>
+              <option value={"1"}>Aprobados</option>
+              <option value={"0"}>Pendientes</option>
+              <option value={"2"}>Cancelados</option>
+            </Form.Select>
           </Form>
           <div className="formLabel">Reporte simple de traspasos</div>
           <div style={{ maxHeight: "70vh", overflow: "auto" }}>
@@ -164,6 +181,7 @@ export default function BodySimpleTransferReport() {
                   <th>Origen</th>
                   <th>Destino</th>
                   <th>Fecha</th>
+                  <th>Estado</th>
                   <th>Usuario</th>
                 </tr>
               </thead>
@@ -175,12 +193,21 @@ export default function BodySimpleTransferReport() {
                   const destino = allSts.find(
                     (as) => as.idagencia == td.idDestino
                   )?.nombre;
+                  const estado =
+                    td.estado == 0
+                      ? td.movil == 0
+                        ? "Pendiente"
+                        : "Aprobado"
+                      : td.estado == 1
+                      ? "Aprobado"
+                      : "Cancelado";
                   return (
                     <tr key={index} className="tableBodyReport">
                       <td>{td.idTraspaso}</td>
                       <td>{origen}</td>
                       <td>{destino}</td>
                       <td>{td.fechaCrea}</td>
+                      <td>{estado}</td>
                       <td>{td.usuario}</td>
                     </tr>
                   );

@@ -24,7 +24,8 @@ import { TbCalendarTime } from "react-icons/tb";
 import { MdMoveUp } from "react-icons/md";
 import { BiSolidStoreAlt } from "react-icons/bi";
 import { FaBoxes, FaBoxOpen } from "react-icons/fa";
-import { TbTransferIn } from "react-icons/tb";
+import { TbTransferIn, TbDiscount } from "react-icons/tb";
+import { FaFileInvoiceDollar } from "react-icons/fa6";
 export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
   return (
     <SubMenu
@@ -61,6 +62,13 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
         className="menuItem"
       >
         <Image src={Prod} className="icon"></Image>Reporte mensual de ventas
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/facturas/anuladas")}
+        className="menuItem"
+      >
+        <FaFileInvoiceDollar size="35px" style={{ paddingRight: "5px" }} />
+        Reporte de facturas anuladas
       </MenuItem>
       <div className="menuItem">Reportes de productos</div>
       <MenuItem
@@ -154,6 +162,13 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       >
         <FaBoxOpen size="35px" style={{ paddingRight: "5px" }} />
         Reporte simple de traspasos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/descuentos/diarios")}
+        className="menuItem"
+      >
+        <TbDiscount size="35px" style={{ paddingRight: "5px" }} />
+        Reporte descuentos por dia
       </MenuItem>
     </SubMenu>
   );

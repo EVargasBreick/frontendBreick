@@ -11,7 +11,7 @@ export default function ManageTransfer() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-    const list = [1, 7, 10, 9];
+    const list = [1, 7, 10, 9, 13];
     const userA = JSON.parse(Cookies.get("userAuth")).rol;
     if (user) {
       if (!list.includes(userA)) {

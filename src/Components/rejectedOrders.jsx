@@ -14,7 +14,7 @@ export default function RejectedOrders() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     const parsed = JSON.parse(user);
-    const permitted = [1, 7, 11];
+    const permitted = [1, 7, 11, 13];
     if (user) {
       if (!permitted.includes(parsed.rol)) {
         navigate("/principal");

@@ -11,7 +11,7 @@ export default function RePrintInvoicesAlt() {
   useEffect(() => {
     const user = Cookies.get("userAuth");
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol < 13) {
+      if (JSON.parse(Cookies.get("userAuth")).rol <= 13) {
       } else {
         navigate("/principal");
       }

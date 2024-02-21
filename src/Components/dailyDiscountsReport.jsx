@@ -1,19 +1,21 @@
 import React from "react";
 import Display from "./display";
+import "../styles/generalStyle.css";
 import "../styles/formLayouts.css";
 import Sidebar from "./sidebar";
-import "../styles/generalStyle.css";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import BodySamplesProductReport from "./bodySamplesProductReport";
-export default function SamplesProductReport() {
+import BodyDailyDiscountsReport from "./bodyDailyDiscountsReport";
+export default function DailyDiscountsReport() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
+    const permitted = [1, 7, 9];
+
     if (user) {
-      if (JSON.parse(Cookies.get("userAuth")).rol <= 13) {
-      } else {
+      const parsed = JSON.parse(Cookies.get("userAuth"));
+      if (!permitted.includes(parsed.rol)) {
         navigate("/principal");
       }
     }
@@ -29,7 +31,7 @@ export default function SamplesProductReport() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <BodySamplesProductReport />
+          <BodyDailyDiscountsReport />
         </div>
       </div>
     </div>

@@ -82,6 +82,8 @@ import GroupedProducts from "./Components/groupedProducts";
 import UserOrders from "./Components/userOrders";
 import TransferProductReport from "./Components/transferProductReport";
 import SimpleTransferReport from "./Components/simpleTransferReport";
+import DailyDiscountsReport from "./Components/dailyDiscountsReport";
+import CanceledInvoicesReport from "./Components/canceledInvoicesReport";
 
 function App() {
   return (
@@ -695,6 +697,22 @@ function App() {
               element={
                 <RequireAuth>
                   <UserOrders />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/descuentos/diarios"
+              element={
+                <RequireAuth>
+                  <DailyDiscountsReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/facturas/anuladas"
+              element={
+                <RequireAuth>
+                  <CanceledInvoicesReport />
                 </RequireAuth>
               }
             />

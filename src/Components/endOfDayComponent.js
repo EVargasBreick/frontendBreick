@@ -1,7 +1,8 @@
 import React from "react";
 import "../styles/invoiceStyles.css";
 export const EndOfDayComponent = React.forwardRef(
-  ({ branchInfo, data, totales, usuario }, ref) => {
+  ({ branchInfo, data, totales, usuario, anuladas, totalAnuladas }, ref) => {
+    console.log("Anuladas", anuladas);
     return (
       <div ref={ref} className="invoicePage">
         <div className="invoiceTittle">Incadex S.R.L</div>
@@ -92,9 +93,43 @@ export const EndOfDayComponent = React.forwardRef(
             </tfoot>
           </table>
         </div>
+        <div>
+          {anuladas.anuladas.length > 0 && (
+            <table className="tablaTotales">
+              <thead>
+                <tr>
+                  <td colSpan={2}>Facturas anuladas</td>
+                </tr>
+                <tr>
+                  <td className="totals">Nro Factura</td>
+                  <td className="totalsData">Importe</td>
+                </tr>
+              </thead>
+              <tbody>
+                {anuladas.anuladas.map((an, index) => {
+                  return (
+                    <tr key={index}>
+                      <td className="totals">{an.nroFactura}</td>
+                      <td
+                        className="totalsData"
+                        style={{ textAlign: "right" }}
+                      >{`${an.importeBase?.toFixed(2)} Bs.`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td className="totals">{`Total Anulaciones:  `}</td>
+                  <td className="totalsData">{`${anuladas.totalAnuladas} Bs.`}</td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
+        </div>
         <div className="simpleSeparator"></div>
         <div className="simpleSeparator"></div>
-        <div>{`Usuario: ${usuario}`}</div>
+        <div style={{ marginBottom: "20px" }}>{`Usuario: ${usuario}`}</div>
         <div className="textWithLine"></div>
         <div className="simpleSeparator"></div>
         <div className="textWithLine"></div>

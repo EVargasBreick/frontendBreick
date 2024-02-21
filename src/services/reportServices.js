@@ -336,6 +336,39 @@ const simpleTransferReport = (startDate, endDate, idAgencia) => {
   });
 };
 
+const dailyDiscountReport = (date) => {
+  console.log("PARAMS EN EL FRONT", date);
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/descuentos/diario?date=${date}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+const canceledInvoicesReport = ({ fromDate, toDate, idAgencia }) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/facturas/canceladas?fromDate=${fromDate}&toDate=${toDate}&idAgencia=${idAgencia}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -355,4 +388,6 @@ export {
   samplesProductReport,
   transferProductReport,
   simpleTransferReport,
+  dailyDiscountReport,
+  canceledInvoicesReport,
 };

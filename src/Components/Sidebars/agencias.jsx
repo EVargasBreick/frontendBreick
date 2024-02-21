@@ -20,6 +20,7 @@ import Hand from "../../assets/hand.png";
 import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
 import { TbShoppingCartCancel } from "react-icons/tb";
+import { FaFileInvoiceDollar } from "react-icons/fa6";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
   const [isInterior, setIsInterior] = useState(false);
   useEffect(() => {
@@ -190,6 +191,13 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
       >
         <Image src={Lines} className="icon"></Image>
         Reporte Kardex Pasado
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/facturas/anuladas")}
+        className="menuItem"
+      >
+        <FaFileInvoiceDollar size="35px" style={{ paddingRight: "5px" }} />
+        Reporte de facturas anuladas
       </MenuItem>
       {/*
       <MenuItem

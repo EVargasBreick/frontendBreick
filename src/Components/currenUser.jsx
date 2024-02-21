@@ -15,6 +15,7 @@ import { allProducts } from "../services/productServices";
 import { generateExcel } from "../services/utils";
 import ClientInfo from "./Modals/clientInfo";
 import ChangeStoreModal from "./Modals/changeStoreModal";
+import { WholeSaleModal } from "./Modals/wholesaleModal";
 export default function CurrentUser() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("");
@@ -22,6 +23,8 @@ export default function CurrentUser() {
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [showSearchClientModal, setShowSearchClientModal] = useState(false);
   const [isChangeStore, setIsChangeStore] = useState(false);
+  const [isWholeModal, setIsWholeModal] = useState(false);
+  const currentUser = Cookies.get("userAuth");
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
 
@@ -29,9 +32,9 @@ export default function CurrentUser() {
       setIsAuth(true);
       setuserData(isLogged);
       setUserName(
-        `${JSON.parse(Cookies.get("userAuth")).nombre} ${
-          JSON.parse(Cookies.get("userAuth")).apPaterno
-        } ${JSON.parse(Cookies.get("userAuth")).apMaterno}`
+        `${JSON.parse(currentUser).nombre} ${
+          JSON.parse(currentUser).apPaterno
+        } ${JSON.parse(currentUser).apMaterno}`
       );
     } else {
       navigate("/");
@@ -41,6 +44,7 @@ export default function CurrentUser() {
     Cookies.remove("userAuth");
     Cookies.remove("pdv");
     Cookies.remove("sudostore");
+    Cookies.remove("selectedwhole");
     navigate("/");
   }
 
@@ -115,6 +119,17 @@ export default function CurrentUser() {
           >
             Cambiar Agencia
           </Dropdown.Item>
+          {currentUser
+            ? [13, 1].includes(JSON.parse(currentUser).rol) && (
+                <Dropdown.Item
+                  onClick={() => {
+                    setIsWholeModal(true);
+                  }}
+                >
+                  Cambiar Usuario Mayoreo
+                </Dropdown.Item>
+              )
+            : null}
         </Dropdown.Menu>
       </Dropdown>
       <ChangePasswordModal
@@ -129,6 +144,12 @@ export default function CurrentUser() {
         <ChangeStoreModal
           setIsChangeStore={setIsChangeStore}
           isChangeStore={isChangeStore}
+        />
+      )}
+      {isWholeModal && (
+        <WholeSaleModal
+          showModal={isWholeModal}
+          sudoId={JSON.parse(currentUser).idUsuario}
         />
       )}
     </>

@@ -53,6 +53,7 @@ export default function BodyEodReport() {
   const [alertSec, setAlertSec] = useState("");
   const [fromHour, setFromHour] = useState("");
   const [toHour, setToHour] = useState("");
+  const [anuladas, setAnuladas] = useState([]);
   const componentRef = useRef();
   useEffect(() => {
     setFecha(dateString().split(" ").shift());
@@ -146,8 +147,9 @@ export default function BodyEodReport() {
       toHour,
     });
     report.then((rp) => {
-      const data = rp.data;
       console.log("data", rp.data);
+      const data = rp.data.totales;
+      setAnuladas(rp.data.anulados);
       const sum = data.reduce((accumulator, currentValue) => {
         return accumulator + parseFloat(currentValue.totalVoucher);
       }, 0);
@@ -459,6 +461,65 @@ export default function BodyEodReport() {
               </tr>
             </tfoot>
           </Table>
+          {anuladas.length > 0 && (
+            <Table>
+              <thead className="tableHeader">
+                <tr>
+                  <th colSpan={6}>
+                    Facturas anuladas emitidas en la fecha y horas seleccionadas
+                  </th>
+                </tr>
+                <tr>
+                  <th>Nro Factura</th>
+                  <th>Nit</th>
+                  <th>Razon Social</th>
+                  <th>Fecha Emisión</th>
+                  <th>Fecha Anulación</th>
+                  <th>Importe</th>
+                </tr>
+              </thead>
+              <tbody className="tableRow">
+                {anuladas.map((an, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>{an.nroFactura}</td>
+                      <td>{an.nitCliente}</td>
+                      <td>{an.razonSocial}</td>
+                      <td>{an.fechaHora}</td>
+                      <td>{an.fechaAnulacion}</td>
+                      <td
+                        style={{ textAlign: "right" }}
+                      >{`${an.importeBase?.toFixed(2)} Bs.`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="tableHeader">
+                  <th
+                    colSpan={5}
+                    style={{
+                      textAlign: "right",
+                    }}
+                  >{`Total Anulaciones:  `}</th>
+                  <td
+                    colSpan={1}
+                    style={{
+                      backgroundColor: "white",
+                      color: "#6a4593",
+                      textAlign: "right",
+                    }}
+                  >
+                    {`${anuladas
+                      .reduce((accumulator, object) => {
+                        return accumulator + Number(object.importeBase);
+                      }, 0)
+                      ?.toFixed(2)} Bs.`}
+                  </td>
+                </tr>
+              </tfoot>
+            </Table>
+          )}
 
           {isNota ? (
             <div className="wrappedButton">
@@ -509,6 +570,17 @@ export default function BodyEodReport() {
                       parseFloat(intercambio.toFixed(2)) +
                       parseFloat(voucher.toFixed(2))
                     ).toFixed(2),
+                  }}
+                  anuladas={{
+                    anuladas: anuladas,
+                    totalAnuladas:
+                      anuladas.length > 0
+                        ? anuladas
+                            .reduce((accumulator, object) => {
+                              return accumulator + Number(object.importeBase);
+                            }, 0)
+                            ?.toFixed(2)
+                        : "0.00",
                   }}
                   usuario={userName}
                 />

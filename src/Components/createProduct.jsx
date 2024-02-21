@@ -11,14 +11,11 @@ export default function CreateProduct() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
+    const permitted = [1, 7, 10, 13];
 
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 10
-      ) {
-      } else {
+      const parsed = JSON.parse(Cookies.get("userAuth"));
+      if (!permitted.includes(parsed.rol)) {
         navigate("/principal");
       }
     }

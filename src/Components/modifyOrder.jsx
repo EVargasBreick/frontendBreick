@@ -11,7 +11,7 @@ export default function ModifyOrder() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = JSON.parse(Cookies.get("userAuth"));
-    const permittedLp = [1, 10];
+    const permittedLp = [1, 10, 13];
     const permittedInt = [1, 5, 6, 9, 10];
     if (user) {
       if (user.idDepto == 1 && !permittedLp.includes(user.rol)) {

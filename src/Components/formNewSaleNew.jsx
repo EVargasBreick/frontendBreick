@@ -638,7 +638,9 @@ export default function FormNewSaleNew() {
         >
           <Modal.Header className="modalHeader">{`INGRESE CANTIDAD`}</Modal.Header>
           <Modal.Body>
-            <div className="productModal">{currentProd.nombreProducto}</div>
+            <div className="productModal">{`${
+              currentProd.nombreProducto
+            } - ${currentProd.precioDeFabrica?.toFixed(2)} Bs`}</div>
             <Form.Control
               type="number"
               onChange={(e) => handleModalQuantity(e.target.value)}

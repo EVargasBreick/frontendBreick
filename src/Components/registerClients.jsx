@@ -15,6 +15,7 @@ export default function RegisterClient() {
     if (user) {
       if (
         JSON.parse(Cookies.get("userAuth")).rol <= 10 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 13 ||
         (JSON.parse(Cookies.get("userAuth")).rol == 10 &&
           JSON.parse(Cookies.get("userAuth")).idDepto != 1)
       ) {

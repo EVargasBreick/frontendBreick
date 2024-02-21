@@ -56,6 +56,7 @@ import {
 import SeasonalDiscountTable from "./seasonalDiscountTable";
 import { InputGroup } from "react-bootstrap";
 import { userService } from "../services/userServices";
+import { WholeSaleModal } from "./Modals/wholesaleModal";
 export default function FormNewOrder() {
   const [isClient, setIsClient] = useState(false);
   const [isProduct, setIsProduct] = useState(false);
@@ -129,71 +130,118 @@ export default function FormNewOrder() {
   const [seasonalTotals, setSeasonalTotals] = useState({});
 
   const [discountType, setDiscountType] = useState("");
+  const [isWholeModal, setIsWholeModal] = useState("");
 
+  const wholeSelected = Cookies.get("selectedwhole");
+
+  const wholeParsed = wholeSelected ? JSON.parse(wholeSelected) : {};
+  const wholeName = wholeSelected
+    ? `- ${wholeParsed.nombre} ${wholeParsed.apPaterno} ${wholeParsed.apMaterno}`
+    : "";
   const datosPaneton = [
     { codInterno: "715037", precio: 46.5 },
     { codInterno: "715038", precio: 88.0 },
   ];
 
   useEffect(() => {
-    const dType = getDiscountType();
-    dType.then((dt) => {
-      console.log("Tipo de descuento", dt.data);
-      setDiscountType(dt.data.idTipoDescuento);
-    });
-
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
-      setUserEmail(JSON.parse(UsuarioAct).correo);
-      setUserStore(JSON.parse(UsuarioAct).idAlmacen);
-      if (JSON.parse(UsuarioAct).idDepto != 1) {
-        setIsInterior(true);
-      }
-      setUserName(
-        `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${
-          JSON.parse(UsuarioAct).apPaterno
-        }`
-      );
-      const currentDate = dateString();
-      const list = listDiscounts(
-        currentDate,
-        JSON.parse(UsuarioAct).tipoUsuario
-      );
-      list.then((l) => {
-        console.log("Descuento de temporada", l.data.data);
-        setSeasonDiscountData(l.data.data);
-      });
-    }
-    if (Cookies.get("userAuth")) {
-      setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
-      setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
-      const disponibles = availableProducts(
-        JSON.parse(Cookies.get("userAuth")).idUsuario
-      );
-      disponibles.then((fetchedAvailable) => {
-        const filtered = fetchedAvailable.data.data.filter(
-          (product) => product.cant_Actual > 0 && product.activo === 1
+      const parsed = JSON.parse(UsuarioAct);
+      if (parsed.rol == 13) {
+        const selectedWhole = Cookies.get("selectedwhole");
+        if (selectedWhole) {
+          const parsedWhole = JSON.parse(selectedWhole);
+          console.log("Selected whole", JSON.parse(selectedWhole));
+
+          setUserEmail(parsedWhole.correo);
+          setUserStore(parsedWhole.idAlmacen);
+          if (parsedWhole.idDepto != 1) {
+            setIsInterior(true);
+          }
+          setUserName(
+            `${parsedWhole.nombre.substring(0, 1)}${parsedWhole.apPaterno}`
+          );
+          const currentDate = dateString();
+          const list = listDiscounts(
+            currentDate,
+            JSON.parse(UsuarioAct).tipoUsuario
+          );
+          list.then((l) => {
+            console.log("Descuento de temporada", l.data.data);
+            setSeasonDiscountData(l.data.data);
+          });
+          const dType = getDiscountType();
+          dType.then((dt) => {
+            console.log("Tipo de descuento", dt.data);
+            setDiscountType(dt.data.idTipoDescuento);
+          });
+          setUsuarioAct(parsedWhole.idUsuario);
+          setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
+          const disponibles = availableProducts(parsedWhole.idUsuario);
+          disponibles.then((fetchedAvailable) => {
+            const filtered = fetchedAvailable.data.data.filter(
+              (product) => product.cant_Actual > 0 && product.activo === 1
+            );
+            //console.log("Productos disponibles", filtered);
+            setAvailable(filtered);
+            setAuxProducts(filtered);
+            productRef.current = filtered;
+          });
+          const dl = productsDiscount(
+            JSON.parse(Cookies.get("userAuth")).idUsuario
+          );
+          dl.then((res) => {
+            setDiscountList(res.data.data);
+          });
+        } else {
+          setIsWholeModal(true);
+        }
+      } else {
+        setUserEmail(JSON.parse(UsuarioAct).correo);
+        setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+        if (JSON.parse(UsuarioAct).idDepto != 1) {
+          setIsInterior(true);
+        }
+        setUserName(
+          `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${
+            JSON.parse(UsuarioAct).apPaterno
+          }`
         );
-        //console.log("Productos disponibles", filtered);
-        setAvailable(filtered);
-        setAuxProducts(filtered);
-        productRef.current = filtered;
-      });
-      const dl = productsDiscount(
-        JSON.parse(Cookies.get("userAuth")).idUsuario
-      );
-      dl.then((res) => {
-        setDiscountList(res.data.data);
-      });
-      /*const interval = setInterval(() => {
+        const currentDate = dateString();
+        const list = listDiscounts(
+          currentDate,
+          JSON.parse(UsuarioAct).tipoUsuario
+        );
+        list.then((l) => {
+          console.log("Descuento de temporada", l.data.data);
+          setSeasonDiscountData(l.data.data);
+        });
+        const dType = getDiscountType();
+        dType.then((dt) => {
+          console.log("Tipo de descuento", dt.data);
+          setDiscountType(dt.data.idTipoDescuento);
+        });
+        setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
+        setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
         const disponibles = availableProducts(
           JSON.parse(Cookies.get("userAuth")).idUsuario
         );
         disponibles.then((fetchedAvailable) => {
-          
-          setAvailable(fetchedAvailable.data.data[0]);
+          const filtered = fetchedAvailable.data.data.filter(
+            (product) => product.cant_Actual > 0 && product.activo === 1
+          );
+          //console.log("Productos disponibles", filtered);
+          setAvailable(filtered);
+          setAuxProducts(filtered);
+          productRef.current = filtered;
         });
-      }, 300000);*/
+        const dl = productsDiscount(
+          JSON.parse(Cookies.get("userAuth")).idUsuario
+        );
+        dl.then((res) => {
+          setDiscountList(res.data.data);
+        });
+      }
     }
   }, []);
 
@@ -612,6 +660,7 @@ export default function FormNewOrder() {
 
           setTimeout(() => {
             window.location.reload();
+            Cookies.remove("selectedwhole");
             setisLoading(false);
           }, 3000);
         } catch (error) {
@@ -760,6 +809,7 @@ export default function FormNewOrder() {
   }
 
   async function processDiscounts() {
+    console.log("Tipo usuario", tipoUsuario);
     if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
       //const objDesc = discountByAmount(selectedProds, descuento);
       const objDescNew = newDiscountByAmount(selectedProds, descuento);
@@ -822,6 +872,7 @@ export default function FormNewOrder() {
 
   async function verifySeasonal() {
     if (seasonDiscountData.length > 0) {
+      console.log("AKI");
       const verified = verifySeasonalProduct(selectedProds, seasonDiscountData);
       if (verified) {
         setDiscModalType(false);
@@ -965,7 +1016,7 @@ export default function FormNewOrder() {
 
   return (
     <div>
-      <div className="formLabel">REGISTRAR PEDIDOS</div>
+      <div className="formLabel">{`Registro de pedidos ${wholeName}`}</div>
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Mensaje del Sistema</Modal.Title>
@@ -1210,8 +1261,6 @@ export default function FormNewOrder() {
                     const isPaneton = datosPaneton.find(
                       (dp) => dp.codInterno == sp.codInterno
                     );
-                    console.log("REF ACTUAL", refActual);
-                    console.log("CANT ACTUALIZADA", cActual);
                     //console.log("IS PANETON", isPaneton);
                     return (
                       <tr className="tableRow" key={index}>
@@ -1347,6 +1396,12 @@ export default function FormNewOrder() {
           </Form.Group>
         </Form>
       </div>
+      {isWholeModal && (
+        <WholeSaleModal
+          showModal={isWholeModal}
+          sudoId={JSON.parse(Cookies.get("userAuth")).idUsuario}
+        />
+      )}
     </div>
   );
 }

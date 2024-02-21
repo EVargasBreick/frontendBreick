@@ -54,6 +54,7 @@ import {
   getDiscountType,
   getSeasonalDiscount,
 } from "../services/discountEndpoints";
+import { WholeSaleModal } from "./Modals/wholesaleModal";
 export default function FormModifyOrders() {
   const [discountType, setDiscountType] = useState("");
   const [pedidosList, setPedidosList] = useState([]);
@@ -151,6 +152,7 @@ export default function FormModifyOrders() {
   const [seasonalSinDesc, setSeasonalSinDesc] = useState([]);
   const [seasonalSpecial, setSeasonalSpecial] = useState([]);
   const [seasonalTotals, setSeasonalTotals] = useState({});
+  const [isWholeModal, setIsWholeModal] = useState(false);
 
   async function listDiscounts(currentDate, tipo) {
     const discountList = await getSeasonalDiscount(currentDate, tipo);
@@ -165,24 +167,51 @@ export default function FormModifyOrders() {
       setDiscountType(dt.data.idTipoDescuento);
     });
     const UsuarioAct = Cookies.get("userAuth");
+
+    if (JSON.parse(UsuarioAct).rol == 13) {
+      const selectedWhole = Cookies.get("selectedwhole");
+      if (!selectedWhole) {
+        setIsWholeModal(true);
+      }
+    }
+
+    const wholeSale = Cookies.get("selectedwhole");
     if (UsuarioAct) {
-      if (JSON.parse(UsuarioAct).idDepto != 1) {
+      if (
+        wholeSale
+          ? JSON.parse(wholeSale).idDepto != 1
+          : JSON.parse(UsuarioAct).idDepto != 1
+      ) {
         setIsInterior(true);
       }
-      setUserEmail(JSON.parse(UsuarioAct).correo);
-      setUserStore(JSON.parse(UsuarioAct).idAlmacen);
-      const isSudo =
-        JSON.parse(UsuarioAct).rol === 1 || JSON.parse(UsuarioAct).rol === 10
-          ? true
-          : false;
-      setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
+      setUserEmail(
+        wholeSale ? JSON.parse(wholeSale).correo : JSON.parse(UsuarioAct).correo
+      );
+      setUserStore(
+        wholeSale
+          ? JSON.parse(wholeSale).idAlmacen
+          : JSON.parse(UsuarioAct).idAlmacen
+      );
+      const isSudo = wholeSale
+        ? [1, 10, 13].includes(JSON.parse(wholeSale).rol)
+        : JSON.parse(UsuarioAct).rol === 1 ||
+          JSON.parse(UsuarioAct).rol === 10 ||
+          JSON.parse(UsuarioAct).rol === 13
+        ? true
+        : false;
       const listaPedidos = getUserOrderList(
-        isSudo ? "" : JSON.parse(Cookies.get("userAuth")).idUsuario,
+        isSudo
+          ? ""
+          : wholeSale
+          ? JSON.parse(wholeSale).idUsuario
+          : JSON.parse(Cookies.get("userAuth")).idUsuario,
         `and estado!='2' and facturado=0 and case when tipo='normal' then (listo=0 or listo=1) when tipo='muestra' then listo=0 when tipo='consignacion' then listo=0 else (listo=1 or listo=0)  end 
         and TO_TIMESTAMP(a."fechaCrea", 'DD/MM/YYYY HH24:MI:SS') >= (CURRENT_DATE - INTERVAL '3 month')`
       );
       listaPedidos.then((res) => {
-        const userAlm = JSON.parse(UsuarioAct).idAlmacen;
+        const userAlm = wholeSale
+          ? JSON.parse(wholeSale).idAlmacen
+          : JSON.parse(UsuarioAct).idAlmacen;
         const filtered = res.data.data.filter(
           (listItem) => listItem.idAlmacen === userAlm
         );
@@ -193,7 +222,9 @@ export default function FormModifyOrders() {
     }
 
     const disponibles = availableProducts(
-      JSON.parse(Cookies.get("userAuth")).idUsuario
+      wholeSale
+        ? JSON.parse(wholeSale).idUsuario
+        : JSON.parse(Cookies.get("userAuth")).idUsuario
     );
     disponibles.then((fetchedAvailable) => {
       const filtered = fetchedAvailable.data.data.filter(
@@ -210,8 +241,11 @@ export default function FormModifyOrders() {
     setAvailable([]);
     setAuxAva([]);
     setAuxProducts([]);
+    const wholeSale = Cookies.get("selectedwhole");
     const disponibles = availableProducts(
-      JSON.parse(Cookies.get("userAuth")).idUsuario
+      wholeSale
+        ? JSON.parse(wholeSale).idUsuario
+        : JSON.parse(Cookies.get("userAuth")).idUsuario
     );
     disponibles.then((fetchedAvailable) => {
       const filtered = fetchedAvailable.data.data.filter(
@@ -355,13 +389,13 @@ export default function FormModifyOrders() {
     setIsLoading(true);
     setCodigoPedido(stringParts[1]);
     setSelectedOrder(stringParts[0]);
-
+    const wholeSale = Cookies.get("selectedwhole");
+    const currentUser = Cookies.get("userAuth");
     const order = getOrderDetail(stringParts[0]);
     order.then((res) => {
       const currentDate = dateString();
       const list = listDiscounts(currentDate, res.data.data[0].tipoUsuario);
       list.then((l) => {
-        console.log("Descuento de temporada", l.data.data);
         setSeasonDiscountData(l.data.data);
       });
       console.log("Almacen del usuario", res.data.data[0].idAlmacen);
@@ -413,6 +447,11 @@ export default function FormModifyOrders() {
       setAuxTotalPrev(res.data.data[0].montoFacturar);
       setTotalDesc(res.data.data[0].descuentoCalculado);
       setTotalFacturar(res.data.data[0].montoTotal);
+      setTipoUsuario(
+        wholeSale
+          ? JSON.parse(currentUser).tipoUsuario
+          : res.data.data[0].tipoUsuario
+      );
       setAuxTotalFac(res.data.data[0].montoTotal);
       setUsuarioCrea(res.data.data[0].idUsuarioCrea);
       setCodigoPedido(res.data.data[0].codigoPedido);
@@ -724,7 +763,6 @@ export default function FormModifyOrders() {
           productos: selectedProds,
           detalle: `SSEPD-${idPedido}`,
         };
-        
 
         const updateMultiple = updateMultipleStock([
           toUpdateTakes,
@@ -782,8 +820,9 @@ export default function FormModifyOrders() {
                             setTimeout(() => {
                               setAlertSec("Pedido actualizado correctamente");
                               setIsAlertSec(true);
+                              Cookies.remove("selectedwhole");
                               window.location.reload();
-                            }, 8000);
+                            }, 3000);
                           } catch (error) {
                             console.log("Error al loggear la edicion");
                           }
@@ -801,8 +840,9 @@ export default function FormModifyOrders() {
                           setTimeout(() => {
                             setAlertSec("Pedido actualizado correctamente");
                             setIsAlertSec(true);
+                            Cookies.remove("selectedwhole");
                             window.location.reload();
-                          }, 8000);
+                          }, 3000);
                         } catch (error) {
                           console.log("Error al loggear la edicion");
                         }
@@ -833,7 +873,8 @@ export default function FormModifyOrders() {
   }
 
   async function processDiscounts() {
-    if (userRol != 2 && userRol != 3 && userRol != 4) {
+    console.log("TIPO DESCUENTILLO", tipoUsuario);
+    if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
       const objDesc = discountByAmount(selectedProds, descuento);
       const objDescNew = newDiscountByAmount(selectedProds, descuento);
       console.log("Obj desc new", objDescNew);
@@ -1344,6 +1385,12 @@ export default function FormModifyOrders() {
           </div>
         </div>
       </div>
+      {isWholeModal && (
+        <WholeSaleModal
+          showModal={isWholeModal}
+          sudoId={JSON.parse(Cookies.get("userAuth")).idUsuario}
+        />
+      )}
     </div>
   );
 }
