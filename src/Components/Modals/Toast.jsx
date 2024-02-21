@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 
-const ToastComponent = ({ show, setShow, autoclose, text, type }) => {
+const ToastComponent = ({ show, setShow, autoclose, text, type, position }) => {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const ToastComponent = ({ show, setShow, autoclose, text, type }) => {
   };
 
   return (
-    <ToastContainer className="p-3" position="top-end" style={{ zIndex: 20 }}>
+    <ToastContainer className="p-3" position={position} style={{ zIndex: 9999 }}>
       <Toast
         onClose={handleClose}
         show={showToast}
@@ -26,7 +26,7 @@ const ToastComponent = ({ show, setShow, autoclose, text, type }) => {
         autohide
       >
         <Toast.Header closeButton={false} className={`bg-${type}  text-white`}>
-          <strong className="mr-auto">{type}</strong>
+          <strong className="mr-auto">{type === 'danger' ? 'Peligro' : ''}</strong>
         </Toast.Header>
         <Toast.Body className="text-black">{text}</Toast.Body>
       </Toast>
