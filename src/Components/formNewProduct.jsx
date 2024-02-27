@@ -88,7 +88,7 @@ export default function FormNewProduct() {
             precioDescuentoFijo: precioDescuento == "" ? pdv : precioDescuento,
             actividadEconomica: 107900,
             codigoSin: 99100,
-            codigoUnidad: unidadMedida == "unidad" ? 57 : 22,
+            codigoUnidad: unidadMedida == "Unidad" ? 57 : 22,
             origenProducto: origen,
           };
           const added = newProduct(objProd);

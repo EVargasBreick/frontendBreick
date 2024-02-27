@@ -257,11 +257,11 @@ export default function FormNewSaleNew() {
       const foundDisc = selectedProducts.filter((sp) => sp.descuentoProd > 0);
       const foundWD = selectedProducts.filter((sp) => sp.tipoProducto > 4);
       if (foundDisc.length > 0 || foundWD.length > 0) {
+        console.log("Deberia desactivarse");
         setDisabledDiscount(true);
-        setDescuento(0);
       } else {
+        console.log("No deberia desactivarse");
         setDisabledDiscount(false);
-        setDescuento(0);
       }
     }
   }, [selectedProducts]);

@@ -85,6 +85,10 @@ export default function BodySalesReport() {
         dt.nombreCompleto
           .toString()
           .toLowerCase()
+          .includes(value.toString().toLowerCase()) ||
+        dt.nroFactura
+          .toString()
+          .toLowerCase()
           .includes(value.toString().toLowerCase())
     ); //
 
@@ -166,16 +170,9 @@ export default function BodySalesReport() {
           complemento: 0,
           "razon social": rt.razonSocial,
           "importe total": parseFloat(rt.montoTotal),
-          ICE: 0,
-          IEHD: 0,
-          IPJ: 0,
-          TASAS: 0,
-          "NO IVA": 0,
-          EXPORTACIONES: 0,
-          GRAVADAS: 0,
           "Sub Total": rt.montoTotal,
           descuentos: (rt.montoTotal - rt.montoFacturar).toFixed(2),
-          "gift card": 0,
+          "gift card": Number(rt.vale).toFixed(2),
           "importe base": parseFloat(rt.montoFacturar.toFixed(2)),
           "debito fiscal": parseFloat((rt.montoFacturar * 0.13).toFixed(2)),
           estado: rt.estado == 0 ? "Valida" : "Anulada",
@@ -200,13 +197,6 @@ export default function BodySalesReport() {
             return accumulator + object.montoTotal;
           }, 0)
           .toFixed(2),
-        "total ice": 0.0,
-        "total iehd": 0.0,
-        "total ipj": 0.0,
-        "total tasas": 0.0,
-        "total no iva": 0.0,
-        "total exportaciones": 0.0,
-        "total gravadas": 0.0,
         "sub total": reportTable
           .reduce((accumulator, object) => {
             return accumulator + object.montoTotal;
@@ -220,7 +210,11 @@ export default function BodySalesReport() {
             return accumulator + object.montoFacturar;
           }, 0)
         ).toFixed(2),
-        "total gift card": 0,
+        "total gift card": reportTable
+          .reduce((accumulator, object) => {
+            return accumulator + Number(object.vale);
+          }, 0)
+          .toFixed(2),
         "total importe base": reportTable
           .reduce((accumulator, object) => {
             return accumulator + object.montoFacturar;
@@ -367,15 +361,8 @@ export default function BodySalesReport() {
                   <th className="reportColumnSmall ">HORA</th>
                   <th className="reportColumnSmall ">NRO FACTURA</th>
                   <th className="reportColumnMedium ">NIT CLIENTE</th>
-                  <th className="reportColumnXSmall ">COMPLE MENTO</th>
                   <th className="reportColumnMedium ">RAZON SOCIAL</th>
                   <th className="reportColumnXSmall ">IMPORTE TOTAL</th>
-                  <th className="reportColumnXSmall ">ICE</th>
-                  <th className="reportColumnXSmall ">IEHD</th>
-                  <th className="reportColumnXSmall ">IPJ</th>
-                  <th className="reportColumnXSmall ">TASAS</th>
-                  <th className="reportColumnXSmall ">NO IVA</th>
-
                   <th className="reportColumnSmall "> SUB TOTAL</th>
                   <th className="reportColumnSmall ">DCTOS</th>
                   <th className="reportColumnXSmall ">GIFT CARD</th>
@@ -383,7 +370,6 @@ export default function BodySalesReport() {
                   <th className="reportColumnSmall ">DEBITO FISCAL</th>
                   <th className="reportColumnSmall ">ESTADO</th>
                   <th className="reportColumnSmall ">DERECHO FISCAL</th>
-
                   <th className="reportColumnMedium ">VENDEDOR</th>
                   <th className="reportColumnMedium ">AGENCIA</th>
                   <th className="reportColumnMedium ">VER EN SIAT</th>
@@ -398,15 +384,9 @@ export default function BodySalesReport() {
                       <td className="reportColumnMedium">{rt.hora}</td>
                       <td className="reportCufColumn">{rt.nroFactura}</td>
                       <td className="reportColumnXSmall">{`${rt.nitCliente}`}</td>
-                      <td className="reportColumnXSmall">{0}</td>
+
                       <td className="reportColumnMedium">{rt.razonSocial}</td>
                       <td className="reportColumnXSmall">{rt.montoTotal}</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-
                       <td className="reportColumnSmall"> {rt.montoTotal}</td>
                       <td className="reportColumnSmall">
                         {(rt.montoTotal - rt.montoFacturar).toFixed(2)}

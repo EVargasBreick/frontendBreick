@@ -130,7 +130,10 @@ export default function BodySalesByProductReport() {
           "cod interno": rt.codInterno,
           producto: rt.nombreProducto,
           cantidad: rt.cantidadProducto,
-          "precio unitario": rt.precioDeFabrica,
+          "precio unitario":
+            rt.precio_producto != null
+              ? rt.precio_producto
+              : rt.precioDeFabrica,
           "total Producto": rt.totalProd,
           "descuento producto": rt.descuentoProducto,
           ["descuento % producto"]: (
@@ -292,6 +295,10 @@ export default function BodySalesByProductReport() {
               </thead>
               <tbody>
                 {currentData.map((rt, index) => {
+                  const precio =
+                    rt.precio_producto != null
+                      ? rt.precio_producto
+                      : rt.precioDeFabrica;
                   return (
                     <tr className="reportBody" key={index}>
                       <td className="reportColumnXSmall">{index + 1}</td>
@@ -322,7 +329,7 @@ export default function BodySalesByProductReport() {
                         {rt.cantidadProducto}
                       </td>
                       <td className="reportColumnMedium">
-                        {rt.precioDeFabrica.toFixed(2)}
+                        {Number(precio)?.toFixed(2)}
                       </td>
                       <td className="reportColumnMedium">
                         {rt.totalProd.toFixed(2)}

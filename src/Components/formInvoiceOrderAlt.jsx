@@ -189,15 +189,17 @@ export default function FormInvoiceOrderAlt() {
               : dt.issuper == 1
               ? dt.precioSuper
               : dt.precioDeFabrica;
+
           const saleObj = {
             nombreProducto: dt.nombreProducto,
             idProducto: dt.idProducto,
             cantProducto: dt.cantidadProducto,
-            total: dt.cantidadProducto * precio,
+            total: dt.totalProd,
             descuentoProd: dt.descuentoProducto,
             codInterno: dt.codInterno,
             codigoUnidad: dt.codigoUnidad,
-            precioDeFabrica: precio,
+            precioDeFabrica: Number(precio),
+            precio_producto: precio,
           };
           saleProducts.push(saleObj);
         });

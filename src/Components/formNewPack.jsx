@@ -104,7 +104,7 @@ export default function FormNewPack() {
       precioPDV: totalPack,
       cantDisplay: 0,
       aplicaDescuento: "No",
-      tipoProducto: 5,
+      tipoProducto: 1,
       precioDescuentoFijo: totalPack,
       actividadEconomica: 107900,
       codigoSin: 99100,

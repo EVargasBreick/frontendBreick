@@ -133,23 +133,27 @@ function SaleModalNew(
     }
   }, [isFactura]);
 
-  const [ping, setPing] = useState(false)
-  const [pingError, setPingError] = useState('')
+  const [ping, setPing] = useState(false);
+  const [pingError, setPingError] = useState("");
 
   const pingURL = async () => {
     try {
-
-      const response = process.env.REACT_APP_ENDPOINT_URL == 'http://localhost' ? await fetch('https://sinfel.emizor.com/login') : await fetch('https://fel.emizor.com/login');
+      const response =
+        process.env.REACT_APP_ENDPOINT_URL == "http://localhost"
+          ? await fetch("https://sinfel.emizor.com/login")
+          : await fetch("https://fel.emizor.com/login");
       if (response.ok) {
-        console.log('Ping successful.');
+        console.log("Ping successful.");
       } else {
-        console.error('Ping Failed.');
-        setPingError('Problemas al contactar a Emizor, contacte al departamento de Sistemas.');
+        console.error("Ping Failed.");
+        setPingError(
+          "Problemas al contactar a Emizor, contacte al departamento de Sistemas."
+        );
         setPing(true);
       }
     } catch (error) {
-      console.error('Error pinging URL:', error);
-      console.error('Ping Failed in pinging.');
+      console.error("Error pinging URL:", error);
+      console.error("Ping Failed in pinging.");
     }
   };
 
@@ -365,9 +369,9 @@ function SaleModalNew(
           if (
             cancelado == 0 ||
             Number(cancelado) +
-            Number(voucher) -
-            (roundToTwoDecimalPlaces(datos.totalDescontado) + giftCard) <
-            0
+              Number(voucher) -
+              (roundToTwoDecimalPlaces(datos.totalDescontado) + giftCard) <
+              0
           ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
@@ -443,7 +447,7 @@ function SaleModalNew(
               const objBaja = {
                 motivo:
                   tipoPago == 4 &&
-                    roundToTwoDecimalPlaces(datos.totalDescontado) <= giftCard
+                  roundToTwoDecimalPlaces(datos.totalDescontado) <= giftCard
                     ? "vale"
                     : `${motivo} : ${motivoDetalle}`,
                 fechaBaja: dateString(),
@@ -692,9 +696,9 @@ function SaleModalNew(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-              errorList.map((item) => {
-                return item + `\n`;
-              })
+                errorList.map((item) => {
+                  return item + `\n`;
+                })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -1334,8 +1338,9 @@ function SaleModalNew(
                       <Form.Control
                         ref={canceledRef}
                         value={cancelado}
-                        type="number"
-                        onChange={(e) => setCancelado(e.target.value)}
+                        onChange={(e) =>
+                          !isNaN(e.target.value) && setCancelado(e.target.value)
+                        }
                         onKeyDown={(e) =>
                           e.key === "Enter" ? validateFormOfPayment(e) : null
                         }
@@ -1345,19 +1350,20 @@ function SaleModalNew(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{`${Number(canc) -
-                    Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
-                    Number(voucher) <
+                  <div className="modalData">{`${
+                    Number(canc) -
+                      Number(roundToTwoDecimalPlaces(datos.totalDescontado)) +
+                      Number(voucher) <
                     0
-                    ? `Ingrese un monto igual o superiores al total`
-                    : `${(
-                      Number(canc) -
-                      Number(
-                        roundToTwoDecimalPlaces(datos.totalDescontado)
-                      ) +
-                      Number(voucher)
-                    ).toFixed(2)} Bs.`
-                    } `}</div>
+                      ? `Ingrese un monto igual o superiores al total`
+                      : `${(
+                          Number(canc) -
+                          Number(
+                            roundToTwoDecimalPlaces(datos.totalDescontado)
+                          ) +
+                          Number(voucher)
+                        ).toFixed(2)} Bs.`
+                  } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (
@@ -1516,8 +1522,9 @@ function SaleModalNew(
                             setMotivoDetalle(e.target.value);
                         }}
                       />
-                      <div>{`${100 - motivoDetalle.length
-                        } Caracteres restantes`}</div>
+                      <div>{`${
+                        100 - motivoDetalle.length
+                      } Caracteres restantes`}</div>
                     </div>
                   }
                 </div>
