@@ -369,6 +369,22 @@ const canceledInvoicesReport = ({ fromDate, toDate, idAgencia }) => {
   });
 };
 
+const pastSalesReport = ({ fromDate, toDate }) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/pasadas/producto?fromDate=${fromDate}&toDate=${toDate}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -390,4 +406,5 @@ export {
   simpleTransferReport,
   dailyDiscountReport,
   canceledInvoicesReport,
+  pastSalesReport,
 };

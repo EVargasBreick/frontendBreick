@@ -26,6 +26,7 @@ import { BiSolidStoreAlt } from "react-icons/bi";
 import { FaBoxes, FaBoxOpen } from "react-icons/fa";
 import { TbTransferIn, TbDiscount } from "react-icons/tb";
 import { FaFileInvoiceDollar } from "react-icons/fa6";
+import { BsClockFill } from "react-icons/bs";
 export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
   return (
     <SubMenu
@@ -169,6 +170,13 @@ export default function Reportes({ toggleSub, toggledRep, redirectOnClick }) {
       >
         <TbDiscount size="35px" style={{ paddingRight: "5px" }} />
         Reporte descuentos por dia
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/ventas/pasadas")}
+        className="menuItem"
+      >
+        <BsClockFill size="35px" style={{ paddingRight: "5px" }} />
+        Reporte de ventas sist. pasado
       </MenuItem>
     </SubMenu>
   );

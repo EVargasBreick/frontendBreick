@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import FormRecordSale from "./formRecordSale";
+import FormRecordSaleNew from "./formRecordSaleNew";
 export default function RecordSale() {
   const navigate = useNavigate();
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function RecordSale() {
           <Sidebar />
         </div>
         <div className="formDisplay">
-          <FormRecordSale />
+          <FormRecordSaleNew />
         </div>
       </div>
     </div>
