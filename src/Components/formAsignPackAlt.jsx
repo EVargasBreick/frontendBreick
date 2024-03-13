@@ -146,6 +146,7 @@ export default function FormAsignPack() {
     });
   }
   function selectPack(value) {
+    refRestante.current = [];
     setIsPack(true);
     setSelectedPackId(value);
     const prodList = allPacks.filter((pk) => pk.idPack == value);
