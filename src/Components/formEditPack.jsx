@@ -536,10 +536,11 @@ export default function FormEditPack() {
           <div className="formLabelAlt">Nombre del Pack</div>
           <Form>
             <Form.Control
-              disabled
+              disabled={!selectPack}
               type="text"
               onChange={(e) => setNombrePack(e.target.value)}
               value={nombrePack}
+              required
               placeholder="Ingrese nombre del nuevo pack"
             />
           </Form>
