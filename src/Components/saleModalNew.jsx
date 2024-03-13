@@ -29,6 +29,7 @@ import {
   rountWithMathFloor,
 } from "../services/mathServices";
 import ToastComponent from "./Modals/Toast";
+import Cookies from "js-cookie";
 
 function SaleModalNew(
   {
@@ -189,6 +190,7 @@ function SaleModalNew(
 
   useEffect(() => {
     if (isSaved) {
+      Cookies.remove("nit");
       setTimeout(() => {
         window.location.reload();
       }, 5000);
@@ -198,6 +200,7 @@ function SaleModalNew(
   useEffect(() => {
     if (isDownloadable) {
       invButtonRefAlt.current.click();
+      Cookies.remove("nit");
       setTimeout(() => {
         window.location.reload();
       }, 5000);
@@ -668,6 +671,7 @@ function SaleModalNew(
               );
               setIsAlertSec(true);
               setTimeout(() => {
+                Cookies.remove("nit");
                 window.location.reload();
               }, 5000);
             }
@@ -1144,6 +1148,7 @@ function SaleModalNew(
               onAfterPrint={() => {
                 handleDownloadPdfDrop();
                 setTimeout(() => {
+                  Cookies.remove("nit");
                   window.location.reload();
                 }, 5000);
               }}

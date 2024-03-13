@@ -169,7 +169,7 @@ export default function FormNewSaleNew() {
             const disponibles = getProductsWithStock(sudStore, "all");
             disponibles.then((fetchedAvailable) => {
               const filtered = fetchedAvailable.data.filter(
-                (fa) => fa.activo === 1
+                (fa) => fa.activo === 1 && fa.codInterno.length > 2
               );
               setAvailable(filtered);
               setAuxProducts(filtered);
@@ -241,8 +241,9 @@ export default function FormNewSaleNew() {
           console.log("PARSED USER", parsedUser);
           const disponibles = getProductsWithStock(parsedUser.idAlmacen, "all");
           disponibles.then((fetchedAvailable) => {
+            console.log("FETCHED", fetchedAvailable.data);
             const filtered = fetchedAvailable.data.filter(
-              (fa) => fa.activo === 1
+              (fa) => fa.activo === 1 && fa.codInterno.length > 2
             );
             setAvailable(filtered);
             setAuxProducts(filtered);

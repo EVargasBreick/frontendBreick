@@ -1,7 +1,7 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import React from "react";
 import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Button, Form, Table, Modal, Image } from "react-bootstrap";
 import { getProducts } from "../services/productServices";
 import {
@@ -15,6 +15,12 @@ import { ReportPDF } from "./reportPDF";
 import loading2 from "../assets/loading2.gif";
 import Cookies from "js-cookie";
 import { generateExcel } from "../services/utils";
+import { KardexReportThermal } from "./kardexReportThermal";
+import ReactToPrint from "react-to-print";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { dateString } from "../services/dateServices";
+import { Loader } from "./loader/Loader";
 export default function BodyCurrentKardex() {
   const [isCriteria, setIsCriteria] = useState(false);
   const [criteria, setCriteria] = useState("");
@@ -35,7 +41,11 @@ export default function BodyCurrentKardex() {
   const [typeFilter, setTypeFilter] = useState("");
   const [searchProduct, setSearchProduct] = useState("");
   const [isMobile, setIsMobile] = useState(false);
+  const [isThermal, setIsThermal] = useState(false);
+  const thermalRef = useRef();
+  const thermalWrapRef = useRef();
   const user = JSON.parse(Cookies.get("userAuth"));
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const userRol = JSON.parse(Cookies.get("userAuth")).rol;
     const fecha = new Date();
@@ -105,7 +115,7 @@ export default function BodyCurrentKardex() {
   function generateReport() {
     setAlertSec("Generando Reporte");
     setIsAlertSec(true);
-
+    setLoading(true);
     setDataTable([]);
 
     if (criteria != "") {
@@ -124,6 +134,8 @@ export default function BodyCurrentKardex() {
             setAuxDataTable(rd.data);
             setIsAlertSec(false);
             setIsReported(true);
+            setIsThermal(true);
+            setLoading(false);
           });
         }
       } else {
@@ -137,9 +149,12 @@ export default function BodyCurrentKardex() {
           const reportData = getCurrentStockProduct(selectedProduct);
           reportData.then((rd) => {
             setDataTable(rd.data);
-            setIsReported(true);
+
             setAuxDataTable(rd.data);
             setIsAlertSec(false);
+            setIsReported(true);
+            setIsThermal(true);
+            setLoading(false);
           });
         }
       }
@@ -177,6 +192,51 @@ export default function BodyCurrentKardex() {
     );
     setProductList(newList);
   }
+
+  const handleDownloadPdfInv = async () => {
+    if (thermalRef.current) {
+      const element = thermalRef.current;
+      console.log("Thermal ref", JSON.stringify(element));
+      const canvas = await html2canvas(element);
+      console.log("canvas", canvas);
+      const data = canvas.toDataURL("image/png");
+      console.log("Data", data);
+      const node = thermalWrapRef.current;
+      const { height } = node.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const mmHeight = height / ((dpr * 96) / 25.4);
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: [80, mmHeight * 1.5 + 20],
+      });
+      const imgProperties = pdf.getImageProperties(data);
+
+      const pdfWidth = 78;
+      const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+
+      pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+      // Instead of directly saving the PDF, create a download link
+      const pdfBlob = pdf.output("blob");
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = pdfUrl;
+      downloadLink.download = `reporte de kardex actual-${selectedStore}-${dateString()}.pdf`;
+      document.body.appendChild(downloadLink);
+
+      // Trigger a click on the download link
+      downloadLink.click();
+
+      // Clean up
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(pdfUrl);
+    } else {
+      console.log("El current nuay");
+    }
+  };
 
   return (
     <div>
@@ -341,7 +401,13 @@ export default function BodyCurrentKardex() {
               </div>
             </Form.Group>
           </Form>
-          <div>
+          <div
+            style={{
+              maxHeight: "70vh",
+              overflow: "auto",
+              marginBottom: "20px",
+            }}
+          >
             <Table bordered>
               <thead className="sticky">
                 <tr className="tableHeaderReport">
@@ -397,9 +463,24 @@ export default function BodyCurrentKardex() {
                 Exportar PDF
               </Button>
             </PDFDownloadLink>
+            {/*isThermal ? (
+              <div>
+                <button type="button" onClick={handleDownloadPdfInv}>
+                  Download as PDF
+                </button>
+                <div ref={thermalWrapRef} hidden>
+                  <KardexReportThermal
+                    agencia={selectedStore}
+                    productList={dataTable}
+                    ref={thermalRef}
+                  />
+                </div>
+              </div>
+            ) : null*/}
           </div>
         </div>
       ) : null}
+      {loading && <Loader />}
     </div>
   );
 }

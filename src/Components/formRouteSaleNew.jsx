@@ -234,7 +234,9 @@ export default function FormRouteSaleNew() {
         });
       const disponibles = getProductsWithStock(parsedUser.idAlmacen, "all");
       disponibles.then((fetchedAvailable) => {
-        const filtered = fetchedAvailable.data.filter((fa) => fa.activo === 1);
+        const filtered = fetchedAvailable.data.filter(
+          (fa) => fa.activo === 1 && fa.codInterno.length > 5
+        );
         setAvailable(filtered);
         setAuxProducts(filtered);
       });

@@ -1223,11 +1223,14 @@ export default function FormNewOrder() {
               <Form.Control
                 min={0}
                 max={100}
-                required
                 value={descuento}
                 disabled={tipoUsuario == 1 ? false : true}
-                onChange={(e) => handleDiscount(e.target.value)}
-                type="number"
+                onChange={(e) =>
+                  !isNaN(e.target.value) &&
+                  e.target.value < 101 &&
+                  e.target.value >= 0 &&
+                  handleDiscount(e.target.value)
+                }
                 placeholder="Ingrese porcentaje"
               ></Form.Control>
             </div>

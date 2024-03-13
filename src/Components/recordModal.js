@@ -1,36 +1,17 @@
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import React, { useEffect, useRef, useState } from "react";
-import { Modal, Button, Form, Image, FormControl } from "react-bootstrap";
-import InvoicePDF from "./invoicePDF";
-import QrComponent from "./qrComponent";
+import { Modal, Button, Form, Image } from "react-bootstrap";
+
 import loading2 from "../assets/loading2.gif";
 import ReactToPrint from "react-to-print";
 import { InvoiceComponent } from "./invoiceComponent";
-import { getInvoiceNumber, structureXml } from "../services/mockedServices";
-import { SoapInvoice } from "../Xml/soapInvoice";
-import xml2js from "xml2js";
-import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
 import { dateString } from "../services/dateServices";
-import { composedDrop, registerDrop } from "../services/dropServices";
-import { updateStock } from "../services/orderServices";
+import { composedDrop } from "../services/dropServices";
 import { DropComponent } from "./dropComponent";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { InvoiceComponentAlt } from "./invoiceComponentAlt";
 import { InvoiceComponentCopy } from "./invoiceComponentCopy";
-import {
-  debouncedFullInvoiceProcess,
-  debouncedFullInvoiceProcessConsignacion,
-  deleteInvoice,
-  fullInvoiceProcess,
-  invoiceRecordAndUpdate,
-  invoiceUpdate,
-  logIncompleteInvoice,
-  otherPaymentsList,
-} from "../services/invoiceServices";
-import { deleteSale } from "../services/saleServices";
-import Cookies from "js-cookie";
-import { debounce, set } from "lodash";
+import { invoiceRecordAndUpdate } from "../services/invoiceServices";
 import { formatInvoiceProducts } from "../Xml/invoiceFormat";
 import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
@@ -39,52 +20,33 @@ import { TipoPagoComponent } from "./tipoPagoCOmponent";
 
 function RecordModal(
   {
-    datos,
-    show,
-    setDescuento,
-    isSaleModal,
-    setIsSaleModal,
-    setIsInvoice,
-    tipoPago,
-    setTipoPago,
-    setCambio,
-    cambio,
-    cancelado,
-    setCancelado,
-    cardNumbersA,
-    setCardNumbersA,
-    cardNumbersB,
-    setCardNumbersB,
-    saveInvoice,
-    setAlert,
-    setIsAlert,
-    branchInfo,
-    selectedProducts,
-    invoice,
-    total,
-    descuentoCalculado,
-    totalDescontado,
-    fechaHora,
-    tipoDocumento,
-    userName,
-    pointOfSale,
-    otherPayments,
-    userStore,
-    userId,
-    saleType,
-    setTotalFacturar,
-    setTotalDesc,
-    setTotalPrevio,
-    ofp,
-    setOfp,
     aPagar,
-    setAPagar,
-    isRoute,
-    saleBody,
-    invoiceBody,
-    updateStockBody,
-    emailCliente,
+    branchInfo,
     clientId,
+    datos,
+    emailCliente,
+    fechaHora,
+    invoiceBody,
+    isRoute,
+    isSaleModal,
+    otherPayments,
+    pointOfSale,
+    saleBody,
+    selectedProducts,
+    setAlert,
+    setAPagar,
+    setDescuento,
+    setIsAlert,
+    setIsInvoice,
+    setIsSaleModal,
+    setTotalDesc,
+    setTotalFacturar,
+    tipoDocumento,
+    total,
+    updateStockBody,
+    userId,
+    userStore,
+    userName,
   },
   ref
 ) {
@@ -100,7 +62,6 @@ function RecordModal(
   const [invoiceMod, setInvoceMod] = useState(false);
   const [invoiceId, setInvoiceId] = useState("");
   const componentRef = useRef();
-  const [approvedId, setApprovedId] = useState("");
   const [motivo, setMotivo] = useState("");
   const [isDrop, setIsDrop] = useState(false);
   const [dropId, setDropId] = useState(0);
@@ -112,17 +73,11 @@ function RecordModal(
   const invButtonRefAlt = useRef();
   const invoiceWrapRef = useRef(null);
   const componentCopyRef = useRef(null);
-  const [isRegistered, setIsRegistered] = useState(false);
   const totalDesc = datos.total * (1 - datos.descuento / 100);
   const [descuentoFactura, setDescuentoFactura] = useState(totalDesc);
   const [isDownloadable, setIsDownloadable] = useState(false);
-  const [transactionObject, setTransactionObject] = useState("");
-  const [isLogged, setIsLogged] = useState(false);
-  const [isEmailModal, setIsEmailModal] = useState(false);
   const [clientEmail, setClientEmail] = useState(emailCliente);
   const [transactionId, setTransactionId] = useState("");
-  const [invoiceNubmer, setInvoiceNumber] = useState("");
-  const [invObj, setInvObj] = useState({});
   const [idFactura, setIdFactura] = useState("");
   const [noFactura, setNoFactura] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(true);
@@ -133,8 +88,14 @@ function RecordModal(
   const [urlSin, setUrlSin] = useState("");
   const [giftCard, setGiftCard] = useState(0);
   const [valeForm, setValeForm] = useState({});
-  const [voucher, setVoucher] = useState(0);
-  const [isPya, setIsPya] = useState(false);
+  const [voucher] = useState(0);
+  const [isPya] = useState(false);
+  const [cancelado, setCancelado] = useState(0);
+  const [cambio, setCambio] = useState(0);
+  const [cardNumbersA, setCardNumbersA] = useState("");
+  const [cardNumbersB, setCardNumbersB] = useState("");
+  const [ofp, setOfp] = useState("");
+  const [tipoPago, setTipoPago] = useState("");
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -187,7 +148,7 @@ function RecordModal(
     );
     setCambio(
       isRoute
-        ? cancelado - totalDescontado
+        ? cancelado - datos.totalDescontado
         : Math.abs(
             (
               cancelado -
@@ -214,13 +175,14 @@ function RecordModal(
 
   useEffect(() => {
     setTotalFacturar(datos.total - giftCard);
-    setTotalDesc(descuentoCalculado);
-    setCancelado(
-      parseFloat(parseFloat(-giftCard) + parseFloat(datos.total)).toFixed(2)
-    );
+    setTotalDesc(datos.descuentoCalculado);
+    setCancelado(Number(Number(-giftCard) + Number(datos.total)).toFixed(2));
     setCambio(0);
-    setDescuentoFactura(total - totalDesc + parseFloat(giftCard));
-    console.log("Totaldesc", total - totalDesc + parseFloat(giftCard));
+    setDescuentoFactura(datos.total - datos.descCalculado + Number(giftCard));
+    console.log(
+      "Totaldesc",
+      datos.total - datos.descCalculado + Number(giftCard)
+    );
   }, [giftCard]);
 
   useEffect(() => {
@@ -260,13 +222,13 @@ function RecordModal(
         break;
       case "2":
         setStringPago("Tarjeta");
-        setCancelado(totalDescontado);
+        setCancelado(datos.totalDescontado);
         setCambio(0);
         setOfp(0);
         break;
       case "3":
         setStringPago("Cheque");
-        setCancelado(totalDescontado);
+        setCancelado(datos.totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -282,7 +244,7 @@ function RecordModal(
         break;
       case "5":
         setStringPago("Otros");
-        setCancelado(totalDescontado);
+        setCancelado(datos.totalDescontado);
         setCambio(0);
         setCardNumbersA("");
         setCardNumbersB("");
@@ -290,7 +252,7 @@ function RecordModal(
       case "6":
         setStringPago("Pago Posterior");
         setAPagar(0);
-        setCancelado(totalDescontado);
+        setCancelado(datos.totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -298,7 +260,7 @@ function RecordModal(
         break;
       case "7":
         setStringPago("Transferencia");
-        setCancelado(totalDescontado);
+        setCancelado(datos.totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -307,7 +269,7 @@ function RecordModal(
         break;
       case "8":
         setStringPago("Deposito");
-        setCancelado(totalDescontado);
+        setCancelado(datos.totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -316,7 +278,7 @@ function RecordModal(
         break;
       case "9":
         setStringPago("Transferencia Swift");
-        setCancelado(totalDescontado);
+        setCancelado(datos.totalDescontado);
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -325,7 +287,7 @@ function RecordModal(
         break;
       case "10":
         setStringPago("Efectivo-tarjeta");
-        setCancelado(parseFloat(totalDescontado).toFixed(2));
+        setCancelado(Number(datos.totalDescontado).toFixed(2));
         setOfp(0);
         setCambio(0);
         setGiftCard(0);
@@ -344,7 +306,6 @@ function RecordModal(
     e.preventDefault();
     if (tipoPago == 4 && valeForm) {
       handleTipoPago(valeForm.tipoPago.toString());
-      console.log("Vale Form when is selected tipo 4", valeForm);
       setTipoPago(valeForm.tipoPago.toString());
       setCancelado(valeForm.cancelado);
       setCardNumbersA(valeForm.cardNumbersA);
@@ -358,16 +319,11 @@ function RecordModal(
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          console.log(
-            "Cancelado",
-            cancelado,
-            totalDescontado,
-            giftCard,
-            voucher
-          );
           if (
             cancelado == 0 ||
-            Number(cancelado) + Number(voucher) - (totalDescontado + giftCard) <
+            Number(cancelado) +
+              Number(voucher) -
+              (datos.totalDescontado + giftCard) <
               0
           ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
@@ -384,15 +340,12 @@ function RecordModal(
               invoicingProcess();
             }
           }
-          if (tipoPago == 4 && totalDescontado > giftCard) {
-            console.log(
-              "Solo deberia correr esto en caso de vale menor al total"
-            );
+          if (tipoPago == 4 && datos.totalDescontado > giftCard) {
             if (giftCard == 0) {
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
             } else {
-              if (cancelado < totalDescontado - giftCard) {
+              if (cancelado < datos.totalDescontado - giftCard) {
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
@@ -410,7 +363,6 @@ function RecordModal(
             invoicingProcess();
           }
           if (tipoPago == 5) {
-            console.log("Ofp", ofp);
             if (ofp === 0) {
               setAlert("Especifique el otro tipo de pago");
               setIsAlert(true);
@@ -420,23 +372,21 @@ function RecordModal(
           }
           if (
             tipoPago == 11 ||
-            (tipoPago == 4 && totalDescontado <= giftCard)
+            (tipoPago == 4 && datos.totalDescontado <= giftCard)
           ) {
-            console.log("Entro aca");
-            console.log("Valeform", valeForm);
             if (valeForm || tipoPago == 11) {
               setAlertSec("Guardando baja");
               setIsAlertSec(true);
               const objBaja = {
                 motivo:
-                  tipoPago == 4 && totalDescontado <= giftCard
+                  tipoPago == 4 && datos.totalDescontado <= giftCard
                     ? "vale"
                     : motivo,
                 fechaBaja: dateString(),
                 idUsuario: userId,
                 idAlmacen: userStore,
                 productos: selectedProducts,
-                totalbaja: totalDescontado,
+                totalbaja: datos.totalDescontado,
                 vale: giftCard,
                 ci: datos.nit,
               };
@@ -451,7 +401,6 @@ function RecordModal(
               };
               try {
                 const createdDrop = await composedDrop(compObj);
-                console.log("Baja creada", createdDrop);
                 setDropId(createdDrop.data.idCreado);
                 setIsDrop(true);
               } catch (error) {
@@ -503,9 +452,6 @@ function RecordModal(
   }
 
   async function invoicingProcess() {
-    console.log(datos);
-    console.log("Sale body", saleBody.pedido);
-    console.log("Unique id", uniqueId);
     const emailValidated = validateEmail();
     if (emailValidated) {
       setAlertSec("Obteniendo datos de factura");
@@ -514,11 +460,9 @@ function RecordModal(
         nroSucursal: branchInfo.nro,
         puntoDeVenta: pointOfSale,
       };
-      const descAdicional =
-        parseFloat(descuentoCalculado) + parseFloat(giftCard);
+      const descAdicional = Number(datos.descuentoCalculado) + Number(giftCard);
       const nroTarjeta = `${cardNumbersA}00000000${cardNumbersB}`;
       const productos = formatInvoiceProducts(selectedProducts);
-
       const saleBodyNew = {
         pedido: {
           idUsuarioCrea: saleBody.pedido.idUsuarioCrea,
@@ -528,9 +472,9 @@ function RecordModal(
           montoTotal: saleBody.pedido.montoTotal,
           descuento: saleBody.pedido.descuento,
           descCalculado:
-            parseFloat(saleBody.pedido.descCalculado) + parseFloat(giftCard),
+            Number(saleBody.pedido.descCalculado) + Number(giftCard),
           montoFacturar:
-            parseFloat(saleBody.pedido.montoFacturar) - parseFloat(giftCard),
+            Number(saleBody.pedido.montoFacturar) - Number(giftCard),
           idPedido: "",
           idFactura: 0,
         },
@@ -546,17 +490,15 @@ function RecordModal(
         razonSocial: invoiceBody.razonSocial,
         tipoPago: tipoPago,
         pagado: cancelado,
-        cambio: cancelado - parseFloat(totalDescontado - giftCard).toFixed(2),
+        cambio: cancelado - Number(datos.totalDescontado - giftCard).toFixed(2),
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
         cuf: "",
-        importeBase: parseFloat(totalDescontado - giftCard).toFixed(2),
-        debitoFiscal: parseFloat((totalDescontado - giftCard) * 0.13).toFixed(
+        importeBase: Number(datos.totalDescontado - giftCard).toFixed(2),
+        debitoFiscal: Number((datos.totalDescontado - giftCard) * 0.13).toFixed(
           2
         ),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
-          invoiceBody.idAgencia
-        }`,
+        autorizacion: uniqueId,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -575,7 +517,7 @@ function RecordModal(
         fechaEmision: "",
         cafc: "",
         codigoExcepcion: 0,
-        descuentoAdicional: parseFloat(descAdicional.toFixed(2)),
+        descuentoAdicional: Number(descAdicional.toFixed(2)),
         montoGiftCard: 0,
         codigoTipoDocumentoIdentidad: tipoDocumento,
         numeroDocumento: datos.nit == 0 ? "1000001" : `${datos.nit}`,
@@ -583,22 +525,20 @@ function RecordModal(
         codigoCliente: `${clientId}`,
         codigoMetodoPago: tipoPago,
         numeroTarjeta: nroTarjeta.length == 16 ? nroTarjeta : "",
-        montoTotal: parseFloat(
-          parseFloat(totalDescontado - giftCard).toFixed(2)
-        ),
+        montoTotal: Number(Number(datos.totalDescontado - giftCard).toFixed(2)),
         codigoMoneda: 1,
         tipoCambio: 1,
-        montoTotalMoneda: parseFloat(
-          parseFloat(totalDescontado - giftCard).toFixed(2)
+        montoTotalMoneda: Number(
+          Number(datos.totalDescontado - giftCard).toFixed(2)
         ),
         usuario: userName,
         emailCliente: clientEmail,
         telefonoCliente: "",
         extras: { facturaTicket: uniqueId },
         codigoLeyenda: 0,
-        montoTotalSujetoIva: parseFloat(
-          parseFloat(parseFloat(totalDescontado) - giftCard).toFixed(2)
-        ),
+        montoTotalSujetoIva: Number(
+          Number(datos.totalDescontado) - giftCard
+        ).toFixed(2),
         tipoCambio: 1,
         detalles: productos,
       };
@@ -621,8 +561,6 @@ function RecordModal(
       };
 
       try {
-        //const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
-        //const updateResponse = await debouncedFullInvoiceProcessConsignacion(composedBody);
         const invocieResponse = await invoiceRecordAndUpdate(composedBody);
         console.log("Respuesta de la fac", invocieResponse);
         if (invocieResponse.data.code === 200) {
@@ -646,8 +584,6 @@ function RecordModal(
             }, 5000);
           }
         } else {
-          await debouncedFullInvoiceProcess.cancel();
-          console.log("Cancel debounced");
           if (invocieResponse.data.code === 500) {
             setIsAlertSec(false);
             setAlert(`${invocieResponse.data.message}`);
@@ -692,7 +628,6 @@ function RecordModal(
             );
           }, 30000);
         }
-        await debouncedFullInvoiceProcess.cancel();
         setIsAlertSec(false);
         setAlert("Error al facturar ", error);
         setIsAlert(true);
@@ -704,18 +639,13 @@ function RecordModal(
     const response = await fetch(url);
     const blob = await response.blob();
     const urlObject = URL.createObjectURL(blob);
-
     const newWindow = window.open(urlObject);
-
     if (newWindow) {
       newWindow.onload = () => {
         URL.revokeObjectURL(urlObject);
         newWindow.print();
-        // Optional: Close the window after printing
-        // newWindow.close();
       };
     } else {
-      // Prompt the user to enable pop-ups manually
       window.alert(
         "Por favor, habilite las ventanas emergentes para imprimir el archivo automáticamente"
       );
@@ -731,34 +661,6 @@ function RecordModal(
 
     return newWindow;
   };
-  function logInnvoice() {
-    setAlertSec("Registrando factura para impresion posterior");
-    setIsAlertSec(true);
-    const UsuarioAct = Cookies.get("userAuth");
-    const idAlmacen = JSON.parse(UsuarioAct);
-    const PuntoDeVenta = Cookies.get("pdv");
-    console.log("Usuario", idAlmacen);
-    const object = {
-      idFactura: idFactura,
-      nroFactura: invoiceId,
-      idSucursal: branchInfo.nro,
-      puntoDeVenta: PuntoDeVenta,
-      nroTransaccion: transactionId,
-      idAlmacen: idAlmacen.idAlmacen,
-      correoCliente: clientEmail,
-    };
-    const logged = logIncompleteInvoice(object);
-    logged
-      .then((res) => {
-        console.log("Factura loggeada", res);
-        setTimeout(() => {
-          window.location.reload();
-        }, 4000);
-      })
-      .catch((err) => {
-        console.log("Error al loggear la factura");
-      });
-  }
 
   function handleClose() {
     setDescuento(0);
@@ -876,34 +778,6 @@ function RecordModal(
         </Modal.Body>
       </Modal>
 
-      <Modal show={isEmailModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {
-              "Ingrese el correo del cliente, la factura se enviará en las siguientes 24 hrs"
-            }
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Control
-              value={clientEmail}
-              type="text"
-              placeholder="Ingrese correo"
-              onChange={(e) => handleEmail(e.target.value)}
-            />
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={() => {
-              logInnvoice();
-            }}
-          >
-            Registrar Correo y recargar
-          </Button>
-        </Modal.Footer>
-      </Modal>
       <Modal show={invoiceMod}>
         <Modal.Header>
           <Modal.Title>{`Facturacion`}</Modal.Title>
@@ -938,18 +812,18 @@ function RecordModal(
                       tipoPago: stringPago,
                       cancelado: cancelado,
                       cambio: !valeForm
-                        ? parseFloat(cancelado) +
-                          parseFloat(voucher) -
-                          (parseFloat(totalDescontado) + parseFloat(giftCard))
+                        ? Number(cancelado) +
+                          Number(voucher) -
+                          (Number(datos.totalDescontado) + Number(giftCard))
                         : 0,
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
-                      total: total,
+                      total: datos.total,
                       descuentoCalculado: isRoute
-                        ? descuentoCalculado
+                        ? datos.descuentoCalculado
                         : descuentoFactura,
-                      totalDescontado: totalDescontado - giftCard,
+                      totalDescontado: datos.totalDescontado - giftCard,
                     }}
                     giftCard={giftCard}
                     invoiceNumber={noFactura}
@@ -984,17 +858,17 @@ function RecordModal(
                     tipoPago: stringPago,
                     cancelado: cancelado,
                     cambio:
-                      parseFloat(cancelado) -
-                      parseFloat(totalDescontado) +
-                      parseFloat(giftCard),
+                      Number(cancelado) -
+                      Number(datos.totalDescontado) +
+                      Number(giftCard),
                     fechaHora: fechaHora,
                   }}
                   totalsData={{
-                    total: total,
+                    total: datos.total,
                     descuentoCalculado: isRoute
-                      ? descuentoCalculado
+                      ? datos.descuentoCalculado
                       : descuentoFactura,
-                    totalDescontado: totalDescontado - giftCard,
+                    totalDescontado: datos.totalDescontado - giftCard,
                   }}
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
@@ -1014,17 +888,17 @@ function RecordModal(
                     tipoPago: stringPago,
                     cancelado: cancelado,
                     cambio:
-                      parseFloat(cancelado) -
-                      parseFloat(totalDescontado) +
-                      parseFloat(giftCard),
+                      Number(cancelado) -
+                      Number(datos.totalDescontado) +
+                      Number(giftCard),
                     fechaHora: fechaHora,
                   }}
                   totalsData={{
                     total: total,
                     descuentoCalculado: isRoute
-                      ? descuentoCalculado
+                      ? datos.descuentoCalculado
                       : descuentoFactura,
-                    totalDescontado: totalDescontado - giftCard,
+                    totalDescontado: datos.totalDescontado - giftCard,
                   }}
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
@@ -1062,7 +936,7 @@ function RecordModal(
                   razonSocial: datos.razonSocial,
                 }}
                 dropId={dropId}
-                total={totalDescontado}
+                total={datos.totalDescontado}
                 vale={giftCard}
               />
             </Button>
@@ -1087,7 +961,7 @@ function RecordModal(
               razonSocial: datos.razonSocial,
             }}
             dropId={dropId}
-            total={totalDescontado}
+            total={datos.totalDescontado}
             vale={giftCard}
           />
         </div>
@@ -1109,7 +983,7 @@ function RecordModal(
             </div>
             <div className="modalRows">
               <div className="modalLabel"> Total:</div>
-              <div className="modalData">{`${parseFloat(datos.total).toFixed(
+              <div className="modalData">{`${Number(datos.total).toFixed(
                 2
               )} Bs.`}</div>
             </div>
@@ -1117,15 +991,15 @@ function RecordModal(
               <div className="modalLabel"> Descuento:</div>
               <div className="modalData">
                 {(
-                  parseFloat(giftCard != "" ? giftCard : 0) +
-                  parseFloat(descuentoCalculado)
+                  Number(giftCard != "" ? giftCard : 0) +
+                  Number(datos.descuentoCalculado)
                 ).toFixed(2)}
               </div>
             </div>
             <div className="modalRows">
               <div className="modalLabel"> Total a pagar:</div>
-              <div className="modalData">{`${parseFloat(
-                tipoPago == 4 ? total - giftCard : totalDescontado
+              <div className="modalData">{`${Number(
+                tipoPago == 4 ? total - giftCard : datos.totalDescontado
               ).toFixed(2)} Bs.`}</div>
             </div>
             <div className="modalRows">
@@ -1221,13 +1095,13 @@ function RecordModal(
                   <div className="modalLabel"> Cambio:</div>
                   <div className="modalData">{`${
                     Number(cancelado) -
-                      Number(totalDescontado) +
+                      Number(datos.totalDescontado) +
                       Number(voucher) <
                     0
                       ? `Ingrese un monto igual o superiores al total`
                       : `${(
                           Number(cancelado) -
-                          Number(totalDescontado) +
+                          Number(datos.totalDescontado) +
                           Number(voucher)
                         ).toFixed(2)} Bs.`
                   } `}</div>
@@ -1282,7 +1156,7 @@ function RecordModal(
                 <div className="modalRows">
                   <div className="modalLabel"> A cobrar con tarjeta:</div>
                   <div className="modalData">{`${(
-                    -cancelado + parseFloat(totalDescontado)
+                    -cancelado + Number(datos.totalDescontado)
                   ).toFixed(2)} Bs.`}</div>
                 </div>
                 <div className="modalRows">
@@ -1347,8 +1221,8 @@ function RecordModal(
                   // <>
                   //   <div className="modalRows">
                   //     <div className="modalLabel"> A pagar en efectivo:</div>
-                  //     <div className="modalData"> {parseFloat(
-                  //       parseFloat(-giftCard) +
+                  //     <div className="modalData"> {Number(
+                  //       Number(-giftCard) +
                   //       total * (1 - datos.descuento / 100)
                   //     ).toFixed(2)} Bs.
                   //     </div>
@@ -1382,7 +1256,7 @@ function RecordModal(
                   //           : `${(
                   //             cancelado -
                   //             totalDesc +
-                  //             parseFloat(giftCard)
+                  //             Number(giftCard)
                   //           ).toFixed(2)} Bs.`
                   //           } `}</div>
                   //       </div>
@@ -1392,7 +1266,7 @@ function RecordModal(
                   <TipoPagoComponent
                     otherPayment={otherPayments}
                     setValeForm={setValeForm}
-                    total={totalDescontado}
+                    total={datos.totalDescontado}
                     setVale={setGiftCard}
                     vale={giftCard}
                   />
@@ -1456,17 +1330,17 @@ function RecordModal(
                 cancelado: cancelado,
 
                 cambio:
-                  parseFloat(cancelado) -
-                  parseFloat(totalDescontado) +
-                  parseFloat(giftCard),
+                  Number(cancelado) -
+                  Number(datos.totalDescontado) +
+                  Number(giftCard),
                 fechaHora: fechaHora,
               }}
               totalsData={{
                 total: total,
                 descuentoCalculado: isRoute
-                  ? descuentoCalculado
+                  ? datos.descuentoCalculado
                   : descuentoFactura,
-                totalDescontado: totalDescontado - giftCard,
+                totalDescontado: datos.totalDescontado - giftCard,
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}
@@ -1486,17 +1360,17 @@ function RecordModal(
                 tipoPago: stringPago,
                 cancelado: cancelado,
                 cambio:
-                  parseFloat(cancelado) -
-                  parseFloat(totalDescontado) +
-                  parseFloat(giftCard),
+                  Number(cancelado) -
+                  Number(datos.totalDescontado) +
+                  Number(giftCard),
                 fechaHora: fechaHora,
               }}
               totalsData={{
                 total: total,
                 descuentoCalculado: isRoute
-                  ? descuentoCalculado
+                  ? datos.descuentoCalculado
                   : descuentoFactura,
-                totalDescontado: totalDescontado - giftCard,
+                totalDescontado: datos.totalDescontado - giftCard,
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}

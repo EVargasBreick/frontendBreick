@@ -102,7 +102,7 @@ export default function FormRecordSale() {
       JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
     );
     searchRef.current.focus();
-    const spplited = dateString().split(" ");
+    //const spplited = dateString().split(" ");
 
     const newly = Cookies.get("nit");
     if (newly) {
@@ -490,191 +490,7 @@ export default function FormRecordSale() {
       setIsAlert(true);
     }
   }
-  function saveSale(createdId) {
-    const totPrev = parseFloat(
-      auxSelectedProducts.reduce((accumulator, object) => {
-        return accumulator + parseFloat(object.total).toFixed(2);
-      }, 0)
-    ).toFixed(2);
-    console.log("Tot prev 2", parseFloat(totPrev).toFixed(2));
-    const totDesc = selectedProducts.reduce((accumulator, object) => {
-      return accumulator + parseFloat(object.total).toFixed(2);
-    }, 0);
-    return new Promise((resolve, reject) => {
-      setFechaHora(dateString());
-      const objVenta = {
-        pedido: {
-          idUsuarioCrea: usuarioAct,
-          idCliente: selectedClient,
-          fechaCrea: dateString(),
-          fechaActualizacion: dateString(),
-          montoTotal: parseFloat(totalPrevio).toFixed(2),
-          descCalculado: parseFloat(
-            parseFloat(giftCard) +
-              parseFloat(totalPrevio) -
-              (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total);
-              }, 0) *
-                (100 - descuento)) /
-                100
-          ).toFixed(2),
-          descuento: descuento,
-          montoFacturar: parseFloat(
-            -giftCard +
-              (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total);
-              }, 0) *
-                (100 - descuento)) /
-                100
-          ).toFixed(2),
-          idPedido: "",
-          idFactura: createdId,
-        },
-        productos: selectedProducts,
-      };
-      const ventaCreada = createSale(objVenta);
-      ventaCreada
-        .then((res) => {
-          const idVenta = res.data.idCreado;
-          setTimeout(() => {
-            const updatedStock = updateStock({
-              accion: "take",
-              idAlmacen: userStore,
-              productos: selectedProducts,
-              detalle: `NVAG-${idVenta}`,
-            });
-            const objStock = {
-              accion: "add",
-              idAlmacen: userStore,
-              productos: selectedProducts,
-              detalle: `CVAGN-${idVenta}`,
-            };
-            updatedStock
-              .then((us) => {
-                saleModalRef.current.childFunction(
-                  createdId,
-                  idVenta,
-                  objStock
-                );
-                resolve(true);
-                setIsAlertSec(false);
-              })
-              .catch((err) => {
-                setAlert(err);
-                setIsAlertSec(false);
-                const deletedInvoice = deleteInvoice(createdId);
-                deletedInvoice.then((rs) => {
-                  const deletedSale = deleteSale(idVenta);
-                  deletedSale.then((res) => {
-                    console.log("Borrados");
-                  });
-                });
-              });
-          }, 500);
-        })
-        .catch((err) => {
-          console.log("Error al crear la venta", err);
-          const deletedInvoice = deleteInvoice(createdId);
-          setIsAlertSec(false);
-          setAlert("Error al crear la factura, intente nuevamente");
-          reject(false);
-        });
-    });
-  }
-  function saveInvoice() {
-    setAlertSec("Registrando Venta");
-    setIsAlertSec(true);
-    return new Promise((resolve, reject) => {
-      const invoiceBody = {
-        idCliente: selectedClient,
-        nroFactura: 0,
-        idSucursal: branchInfo.nro,
-        nitEmpresa: process.env.REACT_APP_NIT_EMPRESA,
-        fechaHora: dateString(),
-        nitCliente: clientes[0].nit,
-        razonSocial: clientes[0].razonSocial,
-        tipoPago: tipoPago,
-        pagado: cancelado,
-        cambio:
-          cancelado -
-          parseFloat(
-            -giftCard +
-              (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total);
-              }, 0) *
-                (100 - descuento)) /
-                100
-          ).toFixed(2),
-        nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
-        cuf: "",
-        importeBase: parseFloat(
-          parseFloat(cancelado).toFixed(2) -
-            parseFloat(
-              cancelado -
-                parseFloat(
-                  -giftCard +
-                    (selectedProducts.reduce((accumulator, object) => {
-                      return accumulator + parseFloat(object.total);
-                    }, 0) *
-                      (100 - descuento)) /
-                      100
-                ).toFixed(2)
-            ).toFixed(2)
-        ).toFixed(2),
-        debitoFiscal: parseFloat(
-          (parseFloat(cancelado).toFixed(2) -
-            parseFloat(
-              cancelado -
-                parseFloat(
-                  -giftCard +
-                    (selectedProducts.reduce((accumulator, object) => {
-                      return accumulator + parseFloat(object.total);
-                    }, 0) *
-                      (100 - descuento)) /
-                      100
-                ).toFixed(2)
-            ).toFixed(2)) *
-            0.13
-        ).toFixed(2),
-        desembolsada: 0,
-        autorizacion: `${dateString()}|${pointOfSale}|${userStore}`,
-        cufd: "",
-        fechaEmision: "",
-        nroTransaccion: 0,
-        idOtroPago: ofp,
-        vale: giftCard,
-        aPagar: aPagar,
-        puntoDeVenta: pointOfSale,
-        idAgencia: userStore,
-      };
-      console.log("INVOICE BODY", invoiceBody);
-      setInvoice(invoiceBody);
-      console.log("Invoice body", invoiceBody);
-      const newInvoice = createInvoice(invoiceBody);
-      newInvoice
-        .then((res) => {
-          console.log("Respuesta", res);
-          setTimeout(() => {
-            const newId = res.data.idCreado;
-            const created = saveSale(newId);
-            created
-              .then((res) => {
-                resolve(true);
-              })
-              .catch((error) => {
-                reject(false);
-              });
-          }, 500);
-        })
-        .catch((error) => {
-          console.log("Error en la creacion de la factura", error);
-          setAlert("Error al crear la factura, intente nuevamente");
-          setIsAlertSec(false);
-        });
 
-      setIsSaleModal(!isSaleModal);
-    });
-  }
   function handleDiscount() {
     console.log("Descuento", descuento);
     handleModal();
@@ -792,7 +608,6 @@ export default function FormRecordSale() {
             setCardNumbersA={setCardNumbersA}
             cardNumbersB={cardNumbersB}
             setCardNumbersB={setCardNumbersB}
-            saveInvoice={saveInvoice}
             setAlert={setAlert}
             setIsAlert={setIsAlert}
             branchInfo={branchInfo}

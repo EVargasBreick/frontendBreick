@@ -84,6 +84,7 @@ import TransferProductReport from "./Components/transferProductReport";
 import SimpleTransferReport from "./Components/simpleTransferReport";
 import DailyDiscountsReport from "./Components/dailyDiscountsReport";
 import CanceledInvoicesReport from "./Components/canceledInvoicesReport";
+import PastProductSalesReport from "./Components/pastProductSalesReport";
 
 function App() {
   return (
@@ -713,6 +714,14 @@ function App() {
               element={
                 <RequireAuth>
                   <CanceledInvoicesReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/pasadas"
+              element={
+                <RequireAuth>
+                  <PastProductSalesReport />
                 </RequireAuth>
               }
             />
