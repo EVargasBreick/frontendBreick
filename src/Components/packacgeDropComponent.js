@@ -48,7 +48,7 @@ export const PackageDropComponent = React.forwardRef(
                         {producto?.idProducto}
                       </td>
 
-                      <td className="rowSeparator">
+                      <td className="rowSeparator w-50  ">
                         {producto?.nombreProducto}
                       </td>
                       <td className="rowSeparatorAlt">
