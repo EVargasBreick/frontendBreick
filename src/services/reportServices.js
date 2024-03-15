@@ -385,6 +385,22 @@ const pastSalesReport = ({ fromDate, toDate }) => {
   });
 };
 
+const saleDetails = (idFactura) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/reportes/ventas/detalle?idFactura=${idFactura}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
 export {
   getGeneralSalesReport,
   getProductSalesReport,
@@ -407,4 +423,5 @@ export {
   dailyDiscountReport,
   canceledInvoicesReport,
   pastSalesReport,
+  saleDetails,
 };

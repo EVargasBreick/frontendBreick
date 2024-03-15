@@ -24,8 +24,18 @@ export default function FormSalesSeller() {
         hourStart == "" ? "00:00" : hourStart,
         hourEnd == "" ? "23:59" : hourEnd
       );
-      console.log("Reporte data", reportData);
-      setReports(reportData.data);
+      console.log("Reporte datas", reportData);
+      const sorted = reportData.data.sort((a, b) => {
+        if (a.nombreVendedor?.toLowerCase() < b.nombreVendedor?.toLowerCase()) {
+          return -1;
+        }
+        if (a.nombreVendedor?.toLowerCase() > b.nombreVendedor?.toLowerCase()) {
+          return 1;
+        }
+        return 0;
+      });
+      console.log("Sorted", sorted);
+      setReports(sorted);
       setLoading(false);
     } catch (err) {}
   }

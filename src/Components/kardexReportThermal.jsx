@@ -10,7 +10,10 @@ export const KardexReportThermal = React.forwardRef(
           <div>{`${agencia}`}</div>
           <div className="simpleSeparator"></div>
           <div>{`${dateString()}`}</div>
-          <div className="textWithLine"></div>
+          <div style={{ marginBottom: "10px", marginTop: "10px" }}>
+            Detalles
+          </div>
+
           <div>
             <table>
               <thead>
@@ -23,7 +26,14 @@ export const KardexReportThermal = React.forwardRef(
               <tbody>
                 {productList.map((producto, index) => {
                   return (
-                    <tr key={index}>
+                    <tr
+                      key={index}
+                      style={{
+                        minHeight: "40px",
+                        maxHeight: "40px",
+                        height: "40px",
+                      }}
+                    >
                       <td className="smallProductLeft">
                         {`${producto?.codInterno}`}
                       </td>

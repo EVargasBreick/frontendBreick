@@ -37,13 +37,14 @@ export default function BodyCurrentKardex() {
   const [searchbox, setSearchbox] = useState("");
   const [auxDataTable, setAuxDataTable] = useState([]);
   const [isReported, setIsReported] = useState(false);
-  const showAll = [1, 9, 10, 8, 7, 6, 5, 2, 12];
+  const showAll = [1, 9, 10, 8, 7, 6, 5, 2, 12, 13];
   const [typeFilter, setTypeFilter] = useState("");
   const [searchProduct, setSearchProduct] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [isThermal, setIsThermal] = useState(false);
   const thermalRef = useRef();
   const thermalWrapRef = useRef();
+  const thermalButtonRef = useRef();
   const user = JSON.parse(Cookies.get("userAuth"));
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -134,7 +135,6 @@ export default function BodyCurrentKardex() {
             setAuxDataTable(rd.data);
             setIsAlertSec(false);
             setIsReported(true);
-            setIsThermal(true);
             setLoading(false);
           });
         }
@@ -193,50 +193,49 @@ export default function BodyCurrentKardex() {
     setProductList(newList);
   }
 
-  const handleDownloadPdfInv = async () => {
-    if (thermalRef.current) {
-      const element = thermalRef.current;
-      console.log("Thermal ref", JSON.stringify(element));
-      const canvas = await html2canvas(element);
-      console.log("canvas", canvas);
-      const data = canvas.toDataURL("image/png");
-      console.log("Data", data);
-      const node = thermalWrapRef.current;
-      const { height } = node.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const mmHeight = height / ((dpr * 96) / 25.4);
+  const handleDownloadPdf = async () => {
+    const element = thermalRef.current;
 
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: [80, mmHeight * 1.5 + 20],
-      });
-      const imgProperties = pdf.getImageProperties(data);
+    const canvas = await html2canvas(element);
+    console.log("DATA AL FACTURAR", canvas);
+    const data = canvas.toDataURL("image/png");
 
-      const pdfWidth = 78;
-      const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
+    const pdfHeight =
+      70 + 12 * dataTable.filter((dt) => dt.cantidad > 0).length;
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: [80, pdfHeight],
+    });
 
-      pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+    const pdfWidth = 80;
 
-      // Instead of directly saving the PDF, create a download link
-      const pdfBlob = pdf.output("blob");
-      const pdfUrl = URL.createObjectURL(pdfBlob);
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-      const downloadLink = document.createElement("a");
-      downloadLink.href = pdfUrl;
-      downloadLink.download = `reporte de kardex actual-${selectedStore}-${dateString()}.pdf`;
-      document.body.appendChild(downloadLink);
+    // Instead of directly saving the PDF, create a download link
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
 
-      // Trigger a click on the download link
-      downloadLink.click();
+    const downloadLink = document.createElement("a");
+    downloadLink.href = pdfUrl;
+    downloadLink.download = `reporte_kardex_${dateString().split(" ")[0]}_${
+      dataTable[0].NombreAgencia
+    }.pdf`;
+    document.body.appendChild(downloadLink);
 
-      // Clean up
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(pdfUrl);
-    } else {
-      console.log("El current nuay");
-    }
+    // Trigger a click on the download link
+    downloadLink.click();
+
+    // Clean up
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(pdfUrl);
   };
+
+  function generateThermalPDF() {
+    if (thermalRef.current) {
+      thermalButtonRef.current.click();
+    }
+  }
 
   return (
     <div>
@@ -463,20 +462,32 @@ export default function BodyCurrentKardex() {
                 Exportar PDF
               </Button>
             </PDFDownloadLink>
-            {/*isThermal ? (
-              <div>
-                <button type="button" onClick={handleDownloadPdfInv}>
-                  Download as PDF
-                </button>
-                <div ref={thermalWrapRef} hidden>
-                  <KardexReportThermal
-                    agencia={selectedStore}
-                    productList={dataTable}
-                    ref={thermalRef}
-                  />
-                </div>
-              </div>
-            ) : null*/}
+            {criteria == 1 && (
+              <Button onClick={() => generateThermalPDF()} variant="warning">
+                Exportar en rollo
+              </Button>
+            )}
+          </div>
+
+          <div>
+            <button
+              hidden
+              type="button"
+              onClick={handleDownloadPdf}
+              ref={thermalButtonRef}
+            >
+              Download as PDF
+            </button>
+            <div
+              ref={thermalWrapRef}
+              style={{ maxHeight: "1px", overflow: "hidden" }}
+            >
+              <KardexReportThermal
+                agencia={selectedStore}
+                productList={dataTable.filter((dt) => dt.cantidad > 0)}
+                ref={thermalRef}
+              />
+            </div>
           </div>
         </div>
       ) : null}

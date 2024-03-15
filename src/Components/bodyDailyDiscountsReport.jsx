@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Form, Modal, Table } from "react-bootstrap";
-import { dailyDiscountReport } from "../services/reportServices";
+import { dailyDiscountReport, saleDetails } from "../services/reportServices";
+import { Loader } from "./loader/Loader";
 
 export default function BodyDailyDiscountsReport() {
   const [date, setDate] = useState("");
@@ -9,14 +10,20 @@ export default function BodyDailyDiscountsReport() {
   const [detailsData, setDetailsData] = useState([]);
   const [isModal, setIsModal] = useState(false);
   const [filteredDetails, setFilteredDetails] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isReport, setIsReport] = useState(false);
+  const [saleProducts, setSaleProducts] = useState(false);
 
   async function getReport(e) {
+    setLoading(true);
     e.preventDefault();
     try {
       const reportData = await dailyDiscountReport(date);
       console.log("Data del reporte", reportData);
       setFullData(reportData.data.general);
       setDetailsData(reportData.data.details);
+      setIsReport(true);
+      setLoading(false);
     } catch (error) {
       console.log("Error al obtener reporte", error);
     }
@@ -47,7 +54,16 @@ export default function BodyDailyDiscountsReport() {
 
   function handleClose() {
     setFilteredDetails([]);
+    setSaleProducts([]);
     setIsModal(false);
+  }
+
+  async function showSaleDetails(idFactura) {
+    try {
+      const details = await saleDetails(idFactura);
+      console.log("Detalles de la venta", details.data);
+      setSaleProducts(details.data);
+    } catch (error) {}
   }
 
   const DetailsModal = () => {
@@ -71,35 +87,98 @@ export default function BodyDailyDiscountsReport() {
                 <th>Monto Total</th>
                 <th style={{ width: "11%" }}>Descuento %</th>
                 <th>Descuento en Monto</th>
+                <th>Vale</th>
                 <th>Facturado</th>
-                <th>Ver Factura</th>
+                <th>Ver Productos</th>
               </tr>
             </thead>
             <tbody>
               {filteredDetails.map((fd, index) => {
                 const onlyHour = fd.fechaHora.split(" ")[1];
                 return (
-                  <tr key={index} className="tableRow">
-                    <td>{fd.nitCliente}</td>
-                    <td>{fd.razonSocial}</td>
-                    <td>{onlyHour}</td>
-                    <td>{fd.nroFactura}</td>
-                    <td>{`${fd.montoTotal?.toFixed(2)} Bs`}</td>
-                    <td>{fd.descuento}</td>
-                    <td>{`${fd.descuentoCalculado?.toFixed(2)} Bs`}</td>
-                    <td>{`${fd.importeBase?.toFixed(2)} Bs`}</td>
-                    <td>
-                      {
-                        <Button
-                          onClick={() => goToSiat(fd.cuf, fd.nroFactura)}
-                          variant="success"
-                        >
-                          {" "}
-                          Ver
-                        </Button>
-                      }
-                    </td>
-                  </tr>
+                  <React.Fragment key={index}>
+                    <tr key={index} className="tableRow">
+                      <td>{fd.nitCliente}</td>
+                      <td>{fd.razonSocial}</td>
+                      <td>{onlyHour}</td>
+                      <td>{fd.nroFactura}</td>
+                      <td>{`${fd.montoTotal?.toFixed(2)} Bs`}</td>
+                      <td>{fd.descuento}</td>
+                      <td>{`${fd.descuentoCalculado?.toFixed(2)} Bs`}</td>
+                      <td>{`${fd.vale?.toFixed(2)} Bs`}</td>
+                      <td>{`${fd.importeBase?.toFixed(2)} Bs`}</td>
+                      <td>
+                        {
+                          <Button
+                            onClick={() => showSaleDetails(fd.idFactura)}
+                            variant="success"
+                          >
+                            Ver
+                          </Button>
+                        }
+                      </td>
+                    </tr>
+                    {saleProducts.length > 0 &&
+                      fd.idFactura == saleProducts[0]?.idFactura && (
+                        <React.Fragment>
+                          <tr className="tableHeader">
+                            <th colSpan={10}>{`Detalles de la venta`}</th>
+                          </tr>
+                          <tr className="tableHeader">
+                            <th colSpan={2}></th>
+
+                            <th>Codigo</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Descuento</th>
+                            <th>%</th>
+                            <th>Sub Total</th>
+
+                            <th></th>
+                          </tr>
+                        </React.Fragment>
+                      )}
+                    {saleProducts.length > 0 &&
+                      fd.idFactura == saleProducts[0]?.idFactura &&
+                      saleProducts.map((sp, index) => {
+                        return (
+                          <tr key={index} className="tableRow">
+                            <th colSpan={2}></th>
+
+                            <td>{sp.codInterno}</td>
+                            <td>{sp.nombreProducto}</td>
+                            <td>{sp.cantidadProducto}</td>
+                            <td>{Number(sp.precio_producto)?.toFixed(2)}</td>
+                            <td>{sp.descuentoProducto?.toFixed(2)}</td>
+                            <td>
+                              {Number(
+                                (sp.descuentoProducto / sp.totalProd) * 100
+                              ).toFixed(0)}
+                            </td>
+                            <td>
+                              {Number(
+                                sp.totalProd - sp.descuentoProducto
+                              ).toFixed(2)}
+                            </td>
+                            <th></th>
+                          </tr>
+                        );
+                      })}
+                    {saleProducts.length > 0 &&
+                      fd.idFactura == saleProducts[0]?.idFactura && (
+                        <tr className="tableHeader">
+                          <th colSpan={10} style={{ textAlign: "right" }}>
+                            <Button
+                              variant="warning"
+                              onClick={() => goToSiat(fd.cuf, fd.nroFactura)}
+                            >
+                              Ver En Siat
+                            </Button>
+                          </th>
+                        </tr>
+                      )}
+                  </React.Fragment>
                 );
               })}
             </tbody>
@@ -144,7 +223,7 @@ export default function BodyDailyDiscountsReport() {
           )}
         </Form.Group>
       </Form>
-      {fullData.length > 0 && (
+      {fullData.length > 0 ? (
         <Table>
           <thead className="tableHeader">
             <tr>
@@ -177,6 +256,7 @@ export default function BodyDailyDiscountsReport() {
                   <td style={{ textAlign: "right", width: "20%" }}>
                     {`${fd.sum?.toFixed(2)} Bs. `}
                   </td>
+
                   <td style={{ textAlign: "center", width: "15%" }}>
                     <Button
                       variant="warning"
@@ -190,7 +270,18 @@ export default function BodyDailyDiscountsReport() {
             })}
           </tbody>
         </Table>
+      ) : (
+        isReport && (
+          <Table>
+            <thead>
+              <tr className="tableHeader">
+                <th>No se encontraron ventas con descuento en esta fecha</th>
+              </tr>
+            </thead>
+          </Table>
+        )
       )}
+      {loading && <Loader />}
     </div>
   );
 }

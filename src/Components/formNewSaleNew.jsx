@@ -533,6 +533,7 @@ export default function FormNewSaleNew() {
   //Calcular totales
 
   async function calculateTotals() {
+    console.log("Productos", selectedProducts);
     let totalNeto = 0;
     let descuentoCalculado = 0;
     const auxiliarArray = [...auxSelectedProducts];
