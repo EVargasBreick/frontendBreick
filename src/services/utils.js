@@ -33,6 +33,20 @@ const generateExcelDoubleSheets = (
   saveExcelFile(excelBuffer, `${file_name}.xlsx`);
 };
 
+const generateExcelMultiple = async (itemArray, file_name, colStyles) => {
+  const workbook = XLSX.utils.book_new();
+  for (const sheet of itemArray) {
+    const worksheet = XLSX.utils.json_to_sheet(sheet.item);
+    worksheet["!cols"] = colStyles;
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheet.name);
+  }
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+  saveExcelFile(excelBuffer, `${file_name}.xlsx`);
+};
+
 const saveExcelFile = (buffer, fileName) => {
   const data = new Blob([buffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -81,4 +95,9 @@ const checkFileExtension = (name) => {
   return acceptable.includes(name.split(".").pop().toLowerCase());
 };
 
-export { generateExcel, generateExcelDoubleSheets, handleExcelUpdate };
+export {
+  generateExcel,
+  generateExcelDoubleSheets,
+  handleExcelUpdate,
+  generateExcelMultiple,
+};

@@ -4,8 +4,9 @@ import { Button, Form, Table } from "react-bootstrap";
 import { getStores } from "../services/storeServices";
 import { reportService } from "../services/reportServices";
 import { Loader } from "./loader/Loader";
-import { generateExcel } from "../services/utils";
+import { generateExcel, generateExcelMultiple } from "../services/utils";
 import { userBasic, userService } from "../services/userServices";
+import { calculateMonthDifference } from "../services/dateServices";
 
 export default function BodyGroupedProductReport() {
   const [dateStart, setDateStart] = useState("");
@@ -30,6 +31,22 @@ export default function BodyGroupedProductReport() {
   const [salesmanList, setSalesmanList] = useState([]);
   const [selectedSalesman, setSelectedSalesman] = useState("");
   const [selectedClient, setSelectedClient] = useState("");
+  const [monthByAmount, setMonthByAmount] = useState([]);
+  const [monthByMoney, setMonthByMoney] = useState([]);
+  const months = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
   useEffect(() => {
     const vendedoresList = userService.getAll(2, 4);
     vendedoresList.then((list) => {
@@ -81,11 +98,15 @@ export default function BodyGroupedProductReport() {
       selectedSalesman,
       criteria
     );
-    console.log("Data del reporte", data.facturado);
+
+    console.log("Data del reporte", data);
+
     setReports(data.cantidades);
     setAuxReports(data.cantidades);
     setReportsMoney(data.facturado);
     setAuxReportsMoney(data.facturado);
+    setMonthByAmount(data.cantidadesMes);
+    setMonthByMoney(data.facturadoMes);
     setLoading(false);
   }
 
@@ -138,7 +159,7 @@ export default function BodyGroupedProductReport() {
         {
           <Form.Check
             checked={
-              checkedList.find((cl) => cl.idProducto == report.idProducto)
+              checkedListMoney.find((cl) => cl.idProducto == report.idProducto)
                 ?.checked
             }
             onChange={() => checkProduct(report.idProducto, "money")}
@@ -168,6 +189,21 @@ export default function BodyGroupedProductReport() {
       const obj = {
         idProducto: entry.idProducto,
         checked: evChecked ? false : true,
+      };
+      list.push(obj);
+    }
+    setCheckedList(list);
+    setCheckedListMoney(list);
+    setEvChecked(!evChecked);
+    setEvCheckedMoney(!evCheckedMoney);
+  }
+
+  function resetChecked() {
+    const list = [];
+    for (const entry of checkedList) {
+      const obj = {
+        idProducto: entry.idProducto,
+        checked: true,
       };
       list.push(obj);
     }
@@ -238,6 +274,177 @@ export default function BodyGroupedProductReport() {
     }
   }
 
+  async function exportByMonthMoney() {
+    const uniqueProdIds = [];
+    const uniqueMonths = [];
+    const uniqueYears = [];
+    for (const prod of monthByMoney) {
+      const foundProd = uniqueProdIds.find(
+        (up) => up.idProducto == prod.idProducto
+      );
+      if (!foundProd) {
+        uniqueProdIds.push(prod);
+      }
+      const foundMonth = uniqueMonths.find((um) => um == prod.month);
+      if (!foundMonth) {
+        uniqueMonths.push(prod.month);
+      }
+      const foundYear = uniqueYears.find((uy) => uy == prod.year);
+      if (!foundYear) {
+        uniqueYears.push(prod.year);
+      }
+    }
+    console.log("Unique years", uniqueYears);
+    const dataToExport = [];
+    console.log("Largo prods", uniqueProdIds.length);
+    for (const product of uniqueProdIds) {
+      const fullMonthData = {};
+      fullMonthData["idProducto"] = product.idProducto;
+      fullMonthData["CODIGO"] = product.codInterno;
+      fullMonthData["NOMBRE_PRODUCTO"] = product.nombreProducto;
+      for (const year of uniqueYears.reverse()) {
+        for (const month of uniqueMonths) {
+          const found = monthByMoney.find(
+            (mb) =>
+              mb.month == month &&
+              mb.idProducto == product.idProducto &&
+              year == mb.year
+          );
+
+          const foundMonthAndYear = monthByMoney.find(
+            (my) => my.month == month && my.year == year
+          );
+          if (foundMonthAndYear) {
+            fullMonthData[`${months[month - 1]} ${year}`] = found
+              ? Number(found.sumaTotal)
+              : Number(0);
+          }
+        }
+      }
+
+      dataToExport.push(fullMonthData);
+    }
+    return dataToExport;
+  }
+
+  async function exportByMonthQuantity() {
+    const uniqueProdIds = [];
+    const uniqueMonths = [];
+    const uniqueYears = [];
+    for (const prod of monthByAmount) {
+      const foundProd = uniqueProdIds.find(
+        (up) => up.idProducto == prod.idProducto
+      );
+      if (!foundProd) {
+        uniqueProdIds.push(prod);
+      }
+      const foundMonth = uniqueMonths.find((um) => um == prod.month);
+      if (!foundMonth) {
+        uniqueMonths.push(prod.month);
+      }
+      const foundYear = uniqueYears.find((uy) => uy == prod.year);
+      if (!foundYear) {
+        uniqueYears.push(prod.year);
+      }
+    }
+    console.log("Unique years", uniqueYears);
+    console.log("Unique months", uniqueMonths);
+    const dataToExport = [];
+    console.log("Largo prods", uniqueProdIds.length);
+    for (const product of uniqueProdIds) {
+      const fullMonthData = {};
+      fullMonthData["idProducto"] = product.idProducto;
+      fullMonthData["CODIGO"] = product.codInterno;
+      fullMonthData["NOMBRE_PRODUCTO"] = product.nombreProducto;
+      for (const year of uniqueYears.reverse()) {
+        for (const month of uniqueMonths) {
+          const found = monthByAmount.find(
+            (mb) =>
+              mb.month == month &&
+              mb.idProducto == product.idProducto &&
+              year == mb.year
+          );
+          const foundMonthAndYear = monthByMoney.find(
+            (my) => my.month == month && my.year == year
+          );
+          //console.log("FOUNDDD", foundMonthAndYear);
+          if (foundMonthAndYear) {
+            fullMonthData[`${months[month - 1]} ${year}`] = found
+              ? Number(found.sumaTotal)
+              : Number(0);
+          }
+        }
+      }
+      dataToExport.push(fullMonthData);
+    }
+    return dataToExport;
+  }
+
+  async function handleMonthlyExport() {
+    setLoading(true);
+    const amountSheet = await exportByMonthQuantity();
+    const moneySheet = await exportByMonthMoney();
+    const arrayAmount = [];
+    const arrayMoney = [];
+    if (reportType == "cantidad") {
+      for (const product of amountSheet) {
+        if (
+          checkedList.find((cl) => cl.idProducto == product.idProducto).checked
+        ) {
+          arrayAmount.push(product);
+        }
+      }
+      for (const product of moneySheet) {
+        if (
+          checkedList.find((cl) => cl.idProducto == product.idProducto).checked
+        ) {
+          arrayMoney.push(product);
+        }
+      }
+    } else {
+      for (const product of amountSheet) {
+        if (
+          checkedListMoney.find((cl) => cl.idProducto == product.idProducto)
+            .checked
+        ) {
+          arrayAmount.push(product);
+        }
+      }
+      for (const product of moneySheet) {
+        if (
+          checkedListMoney.find((cl) => cl.idProducto == product.idProducto)
+            .checked
+        ) {
+          arrayMoney.push(product);
+        }
+      }
+    }
+
+    const excelFIle = [
+      {
+        item: arrayAmount,
+        name: "cantidad_vendida",
+      },
+      {
+        item: arrayMoney,
+        name: "monto_facturado",
+      },
+    ];
+
+    const colStyleArray = [{ wch: 10 }, { wch: 10 }, { wch: 45 }];
+
+    for (let i = 0; i < calculateMonthDifference(dateStart, dateEnd); i++) {
+      colStyleArray.push({ wch: 13 });
+    }
+
+    generateExcelMultiple(
+      excelFIle,
+      `Reporte agrupado de ventas por mes por ${criteria} ${dateStart} - ${dateEnd}`,
+      colStyleArray
+    );
+    setLoading(false);
+  }
+
   function selectStore(idAgencia) {
     console.log("Array de agencias", checkedList);
     if (idAgencia == "todo") {
@@ -282,6 +489,12 @@ export default function BodyGroupedProductReport() {
   if (isMobile) {
     gridStyles.gridTemplateColumns = "repeat(1, 1fr)";
   }
+
+  const handleReportType = (value) => {
+    setReportType(value);
+    resetChecked();
+    setEvChecked(true);
+  };
 
   return (
     <section>
@@ -432,7 +645,7 @@ export default function BodyGroupedProductReport() {
             <Form.Label>Criterio de Reporte</Form.Label>
             <Form.Select
               style={{ width: "50%", margin: "20px" }}
-              onChange={(e) => setReportType(e.target.value)}
+              onChange={(e) => handleReportType(e.target.value)}
             >
               <option value="cantidad">Por cantidad vendida</option>
               <option value="monto">Por Monto Vendido</option>
@@ -520,14 +733,30 @@ export default function BodyGroupedProductReport() {
           )}
       <div style={{ margin: "20px" }}>
         {reports.length > 0 && (
-          <Button
-            variant="success"
-            onClick={() => {
-              filterToExport();
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-evenly",
             }}
           >
-            Exportar a excel
-          </Button>
+            <Button
+              variant="success"
+              onClick={() => {
+                filterToExport();
+              }}
+            >
+              Exportar a excel
+            </Button>
+            <Button
+              variant="warning"
+              onClick={() => {
+                handleMonthlyExport();
+              }}
+            >
+              {"Exportar a excel agrupado por mes "}
+            </Button>
+          </div>
         )}
       </div>
       {loading && <Loader />}

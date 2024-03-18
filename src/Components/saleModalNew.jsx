@@ -857,7 +857,9 @@ function SaleModalNew(
 
   const handleDownloadPdfInv = async () => {
     const element = componentRef.current;
+
     const canvas = await html2canvas(element);
+    console.log("DATA AL FACTURAR", canvas);
     const data = canvas.toDataURL("image/png");
 
     const elementCopy = componentCopyRef.current;

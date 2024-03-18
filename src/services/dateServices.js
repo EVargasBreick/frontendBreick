@@ -124,3 +124,15 @@ export const formatPickedDate = (date) => {
   const spplited = date.split("-");
   return `${spplited[2]}/${spplited[1]}/${spplited[0]}`;
 };
+
+export const calculateMonthDifference = (start_date, end_date) => {
+  const startDate = new Date(start_date);
+  const endDate = new Date(end_date);
+  if (startDate && endDate) {
+    const diffInMonths =
+      (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+      endDate.getMonth() -
+      startDate.getMonth();
+    return diffInMonths;
+  }
+};
