@@ -42,6 +42,7 @@ export default function ChangeStoreModal({ isChangeStore, setIsChangeStore }) {
   const changeStore = () => {
     setLoading(true);
     Cookies.set("sudostore", newStore, { expires: 0.5 });
+    Cookies.remove("pdv");
     setTimeout(() => {
       window.location.reload();
     }, 1500);

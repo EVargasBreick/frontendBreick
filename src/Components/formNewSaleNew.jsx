@@ -638,7 +638,7 @@ export default function FormNewSaleNew() {
               {pointList.map((pl, index) => {
                 return (
                   <option value={pl.nroPuntoDeVenta} key={index}>{`Caja ${
-                    pl.nroPuntoDeVenta + 1
+                    index + 1
                   }`}</option>
                 );
               })}

@@ -107,132 +107,141 @@ export default function FormAllOrders() {
     }
   }, [isPrint]);
   function setOrderDetails(stringPedido) {
-    setIsPdf(false);
-    setProductDetail(null);
-    setProductTable([]);
-    setSelectedOrder({});
-    setCodigoPedido("");
-    setVendedor("");
-    setCliente("");
-    setZona("");
-    setTotal("");
-    setDescuento("");
-    setFacturado("");
-    setDescCalculado("");
-    setNit("");
-    setNotas("");
-    setIsOrder(false);
-    setProductList([]);
+    if (stringPedido != "1") {
+      setIsPdf(false);
+      setProductDetail(null);
+      setProductTable([]);
+      setSelectedOrder({});
+      setCodigoPedido("");
+      setVendedor("");
+      setCliente("");
+      setZona("");
+      setTotal("");
+      setDescuento("");
+      setFacturado("");
+      setDescCalculado("");
+      setNit("");
+      setNotas("");
+      setIsOrder(false);
+      setProductList([]);
 
-    const stringParts = stringPedido.split("|");
-    setIsLoading(true);
-    setCodigoPedido(stringParts[1]);
-    setSelectedOrder(stringParts[0]);
+      const stringParts = stringPedido.split("|");
+      setIsLoading(true);
+      setCodigoPedido(stringParts[1]);
+      setSelectedOrder(stringParts[0]);
 
-    const order = getOrderDetail(stringParts[0]);
-    order.then((res) => {
-      console.log("Order details", res);
-      const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
-      const currentDate = dateString().substring(0, 10).split("/");
-      setFechaCrea(
-        fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
-      );
-      const verifySuper = res.data.data[0]?.issuper ? true : false;
-      setIsSuper(verifySuper);
-      const prodHeaderObj = {
-        vendedor: res.data.data[0].nombreVendedor,
-        cliente: res.data.data[0].razonSocial,
-        nit: res.data.data[0].nit,
-        zona: res.data.data[0].zona,
-        montoTotal: res.data.data[0].montoFacturar?.toFixed(2),
-        descuento: res.data.data[0].descuento,
-        "descuento calculado": res.data.data[0].descuentoCalculado?.toFixed(2),
-        facturado: res.data.data[0].montoTotal?.toFixed(2),
-        fechaCrea:
-          currentDate[0] +
-          " de " +
-          meses[currentDate[1] - 1] +
-          " de " +
-          currentDate[2],
-        tipo: toUpper(res.data.data[0].tipo),
-      };
-      console.log("PROD HEADER OBJ", prodHeaderObj);
-      setVendedor(res.data.data[0].nombreVendedor);
-      setCliente(res.data.data[0].razonSocial);
-      setZona(res.data.data[0].zona);
-      setTotal(res.data.data[0].montoFacturar);
-      setDescuento(res.data.data[0].descuento);
-      setFacturado(res.data.data[0].montoTotal);
-      setDescCalculado(res.data.data[0].descuentoCalculado);
-      setNit(res.data.data[0].nit);
-      setNotas(res.data.data[0].notas);
-      setTipo(res.data.data[0].tipo);
-      var sumatoria = 0;
-      const prodList = getOrderProdList(stringParts[0]);
-      console.log("IS SUPER", isSuper);
-      prodList.then((resp) => {
-        resp.data.data.map((pr) => {
-          const found = allProducts.find(
-            (item) => item.nombreProducto === pr.nombreProducto
-          );
-          sumatoria +=
-            pr?.precio_producto != null
-              ? pr?.precio_producto * pr.cantidadProducto
-              : verifySuper
-              ? found?.precioSuper * pr.cantidadProducto
-              : found?.precioDeFabrica * pr.cantidadProducto;
-          setTotalMuestra(sumatoria);
-          const total =
-            res.data.data[0].tipo === "normal"
-              ? pr.totalProd
-              : pr?.precio_producto != null
-              ? pr?.precio_producto * pr.cantidadProducto
-              : !verifySuper
-              ? found?.precioDeFabrica * pr.cantidadProducto
-              : found?.precioSuper * pr.cantidadProducto;
-
-          const pTable = {
-            producto: pr.nombreProducto,
-            cantidad: pr.cantidadProducto,
-            precio:
+      const order = getOrderDetail(stringParts[0]);
+      order.then((res) => {
+        console.log("Order details", res);
+        const fechaDesc = res.data.data[0].fechaCrea
+          .substring(0, 10)
+          .split("/");
+        const currentDate = dateString().substring(0, 10).split("/");
+        setFechaCrea(
+          fechaDesc[0] +
+            " de " +
+            meses[fechaDesc[1] - 1] +
+            " de " +
+            fechaDesc[2]
+        );
+        const verifySuper = res.data.data[0]?.issuper ? true : false;
+        setIsSuper(verifySuper);
+        const prodHeaderObj = {
+          vendedor: res.data.data[0].nombreVendedor,
+          cliente: res.data.data[0].razonSocial,
+          nit: res.data.data[0].nit,
+          zona: res.data.data[0].zona,
+          montoTotal: res.data.data[0].montoFacturar?.toFixed(2),
+          descuento: res.data.data[0].descuento,
+          "descuento calculado":
+            res.data.data[0].descuentoCalculado?.toFixed(2),
+          facturado: res.data.data[0].montoTotal?.toFixed(2),
+          fechaCrea:
+            currentDate[0] +
+            " de " +
+            meses[currentDate[1] - 1] +
+            " de " +
+            currentDate[2],
+          tipo: toUpper(res.data.data[0].tipo),
+        };
+        console.log("PROD HEADER OBJ", prodHeaderObj);
+        setVendedor(res.data.data[0].nombreVendedor);
+        setCliente(res.data.data[0].razonSocial);
+        setZona(res.data.data[0].zona);
+        setTotal(res.data.data[0].montoFacturar);
+        setDescuento(res.data.data[0].descuento);
+        setFacturado(res.data.data[0].montoTotal);
+        setDescCalculado(res.data.data[0].descuentoCalculado);
+        setNit(res.data.data[0].nit);
+        setNotas(res.data.data[0].notas);
+        setTipo(res.data.data[0].tipo);
+        var sumatoria = 0;
+        const prodList = getOrderProdList(stringParts[0]);
+        console.log("IS SUPER", isSuper);
+        prodList.then((resp) => {
+          resp.data.data.map((pr) => {
+            const found = allProducts.find(
+              (item) => item.nombreProducto === pr.nombreProducto
+            );
+            sumatoria +=
               pr?.precio_producto != null
-                ? pr?.precio_producto
+                ? pr?.precio_producto * pr.cantidadProducto
                 : verifySuper
-                ? pr?.precioSuper
-                : pr?.precioDeFabrica?.toFixed(2),
-            total: total?.toFixed(2),
-            "descuento calculado": pr.descuentoProducto?.toFixed(2),
-          };
-          setProductTable((productTable) => [...productTable, pTable]);
-        });
-        setProductList(resp.data.data);
-        const auxDetail = [...productDetail];
-        setProductDetail([prodHeaderObj]);
-        if (res.data.data[0].tipo !== "normal") {
-          const prodHeaderObj = {
-            vendedor: res.data.data[0].nombreVendedor,
-            cliente: res.data.data[0].razonSocial,
-            nit: res.data.data[0].nit,
-            zona: res.data.data[0].zona,
-            montoTotal: sumatoria,
-            descuento: 0,
-            "descuento calculado": 0,
-            facturado: sumatoria,
-            fechaCrea:
-              currentDate[0] +
-              " de " +
-              meses[currentDate[1] - 1] +
-              " de " +
-              currentDate[2],
-            tipo: toUpper(res.data.data[0].tipo),
-          };
+                ? found?.precioSuper * pr.cantidadProducto
+                : found?.precioDeFabrica * pr.cantidadProducto;
+            setTotalMuestra(sumatoria);
+            const total =
+              res.data.data[0].tipo === "normal"
+                ? pr.totalProd
+                : pr?.precio_producto != null
+                ? pr?.precio_producto * pr.cantidadProducto
+                : !verifySuper
+                ? found?.precioDeFabrica * pr.cantidadProducto
+                : found?.precioSuper * pr.cantidadProducto;
+
+            const pTable = {
+              producto: pr.nombreProducto,
+              cantidad: pr.cantidadProducto,
+              precio:
+                pr?.precio_producto != null
+                  ? pr?.precio_producto
+                  : verifySuper
+                  ? pr?.precioSuper
+                  : pr?.precioDeFabrica?.toFixed(2),
+              total: total?.toFixed(2),
+              "descuento calculado": pr.descuentoProducto?.toFixed(2),
+            };
+            setProductTable((productTable) => [...productTable, pTable]);
+          });
+          setProductList(resp.data.data);
+          const auxDetail = [...productDetail];
           setProductDetail([prodHeaderObj]);
-        }
-        setIsLoading(false);
-        setIsOrder(true);
-        setIsPdf(true);
+          if (res.data.data[0].tipo !== "normal") {
+            const prodHeaderObj = {
+              vendedor: res.data.data[0].nombreVendedor,
+              cliente: res.data.data[0].razonSocial,
+              nit: res.data.data[0].nit,
+              zona: res.data.data[0].zona,
+              montoTotal: sumatoria,
+              descuento: 0,
+              "descuento calculado": 0,
+              facturado: sumatoria,
+              fechaCrea:
+                currentDate[0] +
+                " de " +
+                meses[currentDate[1] - 1] +
+                " de " +
+                currentDate[2],
+              tipo: toUpper(res.data.data[0].tipo),
+            };
+            setProductDetail([prodHeaderObj]);
+          }
+          setIsLoading(false);
+          setIsOrder(true);
+          setIsPdf(true);
+        });
       });
-    });
+    }
   }
 
   function handleAlert(mensaje, bool) {
@@ -306,7 +315,7 @@ export default function FormAllOrders() {
           />
           <Form.Label className="formLabel">Lista de Pedidos</Form.Label>
           <Form.Select onChange={(e) => setOrderDetails(e.target.value)}>
-            <option>Seleccione pedido</option>
+            <option value={"-1"}>Seleccione pedido</option>
             {pedidosList.map((pedido) => {
               return (
                 <option

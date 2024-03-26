@@ -88,6 +88,7 @@ export default function FormProductDrop() {
       cantProducto: 0,
       cant_Actual: prod.cant_Actual,
       precioDeFabrica: prod.precioDeFabrica,
+      total: prod.precioDeFabrica,
     };
     if (selectedProduct.find((sp) => sp.idProducto == prodId)) {
       setIsError(true);
@@ -169,57 +170,63 @@ export default function FormProductDrop() {
   }*/
 
   async function dropProductAlt() {
-    if (motivo == "") {
-      setIsError(true);
-      setAlert("Seleccione un motivo");
+    const foundZeros = selectedProduct.filter((sp) => sp.cantProducto == 0);
+    if (foundZeros.length > 0) {
+      setAlert("No se puede dar de baja un producto en cero");
       setIsAlert(true);
     } else {
-      if (selectedProduct.cantProducto < 1) {
+      if (motivo == "") {
         setIsError(true);
-        setAlert("Ingrese una cantidad valida");
+        setAlert("Seleccione un motivo");
         setIsAlert(true);
       } else {
-        setAlertSec("Dando de baja...");
-        setIsAlertSec(true);
-        const objBaja = {
-          motivo: `${motivo} - ${detalleMotivo}`,
-          fechaBaja: dateString(),
-          idUsuario: userId,
-          idAlmacen: storeId,
-          productos: selectedProduct,
-          totalbaja: selectedProduct.reduce((accumulator, object) => {
-            return accumulator + object.total;
-          }, 0),
-          vale: 0,
-          ci: process.env.REACT_APP_NIT_EMPRESA,
-        };
-        //setDropId(res.data.id);
-
-        const objStock = {
-          accion: "take",
-          idAlmacen: storeId,
-          productos: selectedProduct,
-        };
-
-        const compObj = {
-          baja: objBaja,
-          stock: objStock,
-        };
-        try {
-          const createdDrop = await composedDrop(compObj);
-          console.log("Baja creada", createdDrop);
-          setDropId(createdDrop.data.idCreado);
-          setIsDrop(true);
-        } catch (error) {
-          const errMessage = error.response.data.data.includes(
-            "stock_nonnegative"
-          )
-            ? "El stock requerido de algun producto seleccionado ya no se encuentra disponible"
-            : "";
-          console.log("Error al crear la baja", errMessage);
-          setIsAlertSec(false);
-          setAlert(`Error al crear la baja:  ${errMessage}`);
+        if (selectedProduct.cantProducto < 1) {
+          setIsError(true);
+          setAlert("Ingrese una cantidad valida");
           setIsAlert(true);
+        } else {
+          setAlertSec("Dando de baja...");
+          setIsAlertSec(true);
+          const objBaja = {
+            motivo: `${motivo} - ${detalleMotivo}`,
+            fechaBaja: dateString(),
+            idUsuario: userId,
+            idAlmacen: storeId,
+            productos: selectedProduct,
+            totalbaja: selectedProduct.reduce((accumulator, object) => {
+              return accumulator + object.total;
+            }, 0),
+            vale: 0,
+            ci: process.env.REACT_APP_NIT_EMPRESA,
+          };
+          //setDropId(res.data.id);
+
+          const objStock = {
+            accion: "take",
+            idAlmacen: storeId,
+            productos: selectedProduct,
+          };
+
+          const compObj = {
+            baja: objBaja,
+            stock: objStock,
+          };
+          try {
+            const createdDrop = await composedDrop(compObj);
+            console.log("Baja creada", createdDrop);
+            setDropId(createdDrop.data.idCreado);
+            setIsDrop(true);
+          } catch (error) {
+            const errMessage = error.response.data.data.includes(
+              "stock_nonnegative"
+            )
+              ? "El stock requerido de algun producto seleccionado ya no se encuentra disponible"
+              : "";
+            console.log("Error al crear la baja", errMessage);
+            setIsAlertSec(false);
+            setAlert(`Error al crear la baja:  ${errMessage}`);
+            setIsAlert(true);
+          }
         }
       }
     }

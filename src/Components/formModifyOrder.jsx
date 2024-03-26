@@ -371,175 +371,192 @@ export default function FormModifyOrders() {
   }
 
   function setOrderDetails(stringPedido) {
-    setSelectedProds([]);
-    setAuxProds([]);
-    setNavidad([]);
-    setTradicionales([]);
-    setPascua([]);
-    setHalloween([]);
-    setEspeciales([]);
-    setSinDesc([]);
-    setAuxSelectedProds([]);
-    setUserRol("");
-    setAuxOrder([]);
-    setFechaPedido("");
-    setClientInfo({});
-    setOrderType("");
-    const stringParts = stringPedido.split("|");
-    setIsLoading(true);
-    setCodigoPedido(stringParts[1]);
-    setSelectedOrder(stringParts[0]);
-    const wholeSale = Cookies.get("selectedwhole");
-    const currentUser = Cookies.get("userAuth");
-    const order = getOrderDetail(stringParts[0]);
-    order.then((res) => {
-      const currentDate = dateString();
-      const list = listDiscounts(currentDate, res.data.data[0].tipoUsuario);
-      list.then((l) => {
-        setSeasonDiscountData(l.data.data);
-      });
-      console.log("Almacen del usuario", res.data.data[0].idAlmacen);
+    if (stringPedido != "-1") {
       setSelectedProds([]);
-      console.log("order details", res.data.data);
-      const dl = productsDiscount(res.data.data[0].idUsuarioCrea);
-      dl.then((res) => {
-        setDiscountList(res.data.data);
-      });
-      setUserRol(res.data.data[0].rol);
-      setAuxOrder(res.data.data[0]);
-      setFechaPedido(res.data.data[0].fechaCrea);
-      setIsSuper(res.data.data[0]?.issuper ? true : false);
-      const verifySuper = res.data.data[0]?.issuper ? true : false;
-      setClientInfo({
-        nitCliente: res.data.data[0].nit,
-        idZona: res.data.data[0].idZona,
-        issuper: res.data.data[0].issuper,
-      });
-      setOrderType(res.data.data[0].tipo);
-      const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
-      setFechaCrea(
-        fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
-      );
-
-      setIdPedido(res.data.data[0].idPedido);
-      const prodHeaderObj = {
-        vendedor: res.data.data[0].nombreVendedor,
-        cliente: res.data.data[0].razonSocial,
-        zona: res.data.data[0].zona,
-        montoTotal: res.data.data[0].montoFacturar,
-        descuento: res.data.data[0].descuento,
-        facturado: res.data.data[0].montoTotal,
-        fechaCrea:
-          fechaDesc[2] +
-          " de " +
-          meses[fechaDesc[1] - 1] +
-          " de " +
-          fechaDesc[0],
-      };
-      setVendedor(res.data.data[0].nombreVendedor);
-      setCliente(res.data.data[0].razonSocial);
-      setZona(res.data.data[0].zona);
-      setTotal(res.data.data[0].montoFacturar);
-      setDescuento(res.data.data[0].descuento);
-      setPrevDisc(res.data.data[0].descuento);
-      setFacturado(res.data.data[0].montoTotal);
-      setTotalPrevio(res.data.data[0].montoFacturar);
-      setAuxTotalPrev(res.data.data[0].montoFacturar);
-      setTotalDesc(res.data.data[0].descuentoCalculado);
-      setTotalFacturar(res.data.data[0].montoTotal);
-      setTipoUsuario(
-        wholeSale
-          ? JSON.parse(currentUser).tipoUsuario
-          : res.data.data[0].tipoUsuario
-      );
-      setAuxTotalFac(res.data.data[0].montoTotal);
-      setUsuarioCrea(res.data.data[0].idUsuarioCrea);
-      setCodigoPedido(res.data.data[0].codigoPedido);
-      setCreatorStore(res.data.data[0].idAlmacen);
-
-      const prodList = getOrderProdList(stringParts[0]);
-      prodList.then((res) => {
-        res.data.data.map((prod) => {
-          const objProd = {
-            cantProducto: prod.cantidadProducto,
-            idProducto: prod.idProducto,
-          };
-          setAuxSelectedProds((auxSelectedProds) => [
-            ...auxSelectedProds,
-            objProd,
-          ]);
+      setAuxProds([]);
+      setNavidad([]);
+      setTradicionales([]);
+      setPascua([]);
+      setHalloween([]);
+      setEspeciales([]);
+      setSinDesc([]);
+      setAuxSelectedProds([]);
+      setUserRol("");
+      setAuxOrder([]);
+      setFechaPedido("");
+      setClientInfo({});
+      setOrderType("");
+      const stringParts = stringPedido.split("|");
+      setIsLoading(true);
+      setCodigoPedido(stringParts[1]);
+      setSelectedOrder(stringParts[0]);
+      const wholeSale = Cookies.get("selectedwhole");
+      const currentUser = Cookies.get("userAuth");
+      const order = getOrderDetail(stringParts[0]);
+      order.then((res) => {
+        const currentDate = dateString();
+        const list = listDiscounts(currentDate, res.data.data[0].tipoUsuario);
+        list.then((l) => {
+          setSeasonDiscountData(l.data.data);
         });
-        var tradArray = [];
-        var pasArray = [];
-        var navArray = [];
-        var hallArray = [];
-        var sinArray = [];
-        var espArray = [];
+        console.log("Almacen del usuario", res.data.data[0].idAlmacen);
+        setSelectedProds([]);
+        console.log("order details", res.data.data);
+        const dl = productsDiscount(res.data.data[0].idUsuarioCrea);
+        dl.then((res) => {
+          setDiscountList(res.data.data);
+        });
+        setUserRol(res.data.data[0].rol);
+        setAuxOrder(res.data.data[0]);
+        setFechaPedido(res.data.data[0].fechaCrea);
+        setIsSuper(res.data.data[0]?.issuper ? true : false);
+        const verifySuper = res.data.data[0]?.issuper ? true : false;
+        setClientInfo({
+          nitCliente: res.data.data[0].nit,
+          idZona: res.data.data[0].idZona,
+          issuper: res.data.data[0].issuper,
+        });
+        setOrderType(res.data.data[0].tipo);
+        const fechaDesc = res.data.data[0].fechaCrea
+          .substring(0, 10)
+          .split("/");
+        setFechaCrea(
+          fechaDesc[0] +
+            " de " +
+            meses[fechaDesc[1] - 1] +
+            " de " +
+            fechaDesc[2]
+        );
 
-        res.data.data.map((parsed, index) => {
-          console.log("TESTEANDO SUPER", res.data.data[0]);
-          const precio = parsed.precio_producto
-            ? parsed.precio_producto
-            : verifySuper
-            ? parsed.precioSuper
-            : parsed.precioDeFabrica;
+        setIdPedido(res.data.data[0].idPedido);
+        const prodHeaderObj = {
+          vendedor: res.data.data[0].nombreVendedor,
+          cliente: res.data.data[0].razonSocial,
+          zona: res.data.data[0].zona,
+          montoTotal: res.data.data[0].montoFacturar,
+          descuento: res.data.data[0].descuento,
+          facturado: res.data.data[0].montoTotal,
+          fechaCrea:
+            fechaDesc[2] +
+            " de " +
+            meses[fechaDesc[1] - 1] +
+            " de " +
+            fechaDesc[0],
+        };
+        setVendedor(res.data.data[0].nombreVendedor);
+        setCliente(res.data.data[0].razonSocial);
+        setZona(res.data.data[0].zona);
+        setTotal(res.data.data[0].montoFacturar);
+        setDescuento(res.data.data[0].descuento);
+        setPrevDisc(res.data.data[0].descuento);
+        setFacturado(res.data.data[0].montoTotal);
+        setTotalPrevio(res.data.data[0].montoFacturar);
+        setAuxTotalPrev(res.data.data[0].montoFacturar);
+        setTotalDesc(res.data.data[0].descuentoCalculado);
+        setTotalFacturar(res.data.data[0].montoTotal);
+        setTipoUsuario(
+          wholeSale
+            ? JSON.parse(currentUser).tipoUsuario
+            : res.data.data[0].tipoUsuario
+        );
 
-          const prodObj = {
-            cantPrevia: parsed.cantidadProducto,
-            cantProducto: parsed.cantidadProducto,
-            codInterno: parsed.codInterno,
-            codigoBarras: parsed.codigoBarras,
-            idPedido: parsed.idPedido,
-            idPedidoProducto: parsed.idPedidoProducto,
-            idProducto: parsed.idProducto,
-            nombreProducto: parsed.nombreProducto,
-            precioDeFabrica: verifySuper
+        console.log(
+          "tipo usuario",
+          wholeSale
+            ? JSON.parse(currentUser).tipoUsuario
+            : res.data.data[0].tipoUsuario
+        );
+
+        setAuxTotalFac(res.data.data[0].montoTotal);
+        setUsuarioCrea(res.data.data[0].idUsuarioCrea);
+        setCodigoPedido(res.data.data[0].codigoPedido);
+        setCreatorStore(res.data.data[0].idAlmacen);
+
+        const prodList = getOrderProdList(stringParts[0]);
+        prodList.then((res) => {
+          res.data.data.map((prod) => {
+            const objProd = {
+              cantProducto: prod.cantidadProducto,
+              idProducto: prod.idProducto,
+            };
+            setAuxSelectedProds((auxSelectedProds) => [
+              ...auxSelectedProds,
+              objProd,
+            ]);
+          });
+          var tradArray = [];
+          var pasArray = [];
+          var navArray = [];
+          var hallArray = [];
+          var sinArray = [];
+          var espArray = [];
+
+          res.data.data.map((parsed, index) => {
+            //console.log("TESTEANDO SUPER", res.data.data[0]);
+            const precio = parsed.precio_producto
+              ? parsed.precio_producto
+              : verifySuper
               ? parsed.precioSuper
-              : parsed.precioDeFabrica,
-            precioDescuentoFijo: parsed.precioDescuentoFijo,
-            totalProd: parsed.cantidadProducto * precio,
-            totalDescFijo: parsed.cantidadProducto * parsed.precioDescuentoFijo,
-            tipoProducto: parsed.tipoProducto,
-            descuentoProd: 0,
-            unidadDeMedida: parsed.unidadDeMedida,
-            precio_producto: parsed.precio_producto,
-          };
-          console.log("Datos del producto", prodObj);
-          setSelectedProds((selectedProds) => [...selectedProds, prodObj]);
-          switch (parsed.tipoProducto) {
-            case 1:
-              tradArray.push(prodObj);
-              break;
-            case 2:
-              pasArray.push(prodObj);
-              break;
-            case 3:
-              navArray.push(prodObj);
-              break;
-            case 4:
-              hallArray.push(prodObj);
-              break;
-            case 5:
-              sinArray.push(prodObj);
-              break;
-            case 6:
-              espArray.push(prodObj);
-              break;
-          }
-          setIsLoading(false);
+              : parsed.precioDeFabrica;
+
+            const prodObj = {
+              cantPrevia: parsed.cantidadProducto,
+              cantProducto: parsed.cantidadProducto,
+              codInterno: parsed.codInterno,
+              codigoBarras: parsed.codigoBarras,
+              idPedido: parsed.idPedido,
+              idPedidoProducto: parsed.idPedidoProducto,
+              idProducto: parsed.idProducto,
+              nombreProducto: parsed.nombreProducto,
+              precioDeFabrica: verifySuper
+                ? parsed.precioSuper
+                : parsed.precioDeFabrica,
+              precioDescuentoFijo: parsed.precioDescuentoFijo,
+              totalProd: parsed.cantidadProducto * precio,
+              totalDescFijo:
+                parsed.cantidadProducto * parsed.precioDescuentoFijo,
+              tipoProducto: parsed.tipoProducto,
+              descuentoProd: 0,
+              unidadDeMedida: parsed.unidadDeMedida,
+              precio_producto: parsed.precio_producto,
+            };
+            //console.log("Datos del producto", prodObj);
+            setSelectedProds((selectedProds) => [...selectedProds, prodObj]);
+            switch (parsed.tipoProducto) {
+              case 1:
+                tradArray.push(prodObj);
+                break;
+              case 2:
+                pasArray.push(prodObj);
+                break;
+              case 3:
+                navArray.push(prodObj);
+                break;
+              case 4:
+                hallArray.push(prodObj);
+                break;
+              case 5:
+                sinArray.push(prodObj);
+                break;
+              case 6:
+                espArray.push(prodObj);
+                break;
+            }
+            setIsLoading(false);
+          });
+          setTradicionales(tradArray);
+          setPascua(pasArray);
+          setNavidad(navArray);
+          setHalloween(hallArray);
+          setSinDesc(sinArray);
+          setEspeciales(espArray);
+          const auxDetail = [...productDetail];
+          setProductDetail([...auxDetail, prodHeaderObj]);
+          setIsOrder(true);
+          setIsPdf(true);
         });
-        setTradicionales(tradArray);
-        setPascua(pasArray);
-        setNavidad(navArray);
-        setHalloween(hallArray);
-        setSinDesc(sinArray);
-        setEspeciales(espArray);
-        const auxDetail = [...productDetail];
-        setProductDetail([...auxDetail, prodHeaderObj]);
-        setIsOrder(true);
-        setIsPdf(true);
       });
-    });
+    }
   }
   function changeQuantitys(index, cantidades, prod) {
     var cantidad;
@@ -1109,7 +1126,7 @@ export default function FormModifyOrders() {
           />
           <Form.Label className="formLabel">Lista de Pedidos</Form.Label>
           <Form.Select onChange={(e) => setOrderDetails(e.target.value)}>
-            <option>Seleccione pedido</option>
+            <option value={"-1"}>Seleccione pedido</option>
             {pedidosList.map((pedido) => {
               return (
                 <option
@@ -1284,6 +1301,10 @@ export default function FormModifyOrders() {
                           <InputGroup>
                             <Form.Control
                               disabled={
+                                ![1, 10].includes(
+                                  JSON.parse(Cookies.get("userAuth"))
+                                    .tipoUsuario
+                                ) &&
                                 !(
                                   (tipoUsuario != 2 &&
                                     tipoUsuario != 3 &&

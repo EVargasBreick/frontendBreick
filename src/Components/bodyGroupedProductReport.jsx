@@ -386,17 +386,18 @@ export default function BodyGroupedProductReport() {
     const moneySheet = await exportByMonthMoney();
     const arrayAmount = [];
     const arrayMoney = [];
+    console.log("Checked list", checkedList);
     if (reportType == "cantidad") {
       for (const product of amountSheet) {
         if (
-          checkedList.find((cl) => cl.idProducto == product.idProducto).checked
+          checkedList.find((cl) => cl.idProducto == product.idProducto)?.checked
         ) {
           arrayAmount.push(product);
         }
       }
       for (const product of moneySheet) {
         if (
-          checkedList.find((cl) => cl.idProducto == product.idProducto).checked
+          checkedList.find((cl) => cl.idProducto == product.idProducto)?.checked
         ) {
           arrayMoney.push(product);
         }
@@ -405,7 +406,7 @@ export default function BodyGroupedProductReport() {
       for (const product of amountSheet) {
         if (
           checkedListMoney.find((cl) => cl.idProducto == product.idProducto)
-            .checked
+            ?.checked
         ) {
           arrayAmount.push(product);
         }
@@ -413,7 +414,7 @@ export default function BodyGroupedProductReport() {
       for (const product of moneySheet) {
         if (
           checkedListMoney.find((cl) => cl.idProducto == product.idProducto)
-            .checked
+            ?.checked
         ) {
           arrayMoney.push(product);
         }
