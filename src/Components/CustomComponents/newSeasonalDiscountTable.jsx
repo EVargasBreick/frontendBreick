@@ -91,6 +91,12 @@ export default function NewSeasonalDiscountTable({ startDate, endDate }) {
   ]);
 
   function addCategory() {
+    if (categorias.length == 27) {
+      setAlert("No se pueden agregar más categorías");
+      setIsAlert(true);
+      return;
+    }
+
     const updatedCat = [...categorias];
     const updatedLista = [...listas];
 
@@ -162,11 +168,9 @@ export default function NewSeasonalDiscountTable({ startDate, endDate }) {
       if (
         categorias[index]?.montoMinimo <= categorias[index - 1]?.montoMaximo
       ) {
-        return `El límite minimo de la categoria ${
-          categorias[index].categoria
-        } es menor o igual que el límite máximo de la categoria ${
-          categorias[index - 1].categoria
-        }`;
+        return `El límite minimo de la categoria ${categorias[index].categoria
+          } es menor o igual que el límite máximo de la categoria ${categorias[index - 1].categoria
+          }`;
       }
       index++;
     }
@@ -230,7 +234,7 @@ export default function NewSeasonalDiscountTable({ startDate, endDate }) {
             window.location.reload();
           }, 2000);
         }
-      } catch (err) {}
+      } catch (err) { }
     } else {
       setAlert(validated);
       setIsAlert(true);
@@ -328,37 +332,45 @@ export default function NewSeasonalDiscountTable({ startDate, endDate }) {
                       }
                     </td>
                     <td>
-                      <div style={tableStyles.inputFields}>
-                        {
-                          <Form.Control
-                            disabled={ct.categoria == "0"}
-                            value={
-                              listas.find((lm) => lm.categoria == ct.categoria)
-                                ?.descuentoMayo
-                            }
-                            onChange={(e) =>
-                              changePercents(e.target.value, index, 2)
-                            }
-                          />
-                        }
-                        <div style={{ marginLeft: "10px" }}>%</div>
+                      <div className="input-group ">
+                        <div style={tableStyles.inputFields}>
+                          {
+                            <Form.Control
+                              disabled={ct.categoria == "0"}
+                              value={
+                                listas.find((lm) => lm.categoria == ct.categoria)
+                                  ?.descuentoMayo
+                              }
+                              onChange={(e) =>
+                                changePercents(e.target.value, index, 2)
+                              }
+                            />
+                          }
+                          <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon2">%</span>
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td>
-                      <div style={tableStyles.inputFields}>
-                        {
-                          <Form.Control
-                            disabled={ct.categoria == "0"}
-                            value={
-                              listas.find((lm) => lm.categoria == ct.categoria)
-                                ?.descuentoRuta
-                            }
-                            onChange={(e) =>
-                              changePercents(e.target.value, index, 4)
-                            }
-                          />
-                        }
-                        <div style={{ marginLeft: "10px" }}>%</div>
+                      <div className="input-group ">
+                        <div style={tableStyles.inputFields}>
+                          {
+                            <Form.Control
+                              disabled={ct.categoria == "0"}
+                              value={
+                                listas.find((lm) => lm.categoria == ct.categoria)
+                                  ?.descuentoRuta
+                              }
+                              onChange={(e) =>
+                                changePercents(e.target.value, index, 4)
+                              }
+                            />
+                          }
+                          <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon2">%</span>
+                          </div>
+                        </div>
                       </div>
                     </td>
                   </tr>
