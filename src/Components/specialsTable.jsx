@@ -1,9 +1,19 @@
 import React from "react";
 import { Table } from "react-bootstrap";
 
-export default function SpecialsTable({ especiales, totales, isEsp }) {
+export default function SpecialsTable({
+  especiales,
+  totales,
+  isEsp,
+  isSeasonalEsp,
+}) {
+  //console.log("Especiales", especiales);
   const isEspe =
-    totales.descCalculadoEspeciales?.toFixed(2) > 0 || isEsp ? true : false;
+    isSeasonalEsp && especiales.length > 0
+      ? true
+      : totales?.descCalculadoEspeciales?.toFixed(2) > 0 || isEsp
+      ? true
+      : false;
 
   return (
     <div>
@@ -47,7 +57,11 @@ export default function SpecialsTable({ especiales, totales, isEsp }) {
                 <td>
                   {`${especiales
                     .reduce((accumulator, object) => {
-                      return accumulator + object.totalDescFijo;
+                      return (
+                        accumulator +
+                        parseFloat(object.precioDescuentoFijo) *
+                          parseFloat(object.cantProducto)
+                      );
                     }, 0)
                     .toFixed(2)} Bs.`}
                 </td>

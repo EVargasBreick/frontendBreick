@@ -12,7 +12,9 @@ import ReturnWare from "../../assets/returnWare.png";
 import Invoice from "../../assets/invoice.png";
 import cancelInvoice from "../../assets/cancelInvoice.png";
 import Cross from "../../assets/cross.png";
+import Lines from "../../assets/lines.png";
 import Printer from "../../assets/printer.png";
+import { TbShoppingCartCancel } from "react-icons/tb";
 import "../../styles/generalStyle.css";
 
 export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
@@ -25,6 +27,7 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       title="Modulo Logistica"
       icon={<Image src={Barcode} className="compIcon"></Image>}
     >
+      <div className="menuItem">Pedidos</div>
       <MenuItem
         onClick={() => redirectOnClick("/pedidos")}
         className="menuItem"
@@ -43,9 +46,10 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
       >
         <Image src={Invoice} className="icon"></Image>Facturar Pedidos
       </MenuItem>
+      <div className="menuItem">Facturas</div>
       <MenuItem
         className="menuItem"
-        onClick={() => redirectOnClick("/facturasanular")}
+        onClick={() => redirectOnClick("/facturas/anulacion")}
       >
         {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
@@ -58,19 +62,26 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/traspaso")}
+        onClick={() => redirectOnClick("/facturar-consignacion")}
         className="menuItem"
       >
-        <Image src={ReturnWare} className="icon inverted"></Image>
-        Traspaso entre agencias
+        <Image src={Invoice} className="icon"></Image>Facturar Consignaciones
       </MenuItem>
+      <div className="menuItem">Traspasos</div>
       <MenuItem
-        onClick={() => redirectOnClick("/traspaso/recargar")}
+        onClick={() => redirectOnClick("/traspaso")}
         className="menuItem"
       >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Traspaso a agencias
       </MenuItem>
+      {/**<MenuItem
+        onClick={() => redirectOnClick("/traspaso/recargar")}
+        className="menuItem"
+      >
+        <Image src={ReturnWare} className="icon inverted"></Image>
+        Traspaso a agencias
+      </MenuItem> */}
       <MenuItem
         onClick={() => redirectOnClick("/traspasos/editar")}
         className="menuItem"
@@ -78,8 +89,11 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={leftArrow} className="icon"></Image>
         Modificar Traspaso
       </MenuItem>
-      <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}>
-        <Image src={Check} className="icon"></Image>Aprobar Traspasos
+      <MenuItem
+        onClick={() => redirectOnClick("/adminTraspaso")}
+        className="menuItem"
+      >
+        <Image src={Check} className="icon"></Image>Aprobar Traspasoss
       </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/verTraspaso")}
@@ -88,12 +102,20 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         <Image src={newOrder} className="icon"></Image>Ver Traspasos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/traspasos/agencia")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Ver Estado Traspasos
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/traspaso/recepcion")}
         className="menuItem"
       >
         <Image src={ReturnWare} className="icon inverted"></Image>
         Recepcion traspasos
       </MenuItem>
+      <div className="menuItem">Otros</div>
       <MenuItem
         onClick={() => redirectOnClick("/rechazados")}
         className="menuItem"
@@ -106,6 +128,13 @@ export default function Logistica({ toggleSub, redirectOnClick, toggleLog }) {
         className="menuItem"
       >
         <Image src={Cross} className="icon"></Image>Baja Productos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/bajas/anular")}
+        className="menuItem"
+      >
+        <TbShoppingCartCancel size="30px" style={{ paddingRight: "5px" }} />
+        Anular Baja
       </MenuItem>
     </SubMenu>
   );

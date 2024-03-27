@@ -50,6 +50,11 @@ export default function MainPage() {
       if (JSON.parse(Cookies.get("userAuth")).rol == 11) {
         navigate("/almacenes/recepcionar-pedidos");
       }
+
+      if (JSON.parse(Cookies.get("userAuth")).rol == 12) {
+        navigate("/ventas/agencia");
+      }
+
       const mobilepdvdata = getMobileSalePoints(JSON.parse(user).idAlmacen);
       mobilepdvdata.then((res) => {
         const datos = res.data[0];

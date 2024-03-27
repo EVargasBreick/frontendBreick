@@ -15,9 +15,9 @@ import leftArrow from "../../assets/leftArrow.png";
 import Client from "../../assets/client.png";
 import newClient from "../../assets/newClient.png";
 import newOrder from "../../assets/newOrder.png";
-
+import Check from "../../assets/check.png";
 import cancelSample from "../../assets/cancelSample.png";
-
+import Gears from "../../assets/gears.png";
 import appBooking from "../../assets/approveBook.png";
 import ReturnWare from "../../assets/returnWare.png";
 import Cross from "../../assets/cross.png";
@@ -25,6 +25,9 @@ import Load from "../../assets/load.png";
 import Printer from "../../assets/printer.png";
 import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
+import { GoGoal } from "react-icons/go";
+import { TbDiscount2 } from "react-icons/tb";
+import { FaLayerGroup } from "react-icons/fa";
 import "../../styles/generalStyle.css";
 
 export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
@@ -52,6 +55,12 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
       </MenuItem>
       <div className="menuItem">Pedidos</div>
       <MenuItem
+        onClick={() => redirectOnClick("/pedidos")}
+        className="menuItem"
+      >
+        <Image src={newOrder} className="icon"></Image>Ver Pedidos
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/regPedido")}
         className="menuItem"
       >
@@ -64,7 +73,13 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={leftArrow} className="icon"></Image>
         Modificar/Cancelar Pedido
       </MenuItem>
-
+      <MenuItem
+        onClick={() => redirectOnClick("/usuarios/pedidos/listar")}
+        className="menuItem"
+      >
+        <FaLayerGroup size="12%" style={{ paddingRight: "5px" }} />
+        Mis Pedidos
+      </MenuItem>
       <div className="menuItem">Traspasos</div>
       <MenuItem
         onClick={() => redirectOnClick("/traspaso")}
@@ -81,6 +96,9 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={leftArrow} className="icon"></Image>
         Modificar Traspaso
       </MenuItem>
+      <MenuItem onClick={() => redirectOnClick("/adminTraspaso")}>
+        <Image src={Check} className="icon"></Image>Aprobar Traspasos
+      </MenuItem>
       <div className="menuItem">Productos</div>
       <MenuItem
         onClick={() => redirectOnClick("/packs/registrar")}
@@ -90,7 +108,45 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         <Image src={Star} className="icon inverted"></Image>
         Registrar Pack
       </MenuItem>
-
+      <MenuItem
+        onClick={() => redirectOnClick("/packs/editar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Editar Pack
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsasignar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Star} className="icon inverted"></Image>
+        Armar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsretirar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Desarmar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/productos/grupos")}
+        className="menuItem"
+      >
+        <FaLayerGroup size="12%" style={{ paddingRight: "5px" }} />
+        Grupos de Productos
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/registrar/descuentos-temporada")}
+        className="menuItem"
+      >
+        <TbDiscount2 size="12%" style={{ paddingRight: "5px" }} />
+        Registrar desc de temporada
+      </MenuItem>
+      <div className="menuItem">Facturas</div>
       <MenuItem
         onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
@@ -98,12 +154,35 @@ export default function Ventas({ toggleSub, redirectOnClick, toggledVent }) {
         {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
+
+      <MenuItem
+        onClick={() => redirectOnClick("/facturas")}
+        className="menuItem"
+      >
+        <Image src={appBooking} className="icon"></Image>Informacion Facturas
+      </MenuItem>
+      <div className="menuItem">Vendedores</div>
+      <MenuItem
+        onClick={() => redirectOnClick("/metas/ingresar")}
+        className="menuItem"
+      >
+        <GoGoal size="12%" style={{ paddingRight: "5px" }} /> Registrar metas
+        senamales
+      </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/editarUsuario/agencia")}
         className="menuItem"
       >
         <Image src={newClient} className="icon"></Image>Reasignar Agencias
       </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/editarUsuario")}
+        className="menuItem"
+      >
+        <Image src={Gears} className="icon"></Image>Modificar usuarios del
+        sistema
+      </MenuItem>
+
       {/*<div>En Desarrollo ...</div>
       <MenuItem>
         <Image src={cancelSample} className="icon"></Image> Anular Muestras

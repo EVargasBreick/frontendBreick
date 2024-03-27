@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import { Button, Form, Image } from "react-bootstrap";
 import Pagination from "./pagination";
@@ -13,6 +13,7 @@ export default function BodySalesReport() {
   const [newCuf, setNewCuf] = useState("");
   const [reportTable, setReportTable] = useState([]);
   const [auxReportTable, setAuxReportTable] = useState([]);
+  const auxReportTableFilter = useRef([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage, setRecordsPerPage] = useState(25);
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -45,14 +46,8 @@ export default function BodySalesReport() {
   }
   function generateReport() {
     setIsReportLoading(true);
-    const id =
-      userAct.rol == 1 ||
-      userAct.rol == 9 ||
-      userAct.rol == 10 ||
-      userAct.rol == 8 ||
-      userAct.rol == 5
-        ? ""
-        : userAct.idAlmacen;
+    const sudo = [1, 5, 8, 9, 10, 12];
+    const id = sudo.includes(userAct.rol) ? "" : userAct.idAlmacen;
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       const reportData = getGeneralSalesReport(
@@ -66,6 +61,7 @@ export default function BodySalesReport() {
           console.log("Data", response);
           setReportTable(response.data);
           setAuxReportTable(response.data);
+          auxReportTableFilter.current = response.data;
 
           setIsReportLoading(false);
         })
@@ -89,20 +85,35 @@ export default function BodySalesReport() {
         dt.nombreCompleto
           .toString()
           .toLowerCase()
+          .includes(value.toString().toLowerCase()) ||
+        dt.nroFactura
+          .toString()
+          .toLowerCase()
           .includes(value.toString().toLowerCase())
     ); //
-    setReportTable([...newList]);
+
+    auxReportTableFilter.current = [...newList];
+    console.log("newList", byState);
+    if (byState != 2 && byState != -1) {
+      filterByState(byState);
+    } else {
+      setReportTable([...newList]);
+    }
   }
   function filterByState(value) {
     setByState(value);
     if (value == 2) {
-      setReportTable([...auxReportTable]);
+      setReportTable(auxReportTableFilter.current);
     } else {
       if (value == 0) {
-        const newList = auxReportTable.filter((dt) => dt.estado == 0);
+        const newList = auxReportTableFilter.current.filter(
+          (dt) => dt.estado == 0
+        );
         setReportTable([...newList]);
       } else {
-        const newList = auxReportTable.filter((dt) => dt.estado == 1);
+        const newList = auxReportTableFilter.current.filter(
+          (dt) => dt.estado == 1
+        );
         setReportTable([...newList]);
       }
     }
@@ -158,25 +169,19 @@ export default function BodySalesReport() {
           "nit cliente": rt.nitCliente,
           complemento: 0,
           "razon social": rt.razonSocial,
-          "importe total": rt.montoTotal,
-          ICE: 0,
-          IEHD: 0,
-          IPJ: 0,
-          TASAS: 0,
-          "NO IVA": 0,
-          EXPORTACIONES: 0,
-          GRAVADAS: 0,
+          "importe total": parseFloat(rt.montoTotal),
           "Sub Total": rt.montoTotal,
           descuentos: (rt.montoTotal - rt.montoFacturar).toFixed(2),
-          "gift card": 0,
-          "importe base": rt.montoFacturar.toFixed(2),
-          "debito fiscal": (rt.montoFacturar * 0.13).toFixed(2),
+          "gift card": Number(rt.vale).toFixed(2),
+          "importe base": parseFloat(rt.montoFacturar.toFixed(2)),
+          "debito fiscal": parseFloat((rt.montoFacturar * 0.13).toFixed(2)),
           estado: rt.estado == 0 ? "Valida" : "Anulada",
           "derecho fiscal": "si",
           vendedor: rt.nombreCompleto,
           agencia: rt.Agencia,
           "monto a pagar":
             rt.desembolsada == 0 ? 0 : rt.montoFacturar.toFixed(2),
+          "url siat": `https://siat.impuestos.gob.bo/consulta/QR?nit=128153028&cuf=${rt.cuf}&numero=${rt.nroFactura}`,
         };
         newArray.push(dataRecord);
       })
@@ -192,13 +197,6 @@ export default function BodySalesReport() {
             return accumulator + object.montoTotal;
           }, 0)
           .toFixed(2),
-        "total ice": 0.0,
-        "total iehd": 0.0,
-        "total ipj": 0.0,
-        "total tasas": 0.0,
-        "total no iva": 0.0,
-        "total exportaciones": 0.0,
-        "total gravadas": 0.0,
         "sub total": reportTable
           .reduce((accumulator, object) => {
             return accumulator + object.montoTotal;
@@ -212,7 +210,11 @@ export default function BodySalesReport() {
             return accumulator + object.montoFacturar;
           }, 0)
         ).toFixed(2),
-        "total gift card": 0,
+        "total gift card": reportTable
+          .reduce((accumulator, object) => {
+            return accumulator + Number(object.vale);
+          }, 0)
+          .toFixed(2),
         "total importe base": reportTable
           .reduce((accumulator, object) => {
             return accumulator + object.montoFacturar;
@@ -261,6 +263,12 @@ export default function BodySalesReport() {
     const splitted = cuf.match(/.{25}/g);
     return splitted ? splitted.join(" ") : cuf;
   }
+
+  function goToSiat(cuf, nroFactura) {
+    const url = `https://siat.impuestos.gob.bo/consulta/QR?nit=128153028&cuf=${cuf}&numero=${nroFactura}`;
+    window.open(url, "_blank");
+  }
+
   return (
     <div>
       <div className="formLabel">REPORTE GENERAL DE VENTAS</div>
@@ -283,10 +291,14 @@ export default function BodySalesReport() {
               value={toDate}
             />
           </div>
-          <Button className="reportButtonG" onClick={() => generateReport()}>
-            Generar reporte
-          </Button>
         </Form>
+        <Button
+          className="reportButtonG"
+          style={{ marginBottom: "10px" }}
+          onClick={() => generateReport()}
+        >
+          Generar reporte
+        </Button>
       </div>
       {(reportTable.length > 0 || searchBox != "" || byState != -1) &&
       !isReportLoading ? (
@@ -337,23 +349,6 @@ export default function BodySalesReport() {
                 <option value="1">Anuladas</option>
               </Form.Select>
             </div>
-            <div>
-              <Form.Label>Ordenar por</Form.Label>
-              <Form.Select
-                className="reportOptionDrop"
-                value={sort}
-                onChange={(e) => sortData(e.target.value)}
-              >
-                <option value="fecha asc">Fecha</option>
-                <option value="nroFactura asc">Nro Factura</option>
-                <option value="nitCliente asc">Nit</option>
-                <option value="razonSocial asc">Razon social</option>
-                <option value="nombreCompleto asc">Vendedor</option>
-                <option value="Agencia asc">Agencia</option>
-                <option value="hora">Hora</option>
-                <option value="montoFacturar desc">Importe Base</option>
-              </Form.Select>
-            </div>
           </Form.Group>
 
           <div className="reportTittle">{`LIBRO DE VENTAS ESTANDAR`}</div>
@@ -366,16 +361,8 @@ export default function BodySalesReport() {
                   <th className="reportColumnSmall ">HORA</th>
                   <th className="reportColumnSmall ">NRO FACTURA</th>
                   <th className="reportColumnMedium ">NIT CLIENTE</th>
-                  <th className="reportColumnXSmall ">COMPLE MENTO</th>
                   <th className="reportColumnMedium ">RAZON SOCIAL</th>
                   <th className="reportColumnXSmall ">IMPORTE TOTAL</th>
-                  <th className="reportColumnXSmall ">ICE</th>
-                  <th className="reportColumnXSmall ">IEHD</th>
-                  <th className="reportColumnXSmall ">IPJ</th>
-                  <th className="reportColumnXSmall ">TASAS</th>
-                  <th className="reportColumnXSmall ">NO IVA</th>
-                  <th className="reportColumnXSmall ">EXPOR TACIONES</th>
-                  <th className="reportColumnXSmall "> GRAV ADAS</th>
                   <th className="reportColumnSmall "> SUB TOTAL</th>
                   <th className="reportColumnSmall ">DCTOS</th>
                   <th className="reportColumnXSmall ">GIFT CARD</th>
@@ -383,9 +370,9 @@ export default function BodySalesReport() {
                   <th className="reportColumnSmall ">DEBITO FISCAL</th>
                   <th className="reportColumnSmall ">ESTADO</th>
                   <th className="reportColumnSmall ">DERECHO FISCAL</th>
-
                   <th className="reportColumnMedium ">VENDEDOR</th>
                   <th className="reportColumnMedium ">AGENCIA</th>
+                  <th className="reportColumnMedium ">VER EN SIAT</th>
                 </tr>
               </thead>
               <tbody>
@@ -397,16 +384,9 @@ export default function BodySalesReport() {
                       <td className="reportColumnMedium">{rt.hora}</td>
                       <td className="reportCufColumn">{rt.nroFactura}</td>
                       <td className="reportColumnXSmall">{`${rt.nitCliente}`}</td>
-                      <td className="reportColumnXSmall">{0}</td>
+
                       <td className="reportColumnMedium">{rt.razonSocial}</td>
                       <td className="reportColumnXSmall">{rt.montoTotal}</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall">0</td>
-                      <td className="reportColumnXSmall"> 0</td>
                       <td className="reportColumnSmall"> {rt.montoTotal}</td>
                       <td className="reportColumnSmall">
                         {(rt.montoTotal - rt.montoFacturar).toFixed(2)}
@@ -429,6 +409,16 @@ export default function BodySalesReport() {
                         {rt.nombreCompleto}
                       </td>
                       <td className="reportColumnMedium">{rt.Agencia}</td>
+                      <td className="reportColumnMedium">
+                        {
+                          <Button
+                            variant="success"
+                            onClick={() => goToSiat(rt.cuf, rt.nroFactura)}
+                          >
+                            Ver
+                          </Button>
+                        }
+                      </td>
                     </tr>
                   );
                 })}

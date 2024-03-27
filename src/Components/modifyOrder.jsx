@@ -10,18 +10,16 @@ import Cookies from "js-cookie";
 export default function ModifyOrder() {
   const navigate = useNavigate();
   useEffect(() => {
-    const user = Cookies.get("userAuth");
-
+    const user = JSON.parse(Cookies.get("userAuth"));
+    const permittedLp = [1, 10, 13];
+    const permittedInt = [1, 5, 6, 9, 10];
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 10 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 5 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 6 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 9
-      ) {
-      } else {
+      if (user.idDepto == 1 && !permittedLp.includes(user.rol)) {
         navigate("/principal");
+      } else {
+        if (user.idDepto != 1 && !permittedInt.includes(user.rol)) {
+          navigate("/principal");
+        }
       }
     }
   }, []);

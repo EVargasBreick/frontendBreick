@@ -15,10 +15,12 @@ export default function UpdateUser() {
 
     if (user) {
       if (
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 7
+        !(
+          JSON.parse(Cookies.get("userAuth")).rol == 1 ||
+          JSON.parse(Cookies.get("userAuth")).rol == 7 ||
+          JSON.parse(Cookies.get("userAuth")).rol == 9
+        )
       ) {
-      } else {
         navigate("/principal");
       }
     }

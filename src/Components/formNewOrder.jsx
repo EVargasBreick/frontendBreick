@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import {
   availableProducts,
   getProducts,
+  getProductsWithStock,
   getUserStock,
   logShortage,
   productsDiscount,
@@ -20,10 +21,12 @@ import Cookies from "js-cookie";
 import {
   availabilityInterval,
   createOrder,
+  createOrderTransaction,
   deleteOrder,
   getOrderList,
+  logOrderUpdate,
   sendOrderEmail,
-  updateStock,
+  updateVirtualStock,
 } from "../services/orderServices";
 import { useNavigate } from "react-router-dom";
 import { dateString } from "../services/dateServices";
@@ -32,15 +35,28 @@ import {
   addProductDiscSimple,
   christmassDiscounts,
   complexDiscountFunction,
+  complexNewDiscountFunction,
   discountByAmount,
   easterDiscounts,
   halloweenDiscounts,
   manualAutomaticDiscount,
+  newDiscountByAmount,
+  processSeasonalDiscount,
   traditionalDiscounts,
+  verifySeasonalProduct,
 } from "../services/discountServices";
 import ComplexDiscountTable from "./complexDiscountTable";
 import SimpleDiscountTable from "./simpleDiscountTable";
 import SpecialsTable from "./specialsTable";
+import SinDescTable from "./sinDescTable";
+import {
+  getDiscountType,
+  getSeasonalDiscount,
+} from "../services/discountEndpoints";
+import SeasonalDiscountTable from "./seasonalDiscountTable";
+import { InputGroup } from "react-bootstrap";
+import { userService } from "../services/userServices";
+import { WholeSaleModal } from "./Modals/wholesaleModal";
 export default function FormNewOrder() {
   const [isClient, setIsClient] = useState(false);
   const [isProduct, setIsProduct] = useState(false);
@@ -99,51 +115,151 @@ export default function FormNewOrder() {
   const searchRef = useRef(null);
   const quantref = useRef(null);
   const prodTableRef = useRef(null);
+  const productRef = useRef([]);
+  const [clientInfo, setClientInfo] = useState({});
+  const [seasonDiscountData, setSeasonDiscountData] = useState([]);
+  const [isSeasonalModal, setIsSeasonalModal] = useState(false);
+  async function listDiscounts(currentDate, tipo) {
+    const discountList = await getSeasonalDiscount(currentDate, tipo);
+    return discountList;
+  }
+
+  const [seasonalProds, setSeasonalProds] = useState([]);
+  const [seasonalSinDesc, setSeasonalSinDesc] = useState([]);
+  const [seasonalSpecial, setSeasonalSpecial] = useState([]);
+  const [seasonalTotals, setSeasonalTotals] = useState({});
+
+  const [discountType, setDiscountType] = useState("");
+  const [isWholeModal, setIsWholeModal] = useState("");
+
+  const wholeSelected = Cookies.get("selectedwhole");
+
+  const wholeParsed = wholeSelected ? JSON.parse(wholeSelected) : {};
+  const wholeName = wholeSelected
+    ? `- ${wholeParsed.nombre} ${wholeParsed.apPaterno} ${wholeParsed.apMaterno}`
+    : "";
+  const datosPaneton = [
+    { codInterno: "715037", precio: 46.5 },
+    { codInterno: "715038", precio: 88.0 },
+  ];
+
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
-      setUserEmail(JSON.parse(UsuarioAct).correo);
-      setUserStore(JSON.parse(UsuarioAct).idAlmacen);
-      if (JSON.parse(UsuarioAct).idDepto != 1) {
-        setIsInterior(true);
-      }
-      setUserName(
-        `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${
-          JSON.parse(UsuarioAct).apPaterno
-        }`
-      );
-    }
-    if (Cookies.get("userAuth")) {
-      setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
-      setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
-      const disponibles = availableProducts(
-        JSON.parse(Cookies.get("userAuth")).idUsuario
-      );
-      disponibles.then((fetchedAvailable) => {
-        const filtered = fetchedAvailable.data.data.filter(
-          (product) => product.cant_Actual > 0 && product.activo === 1
+      const parsed = JSON.parse(UsuarioAct);
+      if (parsed.rol == 13) {
+        const selectedWhole = Cookies.get("selectedwhole");
+        if (selectedWhole) {
+          const parsedWhole = JSON.parse(selectedWhole);
+          console.log("Selected whole", JSON.parse(selectedWhole));
+
+          setUserEmail(parsedWhole.correo);
+          setUserStore(parsedWhole.idAlmacen);
+          if (parsedWhole.idDepto != 1) {
+            setIsInterior(true);
+          }
+          setUserName(
+            `${parsedWhole.nombre.substring(0, 1)}${parsedWhole.apPaterno}`
+          );
+          const currentDate = dateString();
+          const list = listDiscounts(
+            currentDate,
+            JSON.parse(UsuarioAct).tipoUsuario
+          );
+          list.then((l) => {
+            console.log("Descuento de temporada", l.data.data);
+            setSeasonDiscountData(l.data.data);
+          });
+          const dType = getDiscountType();
+          dType.then((dt) => {
+            console.log("Tipo de descuento", dt.data);
+            setDiscountType(dt.data.idTipoDescuento);
+          });
+          setUsuarioAct(parsedWhole.idUsuario);
+          setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
+          const disponibles = availableProducts(parsedWhole.idUsuario);
+          disponibles.then((fetchedAvailable) => {
+            const filtered = fetchedAvailable.data.data.filter(
+              (product) => product.cant_Actual > 0 && product.activo === 1
+            );
+            //console.log("Productos disponibles", filtered);
+            setAvailable(filtered);
+            setAuxProducts(filtered);
+            productRef.current = filtered;
+          });
+          const dl = productsDiscount(
+            JSON.parse(Cookies.get("userAuth")).idUsuario
+          );
+          dl.then((res) => {
+            setDiscountList(res.data.data);
+          });
+        } else {
+          setIsWholeModal(true);
+        }
+      } else {
+        setUserEmail(JSON.parse(UsuarioAct).correo);
+        setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+        if (JSON.parse(UsuarioAct).idDepto != 1) {
+          setIsInterior(true);
+        }
+        setUserName(
+          `${JSON.parse(UsuarioAct).nombre.substring(0, 1)}${
+            JSON.parse(UsuarioAct).apPaterno
+          }`
         );
-        console.log("Productos disponibles", filtered);
-        setAvailable(filtered);
-        setAuxProducts(filtered);
-      });
-      const dl = productsDiscount(
-        JSON.parse(Cookies.get("userAuth")).idUsuario
-      );
-      dl.then((res) => {
-        setDiscountList(res.data.data);
-      });
-      /*const interval = setInterval(() => {
+        const currentDate = dateString();
+        const list = listDiscounts(
+          currentDate,
+          JSON.parse(UsuarioAct).tipoUsuario
+        );
+        list.then((l) => {
+          console.log("Descuento de temporada", l.data.data);
+          setSeasonDiscountData(l.data.data);
+        });
+        const dType = getDiscountType();
+        dType.then((dt) => {
+          console.log("Tipo de descuento", dt.data);
+          setDiscountType(dt.data.idTipoDescuento);
+        });
+        setUsuarioAct(JSON.parse(Cookies.get("userAuth")).idUsuario);
+        setTipoUsuario(JSON.parse(Cookies.get("userAuth")).tipoUsuario);
         const disponibles = availableProducts(
           JSON.parse(Cookies.get("userAuth")).idUsuario
         );
         disponibles.then((fetchedAvailable) => {
-          
-          setAvailable(fetchedAvailable.data.data[0]);
+          const filtered = fetchedAvailable.data.data.filter(
+            (product) => product.cant_Actual > 0 && product.activo === 1
+          );
+          //console.log("Productos disponibles", filtered);
+          setAvailable(filtered);
+          setAuxProducts(filtered);
+          productRef.current = filtered;
         });
-      }, 300000);*/
+        const dl = productsDiscount(
+          JSON.parse(Cookies.get("userAuth")).idUsuario
+        );
+        dl.then((res) => {
+          setDiscountList(res.data.data);
+        });
+      }
     }
   }, []);
+
+  function updateCurrentStock() {
+    setAvailable([]);
+    setAuxProducts([]);
+    const disponibles = availableProducts(
+      JSON.parse(Cookies.get("userAuth")).idUsuario
+    );
+    disponibles.then((fetchedAvailable) => {
+      const filtered = fetchedAvailable.data.data.filter(
+        (product) => product.cant_Actual > 0 && product.activo === 1
+      );
+      console.log("Productos disponibles", filtered);
+      setAvailable(filtered);
+      setAuxProducts(filtered);
+    });
+  }
 
   useEffect(() => {
     if (isQuantity) {
@@ -168,7 +284,7 @@ export default function FormNewOrder() {
 
   useEffect(() => {
     if (flagDiscount) {
-      processDiscounts();
+      verifySeasonal();
     }
   }, [flagDiscount]);
   function searchClient(e) {
@@ -193,6 +309,11 @@ export default function FormNewOrder() {
   function filterSelectedClient(id) {
     setSelectedClient(id);
     const searchObject = clientes.find((cli) => cli.idCliente === id);
+    console.log("cliente", searchObject);
+    setClientInfo({
+      idZona: searchObject.idZona,
+      nitCliente: searchObject.nit,
+    });
     const array = [];
     array.push(searchObject);
     setClientes(array);
@@ -200,9 +321,24 @@ export default function FormNewOrder() {
     prodTableRef.current.scrollIntoView({ behavior: "smooth" });
   }
 
+  function updateCurrentStock() {
+    setAvailable([]);
+    setAuxProducts([]);
+    const UsuarioAct = Cookies.get("userAuth");
+    const prods = availableProducts(JSON.parse(UsuarioAct).idUsuario);
+    prods.then((product) => {
+      console.log("TESTEANDO ACA", product);
+      const available = product.data.data.filter((prod) => prod.activo === 1);
+      console.log("disponibles", available);
+      setAvailable(available);
+      setAuxProducts(available);
+    });
+  }
+
   function selectProduct(product) {
     const parsed = JSON.parse(product);
     var aux = false;
+    console.log("Is super?", clientes[0]?.issuper == 1);
     const prodObj = {
       cantPrevia: 0,
       cantProducto: 0,
@@ -210,7 +346,8 @@ export default function FormNewOrder() {
       codInterno: parsed.codInterno,
       idProducto: parsed.idProducto,
       nombreProducto: parsed.nombreProducto,
-      precioDeFabrica: parsed.precioDeFabrica,
+      precioDeFabrica:
+        clientes[0]?.issuper == 1 ? parsed.precioSuper : parsed.precioDeFabrica,
       precioDescuentoFijo: parsed.precioDescuentoFijo,
       codigoBarras: parsed.codigoBarras,
       totalProd: 0,
@@ -376,7 +513,11 @@ export default function FormNewOrder() {
 
   function handleType(value) {
     setTipo(value);
-    if (value === "muestra" || value === "consignacion") {
+    if (
+      value === "muestra" ||
+      value === "consignacion" ||
+      value === "reserva"
+    ) {
       setDescuento(0);
       setIsDesc(true);
     } else {
@@ -447,22 +588,15 @@ export default function FormNewOrder() {
 
   function saveOrder(availables) {
     const validatedOrder = structureOrder(availables);
-    validatedOrder.then((res) => {
+    validatedOrder.then(async (res) => {
       setisLoading(true);
-      const tot = selectedProds.reduce((accumulator, object) => {
-        return accumulator + object.totalProd;
-      }, 0);
-
       if (!res) {
         setAlertSec("Creando pedido ...");
         setIsAlertSec(true);
-        const ped = {
-          productos: selectedProds,
-          total: tot,
-        };
         const objPedido = {
           pedido: {
             idUsuarioCrea: usuarioAct,
+            idUsuario: usuarioAct,
             idCliente: selectedClient,
             fechaCrea: dateString(),
             fechaActualizacion: dateString(),
@@ -477,65 +611,70 @@ export default function FormNewOrder() {
           },
           productos: selectedProds,
         };
-        setPedidoFinal(ped);
-        const newOrder = createOrder(objPedido);
-        newOrder
-          .then((res) => {
-            console.log(
-              "respuesta de creacion del pedido",
-              res.data.data.idCreado
-            );
-            const idPedidoCreado = res.data.data.idCreado;
-            const stockObject = {
-              accion: "take",
-              idAlmacen: userStore,
-              productos: selectedProds,
-              detalle: `SPNPD-${idPedidoCreado}`,
-            };
-            const updatedStock = updateStock(stockObject);
-            updatedStock
-              .then((updatedRes) => {
-                const codPedido = getOrderList(res.data.data.idCreado);
-                codPedido.then((resp) => {
-                  const emailBody = {
-                    codigoPedido: res.data.data.idCreado,
-                    correoUsuario: userEmail,
-                    fecha: dateString(),
-                    email: [userEmail],
-                    tipo: "Pedido",
-                    header: "Pedido Creado",
-                  };
-                  const emailSent = sendOrderEmail(emailBody);
-                  emailSent
-                    .then((response) => {
-                      setIsAlertSec(false);
-                      setAlert("Pedido Creado correctamente");
-                      setIsAlert(true);
-                      setTimeout(() => {
-                        window.location.reload();
-                        setisLoading(false);
-                      }, 3000);
-                    })
-                    .catch((error) => {
-                      console.log("Error al enviar el correo", error);
-                    });
-                });
-              })
-              .catch((error) => {
-                const deleted = deleteOrder(idPedidoCreado);
-                deleted.then((res) => {
-                  setisLoading(false);
-                  setAlertSec(error);
-                  setIsAlertSec(true);
-                  setTimeout(() => {
-                    setIsAlertSec(false);
-                  }, 5000);
-                });
-              });
-          })
-          .catch((error) => {
-            console.log("Error", error);
-          });
+        //setPedidoFinal(ped);
+
+        const objSubmit = {
+          objOrder: objPedido,
+          userStore: userStore,
+          products: selectedProds,
+        };
+        try {
+          const processOrder = await createOrderTransaction(objSubmit);
+          console.log("Respuesta de creacion", processOrder.data);
+          const codPedido = await getOrderList(processOrder.data.idCreado);
+          const emailBody = {
+            codigoPedido: processOrder.data.idCreado,
+            correoUsuario: userEmail,
+            fecha: dateString(),
+            email: [userEmail],
+            tipo: "Pedido",
+            header: "Pedido Creado",
+          };
+          const emailSent = await sendOrderEmail(emailBody);
+
+          const objPedidoNew = {
+            pedido: {
+              idPedido: processOrder.data.idCreado,
+              idUsuarioCrea: usuarioAct,
+              idUsuario: usuarioAct,
+              idCliente: selectedClient,
+              fechaCrea: dateString(),
+              fechaActualizacion: dateString(),
+              estado: 0,
+              montoFacturar: parseFloat(totalPrevio).toFixed(2),
+              montoTotal: parseFloat(totalFacturar).toFixed(2),
+              tipo: tipo,
+              descuento: descuento,
+              descCalculado: parseFloat(totalDesc).toFixed(2),
+              notas: observaciones,
+              impreso: isInterior ? 1 : 0,
+            },
+            productos: selectedProds,
+          };
+
+          await logOrderUpdate(objPedidoNew);
+
+          setIsAlertSec(false);
+          setAlert("Pedido Creado correctamente");
+          setIsAlert(true);
+
+          setTimeout(() => {
+            window.location.reload();
+            Cookies.remove("selectedwhole");
+            setisLoading(false);
+          }, 3000);
+        } catch (error) {
+          updateCurrentStock();
+          console.log("Error al crear el pedido 1", error);
+          const errorMes = error.response.data
+            .toString()
+            .includes("stock_nonnegative")
+            ? "Uno de los productos ya no cuenta con la cantidad solicitada de stock"
+            : "Error en el Pedido";
+          setIsAlertSec(false);
+          setAlert(errorMes);
+          setIsAlert(true);
+        }
       } else {
         setIsAlert(true);
       }
@@ -543,10 +682,13 @@ export default function FormNewOrder() {
   }
 
   function saveSampleAndTransfer() {
+    const total = selectedProds.reduce((accumulator, object) => {
+      return accumulator + Number(object.totalProd);
+    }, 0);
     const arrayInZero = setTotalProductsToZero(selectedProds);
     arrayInZero.then((zero) => {
       const validatedOrder = structureOrder();
-      validatedOrder.then((res) => {
+      validatedOrder.then(async (res) => {
         setisLoading(true);
         if (!res) {
           setAlertSec("Creando pedido ...");
@@ -554,12 +696,13 @@ export default function FormNewOrder() {
           const objPedido = {
             pedido: {
               idUsuarioCrea: usuarioAct,
+              idUsuario: usuarioAct,
               idCliente: selectedClient,
               fechaCrea: dateString(),
               fechaActualizacion: dateString(),
               estado: 0,
-              montoFacturar: 0,
-              montoTotal: 0,
+              montoFacturar: total,
+              montoTotal: total,
               tipo: tipo,
               descuento: 0,
               descCalculado: 0,
@@ -569,62 +712,61 @@ export default function FormNewOrder() {
             productos: zero.modificados,
           };
           console.log("Objeto pedido", objPedido);
+          const objSubmit = {
+            objOrder: objPedido,
+            userStore: userStore,
+            products: zero.modificado,
+          };
+          try {
+            const processOrder = await createOrderTransaction(objSubmit);
+            console.log("Respuesta de creacion", processOrder.data);
+            const codPedido = await getOrderList(processOrder.data.idCreado);
 
-          const newOrder = createOrder(objPedido);
-          newOrder
-            .then((res) => {
-              console.log("Respuesta de creacion", res.data.data.idCreado);
-              const idPedidoCreado = res.data.data.idCreado;
-              const codPedido = getOrderList(res.data.data.idCreado);
-              const stockObject = {
-                accion: "take",
-                idAlmacen: userStore,
-                productos: zero.modificados,
-                detalle: `SPNPD-${idPedidoCreado}`,
+            const emailBody = {
+              codigoPedido: processOrder.data.idCreado,
+              correoUsuario: userEmail,
+              fecha: dateString(),
+              email: [userEmail],
+              tipo: "Pedido",
+              header: "Pedido Creado",
+            };
+
+            if (tipo === "consignacion") {
+              console.log("Updating virtual stock");
+
+              const virtualStockObject = {
+                accion: "add",
+                clientInfo: clientInfo,
+                productos: selectedProds,
               };
-              const updatedStock = updateStock(stockObject);
-              updatedStock
-                .then((updatedRes) => {
-                  codPedido.then((resp) => {
-                    const emailBody = {
-                      codigoPedido: res.data.data.idCreado,
-                      correoUsuario: userEmail,
-                      fecha: dateString(),
-                      email: [userEmail],
-                      tipo: "pedido",
-                      header: "Pedido Creado",
-                    };
-                    const emailSent = sendOrderEmail(emailBody);
-                    emailSent
-                      .then((response) => {
-                        setIsAlertSec(false);
-                        setAlert("Pedido Creado correctamente");
-                        setIsAlert(true);
-                        setTimeout(() => {
-                          window.location.reload();
-                          setisLoading(false);
-                        }, 3000);
-                      })
-                      .catch((error) => {
-                        console.log("Error al enviar el correo", error);
-                      });
-                  });
-                })
-                .catch((error) => {
-                  const deleted = deleteOrder(idPedidoCreado);
-                  deleted.then((res) => {
-                    setisLoading(false);
-                    setAlertSec(error);
-                    setIsAlertSec(true);
-                    setTimeout(() => {
-                      setIsAlertSec(false);
-                    }, 5000);
-                  });
-                });
-            })
-            .catch((error) => {
-              console.log("Error al crear el pedido", error);
-            });
+
+              await updateVirtualStock(virtualStockObject);
+            }
+
+            const emailSent = await sendOrderEmail(emailBody);
+
+            await logOrderUpdate(objPedido);
+
+            setIsAlertSec(false);
+            setAlert("Pedido Creado correctamente");
+            setIsAlert(true);
+
+            setTimeout(() => {
+              window.location.reload();
+              setisLoading(false);
+            }, 3000);
+          } catch (error) {
+            updateCurrentStock();
+            console.log("Error al crear el pedido 1", error);
+            const errorMes = error.response.data
+              .toString()
+              .includes("stock_nonnegative")
+              ? "Uno de los productos ya no cuenta con la cantidad solicitada de stock"
+              : "Error en el Pedido";
+            setIsAlertSec(false);
+            setAlert(errorMes);
+            setIsAlert(true);
+          }
         } else {
           setIsAlert(true);
         }
@@ -644,7 +786,7 @@ export default function FormNewOrder() {
         if (selectedProds.length > 0) {
           setAuxProds(selectedProds);
           if (tipo == "normal") {
-            processDiscounts();
+            verifySeasonal();
           } else {
             saveSampleAndTransfer();
           }
@@ -666,52 +808,97 @@ export default function FormNewOrder() {
     }
   }
 
-  function processDiscounts() {
+  async function processDiscounts() {
+    console.log("Tipo usuario", tipoUsuario);
     if (tipoUsuario != 2 && tipoUsuario != 3 && tipoUsuario != 4) {
-      const objDesc = discountByAmount(selectedProds, descuento);
-      console.log("Obj desc", objDesc);
-      setDescSimple(objDesc);
-      setTotalDesc(objDesc.descCalculado);
-      setTotalPrevio(objDesc.totalDescontables);
-      setTotalFacturar(objDesc.totalTradicional);
+      //const objDesc = discountByAmount(selectedProds, descuento);
+      const objDescNew = newDiscountByAmount(selectedProds, descuento);
+      console.log("Obj desc new", objDescNew);
+      setDescSimple(objDescNew);
+      setTotalDesc(objDescNew.descCalculado);
+      setTotalPrevio(
+        Number(
+          Number(objDescNew.totalEspecial) +
+            Number(objDescNew.totalDescontables)
+        )
+      );
+      setTotalFacturar(
+        Number(
+          Number(objDescNew.totalTradicional) + Number(objDescNew.totalEspecial)
+        )
+      );
+      console.log(
+        "CHEKIANDO ESTO",
+        Number(
+          Number(objDescNew.totalTradicional) + Number(objDescNew.totalEspecial)
+        )
+      );
       setDiscModalType(false);
-      const newSelected = addProductDiscSimple(selectedProds, objDesc);
-      newSelected.then((response) => {
-        setSelectedProds(response);
-      });
+      setSelectedProds(objDescNew.productosReprocesados);
       setDiscModal(true);
     } else {
-      const discountObject = complexDiscountFunction(
-        selectedProds,
-        discountList
-      );
+      const dType = await getDiscountType();
+      const discountObject =
+        dType.data.idTipoDescuento == 1
+          ? complexDiscountFunction(selectedProds, discountList)
+          : complexNewDiscountFunction(selectedProds, discountList);
       setTradObject(discountObject.tradicionales);
       setPasObject(discountObject.pascua);
       setNavObject(discountObject.navidad);
       setHallObject(discountObject.halloween);
       setTotalDesc(
-        discountObject.tradicionales.descCalculado +
-          discountObject.pascua.descCalculado +
-          discountObject.navidad.descCalculado +
-          discountObject.halloween.descCalculado
+        Number(discountObject.tradicionales.descCalculado) +
+          Number(discountObject.pascua.descCalculado) +
+          Number(discountObject.navidad.descCalculado) +
+          Number(discountObject.halloween.descCalculado)
       );
       setTotalPrevio(
-        discountObject.tradicionales.total +
-          discountObject.pascua.total +
-          discountObject.navidad.total +
-          discountObject.halloween.total
+        Number(discountObject.tradicionales.total) +
+          Number(discountObject.pascua.total) +
+          Number(discountObject.navidad.total) +
+          Number(discountObject.halloween.total)
       );
       setTotalFacturar(
-        discountObject.tradicionales.facturar +
-          discountObject.pascua.facturar +
-          discountObject.navidad.facturar +
-          discountObject.halloween.facturar
+        Number(discountObject.tradicionales.facturar) +
+          Number(discountObject.pascua.facturar) +
+          Number(discountObject.navidad.facturar) +
+          Number(discountObject.halloween.facturar)
       );
       setIsSpecial(discountObject.tradicionales.especial);
       setDiscModalType(true);
       setDiscModal(true);
     }
   }
+
+  async function verifySeasonal() {
+    if (seasonDiscountData.length > 0) {
+      console.log("AKI");
+      const verified = verifySeasonalProduct(selectedProds, seasonDiscountData);
+      if (verified) {
+        setDiscModalType(false);
+        const data = await processSeasonalDiscount(
+          selectedProds,
+          seasonDiscountData
+        );
+        setTotalPrevio(data.totalesPedido.totalPedido);
+        setTotalFacturar(data.totalesPedido.totalFacturar);
+        setTotalDesc(data.totalesPedido.descCalculado);
+        setDescuento(data.totalesPedido.descuento);
+        setSeasonalSpecial(data.productArrays.especialDescProds);
+        setSeasonalProds(data.productArrays.seasonProducts);
+        setSeasonalSinDesc(data.productArrays.sinDescProds);
+        setSeasonalTotals(data.totalesPedido);
+        setIsSeasonalModal(true);
+        setDiscModal(true);
+        console.log("Data", data);
+      } else {
+        processDiscounts();
+      }
+    } else {
+      processDiscounts();
+    }
+  }
+
   function cancelDiscounts() {
     setSelectedProds(auxProds, discountList);
     setDiscModal(false);
@@ -753,9 +940,83 @@ export default function FormNewOrder() {
     searchRef.current.focus();
   }
 
+  function changePrice(index, value, prod) {
+    let auxObj = {
+      cant_Actual: prod.cant_Actual,
+      cantPrevia: prod.cantPrevia,
+      cantProducto: prod.cantProducto,
+      codInterno: prod.codInterno,
+      codigoBarras: prod.codigoBarras,
+      idProducto: prod.idProducto,
+      nombreProducto: prod.nombreProducto,
+      precioDeFabrica: value,
+      precioDescuentoFijo: prod.precioDescuentoFijo,
+      totalProd: prod.cantProducto * value,
+      totalDescFijo: prod.cantProducto * prod.precioDescuentoFijo,
+      tipoProducto: prod.tipoProducto,
+      descuentoProd: 0,
+      unidadDeMedida: prod.unidadDeMedida,
+    };
+    let auxSelected = [...selectedProds];
+    auxSelected[index] = auxObj;
+    setSelectedProds(auxSelected);
+
+    switch (prod.tipoProducto) {
+      case 1:
+        const tindex = tradicionales.findIndex(
+          (td) => td.idProducto == prod.idProducto
+        );
+        const taux = [...tradicionales];
+        taux[tindex] = auxObj;
+        setTradicionales(taux);
+        break;
+      case 2:
+        const pindex = pascua.findIndex(
+          (ps) => ps.idProducto == prod.idProducto
+        );
+        const paux = [...pascua];
+        paux[pindex] = auxObj;
+        setPascua(paux);
+        break;
+      case 3:
+        const nindex = navidad.findIndex(
+          (nv) => nv.idProducto == prod.idProducto
+        );
+        const naux = [...navidad];
+        naux[nindex] = auxObj;
+        setNavidad(naux);
+        break;
+      case 4:
+        const hindex = halloween.findIndex(
+          (hl) => hl.idProducto == prod.idProducto
+        );
+        const haux = [...halloween];
+        haux[hindex] = auxObj;
+        setHalloween(haux);
+        break;
+      case 5:
+        const sindex = sinDesc.findIndex(
+          (sd) => sd.idProducto == prod.idProducto
+        );
+        const saux = [...sinDesc];
+        saux[sindex] = auxObj;
+        setSinDesc(saux);
+        break;
+      case 6:
+        const espIndex = especiales.findIndex(
+          (ep) => ep.codInterno == prod.codInterno
+        );
+
+        const eaux = [...especiales];
+        eaux[espIndex] = auxObj;
+        setEspeciales(eaux);
+        break;
+    }
+  }
+
   return (
     <div>
-      <div className="formLabel">REGISTRAR PEDIDOS</div>
+      <div className="formLabel">{`Registro de pedidos ${wholeName}`}</div>
       <Modal show={isAlert} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Mensaje del Sistema</Modal.Title>
@@ -813,21 +1074,32 @@ export default function FormNewOrder() {
                 pasObject={pasObject}
                 navObject={navObject}
                 hallObject={hallObject}
+                sinDesc={sinDesc}
               />
               <SpecialsTable
                 especiales={especiales}
                 totales={descSimple}
                 isEsp={isSpecial}
               />
+              <SinDescTable sindDesc={sinDesc} />
+            </div>
+          ) : !isSeasonalModal ? (
+            <div>
+              <SimpleDiscountTable totales={descSimple} />
+              <SinDescTable sindDesc={descSimple.productosSinDescuento} />
             </div>
           ) : (
             <div>
-              <SimpleDiscountTable totales={descSimple} />
-              <SpecialsTable
-                especiales={especiales}
-                totales={descSimple}
-                isEsp={isSpecial}
+              <SeasonalDiscountTable
+                seasonal={seasonalProds}
+                sinDesc={seasonalSinDesc}
+                totales={seasonalTotals}
               />
+              <SpecialsTable
+                especiales={seasonalSpecial}
+                isSeasonalEsp={seasonalTotals.isDescEsp}
+              />
+              <SinDescTable sindDesc={sinDesc} />
             </div>
           )}
         </Modal.Body>
@@ -949,12 +1221,16 @@ export default function FormNewOrder() {
             <div className="formLabel">DESCUENTO (%)</div>
             <div className="percent">
               <Form.Control
-                min="0"
-                max="100"
+                min={0}
+                max={100}
                 value={descuento}
                 disabled={tipoUsuario == 1 ? false : true}
-                onChange={(e) => handleDiscount(e.target.value)}
-                type="number"
+                onChange={(e) =>
+                  !isNaN(e.target.value) &&
+                  e.target.value < 101 &&
+                  e.target.value >= 0 &&
+                  handleDiscount(e.target.value)
+                }
                 placeholder="Ingrese porcentaje"
               ></Form.Control>
             </div>
@@ -972,13 +1248,23 @@ export default function FormNewOrder() {
                       isMobile ? "Cant" : "Cantidad"
                     } /Peso (Gr)`}</th>
                     <th className="smallTableColumn">Total</th>
-                    <th className="smallTableColumn">
-                      {isMobile ? "Cant Disp" : "Cantidad Disponible"}
+                    <th style={{ width: "10%" }}>
+                      {isMobile ? "Cant Disp" : "Disponible"}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {[...selectedProds].map((sp, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == sp.idProducto
+                    )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == sp.idProducto
+                    )?.cant_Actual;
+                    const isPaneton = datosPaneton.find(
+                      (dp) => dp.codInterno == sp.codInterno
+                    );
+                    //console.log("IS PANETON", isPaneton);
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="smallTableColumn">
@@ -998,10 +1284,29 @@ export default function FormNewOrder() {
                         <td className="smallTableColumn">
                           {sp.nombreProducto}
                         </td>
-                        <td className="smallTableColumn">
-                          {sp.precioDeFabrica + " Bs."}
+                        <td style={{ width: "20%" }}>
+                          {
+                            <InputGroup>
+                              <Form.Control
+                                disabled={
+                                  !(
+                                    (tipoUsuario != 2 &&
+                                      tipoUsuario != 3 &&
+                                      tipoUsuario != 4) ||
+                                    isPaneton
+                                  )
+                                }
+                                type="number"
+                                value={sp.precioDeFabrica}
+                                onChange={(e) =>
+                                  changePrice(index, e.target.value, sp)
+                                }
+                              />{" "}
+                              <InputGroup.Text>Bs</InputGroup.Text>
+                            </InputGroup>
+                          }
                         </td>
-                        <td className="smallTableColumn">
+                        <td style={{ width: "20%" }}>
                           <Form.Control
                             type="number"
                             min="0"
@@ -1015,7 +1320,11 @@ export default function FormNewOrder() {
                         <td className="smallTableColumn">
                           {sp.totalProd?.toFixed(2)}
                         </td>
-                        <td className="smallTableColumn">{sp.cant_Actual}</td>
+                        <td
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                        >
+                          {cActual}
+                        </td>
                       </tr>
                     );
                   })}
@@ -1051,6 +1360,7 @@ export default function FormNewOrder() {
               <option value="normal">Normal</option>
               <option value="muestra">Muestra</option>
               <option value="consignacion">Consignación</option>
+              <option value="reserva">Reserva</option>
             </Form.Select>
           </Form.Group>
           <Form.Group>
@@ -1089,6 +1399,12 @@ export default function FormNewOrder() {
           </Form.Group>
         </Form>
       </div>
+      {isWholeModal && (
+        <WholeSaleModal
+          showModal={isWholeModal}
+          sudoId={JSON.parse(Cookies.get("userAuth")).idUsuario}
+        />
+      )}
     </div>
   );
 }

@@ -21,10 +21,13 @@ import appBooking from "../../assets/approveBook.png";
 import ReturnWare from "../../assets/returnWare.png";
 import Cross from "../../assets/cross.png";
 import Load from "../../assets/load.png";
-import Star from "../../assets/star.png";
+
 import Chocolate from "../../assets/chocolate.png";
 import Map from "../../assets/Map.png";
 import Lines from "../../assets/lines.png";
+import Star from "../../assets/star.png";
+import HStar from "../../assets/hStar.png";
+import { TbShoppingCartCancel } from "react-icons/tb";
 export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
   return (
     <SubMenu
@@ -42,6 +45,22 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
       >
         <Image src={Invoice} className="icon"></Image>
         Ventas Agencia
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsasignar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={Star} className="icon inverted"></Image>
+        Armar Packs
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/packsretirar")}
+        className="menuItem"
+      >
+        {" "}
+        <Image src={HStar} className="icon inverted"></Image>
+        Desarmar Packs
       </MenuItem>
       <div className="menuItem">Almacenes</div>
       <MenuItem
@@ -65,6 +84,13 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         <Image src={Cross} className="icon"></Image>Baja Productos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/bajas/anular")}
+        className="menuItem"
+      >
+        <TbShoppingCartCancel size="40px" style={{ paddingRight: "5px" }} />
+        Anular Baja
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/stock/actualizar")}
         className="menuItem"
       >
@@ -85,7 +111,12 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         <Image src={newClient} className="icon"></Image>Modificacion de Clientes
       </MenuItem>
       <div className="menuItem">Pedidos</div>
-
+      <MenuItem
+        onClick={() => redirectOnClick("/pedidos")}
+        className="menuItem"
+      >
+        <Image src={newOrder} className="icon"></Image>Ver Pedidos
+      </MenuItem>
       <MenuItem
         onClick={() => redirectOnClick("/regPedido")}
         className="menuItem"
@@ -115,14 +146,12 @@ export default function Interior({ toggleSub, redirectOnClick, toggledInt }) {
         onClick={() => redirectOnClick("/facturasReimprimir")}
         className="menuItem"
       >
-        {" "}
         <Image src={Printer} className="icon"></Image>Reimprimir Facturas
       </MenuItem>
       <MenuItem
         className="menuItem"
-        onClick={() => redirectOnClick("/facturasanular")}
+        onClick={() => redirectOnClick("/facturas/anulacion")}
       >
-        {" "}
         <Image src={cancelInvoice} className="icon"></Image>Anular Facturas
       </MenuItem>
       <div className="menuItem">Reportes</div>

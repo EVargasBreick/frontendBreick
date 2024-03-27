@@ -3,6 +3,10 @@ import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
 import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
+import {
+  roundToTwoDecimalPlaces,
+  rountWithMathFloor,
+} from "../services/mathServices";
 export const InvoiceComponentCopy = React.forwardRef(
   (
     {
@@ -17,6 +21,7 @@ export const InvoiceComponentCopy = React.forwardRef(
       orderDetails,
       leyenda,
       urlSin,
+      offlineText,
     },
     ref
   ) => {
@@ -26,6 +31,7 @@ export const InvoiceComponentCopy = React.forwardRef(
       : dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
+    console.log("Payment data", paymentData);
     function formattedCuf(cuf) {
       const regex = new RegExp(".{1,30}", "g");
       const result = cuf.match(regex).join(" ");
@@ -96,7 +102,10 @@ export const InvoiceComponentCopy = React.forwardRef(
                         {parseFloat(producto.descuentoProd)?.toFixed(2)}
                       </td>
                       <td className="ProductLeft">
-                        {parseFloat(totalProducto)?.toFixed(2)}
+                        {roundToTwoDecimalPlaces(
+                          parseFloat(totalProducto) -
+                            (Number(producto.descuentoProd) ?? 0).toFixed(2)
+                        )}
                       </td>
                     </tr>
                   );
@@ -117,9 +126,12 @@ export const InvoiceComponentCopy = React.forwardRef(
                 </tr>
                 <tr>
                   <td className="totals">Descuento</td>
-                  <td className="totalsData">{`${parseFloat(
-                    totalsData?.descuentoCalculado
-                  ).toFixed(2)}`}</td>
+                  <td className="totalsData">
+                    {" "}
+                    {`${rountWithMathFloor(
+                      totalsData?.total - totalsData?.totalDescontado
+                    )}`}
+                  </td>
                 </tr>
                 <tr>
                   <td className="totals">TOTAL FACT</td>
@@ -169,6 +181,9 @@ export const InvoiceComponentCopy = React.forwardRef(
             />
           </div>
           <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
+          <div className="simpleSeparator"></div>
+          <div className="simpleSeparator"></div>
+          <div>{offlineText ? offlineText : ""}</div>
           <div className="simpleSeparator"></div>
           <div> {leyenda}</div>
           <div className="simpleSeparator"></div>

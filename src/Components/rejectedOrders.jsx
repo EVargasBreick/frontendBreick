@@ -13,13 +13,10 @@ export default function RejectedOrders() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
+    const parsed = JSON.parse(user);
+    const permitted = [1, 7, 11, 13];
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 11
-      ) {
-      } else {
+      if (!permitted.includes(parsed.rol)) {
         navigate("/principal");
       }
     }

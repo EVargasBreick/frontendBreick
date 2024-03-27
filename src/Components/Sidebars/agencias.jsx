@@ -19,6 +19,8 @@ import Cross from "../../assets/cross.png";
 import Hand from "../../assets/hand.png";
 import Star from "../../assets/star.png";
 import HStar from "../../assets/hStar.png";
+import { TbShoppingCartCancel } from "react-icons/tb";
+import { FaFileInvoiceDollar } from "react-icons/fa6";
 export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
   const [isInterior, setIsInterior] = useState(false);
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         Ventas Agencia
       </MenuItem>
       <MenuItem
-        onClick={() => redirectOnClick("/facturasanular")}
+        onClick={() => redirectOnClick("/facturas/anulacion")}
         className="menuItem"
       >
         {" "}
@@ -109,6 +111,14 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         <Image src={Cross} className="icon"></Image>Baja Productos
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/bajas/anular")}
+        className="menuItem"
+      >
+        <TbShoppingCartCancel size="40px" style={{ paddingRight: "5px" }} />
+        Anular Baja
+      </MenuItem>
+
+      <MenuItem
         onClick={() => redirectOnClick("/packsasignar")}
         className="menuItem"
       >
@@ -144,18 +154,52 @@ export default function Agencias({ toggleSub, toggledAg, redirectOnClick }) {
         producto
       </MenuItem>
       <MenuItem
+        onClick={() => redirectOnClick("/reportes/stock")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Reporte Movimientos Kardex
+      </MenuItem>
+      {/* <MenuItem
         onClick={() => redirectOnClick("/reportes/bajas/general")}
         className="menuItem"
       >
         <Image src={Hand} className="icon"></Image>Reporte libro de bajas
+      </MenuItem>*/}
+      <MenuItem
+        onClick={() => redirectOnClick("/traspasos/agencia")}
+        className="menuItem"
+      >
+        <Image src={Lines} className="icon"></Image>
+        Ver Info Traspasos
       </MenuItem>
-      {/*<MenuItem
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/actual/kardex")}
+        className="menuItem"
+      >
+        <Image src={Chocolate} className="icon"></Image>Reporte Kardex Actual
+      </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/editarUsuario/agencia")}
+        className="menuItem"
+      >
+        <Image src={newClient} className="icon"></Image>Reasignar Agencias
+      </MenuItem>
+      <MenuItem
         onClick={() => redirectOnClick("/reportes/log/kardex")}
         className="menuItem"
       >
         <Image src={Lines} className="icon"></Image>
         Reporte Kardex Pasado
       </MenuItem>
+      <MenuItem
+        onClick={() => redirectOnClick("/reportes/facturas/anuladas")}
+        className="menuItem"
+      >
+        <FaFileInvoiceDollar size="35px" style={{ paddingRight: "5px" }} />
+        Reporte de facturas anuladas
+      </MenuItem>
+      {/*
       <MenuItem
         onClick={() => redirectOnClick("/reportes/actual/kardex")}
         className="menuItem"

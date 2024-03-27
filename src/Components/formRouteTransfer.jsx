@@ -11,8 +11,9 @@ import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
 import { getStores } from "../services/storeServices";
 import { getProductsWithStock } from "../services/productServices";
-import { createTransfer } from "../services/transferServices";
+import { composedTransfer, createTransfer } from "../services/transferServices";
 import { updateStock } from "../services/orderServices";
+import { dateString } from "../services/dateServices";
 export default function FormRouteTransfer() {
   const navigate = useNavigate();
   const [alert, setAlert] = useState("");
@@ -34,6 +35,8 @@ export default function FormRouteTransfer() {
   const [nombreDestino, setNombreDestino] = useState();
   const componentRef = useRef();
   const buttonRef = useRef();
+  const productRef = useRef([]);
+
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -55,8 +58,22 @@ export default function FormRouteTransfer() {
     prods.then((product) => {
       setProductos(product.data);
       setAuxProducts(product.data);
+      productRef.current = product.data;
     });
   }, []);
+  function updateCurrentStock() {
+    console.log("updating");
+    setProductos([]);
+    setAuxProducts([]);
+    const prods = getProductsWithStock("AL001", "all");
+    console.log("prods", prods);
+    prods.then((product) => {
+      console.log("product", product);
+      setProductos(product.data);
+      setAuxProducts(product.data);
+      console.log(product.data);
+    });
+  }
   const handleClose = () => {
     setIsAlert(false);
   };
@@ -104,7 +121,8 @@ export default function FormRouteTransfer() {
     auxArray.splice(index, 1);
     setSelectedProducts(auxArray);
   }
-  function registerTransfer() {
+
+  /*function registerTransfer() {
     if (idOrigen !== idDestino) {
       setAlertSec("Validando Traspaso");
       setIsAlertSec(true);
@@ -143,6 +161,7 @@ export default function FormRouteTransfer() {
                     })
                     .catch((error) => {
                       setIsAlertSec(false);
+                      updateCurrentStock();
                       setAlert("Error al actualizar");
                       setIsAlert(true);
                     });
@@ -154,6 +173,7 @@ export default function FormRouteTransfer() {
                 });
             })
             .catch((err) => {
+              updateCurrentStock();
               setIsAlertSec(false);
               setAlert(
                 "La cantidad de un producto seleccionado no se encuentra disponible"
@@ -162,6 +182,105 @@ export default function FormRouteTransfer() {
             });
         })
         .catch((error) => {
+          updateCurrentStock();
+          setIsAlertSec(false);
+          setAlert(
+            "La cantidad de un producto seleccionado se encuentra en cero"
+          );
+          setIsAlert(true);
+        });
+    } else {
+      setAlert("El origen debe ser distinto al destino");
+      setIsAlert(true);
+    }
+  }*/
+
+  async function registerTransferAlt() {
+    if (idOrigen !== idDestino) {
+      const productsArray = selectedProducts.map((item) => {
+        const obj = {
+          codInterno: item.codInterno,
+          nombreProducto: item.nombreProducto,
+          cantidadProducto: item.cantProducto,
+        };
+        return obj;
+      });
+
+      setAlertSec("Validando Traspaso");
+      setIsAlertSec(true);
+      const zeroValidated = validateZero();
+      zeroValidated
+        .then((validated) => {
+          const quantitiesValidated = validateQuantities();
+          quantitiesValidated
+            .then(async (res) => {
+              console.log("Normal");
+              const transferObj = {
+                idOrigen: idOrigen,
+                idDestino: idDestino,
+                idUsuario: userId,
+                productos: selectedProducts,
+                transito: 0,
+                movil: idOrigen === "AL001" ? 1 : 0,
+                impreso: idOrigen === "AL001" ? 0 : 1,
+                listo: idOrigen === "AL001" || idDestino === "AL001" ? 0 : 1,
+              };
+              const stockObj = {
+                accion: "take",
+                idAlmacen: idOrigen,
+                productos: selectedProducts,
+              };
+
+              try {
+                setAlertSec("Creando traspaso");
+                const nt = await composedTransfer({
+                  traspaso: transferObj,
+                  stock: stockObj,
+                });
+
+                setIsAlertSec(false);
+                setAlert("Traspaso Creado correctamente");
+                setIsAlert(true);
+                const origenArray = nombreOrigen.split(" ");
+                const outputOrigen = origenArray.slice(1).join(" ");
+                const destinoArray = nombreDestino.split(" ");
+                const outputDestino = destinoArray.slice(1).join(" ");
+                const orderObj = [
+                  {
+                    rePrint: false,
+                    fechaSolicitud: dateString(),
+                    id: nt.data.data.idCreado,
+                    usuario: user,
+                    notas: "",
+                    productos: productsArray,
+                    origen: outputOrigen,
+                    destino: outputDestino,
+                  },
+                ];
+                setProductList(orderObj);
+                setTimeout(() => {
+                  //window.location.reload();
+                }, 5000);
+              } catch (error) {
+                console.log("Error al crear el traspaso", error);
+                updateCurrentStock();
+                setIsAlertSec(false);
+                setAlert(`Error al crear el traspaso`);
+                setIsAlert(true);
+              }
+            })
+            .catch((err) => {
+              console.log("Error");
+              updateCurrentStock();
+              setIsAlertSec(false);
+              setAlert(
+                "La cantidad de un producto seleccionado no se encuentra disponible"
+              );
+              setIsAlert(true);
+            });
+        })
+        .catch((error) => {
+          updateCurrentStock();
           setIsAlertSec(false);
           setAlert(
             "La cantidad de un producto seleccionado se encuentra en cero"
@@ -173,6 +292,7 @@ export default function FormRouteTransfer() {
       setIsAlert(true);
     }
   }
+
   function validateZero() {
     var valQuan = true;
     return new Promise((resolve, reject) => {
@@ -288,7 +408,15 @@ export default function FormRouteTransfer() {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedProducts.map((product, index) => {
+                  {[...selectedProducts].map((product, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == product.idProducto
+                    )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == product.idProducto
+                    )?.cant_Actual;
+
+                    console.log(cActual, refActual);
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -327,10 +455,13 @@ export default function FormRouteTransfer() {
                             </Form.Group>
                           </Form>
                         </td>
-                        <td className="tableColumnSmall">
+                        <td
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                          GclassName="tableColumnSmall"
+                        >
                           {product.codigoUnidad == "57"
-                            ? parseFloat(product.cant_Actual).toFixed(0)
-                            : parseFloat(product.cant_Actual).toFixed(3)}
+                            ? parseFloat(cActual).toFixed(0)
+                            : parseFloat(cActual).toFixed(3)}
                         </td>
                       </tr>
                     );
@@ -346,7 +477,7 @@ export default function FormRouteTransfer() {
               variant="light"
               className="cyanLarge"
               onClick={() => {
-                registerTransfer();
+                registerTransferAlt();
               }}
             >
               Crear Traspaso

@@ -12,13 +12,10 @@ export default function EditUserAgency() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
-
+    const permitted = [1, 9, 12];
+    const parsed = JSON.parse(Cookies.get("userAuth")).rol;
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 9
-      ) {
-      } else {
+      if (!permitted.includes(parsed)) {
         navigate("/principal");
       }
     }

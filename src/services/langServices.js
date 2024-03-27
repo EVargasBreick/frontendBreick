@@ -23,4 +23,11 @@ const getLanguajeById = (id, lenguajes) => {
   });
 };
 
-export { getLanguajes, getLanguajeById };
+const getAlphabet = () => {
+  const alphabetArray = Array.from({ length: 26 }, (_, i) =>
+    String.fromCharCode(65 + i)
+  );
+  return alphabetArray;
+};
+
+export { getLanguajes, getLanguajeById, getAlphabet };

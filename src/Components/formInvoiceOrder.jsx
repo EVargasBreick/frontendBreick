@@ -99,16 +99,18 @@ export default function FormInvoiceOrder() {
         console.log("detallitos", os);
         const details = os.data.response;
         var saleProducts = [];
+        const isSuper = os.data.response[0].issuper == 1 ? true : false;
         details.map((dt) => {
+          const precio = isSuper ? dt.precioSuper : dt.precioDeFabrica;
           const saleObj = {
             nombreProducto: dt.nombreProducto,
             idProducto: dt.idProducto,
             cantProducto: dt.cantidadProducto,
-            total: dt.cantidadProducto * dt.precioDeFabrica,
+            total: dt.cantidadProducto * precio,
             descuentoProd: dt.descuentoProducto,
             codInterno: dt.codInterno,
             codigoUnidad: dt.codigoUnidad,
-            precioDeFabrica: dt.precioDeFabrica,
+            precioDeFabrica: precio,
           };
           saleProducts.push(saleObj);
         });

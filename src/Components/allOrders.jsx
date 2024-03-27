@@ -17,7 +17,11 @@ export default function AllOrders() {
       if (
         JSON.parse(Cookies.get("userAuth")).rol == 1 ||
         JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 10
+        JSON.parse(Cookies.get("userAuth")).rol == 10 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 6 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 9 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 5 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 13
       ) {
       } else {
         navigate("/principal");

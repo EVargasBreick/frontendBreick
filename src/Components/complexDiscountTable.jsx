@@ -16,9 +16,10 @@ export default function ComplexDiscountTable({
   hallObject,
 }) {
   const [isMobile, setIsMobile] = useState(false);
+  //console.log("ENTRO ACA");
   useEffect(() => {
-    console.log("Tradicionales", tradicionales);
-    console.log("Sin descuento", sinDesc);
+    //console.log("Tradicionales", tradicionales);
+    //console.log("Sin descuento", sinDesc);
     function handleResize() {
       if (window.innerWidth < 700) {
         setIsMobile(true);
@@ -52,7 +53,11 @@ export default function ComplexDiscountTable({
             <td>{parseFloat(tradObject?.total).toFixed(2) + " Bs."}</td>
           ) : null}
           {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
-            <td>{`${parseFloat(tradObject.descuento).toFixed(0)} %`}</td>
+            <td>{`${
+              tradicionales.length > 0
+                ? parseFloat(tradObject.descuento).toFixed(0)
+                : 0
+            } %`}</td>
           ) : null}
           {tradicionales?.length > 0 || sinDesc?.length > 0 ? (
             <td>{parseFloat(tradObject.descCalculado).toFixed(2) + " Bs."}</td>

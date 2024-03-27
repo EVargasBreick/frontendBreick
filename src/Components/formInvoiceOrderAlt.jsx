@@ -56,7 +56,7 @@ export default function FormInvoiceOrderAlt() {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
       const pdve = Cookies.get("pdv");
-      console.log("Punto de venta", pdve);
+
       setUserName(JSON.parse(UsuarioAct).usuario);
       setIdAlmacen(JSON.parse(UsuarioAct).idAlmacen);
       const PuntoDeVentas = pdve != undefined ? pdve : 0;
@@ -65,8 +65,6 @@ export default function FormInvoiceOrderAlt() {
     const suc = getBranchesPs();
     suc.then((resp) => {
       const sucursales = resp.data;
-      console.log("Sucursales", sucursales);
-      console.log("Id almacen", idAlmacen);
 
       const sucur = sucursales.find(
         (sc) => JSON.parse(UsuarioAct).idAlmacen == sc.idAgencia
@@ -75,7 +73,7 @@ export default function FormInvoiceOrderAlt() {
             (sc) => JSON.parse(UsuarioAct).idAlmacen == sc.idAgencia
           )
         : sucursales.find((sc) => "AL001" == sc.idAgencia);
-      console.log("Sucur", sucur);
+
       const branchData = {
         nombre: sucur.nombre,
         dir: sucur.direccion,
@@ -83,7 +81,7 @@ export default function FormInvoiceOrderAlt() {
         ciudad: sucur.ciudad,
         nro: sucur.idImpuestos,
       };
-      console.log("Branch data", branchData);
+
       setBranchInfo(branchData);
     });
     const user = JSON.parse(UsuarioAct);
@@ -91,7 +89,6 @@ export default function FormInvoiceOrderAlt() {
     const list = orderToInvoiceList(idDepto);
     list
       .then((res) => {
-        console.log("Res", res);
         let uniqueArray = res.data.data.reduce((acc, curr) => {
           if (!acc.find((obj) => obj.usuario === curr.usuario)) {
             acc.push(curr);
@@ -99,7 +96,7 @@ export default function FormInvoiceOrderAlt() {
           return acc;
         }, []);
         setUserList(uniqueArray);
-        console.log("Array unico", uniqueArray);
+
         setOrderList(res.data.data);
         setAuxOrderList(res.data.data);
       })
@@ -110,12 +107,12 @@ export default function FormInvoiceOrderAlt() {
   function filter() {
     if (dateFilter.length > 0 && search.length > 0) {
       const spplited = dateFilter.split("-");
-      console.log("Spplited", spplited);
+
       var dia = spplited[2];
       var mes = spplited[1];
       var año = spplited[0];
       const reformated = `${dia}/${mes}/${año}`;
-      console.log("Reformated", reformated);
+
       const newList = auxOrderList.filter(
         (dt) =>
           dt.fechaCrea.includes(reformated) &&
@@ -126,12 +123,12 @@ export default function FormInvoiceOrderAlt() {
     } else {
       if (dateFilter.length > 0) {
         const spplited = dateFilter.split("-");
-        console.log("Spplited", spplited);
+
         var dia = spplited[2];
         var mes = spplited[1];
         var año = spplited[0];
         const reformated = `${dia}/${mes}/${año}`;
-        console.log("Reformated", reformated);
+
         const newList = auxOrderList.filter((dt) =>
           dt.fechaCrea.includes(reformated)
         ); //
@@ -161,7 +158,6 @@ export default function FormInvoiceOrderAlt() {
   }
 
   function handleChecks(value, index) {
-    console.log("Checked", value);
     if (!bulkList.includes(value)) {
       setBulkList([...bulkList, value]);
     } else {
@@ -174,28 +170,36 @@ export default function FormInvoiceOrderAlt() {
 
   async function bulkInvoicing() {
     setIsBulkModal(false);
-    console.log("Bulk", bulkList);
+
     for (let i = 0; i < bulkList.length; i++) {
       setAlert(`Procesando pedido nro ${bulkList[i]}`);
       setIsAlert(true);
-      console.log("En iteracion nro", i);
+
       const idFactura = bulkList[i];
-      console.log("Id entrando", idFactura);
+
       try {
         const os = await orderDetailsInvoice(idFactura);
         console.log("detallitos", os);
         const details = os.data.response;
         var saleProducts = [];
         details.forEach((dt) => {
+          const precio =
+            dt.precio_producto != null
+              ? dt.precio_producto
+              : dt.issuper == 1
+              ? dt.precioSuper
+              : dt.precioDeFabrica;
+
           const saleObj = {
             nombreProducto: dt.nombreProducto,
             idProducto: dt.idProducto,
             cantProducto: dt.cantidadProducto,
-            total: dt.cantidadProducto * dt.precioDeFabrica,
+            total: dt.totalProd,
             descuentoProd: dt.descuentoProducto,
             codInterno: dt.codInterno,
             codigoUnidad: dt.codigoUnidad,
-            precioDeFabrica: dt.precioDeFabrica,
+            precioDeFabrica: Number(precio),
+            precio_producto: precio,
           };
           saleProducts.push(saleObj);
         });
@@ -257,19 +261,25 @@ export default function FormInvoiceOrderAlt() {
     const orderDetails = orderDetailsInvoice(id);
     orderDetails
       .then((os) => {
-        console.log("detallitos", os);
+        console.log("detallitos", os.data.response);
         const details = os.data.response;
         var saleProducts = [];
         details.map((dt) => {
+          const precio =
+            dt.precio_producto != null
+              ? dt.precio_producto
+              : dt.issuper == 1
+              ? dt.precioSuper
+              : dt.precioDeFabrica;
           const saleObj = {
             nombreProducto: dt.nombreProducto,
             idProducto: dt.idProducto,
             cantProducto: dt.cantidadProducto,
-            total: dt.cantidadProducto * dt.precioDeFabrica,
+            total: dt.cantidadProducto * precio,
             descuentoProd: dt.descuentoProducto,
             codInterno: dt.codInterno,
             codigoUnidad: dt.codigoUnidad,
-            precioDeFabrica: dt.precioDeFabrica,
+            precioDeFabrica: precio,
           };
           saleProducts.push(saleObj);
         });
@@ -357,6 +367,7 @@ export default function FormInvoiceOrderAlt() {
           voucher: 0,
           pya: false,
         };
+
         const emizorBody = {
           numeroFactura: 0,
           nombreRazonSocial: cliente.razonSocial,
@@ -398,6 +409,7 @@ export default function FormInvoiceOrderAlt() {
           stock: updateStockBody,
           storeInfo: storeInfo,
         };
+        console.log("Body compuesto", composedBody);
         try {
           const invocieResponse = await debouncedFullInvoiceProcess(
             composedBody
@@ -429,16 +441,17 @@ export default function FormInvoiceOrderAlt() {
             reject("Invoice response code is not 200"); // Reject the promise if the invoice response code is not 200
           }
         } catch (error) {
+          console.log("Body compuesto", composedBody);
           reject(error); // Reject the promise if there's an error during the invoicing process
         }
       } catch (error) {
+        console.log("Error aki?");
         reject(false);
       }
     });
   }
 
   function validateFormOfPayment(e) {
-    console.log("Id almacen", idAlmacen);
     e.preventDefault();
     if (tipoPago === "") {
       setAlert("Por favor seleccione un tipo de pago general");

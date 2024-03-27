@@ -71,10 +71,10 @@ const structureUser = (
   const tipoUsuario = corpArray.includes(categoria)
     ? 1
     : categoria == 4
-      ? 4
-      : departamento == 1
-        ? 2
-        : 3;
+    ? 4
+    : departamento == 1
+    ? 2
+    : 3;
 
   var userObject = {
     nombre: nombre,
@@ -155,8 +155,8 @@ export const userService = {
   async getAll(roles = null) {
     const response = await userInstance.get(`/all`, {
       params: {
-        roles: roles
-      }
+        roles: roles,
+      },
     });
     return response.data;
   },
@@ -164,9 +164,42 @@ export const userService = {
   async updateUser(userId, body) {
     const response = await userInstance.put(`/update/${userId}`, body);
     return response.data;
-  }
+  },
+
+  async updateUserAll(userId, body) {
+    const response = await userInstance.put(`/update/all/${userId}`, body);
+    return response.data;
+  },
 };
 
+const getWeeklyGoals = (startDate, endDate) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/user/weekly/goals?startDate=${startDate}&endDate=${endDate}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const insertAndUpdateWeekly = (body) => {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/user/update/goals`;
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, body)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
 
 export {
   controlUserInput,
@@ -174,4 +207,6 @@ export {
   structureUser,
   createUser,
   userBasic,
+  getWeeklyGoals,
+  insertAndUpdateWeekly,
 };

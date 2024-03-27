@@ -10,7 +10,11 @@ import "../styles/generalStyle.css";
 import Cookies from "js-cookie";
 import { getStores } from "../services/storeServices";
 import { getProductsWithStock } from "../services/productServices";
-import { createTransfer } from "../services/transferServices";
+import {
+  composedTransfer,
+  createTransfer,
+  deleteTransfer,
+} from "../services/transferServices";
 import { updateStock } from "../services/orderServices";
 import { OrderNote } from "./orderNote";
 import ReactToPrint from "react-to-print";
@@ -37,6 +41,8 @@ export default function FormStoreRefill() {
   const [nombreDestino, setNombreDestino] = useState();
   const componentRef = useRef();
   const buttonRef = useRef();
+  const productRef = useRef([]);
+  const [destinationStock, setDestinationStock] = useState([]);
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -61,6 +67,7 @@ export default function FormStoreRefill() {
           console.log("disponibles", available);
           setProductos(available);
           setAuxProducts(available);
+          productRef.current = product.data;
         });
       } else {
         setIsInterior(true);
@@ -70,6 +77,7 @@ export default function FormStoreRefill() {
         prods.then((product) => {
           setProductos(product.data);
           setAuxProducts(product.data);
+          productRef.current = product.data;
         });
       }
     }
@@ -77,6 +85,19 @@ export default function FormStoreRefill() {
   const handleClose = () => {
     setIsAlert(false);
   };
+
+  function updateCurrentStock() {
+    setProductos([]);
+    setAuxProducts([]);
+    const prods = getProductsWithStock("AL001", "all");
+    prods.then((product) => {
+      const available = product.data.filter((prod) => prod.cant_Actual > 0);
+      console.log("disponibles", available);
+      setProductos(available);
+      setAuxProducts(available);
+    });
+  }
+
   useEffect(() => {
     if (JSON.stringify(productList).length > 5) {
       console.log("Flag 2");
@@ -112,9 +133,11 @@ export default function FormStoreRefill() {
         setNombreDestino(
           almacen.find((al) => al.idAgencia == idSub[0])?.Nombre
         );
+        getDestinationStock(idSub[0]);
       } else {
         setIdDestino(id + "");
         setNombreDestino(almacen.find((al) => al.idAgencia == id)?.Nombre);
+        getDestinationStock(id + "");
       }
     }
   }
@@ -159,9 +182,10 @@ export default function FormStoreRefill() {
     auxArray.splice(index, 1);
     setSelectedProducts(auxArray);
   }
-  function registerTransfer() {
+
+  /*function registerTransfer() {
     if (idOrigen !== idDestino) {
-      setAlertSec("Validando Traspaso");
+      setAlertSec("Validando Traspasos");
       console.log("Is interior", isInterior);
       setIsAlertSec(true);
       const zeroValidated = validateZero();
@@ -169,7 +193,7 @@ export default function FormStoreRefill() {
         .then((validated) => {
           const validatedQuant = validateQuantities();
           validatedQuant
-            .then((res) => {
+            .then(async (res) => {
               const transferObj = {
                 idOrigen: idOrigen,
                 idDestino: idDestino,
@@ -185,6 +209,7 @@ export default function FormStoreRefill() {
               const newTransfer = createTransfer(transferObj);
               newTransfer
                 .then((nt) => {
+                  const createdId = nt.data.data.idCreado;
                   const reservedProducts = updateStock({
                     accion: "take",
                     idAlmacen: idOrigen,
@@ -221,15 +246,25 @@ export default function FormStoreRefill() {
                         },
                       ];
                       setProductList(orderObj);
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 30000);
                     })
-                    .catch((error) => {
+                    .catch(async (error) => {
+                      updateCurrentStock();
+                      const deleted = await deleteTransfer(createdId);
+                      console.log("Traspaso borrado", deleted);
                       setIsAlertSec(false);
-                      setAlert(error.response.data.message);
                       console.log("Error", error);
+                      setAlert(error);
                       setIsAlert(true);
+                      setTimeout(() => {
+                        setIsAlert(false);
+                      }, 5000);
                     });
                 })
                 .catch((error) => {
+                  updateCurrentStock();
                   setIsAlertSec(false);
                   setAlert("Error al crear el traspaso", error);
                   setIsAlert(true);
@@ -246,6 +281,104 @@ export default function FormStoreRefill() {
         })
 
         .catch((error) => {
+          setIsAlertSec(false);
+          setAlert(
+            "La cantidad de un producto seleccionado se encuentra en cero"
+          );
+          setIsAlert(true);
+        });
+    } else {
+      setAlert("El origen debe ser distinto al destino");
+      setIsAlert(true);
+    }
+  }*/
+
+  async function registerTransferAlt() {
+    if (idOrigen !== idDestino) {
+      const productsArray = selectedProducts.map((item) => {
+        const obj = {
+          codInterno: item.codInterno,
+          nombreProducto: item.nombreProducto,
+          cantidadProducto: item.cantProducto,
+        };
+        return obj;
+      });
+
+      setAlertSec("Validando Traspaso");
+      setIsAlertSec(true);
+      const zeroValidated = validateZero();
+      zeroValidated
+        .then((validated) => {
+          const quantitiesValidated = validateQuantities();
+          quantitiesValidated
+            .then(async (res) => {
+              console.log("Normal");
+              const transferObj = {
+                idOrigen: idOrigen,
+                idDestino: idDestino,
+                idUsuario: userId,
+                productos: selectedProducts,
+                transito: 0,
+                movil: idOrigen === "AL001" ? 1 : 0,
+                impreso: idOrigen === "AL001" ? 0 : 1,
+                listo: idOrigen === "AL001" || idDestino === "AL001" ? 0 : 1,
+              };
+              const stockObj = {
+                accion: "take",
+                idAlmacen: idOrigen,
+                productos: selectedProducts,
+              };
+
+              try {
+                setAlertSec("Creando traspaso");
+                const nt = await composedTransfer({
+                  traspaso: transferObj,
+                  stock: stockObj,
+                });
+
+                setIsAlertSec(false);
+                setAlert("Traspaso Creado correctamente");
+                setIsAlert(true);
+                const origenArray = nombreOrigen.split(" ");
+                const outputOrigen = origenArray.slice(1).join(" ");
+                const destinoArray = nombreDestino.split(" ");
+                const outputDestino = destinoArray.slice(1).join(" ");
+                const orderObj = [
+                  {
+                    rePrint: false,
+                    fechaSolicitud: dateString(),
+                    id: nt.data.data.idCreado,
+                    usuario: user,
+                    notas: "",
+                    productos: productsArray,
+                    origen: outputOrigen,
+                    destino: outputDestino,
+                  },
+                ];
+                setProductList(orderObj);
+                setTimeout(() => {
+                  //window.location.reload();
+                }, 5000);
+              } catch (error) {
+                console.log("Error al crear el traspaso", error);
+                updateCurrentStock();
+                setIsAlertSec(false);
+                setAlert(`Error al crear el traspaso`);
+                setIsAlert(true);
+              }
+            })
+            .catch((err) => {
+              console.log("Error");
+              updateCurrentStock();
+              setIsAlertSec(false);
+              setAlert(
+                "La cantidad de un producto seleccionado no se encuentra disponible"
+              );
+              setIsAlert(true);
+            });
+        })
+        .catch((error) => {
+          updateCurrentStock();
           setIsAlertSec(false);
           setAlert(
             "La cantidad de un producto seleccionado se encuentra en cero"
@@ -320,6 +453,14 @@ export default function FormStoreRefill() {
     setProductos(auxProducts);
   }
 
+  function getDestinationStock(storeId) {
+    const prods = getProductsWithStock(storeId, "all");
+    prods.then((product) => {
+      console.log("disponibles", product.data);
+      setDestinationStock(product.data);
+    });
+  }
+
   return (
     <div>
       <div className="formLabel">CREAR TRASPASO</div>
@@ -359,11 +500,14 @@ export default function FormStoreRefill() {
           >
             <option>Seleccione destino</option>
             {almacen.map((ag) => {
-              return (
-                <option value={ag.Nombre} key={ag.Nombre}>
-                  {ag.Nombre}
-                </option>
-              );
+              console.log("AG", ag);
+              if (ag.idAgencia != idOrigen) {
+                return (
+                  <option value={ag.Nombre} key={ag.Nombre}>
+                    {ag.Nombre}
+                  </option>
+                );
+              }
             })}
           </Form.Select>
         </Form.Group>
@@ -419,10 +563,21 @@ export default function FormStoreRefill() {
                     <th className="tableColumn">Producto</th>
                     <th className="tableColumnSmall">Cantidad</th>
                     <th className="tableColumnSmall">Disponible</th>
+                    <th className="tableColumnSmall">Stock en destino</th>
                   </tr>
                 </thead>
                 <tbody>
                   {selectedProducts.map((product, index) => {
+                    const cActual = auxProducts.find(
+                      (ap) => ap.idProducto == product.idProducto
+                    )?.cant_Actual;
+                    const refActual = productRef.current.find(
+                      (pr) => pr.idProducto == product.idProducto
+                    )?.cant_Actual;
+                    const stockDestino = destinationStock.find(
+                      (ds) => ds.idProducto == product.idProducto
+                    );
+
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumnSmall">
@@ -456,14 +611,19 @@ export default function FormStoreRefill() {
                                     product
                                   )
                                 }
+                                min={0}
                                 value={product.cantProducto}
                               />
                             </Form.Group>
                           </Form>
                         </td>
-                        <td className="tableColumnSmall">
-                          {product.cant_Actual}
+                        <td
+                          className="tableColumnSmall"
+                          style={{ color: cActual != refActual ? "red" : "" }}
+                        >
+                          {cActual}
                         </td>
+                        <td>{stockDestino?.cant_Actual}</td>
                       </tr>
                     );
                   })}
@@ -478,7 +638,7 @@ export default function FormStoreRefill() {
               variant="light"
               className="cyanLarge"
               onClick={() => {
-                registerTransfer();
+                registerTransferAlt();
               }}
             >
               Crear Traspaso

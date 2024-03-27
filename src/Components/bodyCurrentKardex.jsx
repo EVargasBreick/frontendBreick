@@ -1,65 +1,89 @@
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import React from "react";
 import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Button, Form, Table, Modal, Image } from "react-bootstrap";
-import { ExportPastReport } from "../services/exportServices";
 import { getProducts } from "../services/productServices";
 import {
   getCurrentStockProduct,
   getCurrentStockStore,
-  getLogStockProduct,
-  getLogStockStore,
 } from "../services/stockServices";
 import { getStores } from "../services/storeServices";
 import "../styles/generalStyle.css";
 import "../styles/reportStyles.css";
-import Pagination from "./pagination";
 import { ReportPDF } from "./reportPDF";
 import loading2 from "../assets/loading2.gif";
+import Cookies from "js-cookie";
+import { generateExcel } from "../services/utils";
+import { KardexReportThermal } from "./kardexReportThermal";
+import ReactToPrint from "react-to-print";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import { dateString } from "../services/dateServices";
+import { Loader } from "./loader/Loader";
 export default function BodyCurrentKardex() {
   const [isCriteria, setIsCriteria] = useState(false);
   const [criteria, setCriteria] = useState("");
   const [productList, setProductList] = useState([]);
+  const [auxProdList, setAuxProdList] = useState([]);
   const [storeList, setStoreList] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedStore, setSelectedStore] = useState("");
   const [dataTable, setDataTable] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(25);
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentData = dataTable.slice(indexOfFirstRecord, indexOfLastRecord);
-  const [quantitySorted, setQuantitySorted] = useState(0);
-  const [storeSorted, setStoreSorted] = useState(0);
-  const [productSorted, setProductSorted] = useState();
-  const [isPSorted, setIsPSorted] = useState(false);
-  const [isQSorted, setIsQSorted] = useState(false);
-  const [isSSorted, setIsSSorted] = useState(false);
-  const [codeSorted, setCodeSorted] = useState(0);
-  const [isCSorted, setIsCSorted] = useState(false);
-  const [priceSorted, setPriceSorted] = useState(0);
-  const [isPrSorted, setIsPrSorted] = useState(false);
   const [internal, setInternal] = useState("");
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
   const [searchbox, setSearchbox] = useState("");
   const [auxDataTable, setAuxDataTable] = useState([]);
   const [isReported, setIsReported] = useState(false);
+  const showAll = [1, 9, 10, 8, 7, 6, 5, 2, 12, 13];
+  const [typeFilter, setTypeFilter] = useState("");
+  const [searchProduct, setSearchProduct] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+  const [isThermal, setIsThermal] = useState(false);
+  const thermalRef = useRef();
+  const thermalWrapRef = useRef();
+  const thermalButtonRef = useRef();
+  const user = JSON.parse(Cookies.get("userAuth"));
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
+    const userRol = JSON.parse(Cookies.get("userAuth")).rol;
     const fecha = new Date();
     const dia = fecha.toString().split(" ");
     setSelectedDate(dia[2] + "/" + dia[1] + "/" + dia[3]);
     const productos = getProducts("all");
     productos.then((res) => {
-      setProductList(res.data.data);
+      const filteredProd = res.data.data.filter((rd) => (rd.activo = 1));
+      setProductList(filteredProd);
+      setAuxProdList(filteredProd);
     });
     const agencias = getStores();
     agencias.then((res) => {
       console.log("Stores", res);
-      setStoreList(res.data);
+      if (showAll.includes(userRol)) {
+        setStoreList(res.data);
+      } else {
+        const filtered = res.data.filter(
+          (ag) => ag.idAgencia == user.idAlmacen
+        );
+        setStoreList(filtered);
+        console.log("Filtered", filtered);
+      }
     });
+
+    function handleResize() {
+      if (window.innerWidth < 700) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    }
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   function handleCriteria(valor) {
@@ -72,166 +96,27 @@ export default function BodyCurrentKardex() {
     }
   }
   function searchItem(value) {
-    setCurrentPage(1);
     setSearchbox(value);
     const newList = auxDataTable.filter(
       (dt) =>
         dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
         dt.codInterno.toString().includes(value.toString())
-    ); //
+    );
     setDataTable([...newList]);
   }
   function selectProduct(prod) {
-    setSelectedProduct(prod);
+    console.log("PRODUCTO SELECIONADO", prod);
+    if (prod != "false") {
+      setSelectedProduct(prod);
 
-    setInternal(productList.find((pr) => pr.idProducto == prod).codInterno);
+      setInternal(productList.find((pr) => pr.idProducto == prod).codInterno);
+    }
   }
-  function sortBy(atributo) {
-    const sorted = sortedFun(atributo);
-    sorted.then((sr) => {
-      setDataTable([...sr]);
-    });
-  }
-  function sortedFun(atributo) {
-    return new Promise((resolve) => {
-      if (atributo == "cantidad") {
-        setIsQSorted(true);
-        setIsSSorted(false);
-        setIsPSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(false);
-        if (quantitySorted == 0) {
-          setQuantitySorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.cantidad < p2.cantidad ? 1 : p1.cantidad > p2.cantidad ? -1 : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setQuantitySorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.cantidad > p2.cantidad ? 1 : p1.cantidad < p2.cantidad ? -1 : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "agencia") {
-        setIsPSorted(false);
-        setIsSSorted(true);
-        setIsQSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(false);
-        if (storeSorted == 0) {
-          setStoreSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.NombreAgencia < p2.NombreAgencia
-              ? 1
-              : p1.NombreAgencia > p2.NombreAgencia
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setStoreSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.NombreAgencia > p2.NombreAgencia
-              ? 1
-              : p1.NombreAgencia < p2.NombreAgencia
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "producto") {
-        setIsPSorted(true);
-        setIsSSorted(false);
-        setIsQSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(false);
-        if (productSorted == 0) {
-          setProductSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.nombreProducto < p2.nombreProducto
-              ? 1
-              : p1.nombreProducto > p2.nombreProducto
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setProductSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.nombreProducto > p2.nombreProducto
-              ? 1
-              : p1.nombreProducto < p2.nombreProducto
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "codigo") {
-        setIsPSorted(false);
-        setIsSSorted(false);
-        setIsQSorted(false);
-        setIsPrSorted(false);
-        setIsCSorted(true);
-        if (codeSorted == 0) {
-          setCodeSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.codInterno < p2.codInterno
-              ? 1
-              : p1.codInterno > p2.codInterno
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setCodeSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.codInterno > p2.codInterno
-              ? 1
-              : p1.codInterno < p2.codInterno
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-      if (atributo == "precio") {
-        setIsPSorted(false);
-        setIsSSorted(false);
-        setIsQSorted(false);
-        setIsPrSorted(true);
-        setIsCSorted(false);
-        if (priceSorted == 0) {
-          setPriceSorted(1);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.precioDeFabrica < p2.precioDeFabrica
-              ? 1
-              : p1.precioDeFabrica > p2.precioDeFabrica
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        } else {
-          setPriceSorted(0);
-          let sortedProducts = dataTable.sort((p1, p2) =>
-            p1.precioDeFabrica > p2.precioDeFabrica
-              ? 1
-              : p1.precioDeFabrica < p2.precioDeFabrica
-              ? -1
-              : 0
-          );
-          resolve(sortedProducts);
-        }
-      }
-    });
-  }
+
   function generateReport() {
     setAlertSec("Generando Reporte");
     setIsAlertSec(true);
-    setCurrentPage(1);
+    setLoading(true);
     setDataTable([]);
 
     if (criteria != "") {
@@ -250,6 +135,7 @@ export default function BodyCurrentKardex() {
             setAuxDataTable(rd.data);
             setIsAlertSec(false);
             setIsReported(true);
+            setLoading(false);
           });
         }
       } else {
@@ -263,16 +149,94 @@ export default function BodyCurrentKardex() {
           const reportData = getCurrentStockProduct(selectedProduct);
           reportData.then((rd) => {
             setDataTable(rd.data);
-            setIsReported(true);
+
             setAuxDataTable(rd.data);
             setIsAlertSec(false);
+            setIsReported(true);
+            setIsThermal(true);
+            setLoading(false);
           });
         }
       }
     } else {
     }
   }
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  function filterByType(value) {
+    setTypeFilter(value);
+    if (value == "all") {
+      setDataTable(auxDataTable);
+    } else {
+      const filtered = auxDataTable.filter((ad) => ad.tipoProducto == value);
+      setDataTable(filtered);
+    }
+  }
+
+  function filterByTypeProdList(value) {
+    setTypeFilter(value);
+    if (value == "all") {
+      setProductList(auxProdList);
+    } else {
+      const filtered = auxProdList.filter((ad) => ad.tipoProducto == value);
+      setProductList(filtered);
+    }
+  }
+
+  function filterBySingleProduct(value) {
+    setSearchProduct(value);
+    const newList = auxProdList.filter(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
+        dt.codInterno.toString().includes(value.toString()) ||
+        dt.codigoBarras.toString().includes(value.toString())
+    );
+    setProductList(newList);
+  }
+
+  const handleDownloadPdf = async () => {
+    const element = thermalRef.current;
+
+    const canvas = await html2canvas(element);
+    console.log("DATA AL FACTURAR", canvas);
+    const data = canvas.toDataURL("image/png");
+
+    const pdfHeight =
+      70 + 12 * dataTable.filter((dt) => dt.cantidad > 0).length;
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: [80, pdfHeight],
+    });
+
+    const pdfWidth = 80;
+
+    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+    // Instead of directly saving the PDF, create a download link
+    const pdfBlob = pdf.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = pdfUrl;
+    downloadLink.download = `reporte_kardex_${dateString().split(" ")[0]}_${
+      dataTable[0].NombreAgencia
+    }.pdf`;
+    document.body.appendChild(downloadLink);
+
+    // Trigger a click on the download link
+    downloadLink.click();
+
+    // Clean up
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(pdfUrl);
+  };
+
+  function generateThermalPDF() {
+    if (thermalRef.current) {
+      thermalButtonRef.current.click();
+    }
+  }
+
   return (
     <div>
       <div className="formLabel">REPORTE DE KARDEX EN TIEMPO REAL</div>
@@ -294,7 +258,9 @@ export default function BodyCurrentKardex() {
             >
               <option value="">Seleccione criterio</option>
               <option value="1">Por Agencia</option>
-              <option value="2">Por Producto</option>
+              {showAll.includes(user.rol) ? (
+                <option value="2">Por Producto</option>
+              ) : null}
             </Form.Select>
           </Form.Group>
         </div>
@@ -330,22 +296,59 @@ export default function BodyCurrentKardex() {
               </div>
             </div>
           ) : (
-            <div className="reportSelector">
-              <Form.Group className="reportOptionLarge">
-                <Form.Label>Seleccione Producto</Form.Label>
-                <Form.Select
-                  className="reportOptionDrop"
-                  onChange={(e) => selectProduct(e.target.value)}
-                >
-                  <option>Seleccione Producto</option>
-                  {productList.map((pr, index) => {
-                    return (
-                      <option key={index} value={pr.idProducto}>
-                        {pr.nombreProducto}
-                      </option>
-                    );
-                  })}
-                </Form.Select>
+            <div
+              className="reportSelector"
+              style={{
+                flexDirection: isMobile ? "column" : "row",
+                alignItems: isMobile && "center",
+              }}
+            >
+              <Form.Group
+                className="reportOptionLarge"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  width: isMobile ? "100%" : "80%",
+                  flexDirection: isMobile ? "column" : "row",
+                  alignItems: isMobile && "center",
+                }}
+              >
+                <div style={{ width: isMobile ? "80%" : "45%" }}>
+                  <Form.Label>Seleccione Producto</Form.Label>
+                  <Form.Select
+                    onChange={(e) => selectProduct(e.target.value)}
+                    onMouseDown={(e) => selectProduct(e.target.value)}
+                  >
+                    <option value={false}>Seleccione Producto</option>
+                    {productList.map((pr, index) => {
+                      return (
+                        <option key={index} value={pr.idProducto}>
+                          {pr.nombreProducto}
+                        </option>
+                      );
+                    })}
+                  </Form.Select>
+                </div>
+                <div style={{ width: isMobile ? "80%" : "25%" }}>
+                  <Form.Label>Tipo de producto</Form.Label>
+                  <Form.Select
+                    onChange={(e) => filterByTypeProdList(e.target.value)}
+                    value={typeFilter}
+                  >
+                    <option value="all">Todos</option>
+                    <option value="1">Tradicionales</option>
+                    <option value="2">Pascua</option>
+                    <option value="4">Halloween</option>
+                    <option value="3">Navidad</option>
+                  </Form.Select>
+                </div>
+                <div style={{ width: isMobile ? "80%" : "25%" }}>
+                  <Form.Label>Buscar Producto</Form.Label>
+                  <Form.Control
+                    value={searchProduct}
+                    onChange={(e) => filterBySingleProduct(e.target.value)}
+                  />
+                </div>
               </Form.Group>
               <div className="reportButtonContainer">
                 <Button
@@ -362,76 +365,62 @@ export default function BodyCurrentKardex() {
       </Form>
 
       {isReported ? (
-        <div className="reportTable">
+        <div>
           <Form>
             <Form.Group
               className="reportSearchL"
               controlId="rsearch"
-              onChange={(e) => searchItem(e.target.value)}
-              value={searchbox}
+              style={{
+                display: "flex",
+                width: "100%",
+                justifyContent: "space-evenly",
+              }}
             >
-              <Form.Label>Buscar</Form.Label>
-              <Form.Control type="text" placeholder="..." />
+              <div>
+                <Form.Label>Buscar</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="..."
+                  onChange={(e) => searchItem(e.target.value)}
+                  value={searchbox}
+                />
+              </div>
+              <div>
+                <Form.Label>Filtrar por tipo de producto</Form.Label>
+                <Form.Select
+                  onChange={(e) => filterByType(e.target.value)}
+                  value={typeFilter}
+                >
+                  <option value="all">Todos</option>
+                  <option value="1">Tradicionales</option>
+                  <option value="2">Pascua</option>
+                  <option value="4">Halloween</option>
+                  <option value="3">Navidad</option>
+                </Form.Select>
+              </div>
             </Form.Group>
           </Form>
-          <div className="tableScroll">
+          <div
+            style={{
+              maxHeight: "70vh",
+              overflow: "auto",
+              marginBottom: "20px",
+            }}
+          >
             <Table bordered>
               <thead className="sticky">
                 <tr className="tableHeaderReport">
                   <td className="tableHeaderColS">Nº</td>
 
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("codigo");
-                    }}
-                  >
-                    {`Codigo  ${
-                      !isCSorted ? "-" : codeSorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
-                  <td
-                    className="tableHeaderColL"
-                    onClick={() => {
-                      sortBy("producto");
-                    }}
-                  >
-                    {`Producto  ${
-                      !isPSorted ? "-" : productSorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("precio");
-                    }}
-                  >{`Precio  ${
-                    !isPrSorted ? "-" : priceSorted == 0 ? "▲" : "▼"
-                  }`}</td>
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("cantidad");
-                    }}
-                  >
-                    {`Cantidad  ${
-                      !isQSorted ? "-" : quantitySorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
-                  <td
-                    className="tableHeaderColM"
-                    onClick={() => {
-                      sortBy("agencia");
-                    }}
-                  >
-                    {`Agencia/Almacen  ${
-                      !isSSorted ? "-" : storeSorted == 0 ? "▲" : "▼"
-                    }`}
-                  </td>
+                  <td className="tableHeaderColM">{`Codigo  `}</td>
+                  <td className="tableHeaderColL">{`Producto `}</td>
+                  <td className="tableHeaderColM">{`Precio  `}</td>
+                  <td className="tableHeaderColM">{`Cantidad  `}</td>
+                  <td className="tableHeaderColM">{`Agencia/Almacen  `}</td>
                 </tr>
               </thead>
               <tbody>
-                {currentData.map((dt, index) => {
+                {dataTable.map((dt, index) => {
                   return (
                     <tr className="tableBodyReport" key={index}>
                       <td>{index + 1}</td>
@@ -446,20 +435,14 @@ export default function BodyCurrentKardex() {
                 })}
               </tbody>
             </Table>
-            <Pagination
-              postsperpage={recordsPerPage}
-              totalposts={dataTable.length}
-              paginate={paginate}
-            />
           </div>
           <div className="reportButtonGroup">
             <Button
               className="excelButton"
               onClick={() =>
-                ExportPastReport(
+                generateExcel(
                   dataTable,
-                  selectedStore != "" ? selectedStore : internal,
-                  selectedDate
+                  `Reporte de kardex actual ${selectedDate} - ${selectedStore}`
                 )
               }
               variant="success"
@@ -479,9 +462,36 @@ export default function BodyCurrentKardex() {
                 Exportar PDF
               </Button>
             </PDFDownloadLink>
+            {criteria == 1 && (
+              <Button onClick={() => generateThermalPDF()} variant="warning">
+                Exportar en rollo
+              </Button>
+            )}
+          </div>
+
+          <div>
+            <button
+              hidden
+              type="button"
+              onClick={handleDownloadPdf}
+              ref={thermalButtonRef}
+            >
+              Download as PDF
+            </button>
+            <div
+              ref={thermalWrapRef}
+              style={{ maxHeight: "1px", overflow: "hidden" }}
+            >
+              <KardexReportThermal
+                agencia={selectedStore}
+                productList={dataTable.filter((dt) => dt.cantidad > 0)}
+                ref={thermalRef}
+              />
+            </div>
           </div>
         </div>
       ) : null}
+      {loading && <Loader />}
     </div>
   );
 }

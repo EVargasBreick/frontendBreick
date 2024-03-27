@@ -6,19 +6,29 @@ export const OrderNote = React.forwardRef(({ productList }, ref) => {
   return (
     <div ref={ref} className="invoicePage">
       {productList.map((pl, index) => {
+        const tipo = pl.id.toString().toLowerCase().includes("mues")
+          ? "MUESTRA"
+          : pl.id.toString().toLowerCase().includes("normal")
+          ? "PEDIDO"
+          : pl.id.toString().toLowerCase().includes("reser")
+          ? "RESERVA"
+          : "TRASPASO";
         return (
           <div key={index} style={{ pageBreakAfter: "always" }}>
             <div className="invoiceTittle">Incadex S.R.L</div>
             <div className="simpleSeparator"></div>
-            <div>NOTA DE PEDIDO/TRASPASO</div>
+            <div>{`NOTA DE ${tipo}`}</div>
             {pl.rePrint ? <div>REIMPRESION</div> : null}
+            {pl.fecha_edicion && pl?.fecha_edicion != "-" ? (
+              <div>PEDIDO EDITADO</div>
+            ) : null}
             <div className="simpleSeparator"></div>
             <div className="textWithLine"></div>
             <div className="simpleSeparator"></div>
             <div className="invoiceStart">
               <div>{`Fecha de Solicitud: ${pl.fechaSolicitud}`}</div>
               <div>{`Fecha de Impresión: ${dateString()}`}</div>
-              <div>{`Id Pedido/Traspaso: ${pl.id}`}</div>
+              <div>{`Id ${tipo}: ${pl.id}`}</div>
               <div>{`Usuario solicitante: ${pl.usuario}`}</div>
             </div>
             {pl.origen && pl.destino ? (

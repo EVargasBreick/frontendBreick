@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   addProductToTransfer,
+  composedEditTransfer,
   deleteProductFromTransfer,
   transferList,
   transferProducts,
   updateChangedTransfer,
   updateProductTransfer,
+  updateTransfer,
 } from "../services/transferServices";
 import Cookies from "js-cookie";
 import "../styles/formLayouts.css";
@@ -17,7 +19,8 @@ import { Button, Form, Table } from "react-bootstrap";
 import { getProductsWithStock } from "../services/productServices";
 import { dateString } from "../services/dateServices";
 import LoadingModal from "./Modals/loadingModal";
-import { updateMultipleStock, updateStock } from "../services/orderServices";
+import { updateMultipleStock } from "../services/orderServices";
+import { set } from "lodash";
 export default function FormEditTransfer() {
   const [userId, setUserId] = useState("");
   const [tList, setTList] = useState([]);
@@ -26,6 +29,7 @@ export default function FormEditTransfer() {
   const [addedProducts, setAddedProducts] = useState([]);
   const [deletedProducts, setDeletedProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [auxSelectedProducts, setAuxSelectedProducts] = useState([]);
   const [stockList, setStockList] = useState([]);
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
@@ -34,6 +38,8 @@ export default function FormEditTransfer() {
   const [auxPedidosList, setAuxPedidosList] = useState([]);
   const [filter, setFilter] = useState("");
   const timestampRef = useRef(Date.now());
+  const productRef = useRef([]);
+
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -46,9 +52,10 @@ export default function FormEditTransfer() {
         const userList = list.filter(
           (ls) => ls.idUsuario == idUsuario && ls.listo != 1
         );
-        console.log("User list", userList);
-        setAuxPedidosList(userList);
-        setTList(userList);
+        const filtered = userList.filter((ul) => ul.estado !== 2);
+        console.log("User list", filtered);
+        setAuxPedidosList(filtered);
+        setTList(filtered);
       });
     }
   }, []);
@@ -57,6 +64,7 @@ export default function FormEditTransfer() {
       selectTransfer();
     }
   }, [transferId, timestampRef]);
+
   function selectTransfer() {
     console.log("Id seleccionado", transferId);
     setSelectedTransfer({});
@@ -75,16 +83,65 @@ export default function FormEditTransfer() {
       console.log("Flag 1");
       const filtered = pr.data.filter((pd) => pd.activo === 1);
       setStockList(filtered);
+      productRef.current = filtered;
+
       const details = transferProducts(transferId);
       details.then((res) => {
         console.log("Detalles traspaso", res);
         setTransferProductList(res.data.response);
         setSelectedProducts(res.data.response);
+        setAuxSelectedProducts(res.data.response);
         setIsAlertSec(false);
-        setTransferId("");
+        // setTransferId("");
       });
     });
   }
+
+  function cancelTransfer() {
+    setAlertSec("Cancelando Traspaso");
+    setIsAlertSec(true);
+    const canceledTransfer = updateTransfer({
+      estado: 2,
+      idTraspaso: transferId,
+      fechaHora: dateString(),
+      idUsuario: userId,
+      stock: {
+        accion: "add",
+        idAlmacen: transferOrigin,
+        productos: auxSelectedProducts,
+        detalle: `DPCTR-${transferId}`,
+      },
+    });
+    canceledTransfer.then((res) => {
+      setAlertSec("Traspaso cancelado correctamente");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload(false);
+      }, 5000);
+    });
+  }
+
+  function updateCurrentStock() {
+    setTransferProductList([]);
+    setSelectedProducts([]);
+    const storeId = tList.find((tl) => (tl.idTraspaso = transferId)).idOrigen;
+    const prods = getProductsWithStock(storeId, "all");
+    prods.then((pr) => {
+      console.log("Flag 1");
+      const filtered = pr.data.filter((pd) => pd.activo === 1);
+      setStockList(filtered);
+      const details = transferProducts(transferId);
+      details.then((res) => {
+        console.log("Detalles traspaso", res);
+        setTransferProductList(res.data.response);
+        setSelectedProducts(res.data.response);
+        // setIsAlertSec(false);
+        // setTransferId("");
+        // productRef.current = res.data.response;
+      });
+    });
+  }
+
   function changeQuantities(index, cantidad) {
     const updatedArray = selectedProducts.map((obj, i) => {
       if (i == index) {
@@ -189,75 +246,74 @@ export default function FormEditTransfer() {
         const deleted = compareArrays(transferProductList, deletedProducts);
 
         const remaining = compareArrays(selectedProducts, transferProductList);
-        saveTransfer(added, deleted, remaining);
+        saveTransferAlt(added, deleted, remaining);
       }
     }
   }
 
-  function saveTransfer(added, deleted, remaining) {
-    const add = addProductToTransfer({
-      idTraspaso: selectedTransfer.idTraspaso,
-      productos: added,
-    });
-    add
-      .then((response) => {
-        const deld = deleteProductFromTransfer({
+  async function saveTransfer(added, deleted, remaining) {
+    console.log("Devolviendo stock", transferProductList);
+    const updateToreturn = {
+      accion: "add",
+      idAlmacen: transferOrigin,
+      productos: transferProductList,
+      detalle: `DSETR-${selectedTransfer.idTraspaso}`,
+    };
+    const updateToTake = {
+      accion: "take",
+      idAlmacen: transferOrigin,
+      productos: selectedProducts,
+      detalle: `SSETR-${selectedTransfer.idTraspaso}`,
+    };
+
+    const updateMultipleStocks = updateMultipleStock([
+      updateToreturn,
+      updateToTake,
+    ]);
+    updateMultipleStocks
+      .then((res) => {
+        const add = addProductToTransfer({
           idTraspaso: selectedTransfer.idTraspaso,
-          productos: deleted,
+          productos: added,
         });
-        deld
-          .then((res) => {
-            const rem = updateProductTransfer({
+        add
+          .then((response) => {
+            const deld = deleteProductFromTransfer({
               idTraspaso: selectedTransfer.idTraspaso,
-              productos: remaining,
+              productos: deleted,
             });
-            rem
-              .then((resp) => {
-                const updateBody = {
-                  fechaActualizacion: dateString(),
+            deld
+              .then((res) => {
+                const rem = updateProductTransfer({
                   idTraspaso: selectedTransfer.idTraspaso,
-                };
-                const updated = updateChangedTransfer(updateBody);
-                updated
-                  .then((up) => {
-                    console.log("Devolviendo stock", transferProductList);
-                    const updateToreturn = {
-                      accion: "add",
-                      idAlmacen: transferOrigin,
-                      productos: transferProductList,
-                      detalle: `DSETR-${selectedTransfer.idTraspaso}`,
-
+                  productos: remaining,
+                });
+                rem
+                  .then((resp) => {
+                    const updateBody = {
+                      fechaActualizacion: dateString(),
+                      idTraspaso: selectedTransfer.idTraspaso,
                     };
-                    const updateToTake = {
-                      accion: "take",
-                      idAlmacen: transferOrigin,
-                      productos: selectedProducts,
-                      detalle: `SSETR-${selectedTransfer.idTraspaso}`,
-                    };
-
-                    const updateMultipleStocks = updateMultipleStock([
-                      updateToreturn,
-                      updateToTake,
-                    ]);
-
-                    console.log("Sacando Stock", selectedProducts);
-                    setTimeout(() => {
-                      updateMultipleStocks
-                        .then((res) => {
-                          console.log("Retirado");
-                          setTimeout(() => {
-                            setAlertSec("Traspaso actualizado, recargando...");
-                            window.location.reload();
-                          }, 2000);
-                        })
-                        .catch((err) => {
-                          setAlertSec(err);
-                          setTimeout(() => {
-                            setIsAlertSec(false);
-                          }, 3000);
-                        });
-                    }, 10000);
-
+                    const updated = updateChangedTransfer(updateBody);
+                    updated
+                      .then((up) => {
+                        console.log("Sacando Stock", selectedProducts);
+                        setAlertSec("Traspaso actualizado");
+                        setIsAlertSec(true);
+                        setTimeout(() => {
+                          setIsAlertSec(false);
+                        }, 2000);
+                        window.location.reload();
+                      })
+                      .catch((err) => {
+                        setAlertSec(
+                          "Error al editar productos del traspaso:",
+                          err
+                        );
+                        setTimeout(() => {
+                          setIsAlertSec(false);
+                        }, 5000);
+                      });
                   })
                   .catch((err) => {
                     setAlertSec("Error al editar productos del traspaso:", err);
@@ -267,27 +323,88 @@ export default function FormEditTransfer() {
                   });
               })
               .catch((err) => {
-                setAlertSec("Error al editar productos del traspaso:", err);
+                console.log("Error al borrar productos del traspaso", err);
+                setAlertSec("Error al borrar productos del traspaso:", err);
                 setTimeout(() => {
                   setIsAlertSec(false);
                 }, 5000);
               });
           })
           .catch((err) => {
-            console.log("Error al borrar productos del traspaso", err);
-            setAlertSec("Error al borrar productos del traspaso:", err);
+            setAlertSec("Error al agregar productos al traspaso:", err);
+            console.log("error", err);
             setTimeout(() => {
               setIsAlertSec(false);
             }, 5000);
           });
       })
       .catch((err) => {
-        setAlertSec("Error al agregar productos al traspaso:", err);
+        updateCurrentStock();
+        setAlertSec("Error al actualizar stock:", err);
         console.log("error", err);
         setTimeout(() => {
           setIsAlertSec(false);
         }, 5000);
       });
+  }
+
+  async function saveTransferAlt(added, deleted, remaining) {
+    console.log("Devolviendo stock", transferProductList);
+    const updateToreturn = {
+      accion: "add",
+      idAlmacen: transferOrigin,
+      productos: transferProductList,
+      detalle: `DSETR-${selectedTransfer.idTraspaso}`,
+    };
+    const updateToTake = {
+      accion: "take",
+      idAlmacen: transferOrigin,
+      productos: selectedProducts,
+      detalle: `SSETR-${selectedTransfer.idTraspaso}`,
+    };
+
+    const addProduct = {
+      idTraspaso: selectedTransfer.idTraspaso,
+      productos: added,
+    };
+
+    const deleteProduct = {
+      idTraspaso: selectedTransfer.idTraspaso,
+      productos: deleted,
+    };
+
+    const updateProduct = {
+      idTraspaso: selectedTransfer.idTraspaso,
+      productos: remaining,
+    };
+
+    const editTransfer = {
+      fechaActualizacion: dateString(),
+      idTraspaso: selectedTransfer.idTraspaso,
+    };
+
+    const stock = { updateToreturn, updateToTake };
+
+    try {
+      await composedEditTransfer({
+        addProduct,
+        deleteProduct,
+        updateProduct,
+        editTransfer,
+        stock,
+      });
+      setAlertSec("Traspaso actualizado correctamente");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    } catch (error) {
+      console.log("ERROR AL EDITAR EL TRASPASO", error);
+      setAlertSec("Error al editar el traspaso:", error);
+      setTimeout(() => {
+        // window.location.reload()
+      }, 5000);
+    }
   }
 
   function verifyQuantities() {
@@ -395,7 +512,17 @@ export default function FormEditTransfer() {
               </thead>
 
               <tbody>
-                {selectedProducts.map((sp, index) => {
+                {[...selectedProducts].map((sp, index) => {
+                  const cantBuscada = parseInt(
+                    stockList.find((sl) => sl.idProducto == sp.idProducto)
+                      ?.cant_Actual
+                  );
+                  const cantBuscadaRef = parseInt(
+                    productRef.current.find(
+                      (sl) => sl.idProducto == sp.idProducto
+                    )?.cant_Actual
+                  );
+
                   return (
                     <tr className="tableRow" key={index}>
                       <td>
@@ -418,11 +545,19 @@ export default function FormEditTransfer() {
                           min={0}
                         />
                       </td>
-                      <td>
+                      {/* <td>
                         {parseInt(
                           stockList.find((sl) => sl.idProducto == sp.idProducto)
                             ?.cant_Actual
                         )}
+                      </td> */}
+                      <td
+                        className="smallTableColumn"
+                        style={{
+                          color: cantBuscada != cantBuscadaRef ? "red" : "",
+                        }}
+                      >
+                        {cantBuscada}
                       </td>
                     </tr>
                   );
@@ -438,6 +573,13 @@ export default function FormEditTransfer() {
                       className="yellowLarge"
                     >
                       Actualizar
+                    </Button>
+                  </td>
+                </tr>
+                <tr className="tableFootAlt">
+                  <td colSpan={5}>
+                    <Button onClick={() => cancelTransfer()} variant="danger">
+                      Cancelar Traspaso
                     </Button>
                   </td>
                 </tr>

@@ -65,4 +65,26 @@ const updateRejected = (id) => {
   });
 };
 
-export { logRejected, getRejected, reviseRejected, updateRejected };
+const rejectedTransferDetail = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/rechazados/detalle/traspaso?id=${id}`
+      )
+      .then((response) => {
+        if (response.status === 200) {
+          resolve(response);
+        } else {
+          reject(response);
+        }
+      });
+  });
+};
+
+export {
+  logRejected,
+  getRejected,
+  reviseRejected,
+  updateRejected,
+  rejectedTransferDetail,
+};

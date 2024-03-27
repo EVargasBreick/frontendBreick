@@ -3,6 +3,10 @@ import "../styles/invoiceStyles.css";
 import QrComponent from "./qrComponent";
 import { convertToText } from "../services/numberServices";
 import { dateString } from "../services/dateServices";
+import {
+  roundToTwoDecimalPlaces,
+  rountWithMathFloor,
+} from "../services/mathServices";
 export const InvoiceComponent = React.forwardRef(
   (
     {
@@ -19,6 +23,7 @@ export const InvoiceComponent = React.forwardRef(
       orderDetails,
       leyenda,
       urlSin,
+      offlineText,
     },
     ref
   ) => {
@@ -33,6 +38,7 @@ export const InvoiceComponent = React.forwardRef(
       const result = cuf.match(regex).join(" ");
       return result;
     }
+    console.log("Payment data", totalsData);
     const inum = invoiceNumber;
     return (
       <div ref={ref} className="invoicePage">
@@ -99,7 +105,10 @@ export const InvoiceComponent = React.forwardRef(
                         {parseFloat(producto.descuentoProd)?.toFixed(2)}
                       </td>
                       <td className="ProductLeft">
-                        {parseFloat(totalProducto)?.toFixed(2)}
+                        {roundToTwoDecimalPlaces(
+                          parseFloat(totalProducto) -
+                            (Number(producto.descuentoProd) ?? 0).toFixed(2)
+                        )}
                       </td>
                     </tr>
                   );
@@ -120,9 +129,11 @@ export const InvoiceComponent = React.forwardRef(
                 </tr>
                 <tr>
                   <td className="totals">Descuento</td>
-                  <td className="totalsData">{`${parseFloat(
-                    totalsData.descuentoCalculado
-                  ).toFixed(2)}`}</td>
+                  <td className="totalsData">
+                    {`${rountWithMathFloor(
+                      totalsData?.total - totalsData?.totalDescontado
+                    )}`}
+                  </td>
                 </tr>
                 <tr>
                   <td className="totals">TOTAL FACT</td>
@@ -275,9 +286,12 @@ export const InvoiceComponent = React.forwardRef(
                   </tr>
                   <tr>
                     <td className="totals">Descuento</td>
-                    <td className="totalsData">{`${parseFloat(
-                      totalsData?.descuentoCalculado
-                    ).toFixed(2)}`}</td>
+                    <td className="totalsData">
+                      {" "}
+                      {`${rountWithMathFloor(
+                        totalsData?.total - totalsData?.totalDescontado
+                      )}`}
+                    </td>
                   </tr>
                   <tr>
                     <td className="totals">TOTAL FACT</td>
@@ -310,7 +324,7 @@ export const InvoiceComponent = React.forwardRef(
                         : `Cambio `}
                     </td>
                     <td className="totalsData">{` ${parseFloat(
-                      paymentData.cambio
+                      paymentData?.cambio
                     ).toFixed(2)}`}</td>
                   </tr>
                 </tbody>
@@ -327,6 +341,8 @@ export const InvoiceComponent = React.forwardRef(
               />
             </div>
             <div>{`"Esta factura contribuye al desarrollo del pais. El uso ilícito de esta será sancionado acuerdo a la ley"`}</div>
+            <div className="simpleSeparator"></div>
+            <div>{offlineText ? offlineText : ""}</div>
             <div className="simpleSeparator"></div>
             <div> {leyenda}</div>
             <div className="simpleSeparator"></div>

@@ -21,6 +21,9 @@ import { getProducts } from "../services/productServices";
 import { rePrintTransferOrder } from "../services/printServices";
 import { OrderNote } from "./orderNote";
 import ReactToPrint from "react-to-print";
+import { OrderPDFAlt } from "./OrderPDFAlt";
+import { toUpper } from "lodash";
+import Cookies from "js-cookie";
 export default function FormAllOrders() {
   const [pedidosList, setPedidosList] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState("");
@@ -53,6 +56,7 @@ export default function FormAllOrders() {
   const componentRef = useRef();
   const buttonRef = useRef();
   const [isPrint, setIsPrint] = useState(false);
+  const [isSuper, setIsSuper] = useState(false);
   const meses = [
     "Enero",
     "Febrero",
@@ -70,11 +74,23 @@ export default function FormAllOrders() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const rol = JSON.parse(Cookies.get("userAuth")).rol;
+    const idUs = JSON.parse(Cookies.get("userAuth")).idUsuario;
+    const permitedRols = [1, 9, 10, 7];
     const listaPedidos = getAllOrderList("");
     listaPedidos.then((res) => {
-      console.log("Lista pedidos", res.data.data);
-      setPedidosList(res.data.data);
-      setAuxPedidosList(res.data.data);
+      if (permitedRols.includes(rol)) {
+        const sorted = res.data.data.sort((a, b) => b.idPedido - a.idPedido);
+        console.log("Lista pedidos", sorted);
+        setPedidosList(sorted);
+        setAuxPedidosList(sorted);
+      } else {
+        const sorted = res.data.data.sort((a, b) => b.idPedido - a.idPedido);
+        console.log("Lista pedidos", sorted);
+        const filtered = sorted.filter((rd) => rd.idUsuario == idUs);
+        setPedidosList(filtered);
+        setAuxPedidosList(filtered);
+      }
     });
     const allProducts = getProducts("all");
     allProducts.then((res) => {
@@ -91,114 +107,141 @@ export default function FormAllOrders() {
     }
   }, [isPrint]);
   function setOrderDetails(stringPedido) {
-    setProductDetail(null);
-    setProductTable([]);
+    if (stringPedido != "1") {
+      setIsPdf(false);
+      setProductDetail(null);
+      setProductTable([]);
+      setSelectedOrder({});
+      setCodigoPedido("");
+      setVendedor("");
+      setCliente("");
+      setZona("");
+      setTotal("");
+      setDescuento("");
+      setFacturado("");
+      setDescCalculado("");
+      setNit("");
+      setNotas("");
+      setIsOrder(false);
+      setProductList([]);
 
-    setSelectedOrder({});
-    setCodigoPedido("");
-    setVendedor("");
-    setCliente("");
-    setZona("");
-    setTotal("");
-    setDescuento("");
-    setFacturado("");
-    setDescCalculado("");
-    setNit("");
-    setNotas("");
-    setIsOrder(false);
-    setProductList([]);
-    setIsPdf(false);
-    const stringParts = stringPedido.split("|");
-    setIsLoading(true);
-    setCodigoPedido(stringParts[1]);
-    setSelectedOrder(stringParts[0]);
+      const stringParts = stringPedido.split("|");
+      setIsLoading(true);
+      setCodigoPedido(stringParts[1]);
+      setSelectedOrder(stringParts[0]);
 
-    const order = getOrderDetail(stringParts[0]);
-    order.then((res) => {
-      console.log("Order details", res);
-      const fechaDesc = res.data.data[0].fechaCrea.substring(0, 10).split("/");
-      const currentDate = dateString().substring(0, 10).split("/");
-      setFechaCrea(
-        fechaDesc[0] + " de " + meses[fechaDesc[1] - 1] + " de " + fechaDesc[2]
-      );
+      const order = getOrderDetail(stringParts[0]);
+      order.then((res) => {
+        console.log("Order details", res);
+        const fechaDesc = res.data.data[0].fechaCrea
+          .substring(0, 10)
+          .split("/");
+        const currentDate = dateString().substring(0, 10).split("/");
+        setFechaCrea(
+          fechaDesc[0] +
+            " de " +
+            meses[fechaDesc[1] - 1] +
+            " de " +
+            fechaDesc[2]
+        );
+        const verifySuper = res.data.data[0]?.issuper ? true : false;
+        setIsSuper(verifySuper);
+        const prodHeaderObj = {
+          vendedor: res.data.data[0].nombreVendedor,
+          cliente: res.data.data[0].razonSocial,
+          nit: res.data.data[0].nit,
+          zona: res.data.data[0].zona,
+          montoTotal: res.data.data[0].montoFacturar?.toFixed(2),
+          descuento: res.data.data[0].descuento,
+          "descuento calculado":
+            res.data.data[0].descuentoCalculado?.toFixed(2),
+          facturado: res.data.data[0].montoTotal?.toFixed(2),
+          fechaCrea:
+            currentDate[0] +
+            " de " +
+            meses[currentDate[1] - 1] +
+            " de " +
+            currentDate[2],
+          tipo: toUpper(res.data.data[0].tipo),
+        };
+        console.log("PROD HEADER OBJ", prodHeaderObj);
+        setVendedor(res.data.data[0].nombreVendedor);
+        setCliente(res.data.data[0].razonSocial);
+        setZona(res.data.data[0].zona);
+        setTotal(res.data.data[0].montoFacturar);
+        setDescuento(res.data.data[0].descuento);
+        setFacturado(res.data.data[0].montoTotal);
+        setDescCalculado(res.data.data[0].descuentoCalculado);
+        setNit(res.data.data[0].nit);
+        setNotas(res.data.data[0].notas);
+        setTipo(res.data.data[0].tipo);
+        var sumatoria = 0;
+        const prodList = getOrderProdList(stringParts[0]);
+        console.log("IS SUPER", isSuper);
+        prodList.then((resp) => {
+          resp.data.data.map((pr) => {
+            const found = allProducts.find(
+              (item) => item.nombreProducto === pr.nombreProducto
+            );
+            sumatoria +=
+              pr?.precio_producto != null
+                ? pr?.precio_producto * pr.cantidadProducto
+                : verifySuper
+                ? found?.precioSuper * pr.cantidadProducto
+                : found?.precioDeFabrica * pr.cantidadProducto;
+            setTotalMuestra(sumatoria);
+            const total =
+              res.data.data[0].tipo === "normal"
+                ? pr.totalProd
+                : pr?.precio_producto != null
+                ? pr?.precio_producto * pr.cantidadProducto
+                : !verifySuper
+                ? found?.precioDeFabrica * pr.cantidadProducto
+                : found?.precioSuper * pr.cantidadProducto;
 
-      const prodHeaderObj = {
-        vendedor: res.data.data[0].nombreVendedor,
-        cliente: res.data.data[0].razonSocial,
-        nit: res.data.data[0].nit,
-        zona: res.data.data[0].zona,
-        montoTotal: res.data.data[0].montoFacturar?.toFixed(2),
-        descuento: res.data.data[0].descuento,
-        "descuento calculado": res.data.data[0].descuentoCalculado?.toFixed(2),
-        facturado: res.data.data[0].montoTotal?.toFixed(2),
-        fechaCrea:
-          currentDate[0] +
-          " de " +
-          meses[currentDate[1] - 1] +
-          " de " +
-          currentDate[2],
-      };
-      setVendedor(res.data.data[0].nombreVendedor);
-      setCliente(res.data.data[0].razonSocial);
-      setZona(res.data.data[0].zona);
-      setTotal(res.data.data[0].montoFacturar);
-      setDescuento(res.data.data[0].descuento);
-      setFacturado(res.data.data[0].montoTotal);
-      setDescCalculado(res.data.data[0].descuentoCalculado);
-      setNit(res.data.data[0].nit);
-      setNotas(res.data.data[0].notas);
-      setTipo(res.data.data[0].tipo);
-      var sumatoria = 0;
-      const prodList = getOrderProdList(stringParts[0]);
-      prodList.then((resp) => {
-        resp.data.data.map((pr) => {
-          const found = allProducts.find(
-            (item) => item.nombreProducto === pr.nombreProducto
-          );
-          sumatoria += found?.precioDeFabrica * pr.cantidadProducto;
-          setTotalMuestra(sumatoria);
-          const total =
-            res.data.data[0].tipo === "normal"
-              ? pr.totalProd
-              : found?.precioDeFabrica * pr.cantidadProducto;
-
-          //console.log("Found", found);
-          const pTable = {
-            producto: pr.nombreProducto,
-            cantidad: pr.cantidadProducto,
-            precio: pr?.precioDeFabrica?.toFixed(2),
-            total: total?.toFixed(2),
-            "descuento calculado": pr.descuentoProducto?.toFixed(2),
-          };
-          setProductTable((productTable) => [...productTable, pTable]);
+            const pTable = {
+              producto: pr.nombreProducto,
+              cantidad: pr.cantidadProducto,
+              precio:
+                pr?.precio_producto != null
+                  ? pr?.precio_producto
+                  : verifySuper
+                  ? pr?.precioSuper
+                  : pr?.precioDeFabrica?.toFixed(2),
+              total: total?.toFixed(2),
+              "descuento calculado": pr.descuentoProducto?.toFixed(2),
+            };
+            setProductTable((productTable) => [...productTable, pTable]);
+          });
+          setProductList(resp.data.data);
+          const auxDetail = [...productDetail];
+          setProductDetail([prodHeaderObj]);
+          if (res.data.data[0].tipo !== "normal") {
+            const prodHeaderObj = {
+              vendedor: res.data.data[0].nombreVendedor,
+              cliente: res.data.data[0].razonSocial,
+              nit: res.data.data[0].nit,
+              zona: res.data.data[0].zona,
+              montoTotal: sumatoria,
+              descuento: 0,
+              "descuento calculado": 0,
+              facturado: sumatoria,
+              fechaCrea:
+                currentDate[0] +
+                " de " +
+                meses[currentDate[1] - 1] +
+                " de " +
+                currentDate[2],
+              tipo: toUpper(res.data.data[0].tipo),
+            };
+            setProductDetail([prodHeaderObj]);
+          }
+          setIsLoading(false);
+          setIsOrder(true);
+          setIsPdf(true);
         });
-        setProductList(resp.data.data);
-        const auxDetail = [...productDetail];
-        setProductDetail([...auxDetail, prodHeaderObj]);
-        if (res.data.data[0].tipo !== "normal") {
-          const prodHeaderObj = {
-            vendedor: res.data.data[0].nombreVendedor,
-            cliente: res.data.data[0].razonSocial,
-            nit: res.data.data[0].nit,
-            zona: res.data.data[0].zona,
-            montoTotal: sumatoria,
-            descuento: 0,
-            "descuento calculado": 0,
-            facturado: sumatoria,
-            fechaCrea:
-              currentDate[0] +
-              " de " +
-              meses[currentDate[1] - 1] +
-              " de " +
-              currentDate[2],
-          };
-          setProductDetail([...auxDetail, prodHeaderObj]);
-        }
-        setIsLoading(false);
-        setIsOrder(true);
-        setIsPdf(true);
       });
-    });
+    }
   }
 
   function handleAlert(mensaje, bool) {
@@ -272,7 +315,7 @@ export default function FormAllOrders() {
           />
           <Form.Label className="formLabel">Lista de Pedidos</Form.Label>
           <Form.Select onChange={(e) => setOrderDetails(e.target.value)}>
-            <option>Seleccione pedido</option>
+            <option value={"-1"}>Seleccione pedido</option>
             {pedidosList.map((pedido) => {
               return (
                 <option
@@ -347,17 +390,24 @@ export default function FormAllOrders() {
                     const found = allProducts.find(
                       (item) => item.nombreProducto === product.nombreProducto
                     );
+
                     const total =
-                      tipo === "normal"
+                      tipo === "normal" || product.totalProd != 0
                         ? product.totalProd
-                        : found?.precioDeFabrica * product.cantidadProducto;
+                        : !isSuper
+                        ? found?.precioDeFabrica * product.cantidadProducto
+                        : found?.precioSuper * product.cantidadProducto;
                     return (
                       <tr className="tableRow" key={index}>
                         <td className="tableColumn">
                           {product.nombreProducto}
                         </td>
                         <td className="tableColumnSmall">
-                          {product?.precioDeFabrica + " Bs."}
+                          {product?.precio_producto
+                            ? product.precio_producto
+                            : isSuper
+                            ? product?.precioSuper
+                            : product?.precioDeFabrica + " Bs."}
                         </td>
                         <td className="tableColumnSmall">
                           {product.cantidadProducto}
@@ -482,7 +532,7 @@ export default function FormAllOrders() {
       {isPdf ? (
         <PDFDownloadLink
           document={
-            <OrderPDF
+            <OrderPDFAlt
               detalle={productDetail[0]}
               productos={productTable}
               codigo={codigoPedido}

@@ -82,6 +82,28 @@ export default function FormEditClient(props) {
   const [tipoDoc, setTipoDoc] = useState("1");
   const navigate = useNavigate();
   const [idUsuarioActual, setIdUsuarioActual] = useState();
+  const docTypes = [
+    {
+      value: "1",
+      label: "Cédula de Identidad",
+    },
+    {
+      value: "2",
+      label: "Cédula de Identidad Extranjero",
+    },
+    {
+      value: "3",
+      label: "Pasaporte",
+    },
+    {
+      value: "4",
+      label: "Otro documento de identidad",
+    },
+    {
+      value: "5",
+      label: "NIT",
+    },
+  ];
   const handleClose = () => {
     setIsAlert(false);
     setIsButton(false);
@@ -426,11 +448,22 @@ export default function FormEditClient(props) {
                     setTipoDoc(e.target.value);
                   }}
                 >
-                  <option value="1">Cédula de Identidad</option>
-                  <option value="2">Cédula de Identidad Extranjero</option>
-                  <option value="3">Pasaporte</option>
-                  <option value="4">Otro documento de identidad</option>
-                  <option value="5">NIT</option>
+                  <option
+                    value={
+                      docTypes.filter((dt) => dt.value == tipoDoc)[0].value
+                    }
+                  >
+                    {docTypes.filter((dt) => dt.value == tipoDoc)[0].label}
+                  </option>
+                  {docTypes.map((dt, index) => {
+                    if (dt.value != tipoDoc) {
+                      return (
+                        <option value={dt.value} key={index}>
+                          {dt.label}
+                        </option>
+                      );
+                    }
+                  })}
                 </Form.Select>
               </Form.Group>
 
@@ -440,6 +473,7 @@ export default function FormEditClient(props) {
                   type="text"
                   placeholder="email"
                   value={correo}
+                  disabled={nit == "0" ? true : false}
                   onChange={(e) => {
                     setCorreo(e.target.value);
                   }}

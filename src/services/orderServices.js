@@ -2,19 +2,10 @@ import axios from "axios";
 import debounce from "lodash/debounce";
 const createOrder = (orderObject) => {
   console.log("CREANDO PEDIDO", orderObject);
-  return new Promise((resolve, reject) => {
-    axios
-      .post(
-        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos`,
-        orderObject
-      )
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
+  return axios.post(
+    `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos`,
+    orderObject
+  );
 };
 
 const getOrderStatus = () => {
@@ -183,7 +174,7 @@ const updateStock = debounce(
       }
     });
   },
-  3000,
+  1000,
   { leading: true }
 );
 
@@ -211,7 +202,7 @@ const updateMultipleStock = debounce(
       }
     });
   },
-  3000,
+  10000,
   { leading: true }
 );
 
@@ -414,6 +405,90 @@ const updateReady = (id, listo, tipo, interior) => {
   });
 };
 
+const updateVirtualStock = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/virtual/actualizar`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const updateMultipleVirtualStock = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/virtual/actualizar/multiple`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const createOrderTransaction = (body) => {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/order`;
+  return axios.post(url, body);
+};
+
+const getUserOrders = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/listar/pedidos/usuario?id=${id}`
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const logOrderUpdate = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/pedidos/edicion/log`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const composedCancelOrder = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/pedido/cancelar`,
+        body
+      )
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
 export {
   createOrder,
   getOrderStatus,
@@ -441,4 +516,10 @@ export {
   updateReady,
   getAllOrderList,
   updateMultipleStock,
+  updateVirtualStock,
+  updateMultipleVirtualStock,
+  createOrderTransaction,
+  getUserOrders,
+  logOrderUpdate,
+  composedCancelOrder,
 };

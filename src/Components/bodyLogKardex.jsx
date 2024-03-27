@@ -15,6 +15,7 @@ import "../styles/reportStyles.css";
 import Pagination from "./pagination";
 import { ReportPDF } from "./reportPDF";
 import loading2 from "../assets/loading2.gif";
+import Cookies from "js-cookie";
 export default function BodyLogKardex() {
   const [isCriteria, setIsCriteria] = useState(false);
   const [criteria, setCriteria] = useState("");
@@ -44,15 +45,27 @@ export default function BodyLogKardex() {
   const [alertSec, setAlertSec] = useState("");
   const [searchbox, setSearchbox] = useState("");
   const [auxDataTable, setAuxDataTable] = useState([]);
+
   const [isReported, setIsReported] = useState(false);
   useEffect(() => {
+    const user = Cookies.get("userAuth");
     const productos = getProducts("all");
+    const parsed = JSON.parse(user);
     productos.then((res) => {
       setProductList(res.data.data);
     });
     const agencias = getStores();
     agencias.then((res) => {
-      setStoreList(res.data);
+      console.log("Agencias", res.data);
+      if ([9, 1, 7, 10, 8, 6, 12].includes(parsed.rol)) {
+        setStoreList(res.data);
+      } else {
+        const filtered = res.data.filter(
+          (rd) => rd.idAgencia == parsed.idAlmacen
+        );
+        console.log("Store list", filtered);
+        setStoreList(filtered);
+      }
     });
   }, []);
 

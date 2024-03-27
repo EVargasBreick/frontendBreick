@@ -24,7 +24,7 @@ export default function Sidebar() {
   if (rol == 1 && depto == 1) {
     return <SidebarAdmin />;
   } else {
-    if (rol == 2) {
+    if (rol == 2 || rol == 12) {
       return <SidebarStoreSales />;
     } else {
       if ((rol == 3 || rol == 5 || rol == 6) && depto == 1) {
@@ -39,7 +39,7 @@ export default function Sidebar() {
             if ((rol == 8 || rol == 9) && depto == 1) {
               return <SidebarSudoSales />;
             } else {
-              if (rol == 10 && depto == 1) {
+              if ((rol == 10 || rol == 13) && depto == 1) {
                 return <SidebarWarehousing />;
               } else {
                 if (rol == 11 && depto == 1) {

@@ -3,11 +3,26 @@ import { getAllStores } from "../services/storeServices";
 import { getStockCodes, getStockLogged } from "../services/stockServices";
 import { Button, Form, Table } from "react-bootstrap";
 import * as XLSX from "xlsx";
+import Cookies from "js-cookie";
+import { generateExcel } from "../services/utils";
+import { Loader } from "./loader/Loader";
 export default function BodyLoggedStockReport() {
   useEffect(() => {
+    const sudos = [1, 8, 10, 9, 7, 12];
+    const userRol = JSON.parse(Cookies.get("userAuth")).rol;
     const allStores = getAllStores();
     allStores.then((res) => {
-      setStoreList(res.data);
+      console.log("Agencias", res.data);
+      if (sudos.includes(userRol)) {
+        console.log("Todas las tiendas");
+        setStoreList(res.data);
+      } else {
+        console.log("Filtrado");
+        const store = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+        const filtered = res.data.find((st) => st.idagencia == store);
+        console.log("Filtered", filtered);
+        setStoreList([filtered]);
+      }
     });
     const codeList = getStockCodes();
     codeList.then((resp) => {
@@ -23,11 +38,15 @@ export default function BodyLoggedStockReport() {
   const [isReport, setIsReport] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [auxTableData, setAuxTableData] = useState([]);
+  const isSudo = JSON.parse(Cookies.get("userAuth")).rol == 1 ? true : false;
   const [filtered, setFiltered] = useState("");
+  const [searchId, setSearchId] = useState("");
+  const [loading, setLoading] = useState(false);
   const handleStore = (value) => {
     setSelectedStore(value);
   };
   const getReport = () => {
+    setLoading(true);
     console.log(fromDate, toDate, selectedStore);
     const dataReport = getStockLogged({
       idAgencia: selectedStore,
@@ -39,6 +58,7 @@ export default function BodyLoggedStockReport() {
       setTableData(res.data);
       setAuxTableData(res.data);
       setIsReport(true);
+      setLoading(false);
     });
   };
   const filter = (value) => {
@@ -108,10 +128,41 @@ export default function BodyLoggedStockReport() {
     });
   }
 
-  
+  const filterById = (value) => {
+    console.log("Aux data table", auxTableData);
+    setSearchId(value);
+    const filtered = auxTableData.filter(
+      (ad) => ad.detalle.split("-").pop() == value
+    );
+    console.log("FIltered", filtered);
+    if (filtered.length > 0) {
+      setTableData(filtered);
+    } else {
+      setTableData(auxTableData);
+    }
+  };
+
+  function exportUpdateSqlData() {
+    const toExport = [];
+    for (const entry of tableData) {
+      const row = {
+        idProducto: entry.idProducto,
+        codInterno: entry.codInterno,
+        nombreProducto: entry.nombreProducto,
+        cantidad: entry.cantidadProducto,
+        accion: entry.accion,
+        queryAg: `update stock_agencia set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idAgencia"='${selectedStore}';`,
+        queryBodega: `update stock_bodega set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idBodega"='${selectedStore}';`,
+        queryMovil: `update stock_agencia_movil set "cant_Actual"="cant_Actual"${entry.accion}${entry.cantidadProducto} where "idProducto"=${entry.idProducto} and "idVehiculo"='${selectedStore}';`,
+      };
+      toExport.push(row);
+    }
+    generateExcel(toExport, `Plantilla nivelacion ${selectedStore}`);
+  }
 
   return (
     <div>
+      {loading && <Loader />}
       <div className="formLabel">REPORTE DE MOVIMIENTOS DE KARDEX</div>
       <div className="formLabel">Seleccione rango de fechas</div>
       <Form style={{ display: "flex", justifyContent: "space-evenly" }}>
@@ -165,6 +216,17 @@ export default function BodyLoggedStockReport() {
             <Form.Control
               type="text"
               onChange={(e) => filter(e.target.value)}
+              value={filtered}
+            />
+          </Form>
+          <Form style={{ marginTop: "10px" }}>
+            <Form.Label>
+              Filtrar por id de Pedido / Traspaso / Baja / Nro de factura
+            </Form.Label>
+            <Form.Control
+              type="number"
+              onChange={(e) => filterById(e.target.value)}
+              value={searchId}
             />
           </Form>
           <div className="formLabel">Reporte de movimientos</div>
@@ -180,7 +242,7 @@ export default function BodyLoggedStockReport() {
                   <th>Cantidad</th>
                   <th>Tipo</th>
                   <th>Detalle</th>
-                  <th>Id</th>
+                  <th>Id/Nro Factura</th>
                   <th>Fecha - Hora</th>
                 </tr>
               </thead>
@@ -220,6 +282,19 @@ export default function BodyLoggedStockReport() {
               Exportar a excel
             </Button>
           </div>
+          {isSudo ? (
+            <div style={{ paddingTop: "5%" }}>
+              <Button
+                variant="info"
+                className="cyanLarge"
+                onClick={() => {
+                  exportUpdateSqlData();
+                }}
+              >
+                Exportar a excel para nivelacion
+              </Button>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

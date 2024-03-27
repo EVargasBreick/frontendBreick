@@ -12,13 +12,10 @@ export default function LogKardexReport() {
   const navigate = useNavigate();
   useEffect(() => {
     const user = Cookies.get("userAuth");
+    const notpermitted = [4, 3, 11];
+    const parsed = JSON.parse(Cookies.get("userAuth")).rol;
     if (user) {
-      if (
-        JSON.parse(Cookies.get("userAuth")).rol == 7 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 1 ||
-        JSON.parse(Cookies.get("userAuth")).rol == 9
-      ) {
-      } else {
+      if (notpermitted.includes(parsed)) {
         navigate("/principal");
       }
     }

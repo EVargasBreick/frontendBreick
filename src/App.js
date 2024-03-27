@@ -59,6 +59,32 @@ import GroupedProductReport from "./Components/groupedProductReport";
 import AsignPackAlt from "./Components/asignPackAlt";
 import EditUserAgency from "./Components/editUserAgency";
 import RetirePackAlt from "./Components/retirePackAlt";
+import SalesAgencyReport from "./Components/salesAgencyReport";
+import SalesSellerReport from "./Components/salesSellerReport";
+import RecordSale from "./Components/RecordSale";
+import ViewTransferAgency from "./Components/viewTransferAgency";
+import BodyVirtualStockReport from "./Components/bodyVirtualStockReport";
+import VirtualStockReport from "./Components/virtualStockReport";
+import TraspasosAgenciasCantidad from "./Components/traspasosAgenciasCantidad";
+import FacturasInfo from "./Components/facturasInfo";
+import EditPack from "./Components/editPack";
+import SellerProductReport from "./Components/sellerProductReport";
+import SalesByDayReport from "./Components/salesByDayReport";
+import GoalSetter from "./Components/goalSetter";
+import RegisterSeasonDiscounts from "./Components/registerSeasonDiscounts";
+import CancelInvoiceAltern from "./Components/cancelInvoiceAltern";
+import CancelDrop from "./Components/cancelDrop";
+import NewSaleNew from "./Components/newSaleNew";
+import RouteSaleNew from "./Components/routeSaleNew";
+import SamplesReport from "./Components/SamplesReport";
+import SamplesProductReport from "./Components/SamplesProductReport";
+import GroupedProducts from "./Components/groupedProducts";
+import UserOrders from "./Components/userOrders";
+import TransferProductReport from "./Components/transferProductReport";
+import SimpleTransferReport from "./Components/simpleTransferReport";
+import DailyDiscountsReport from "./Components/dailyDiscountsReport";
+import CanceledInvoicesReport from "./Components/canceledInvoicesReport";
+import PastProductSalesReport from "./Components/pastProductSalesReport";
 
 function App() {
   return (
@@ -300,6 +326,14 @@ function App() {
               }
             />
             <Route
+              path="/facturas/anulacion"
+              element={
+                <RequireAuth>
+                  <CancelInvoiceAltern />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/stock/actualizar"
               element={
                 <RequireAuth>
@@ -396,6 +430,14 @@ function App() {
               }
             />
             <Route
+              path="/ventas/rutas"
+              element={
+                <RequireAuth>
+                  <RouteSaleNew />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/traspasos/editar"
               element={
                 <RequireAuth>
@@ -468,7 +510,7 @@ function App() {
               }
             />
             <Route
-              path="/ventas/agencia"
+              path="/ventas/agencia/antiguo"
               element={
                 <RequireAuth>
                   <NewSaleAlt />
@@ -476,7 +518,15 @@ function App() {
               }
             />
             <Route
-              path="/ventas/rutas"
+              path="/facturar-consignacion"
+              element={
+                <RequireAuth>
+                  <RecordSale />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/ventas/rutas/antiguo"
               element={
                 <RequireAuth>
                   <RouteSaleAlt />
@@ -496,6 +546,182 @@ function App() {
               element={
                 <RequireAuth>
                   <GroupedProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/vendedor/productos"
+              element={
+                <RequireAuth>
+                  <SellerProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/agencias"
+              element={
+                <RequireAuth>
+                  <SalesAgencyReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/diario"
+              element={
+                <RequireAuth>
+                  <SalesByDayReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/vendedor"
+              element={
+                <RequireAuth>
+                  <SalesSellerReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/traspasos/agencia"
+              element={
+                <RequireAuth>
+                  <ViewTransferAgency />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/stock/virtual"
+              element={
+                <RequireAuth>
+                  <VirtualStockReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/traspasos/agencia"
+              element={
+                <RequireAuth>
+                  <TraspasosAgenciasCantidad />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/facturas"
+              element={
+                <RequireAuth>
+                  <FacturasInfo />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/packs/editar"
+              element={
+                <RequireAuth>
+                  <EditPack />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/metas/ingresar"
+              element={
+                <RequireAuth>
+                  <GoalSetter />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/registrar/descuentos-temporada"
+              element={
+                <RequireAuth>
+                  <RegisterSeasonDiscounts />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/bajas/anular"
+              element={
+                <RequireAuth>
+                  <CancelDrop />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/ventas/agencia/"
+              element={
+                <RequireAuth>
+                  <NewSaleNew />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/muestras/"
+              element={
+                <RequireAuth>
+                  <SamplesReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/muestras/productos"
+              element={
+                <RequireAuth>
+                  <SamplesProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/traspasos/productos"
+              element={
+                <RequireAuth>
+                  <TransferProductReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/traspasos/simple"
+              element={
+                <RequireAuth>
+                  <SimpleTransferReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/productos/grupos"
+              element={
+                <RequireAuth>
+                  <GroupedProducts />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/usuarios/pedidos/listar"
+              element={
+                <RequireAuth>
+                  <UserOrders />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/descuentos/diarios"
+              element={
+                <RequireAuth>
+                  <DailyDiscountsReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/facturas/anuladas"
+              element={
+                <RequireAuth>
+                  <CanceledInvoicesReport />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/reportes/ventas/pasadas"
+              element={
+                <RequireAuth>
+                  <PastProductSalesReport />
                 </RequireAuth>
               }
             />

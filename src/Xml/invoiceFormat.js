@@ -1,28 +1,41 @@
 import xml2js from "xml2js";
+import {
+  roundToTwoDecimalPlaces,
+  roundWithFixed,
+  rountWithMathFloor,
+} from "../services/mathServices";
 
 function formatInvoiceProducts(products) {
+  console.log("TEST PRODUCTS", products);
   const detalleArray = [];
   for (const product of products) {
+    console.log("test tot", roundToTwoDecimalPlaces(product.total));
     const prodObj = {
       codigoActividadSin: 107900,
       codigoProductoSin: 99100,
       codigoProducto: product.codInterno,
       descripcion: product.nombreProducto,
-      cantidad: parseFloat(parseFloat(product.cantProducto).toFixed(2)),
+      cantidad:
+        product.codigoUnidad == 22
+          ? Number(product.cantProducto * 10).toFixed(2)
+          : Number(product.cantProducto).toFixed(2),
       unidadMedida: product.codigoUnidad,
-      precioUnitario: parseFloat(
-        parseFloat(product.precioDeFabrica).toFixed(2)
-      ),
+      precioUnitario:
+        product.codigoUnidad == 22
+          ? Number(product.precioDeFabrica / 10).toFixed(2)
+          : Number(product.precioDeFabrica).toFixed(2),
+
       montoDescuento: 0,
       subTotal:
         product.totalProd != undefined
-          ? parseFloat(parseFloat(product.totalProd).toFixed(2))
-          : parseFloat(parseFloat(product.total).toFixed(2)),
+          ? roundToTwoDecimalPlaces(product.totalProd)
+          : roundToTwoDecimalPlaces(product.total),
       numeroSerie: "",
       numeroImei: "",
     };
     detalleArray.push(prodObj);
   }
+  console.log("DETALLE ARRAY", detalleArray);
   return detalleArray;
 }
 

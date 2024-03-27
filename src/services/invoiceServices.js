@@ -264,11 +264,46 @@ async function fullInvoiceProcess(body) {
   });
 }
 
+async function fullInvoiceProcessConsignacion(body) {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/stock/virtual/actualizar`;
+  const response = await axios.post(url, body);
+  return response;
+}
+
 const debouncedFullInvoiceProcess = debounce(fullInvoiceProcess, 30000, {
   leading: true,
 });
 
+const debouncedFullInvoiceProcessConsignacion = debounce(
+  fullInvoiceProcessConsignacion,
+  30000,
+  {
+    leading: true,
+  }
+);
 
+async function invoiceRecordAndUpdate(body) {
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/virtual/facturar`;
+  const response = await axios.post(url, body);
+  return response;
+}
+
+async function onlineInvoiceProcess(body) {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/online/facturar`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch(async (error) => {
+        debouncedFullInvoiceProcess.cancel();
+        reject(error);
+      });
+  });
+}
 
 export {
   createInvoice,
@@ -281,4 +316,7 @@ export {
   logIncompleteInvoice,
   getInvoiceToRePrint,
   debouncedFullInvoiceProcess,
+  debouncedFullInvoiceProcessConsignacion,
+  invoiceRecordAndUpdate,
+  onlineInvoiceProcess,
 };

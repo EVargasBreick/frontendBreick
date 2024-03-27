@@ -5,7 +5,7 @@ import { getProductsWithStock } from "../services/productServices";
 import { Button, Form, Table, Image, Modal } from "react-bootstrap";
 import LoadingModal from "./Modals/loadingModal";
 import { dateString } from "../services/dateServices";
-import { registerDrop } from "../services/dropServices";
+import { composedDrop } from "../services/dropServices";
 import { updateStock } from "../services/orderServices";
 import { DropComponent } from "./dropComponent";
 import { getBranchesPs } from "../services/storeServices";
@@ -33,8 +33,11 @@ export default function FormProductDrop() {
   const [dropId, setDropId] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
+    const sudostore = Cookies.get("sudostore");
     if (UsuarioAct) {
-      const idAlmacen = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+      const idAlmacen = sudostore
+        ? sudostore
+        : JSON.parse(UsuarioAct).idAlmacen;
       setUserid(JSON.parse(Cookies.get("userAuth")).idUsuario);
       setStoreId(idAlmacen);
       console.log("Id almacen", idAlmacen);
@@ -46,8 +49,7 @@ export default function FormProductDrop() {
       const suc = getBranchesPs();
       suc.then((resp) => {
         const sucursales = resp.data;
-        const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
-
+        const alm = idAlmacen;
         const sucur =
           sucursales.find((sc) => alm == sc.idAgencia) == undefined
             ? sucursales.find((sc) => "AL001" == sc.idAgencia)
@@ -86,6 +88,7 @@ export default function FormProductDrop() {
       cantProducto: 0,
       cant_Actual: prod.cant_Actual,
       precioDeFabrica: prod.precioDeFabrica,
+      total: prod.precioDeFabrica,
     };
     if (selectedProduct.find((sp) => sp.idProducto == prodId)) {
       setIsError(true);
@@ -120,7 +123,7 @@ export default function FormProductDrop() {
     setSelectedProduct(auxSelected);
   }
 
-  function dropProduct() {
+  /*function dropProduct() {
     if (motivo == "") {
       setIsError(true);
       setAlert("Seleccione un motivo");
@@ -143,6 +146,7 @@ export default function FormProductDrop() {
             return accumulator + object.total;
           }, 0),
           vale: 0,
+          ci: process.env.REACT_APP_NIT_EMPRESA,
         };
         const bajaRegistrada = registerDrop(objBaja);
         bajaRegistrada.then((res) => {
@@ -161,6 +165,69 @@ export default function FormProductDrop() {
             setIsDrop(true);
           });
         });
+      }
+    }
+  }*/
+
+  async function dropProductAlt() {
+    const foundZeros = selectedProduct.filter((sp) => sp.cantProducto == 0);
+    if (foundZeros.length > 0) {
+      setAlert("No se puede dar de baja un producto en cero");
+      setIsAlert(true);
+    } else {
+      if (motivo == "") {
+        setIsError(true);
+        setAlert("Seleccione un motivo");
+        setIsAlert(true);
+      } else {
+        if (selectedProduct.cantProducto < 1) {
+          setIsError(true);
+          setAlert("Ingrese una cantidad valida");
+          setIsAlert(true);
+        } else {
+          setAlertSec("Dando de baja...");
+          setIsAlertSec(true);
+          const objBaja = {
+            motivo: `${motivo} - ${detalleMotivo}`,
+            fechaBaja: dateString(),
+            idUsuario: userId,
+            idAlmacen: storeId,
+            productos: selectedProduct,
+            totalbaja: selectedProduct.reduce((accumulator, object) => {
+              return accumulator + object.total;
+            }, 0),
+            vale: 0,
+            ci: process.env.REACT_APP_NIT_EMPRESA,
+          };
+          //setDropId(res.data.id);
+
+          const objStock = {
+            accion: "take",
+            idAlmacen: storeId,
+            productos: selectedProduct,
+          };
+
+          const compObj = {
+            baja: objBaja,
+            stock: objStock,
+          };
+          try {
+            const createdDrop = await composedDrop(compObj);
+            console.log("Baja creada", createdDrop);
+            setDropId(createdDrop.data.idCreado);
+            setIsDrop(true);
+          } catch (error) {
+            const errMessage = error.response.data.data.includes(
+              "stock_nonnegative"
+            )
+              ? "El stock requerido de algun producto seleccionado ya no se encuentra disponible"
+              : "";
+            console.log("Error al crear la baja", errMessage);
+            setIsAlertSec(false);
+            setAlert(`Error al crear la baja:  ${errMessage}`);
+            setIsAlert(true);
+          }
+        }
       }
     }
   }
@@ -191,6 +258,19 @@ export default function FormProductDrop() {
     pdf.save(`nota_entrega_${dropId}.pdf`);
   };
 
+  function selectOnEnter(e) {
+    e.preventDefault();
+    const foundId = auxproductList.find(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(search.toLowerCase()) ||
+        dt.codInterno.toString().includes(search.toString()) ||
+        dt.codigoBarras.toString().includes(search.toString())
+    );
+    if (foundId) {
+      selectProduct(foundId.idProducto);
+    }
+  }
+
   return (
     <div>
       <Modal show={isAlert} onHide={handleClose}>
@@ -212,7 +292,7 @@ export default function FormProductDrop() {
       <LoadingModal isAlertSec={isAlertSec} alertSec={alertSec} />
       <div className="formLabel">BAJA DE PRODUCTOS</div>
       <div>
-        <Form>
+        <Form onSubmit={(e) => selectOnEnter(e)}>
           <Form.Label>Lista de Productos</Form.Label>
           <Form.Group className="columnForm">
             <Form.Select
@@ -247,7 +327,7 @@ export default function FormProductDrop() {
           <Form
             onSubmit={(e) => {
               e.preventDefault();
-              dropProduct();
+              dropProductAlt();
             }}
           >
             <Table>
@@ -280,6 +360,7 @@ export default function FormProductDrop() {
                             value={sp.cantProducto}
                             type="number"
                             required
+                            step="any"
                             min={0}
                             max={sp?.cant_Actual}
                             onChange={(e) =>
@@ -312,7 +393,6 @@ export default function FormProductDrop() {
               <option value={"Devolucion a fabrica"}>
                 Devolución a fábrica
               </option>
-              <option value={"Armardo de Pack"}>Armado de Pack</option>
             </Form.Select>
 
             {motivo != "" ? (
@@ -364,6 +444,7 @@ export default function FormProductDrop() {
                 razonSocial: "INCADEX S.R.L.",
               }}
               dropId={dropId}
+              motivo={`${motivo} - ${detalleMotivo}`}
               total={selectedProduct.reduce((accumulator, object) => {
                 return accumulator + object.total;
               }, 0)}

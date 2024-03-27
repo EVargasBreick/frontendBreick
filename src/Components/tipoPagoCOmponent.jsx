@@ -175,7 +175,7 @@ export const TipoPagoComponent = ({
       {tipoPago === 10 && (
         <div>
           <div className="modalRows">
-            <div className="modalLabel"> Monto cancelado Efectivo:</div>
+            <div className="modalLabel"> Monto cancelado en Efectivo:</div>
             <div className="modalData">
               <div>
                 <Form.Control

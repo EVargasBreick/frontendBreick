@@ -11,7 +11,7 @@ import {
   getCurrentStockStore,
   getProductsGroup,
 } from "../services/stockServices";
-import { updateMultipleStock, updateStock } from "../services/orderServices";
+import { updateMultipleStock } from "../services/orderServices";
 import { ConfirmModal } from "./Modals/confirmModal";
 import ToastComponent from "./Modals/Toast";
 import { Loader } from "./loader/Loader";
@@ -24,7 +24,6 @@ export default function FormRetirePackAlt() {
   const [agencias, setAgencias] = useState([]);
   const [packs, setPacks] = useState([]);
   const [allPacks, setAllPacks] = useState([]);
-  const userAlmacen = JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
   const [productGroupList, setProductGroupList] = useState([]);
   const [branchInfo, setBranchInfo] = useState({});
   // Listas y valores cargados manualmente
@@ -48,8 +47,17 @@ export default function FormRetirePackAlt() {
   const [toastType, setToastType] = useState("");
   const [loading, setLoading] = useState(false);
   const [changed, setChanged] = useState(false);
+  const [filtered, setFiltered] = useState("");
+  const [auxPacks, setAuxPacks] = useState([]);
+
   const dropRef = useRef();
   const invoiceRef = useRef();
+
+  const sudostore = Cookies.get("sudostore");
+
+  const userAlmacen = sudostore
+    ? sudostore
+    : JSON.parse(Cookies.get("userAuth"))?.idAlmacen;
 
   const [modalText, setModalText] = useState("");
   useEffect(() => {
@@ -74,14 +82,16 @@ export default function FormRetirePackAlt() {
           }
           return acc;
         }, []);
-
+        setAuxPacks(uniqueArray);
         setPacks(uniqueArray);
       })
       .catch((err) => {});
     const suc = getBranchesPs();
     suc.then((resp) => {
       const sucursales = resp.data;
-      const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
+      const alm = sudostore
+        ? sudostore
+        : JSON.parse(Cookies.get("userAuth")).idAlmacen;
 
       const sucur =
         sucursales.find((sc) => alm == sc.idAgencia) == undefined
@@ -188,9 +198,6 @@ export default function FormRetirePackAlt() {
         detalle: `DVPACK-${selectedPackId}`,
       };
 
-      // const updatedForTake = updateStock(objProdsTake);
-      // const updatedForAdd = updateStock(objProdsAdd);
-
       const updateMultiple = updateMultipleStock([objProdsTake, objProdsAdd]);
 
       updateMultiple.then((res) => {
@@ -224,6 +231,14 @@ export default function FormRetirePackAlt() {
       console.log("Cambiado");
       setChanged(true);
     }
+  }
+
+  function filterPack(value) {
+    setFiltered(value);
+    const filtered = auxPacks.filter((ap) =>
+      ap.nombrePack.toLowerCase().includes(value.toLowerCase())
+    );
+    setPacks(filtered);
   }
 
   const handleSubmit = async (e) => {
@@ -323,9 +338,15 @@ export default function FormRetirePackAlt() {
 
       {selectedStoreId != "" ? (
         <div>
-          <Form>
-            <div className="formLabel">Packs</div>
+          <Form
+            style={{
+              display: "flex",
+              justifyContent: "space-evenly",
+              marginBottom: "10px",
+            }}
+          >
             <Form.Select
+              style={{ width: "40%" }}
               onChange={(e) => {
                 selectPack(e.target.value);
               }}
@@ -339,7 +360,15 @@ export default function FormRetirePackAlt() {
                 );
               })}
             </Form.Select>
-            <div className="formLabel">
+            <Form.Control
+              style={{ width: "40%" }}
+              placeholder="buscar por nombre"
+              value={filtered}
+              onChange={(e) => filterPack(e.target.value)}
+            />
+          </Form>
+          <Form>
+            <div>
               {isPack ? (
                 <Table>
                   <thead className="tableHeader">

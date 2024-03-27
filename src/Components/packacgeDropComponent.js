@@ -4,7 +4,7 @@ import { dateString } from "../services/dateServices";
 
 export const PackageDropComponent = React.forwardRef(
   ({ branchInfo, selectedProducts, cliente, packName, cantPack }, ref) => {
-    console.log("Selectedproducts", selectedProducts);
+    //console.log("Selectedproducts", selectedProducts);
     const splittedDate = dateString().split(" ");
     const date = splittedDate[0];
     const time = splittedDate[1].substring(0, 5);
@@ -44,9 +44,11 @@ export const PackageDropComponent = React.forwardRef(
                 {selectedProducts.map((producto, index) => {
                   return (
                     <tr key={index}>
-                      <td className="rowSeparatorAlt">{producto?.idProducto}</td>
+                      <td className="rowSeparatorAlt">
+                        {producto?.idProducto}
+                      </td>
 
-                      <td className="rowSeparator">
+                      <td className="rowSeparator w-50  ">
                         {producto?.nombreProducto}
                       </td>
                       <td className="rowSeparatorAlt">

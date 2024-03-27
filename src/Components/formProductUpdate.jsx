@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { Button, Form, Table, Image, Modal } from "react-bootstrap";
 import {
@@ -25,6 +24,7 @@ export default function FormProductUpdate() {
     setLoading(true);
     const data = productsService.getAllProducts();
     data.then((res) => {
+      console.log("LISTA DE PRODUCTOS", res);
       setProductList(res);
       setLoading(false);
     });

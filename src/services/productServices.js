@@ -16,7 +16,20 @@ const getProducts = (id) => {
   });
 };
 
+const allProducts = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/all`
+      )
+      .then((response) => {
+        resolve(response);
+      });
+  });
+};
+
 const getProductsWithStock = (idAlmacen, id) => {
+  console.log("ID ALMACEN ACA", idAlmacen);
   return new Promise((resolve, reject) => {
     axios
       .get(
@@ -26,6 +39,18 @@ const getProductsWithStock = (idAlmacen, id) => {
         resolve(response);
       });
   });
+};
+
+const getProductsConsignacion = async (nit, idZona) => {
+  console.log("getProductsConsignacion", nit, idZona);
+  const url = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/stock/virtual`;
+  const response = await axios.get(url, {
+    params: {
+      nitCliente: nit,
+      idZona: idZona,
+    },
+  });
+  return response;
 };
 
 const getUserStock = (id) => {
@@ -76,8 +101,6 @@ const productsDiscount = (id) => {
         resolve(response);
       });
   });
-
-
 };
 
 const updateForMissing = (selectedProds, faltantes) => {
@@ -138,14 +161,14 @@ const updateForMissing = (selectedProds, faltantes) => {
       prod.tipoProducto == 1
         ? tradicionales.push(auxObj)
         : prod.tipoProducto == 2
-          ? pascua.push(auxObj)
-          : prod.tipoProducto == 3
-            ? navidad.push(auxObj)
-            : prod.tipoProducto == 4
-              ? halloween.push(auxObj)
-              : prod.tipoProducto == 5
-                ? sinDesc.push(auxObj)
-                : especiales.push(auxObj);
+        ? pascua.push(auxObj)
+        : prod.tipoProducto == 3
+        ? navidad.push(auxObj)
+        : prod.tipoProducto == 4
+        ? halloween.push(auxObj)
+        : prod.tipoProducto == 5
+        ? sinDesc.push(auxObj)
+        : especiales.push(auxObj);
       modifiedProds.push(auxObj);
     }
   });
@@ -230,8 +253,8 @@ const setTotalProductsToZero = (selectedProds) => {
       idPedidoProducto: prod.idPedidoProducto,
       nombreProducto: prod.nombreProducto,
       precioDeFabrica: prod.precioDeFabrica,
-      precioDescuentoFijo: 0,
-      totalProd: 0,
+      precioDescuentoFijo: prod.precioDescuentoFijo,
+      totalProd: prod.totalProd,
       totalDescFijo: 0,
       tipoProducto: prod.tipoProducto,
       descuentoProd: 0,
@@ -326,8 +349,101 @@ export const productsService = {
   async updateProduct(id, body) {
     const response = await productsInstance.put(`/editar/${id}`, body);
     return response.data;
-  }
-}
+  },
+};
+
+const virtualProductStock = (idZona, nitCliente) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/stock/virtual?idZona=${idZona}&nitCliente=${nitCliente}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const getProductGroups = () => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/grupos`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const setProductGroups = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/grupos`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const changeGroupStatus = (groupId, status) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/grupo/status?groupId=${groupId}&status=${status}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const updateGroupProducts = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/grupos/editar`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+const createProductGroup = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/productos/grupos`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
 
 export {
   getProducts,
@@ -344,4 +460,12 @@ export {
   productOrigin,
   updateForMissingSample,
   setTotalProductsToZero,
+  virtualProductStock,
+  getProductsConsignacion,
+  allProducts,
+  getProductGroups,
+  setProductGroups,
+  changeGroupStatus,
+  updateGroupProducts,
+  createProductGroup,
 };

@@ -41,13 +41,8 @@ export default function BodySalesByProductReport() {
   function generateReport() {
     setSearchBox("");
     setIsReportLoading(true);
-    const id =
-      userAct.rol == 1 ||
-      userAct.rol == 9 ||
-      userAct.rol == 10 ||
-      userAct.rol == 8
-        ? ""
-        : userAct.idAlmacen;
+    const sudo = [1, 5, 8, 9, 10, 12];
+    const id = sudo.includes(userAct.rol) ? "" : userAct.idAlmacen;
     const formatted = formatDate();
     if (fromDate != "" && toDate != "") {
       const reportData = getProductSalesReport(
@@ -58,6 +53,7 @@ export default function BodySalesByProductReport() {
       );
       reportData
         .then((response) => {
+          console.log("Data del reporte", response.data);
           setReportTable(response.data);
           setAuxReportTable(response.data);
 
@@ -124,6 +120,7 @@ export default function BodySalesByProductReport() {
       reportTable.map((rt, index) => {
         const dataRecord = {
           nro: index + 1,
+          "nro factura": rt.nroFactura,
           fecha: rt.fecha,
           hora: rt.hora,
           "nit cliente": rt.nitCliente,
@@ -133,9 +130,16 @@ export default function BodySalesByProductReport() {
           "cod interno": rt.codInterno,
           producto: rt.nombreProducto,
           cantidad: rt.cantidadProducto,
-          "precio unitario": rt.precioDeFabrica,
+          "precio unitario":
+            rt.precio_producto != null
+              ? rt.precio_producto
+              : rt.precioDeFabrica,
           "total Producto": rt.totalProd,
           "descuento producto": rt.descuentoProducto,
+          ["descuento % producto"]: (
+            (rt.descuentoProducto / Number(rt.totalProd)) *
+            100
+          ).toFixed(2),
           vendedor: rt.nombreCompleto,
           agencia: rt.Agencia,
         };
@@ -284,12 +288,17 @@ export default function BodySalesByProductReport() {
 
                   <th className="reportColumnMedium">TOTAL PROD</th>
                   <th className="reportColumnMedium">DESCUENTO PROD</th>
+                  <th className="reportColumnMedium">DESC PROD %</th>
                   <th className="reportColumnMedium ">VENDEDOR</th>
                   <th className="reportColumnMedium ">AGENCIA</th>
                 </tr>
               </thead>
               <tbody>
                 {currentData.map((rt, index) => {
+                  const precio =
+                    rt.precio_producto != null
+                      ? rt.precio_producto
+                      : rt.precioDeFabrica;
                   return (
                     <tr className="reportBody" key={index}>
                       <td className="reportColumnXSmall">{index + 1}</td>
@@ -320,7 +329,7 @@ export default function BodySalesByProductReport() {
                         {rt.cantidadProducto}
                       </td>
                       <td className="reportColumnMedium">
-                        {rt.precioDeFabrica.toFixed(2)}
+                        {Number(precio)?.toFixed(2)}
                       </td>
                       <td className="reportColumnMedium">
                         {rt.totalProd.toFixed(2)}
@@ -328,6 +337,13 @@ export default function BodySalesByProductReport() {
                       <td className="reportColumnMedium">
                         {rt.descuentoProducto.toFixed(2)}
                       </td>
+                      <td className="reportColumnMedium">
+                        {(
+                          (rt.descuentoProducto / Number(rt.totalProd)) *
+                          100
+                        )?.toFixed(2)}
+                      </td>
+
                       <td className="reportColumnMedium">
                         {rt.nombreCompleto}
                       </td>

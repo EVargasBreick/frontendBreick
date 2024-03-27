@@ -13,10 +13,10 @@ import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
 
 import { CancelInvoice } from "../Xml/cancelInvoice";
-import { updateStock } from "../services/orderServices";
 import { getMobileSalePoints } from "../services/storeServices";
 
 export default function FormCancelInvoice() {
+  /*
   const [userStore, setUserStore] = useState("");
   const [facturas, setFacturas] = useState([]);
   const [isCanceled, setIsCanceled] = useState(false);
@@ -316,4 +316,5 @@ export default function FormCancelInvoice() {
       </div>
     </div>
   );
+  */
 }

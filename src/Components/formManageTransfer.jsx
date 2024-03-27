@@ -15,7 +15,7 @@ import {
   transferProducts,
   updateTransfer,
 } from "../services/transferServices";
-import { updateStock } from "../services/orderServices";
+import { dateString } from "../services/dateServices";
 export default function FormManageTransfer() {
   const navigate = useNavigate();
   const [alert, setAlert] = useState("");
@@ -37,8 +37,10 @@ export default function FormManageTransfer() {
   const [isVfModal, setIsVfModal] = useState(false);
   const [vfModal, setVfModal] = useState();
   const [action, setAction] = useState("");
-
+  const [userId, setUserId] = useState("");
   useEffect(() => {
+    const UsuarioAct = Cookies.get("userAuth");
+    setUserId(JSON.parse(UsuarioAct).idUsuario);
     const tList = transferList("p");
     tList.then((tl) => {
       setList(tl.data);
@@ -94,22 +96,22 @@ export default function FormManageTransfer() {
     const canceledTransfer = updateTransfer({
       estado: 2,
       idTraspaso: idTraspaso,
-    });
-    canceledTransfer.then((res) => {
-      const returnToStock = updateStock({
+      fechaHora: dateString(),
+      idUsuario: userId,
+      stock: {
         accion: "add",
         idAlmacen: idOrigen,
         productos: productos,
         detalle: `DPCTR-${idTraspaso}`,
-      });
-      returnToStock.then((returned) => {
-        setIsFormModal(false);
-        setAlertSec("Traspaso cancelado correctamente");
-        setIsAlertSec(true);
-        setTimeout(() => {
-          window.location.reload(false);
-        }, 5000);
-      });
+      },
+    });
+    canceledTransfer.then((res) => {
+      setIsFormModal(false);
+      setAlertSec("Traspaso cancelado correctamente");
+      setIsAlertSec(true);
+      setTimeout(() => {
+        window.location.reload(false);
+      }, 5000);
     });
   }
   function approveTransfer() {
@@ -119,6 +121,8 @@ export default function FormManageTransfer() {
     const appTransfer = updateTransfer({
       estado: 1,
       idTraspaso: idTraspaso,
+      fechaHora: dateString(),
+      idUsuario: userId,
     });
     appTransfer.then((res) => {
       setIsFormModal(false);

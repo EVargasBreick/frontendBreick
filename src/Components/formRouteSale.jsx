@@ -38,6 +38,7 @@ import {
   addProductDiscounts,
   christmassDiscounts,
   complexDiscountFunction,
+  complexNewDiscountFunction,
   easterDiscounts,
   halloweenDiscounts,
   saleDiscount,
@@ -48,8 +49,11 @@ import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import ComplexDiscountTable from "./complexDiscountTable";
 import SpecialsTable from "./specialsTable";
+import { getDiscountType } from "../services/discountEndpoints";
 
 export default function FormRouteSale() {
+  /*
+  const [discountType, setDiscountType] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
   const [clientes, setClientes] = useState([]);
@@ -177,6 +181,11 @@ export default function FormRouteSale() {
     "707017",
   ];
   useEffect(() => {
+    const dType = getDiscountType();
+    dType.then((dt) => {
+      console.log("Tipo de descuento", dt.data);
+      setDiscountType(dt.data.idTipoDescuento);
+    });
     searchRef.current.focus();
     const spplited = dateString().split(" ");
 
@@ -261,7 +270,7 @@ export default function FormRouteSale() {
         disponibles.then((fetchedAvailable) => {
           setAvailable(fetchedAvailable.data[0]);
         });
-      }, 60000);*/
+      }, 60000);
       const dl = productsDiscount(
         JSON.parse(Cookies.get("userAuth")).idUsuario
       );
@@ -849,11 +858,12 @@ export default function FormRouteSale() {
     setIsPoint(true);
   }
 
-  function processDiscounts() {
-    const discountObject = complexDiscountFunction(
-      selectedProducts,
-      discountList
-    );
+  async function processDiscounts() {
+    const dType = await getDiscountType();
+    const discountObject =
+      dType.data.idTipoDescuento == 1
+        ? complexDiscountFunction(selectedProducts, discountList)
+        : complexNewDiscountFunction(selectedProducts, discountList);
     setTradObject(discountObject.tradicionales);
     setPasObject(discountObject.pascua);
     setNavObject(discountObject.navidad);
@@ -1319,5 +1329,5 @@ export default function FormRouteSale() {
         </Form>
       </div>
     </div>
-  );
+  );*/
 }

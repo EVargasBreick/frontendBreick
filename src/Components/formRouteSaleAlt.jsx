@@ -38,18 +38,28 @@ import {
   addProductDiscounts,
   christmassDiscounts,
   complexDiscountFunction,
+  complexNewDiscountFunction,
   easterDiscounts,
   halloweenDiscounts,
+  processSeasonalDiscount,
   saleDiscount,
   traditionalDiscounts,
   verifyAutomaticDiscount,
+  verifySeasonalProduct,
 } from "../services/discountServices";
 import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import ComplexDiscountTable from "./complexDiscountTable";
 import SpecialsTable from "./specialsTable";
 import SaleModalAlt from "./saleModalAlt";
+import {
+  getDiscountType,
+  getSeasonalDiscount,
+} from "../services/discountEndpoints";
+import SeasonalDiscountTable from "./seasonalDiscountTable";
+import SinDescTable from "./sinDescTable";
 export default function FormRouteSaleAlt() {
+  const [discountType, setDiscountType] = useState("");
   const [isClient, setIsClient] = useState(false);
   const [search, setSearch] = useState("");
   const [clientes, setClientes] = useState([]);
@@ -73,7 +83,7 @@ export default function FormRouteSaleAlt() {
   const [filtered, setFiltered] = useState("");
   const [willCreate, setWillCreate] = useState(false);
   const [isSpecial, setIsSpecial] = useState(false);
-
+  const [discModalType, setDiscModalType] = useState(false);
   const [available, setAvailable] = useState([
     { nombreProducto: "Cargando..." },
   ]);
@@ -129,9 +139,22 @@ export default function FormRouteSaleAlt() {
   const quantref = useRef(null);
   const saleModalRef = useRef();
   const [clientEmail, setClientEmail] = useState("");
+
+  const [seasonDiscountData, setSeasonDiscountData] = useState([]);
+  const [isSeasonalModal, setIsSeasonalModal] = useState(false);
+
+  const [seasonalProds, setSeasonalProds] = useState([]);
+  const [seasonalSinDesc, setSeasonalSinDesc] = useState([]);
+  const [seasonalSpecial, setSeasonalSpecial] = useState([]);
+  const [seasonalTotals, setSeasonalTotals] = useState({});
+
+  const datosPaneton = [
+    { codInterno: "715037", precio: 46.5 },
+    { codInterno: "715038", precio: 88.0 },
+  ];
   const tabletasArray = [
     "702000",
-    " 702001",
+    "702001",
     "702002",
     "702003",
     "702004",
@@ -177,7 +200,22 @@ export default function FormRouteSaleAlt() {
     "707016",
     "707017",
   ];
+
+  async function listDiscounts(currentDate, tipo) {
+    const discountList = await getSeasonalDiscount(currentDate, tipo);
+    return discountList;
+  }
+
   useEffect(() => {
+    console.log("setteando total facturar", totalFacturar);
+  }, [totalFacturar]);
+
+  useEffect(() => {
+    const dType = getDiscountType();
+    dType.then((dt) => {
+      console.log("Tipo de descuento", dt.data);
+      setDiscountType(dt.data.idTipoDescuento);
+    });
     searchRef.current.focus();
     const spplited = dateString().split(" ");
 
@@ -268,6 +306,16 @@ export default function FormRouteSaleAlt() {
       );
       dl.then((res) => {
         setDiscountList(res.data.data);
+      });
+      const currentDate = dateString();
+
+      const list = listDiscounts(
+        currentDate,
+        JSON.parse(UsuarioAct).tipoUsuario
+      );
+      list.then((l) => {
+        console.log("Descuento de temporada", l.data.data);
+        setSeasonDiscountData(l.data.data);
       });
     }
   }, []);
@@ -370,6 +418,10 @@ export default function FormRouteSaleAlt() {
         }
       });
       if (!aux) {
+        const isPaneton = datosPaneton.find(
+          (dp) => dp.codInterno == produc.codInterno
+        );
+
         const productObj = {
           codInterno: produc.codInterno,
           cantProducto: 1,
@@ -381,11 +433,19 @@ export default function FormRouteSaleAlt() {
           cant_Actual: produc.cant_Actual,
           cantidadRestante: produc.cant_Actual,
           precioDescuentoFijo: produc.precioDescuentoFijo,
-          precioDeFabrica: isTableta
+          precioDeFabrica: isPaneton
+            ? isPaneton.precio
+            : isTableta
             ? produc.precioDeFabrica * 0.9
+            : clientes[0]?.issuper == 1
+            ? produc.precioSuper
             : produc.precioDeFabrica,
           descuentoProd: 0,
-          totalProd: produc.precioDeFabrica,
+          totalProd: isTableta
+            ? produc.precioDeFabrica * 0.9
+            : clientes[0]?.issuper == 1
+            ? produc.precioSuper
+            : produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
         };
@@ -450,10 +510,16 @@ export default function FormRouteSaleAlt() {
             cantidadRestante: selected.cant_Actual,
             precioDeFabrica: isTableta
               ? selected.precioDeFabrica * 0.9
+              : clientes[0]?.issuper == 1
+              ? selected.precioSuper
               : selected.precioDeFabrica,
             precioDescuentoFijo: selected.precioDescuentoFijo,
             descuentoProd: 0,
-            totalProd: selected.precioDeFabrica,
+            totalProd: isTableta
+              ? selected.precioDeFabrica * 0.9
+              : clientes[0]?.issuper == 1
+              ? selected.precioSuper
+              : selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
           };
@@ -655,6 +721,7 @@ export default function FormRouteSaleAlt() {
     }
   }
   function handleModal() {
+    //console.log("Desc calculado aki", totalDesc);
     if (isSelected) {
       setTimeout(() => {
         setIsInvoice(true);
@@ -665,6 +732,7 @@ export default function FormRouteSaleAlt() {
       setIsAlert(true);
     }
   }
+
   function saveSale(createdId) {
     const totPrev = parseFloat(
       auxSelectedProducts.reduce((accumulator, object) => {
@@ -816,7 +884,7 @@ export default function FormRouteSaleAlt() {
     const validated = verifyQuantities(selectedProducts);
     validated
       .then(() => {
-        processDiscounts();
+        verifySeasonal();
       })
       .catch((err) => {
         setAlert(err);
@@ -834,11 +902,13 @@ export default function FormRouteSaleAlt() {
     setIsPoint(true);
   }
 
-  function processDiscounts() {
+  async function processDiscounts() {
+    const dType = await getDiscountType();
     const discountObject = complexDiscountFunction(
       selectedProducts,
       discountList
     );
+    console.log("Discount object", discountObject);
     setTradObject(discountObject.tradicionales);
     setPasObject(discountObject.pascua);
     setNavObject(discountObject.navidad);
@@ -863,6 +933,42 @@ export default function FormRouteSaleAlt() {
     );
     setDiscModal(true);
   }
+
+  async function verifySeasonal() {
+    if (seasonDiscountData.length > 0) {
+      const verified = verifySeasonalProduct(
+        selectedProducts,
+        seasonDiscountData
+      );
+      console.log("Verified", verified);
+      if (verified) {
+        setDiscModalType(false);
+        const data = await processSeasonalDiscount(
+          selectedProducts,
+          seasonDiscountData
+        );
+        console.log("Detalles descuento pedido", data);
+        setTotalPrevio(data.totalesPedido.totalPedido);
+        setTotalFacturar(data.totalesPedido.totalFacturar);
+        setTotalDesc(data.totalesPedido.descCalculado);
+        setDescuento(data.totalesPedido.descuento);
+        setSeasonalSpecial(data.productArrays.especialDescProds);
+        setSeasonalProds(data.productArrays.seasonProducts);
+        setSeasonalSinDesc(data.productArrays.sinDescProds);
+        setSeasonalTotals(data.totalesPedido);
+        setIsSeasonalModal(true);
+        setDiscModal(true);
+        console.log("Data", data);
+      } else {
+        setDiscModalType(true);
+        processDiscounts();
+      }
+    } else {
+      setDiscModalType(true);
+      processDiscounts();
+    }
+  }
+
   function cancelDiscounts() {
     setSelectedProducts(auxSelectedProducts);
     setDiscModal(false);
@@ -925,24 +1031,39 @@ export default function FormRouteSaleAlt() {
           <Modal.Title>{`Descuentos por monto`}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>
-            <ComplexDiscountTable
-              tradicionales={tradicionales}
-              pascua={pascua}
-              navidad={navidad}
-              halloween={halloween}
-              sinDesc={sinDesc}
-              tradObject={tradObject}
-              pasObject={pasObject}
-              navObject={navObject}
-              hallObject={hallObject}
-            />
-            <SpecialsTable
-              especiales={especiales}
-              totales={descSimple}
-              isEsp={isSpecial}
-            />
-          </div>
+          {discModalType ? (
+            <div>
+              <ComplexDiscountTable
+                tradicionales={tradicionales}
+                pascua={pascua}
+                navidad={navidad}
+                halloween={halloween}
+                sinDesc={sinDesc}
+                tradObject={tradObject}
+                pasObject={pasObject}
+                navObject={navObject}
+                hallObject={hallObject}
+              />
+              <SpecialsTable
+                especiales={especiales}
+                totales={descSimple}
+                isEsp={isSpecial}
+              />
+            </div>
+          ) : (
+            <div>
+              <SeasonalDiscountTable
+                seasonal={seasonalProds}
+                sinDesc={seasonalSinDesc}
+                totales={seasonalTotals}
+              />
+              <SpecialsTable
+                especiales={seasonalSpecial}
+                isSeasonalEsp={seasonalTotals.isDescEsp}
+              />
+              <SinDescTable sindDesc={sinDesc} />
+            </div>
+          )}
         </Modal.Body>
         <Modal.Footer className="modalTitle">
           <Button variant="success" onClick={() => handleModal()}>
@@ -987,16 +1108,20 @@ export default function FormRouteSaleAlt() {
             invoice={invoice}
             total={totalPrevio}
             descuentoCalculado={
-              parseFloat(pasObject.descCalculado) +
-              parseFloat(tradObject.descCalculado) +
-              parseFloat(navObject.descCalculado) +
-              parseFloat(hallObject.descCalculado)
+              isSeasonalModal
+                ? totalDesc
+                : parseFloat(pasObject.descCalculado) +
+                  parseFloat(tradObject.descCalculado) +
+                  parseFloat(navObject.descCalculado) +
+                  parseFloat(hallObject.descCalculado)
             }
             totalDescontado={
-              parseFloat(tradObject.facturar) +
-              parseFloat(pasObject.facturar) +
-              parseFloat(navObject.facturar) +
-              parseFloat(hallObject.facturar)
+              isSeasonalModal
+                ? totalFacturar
+                : parseFloat(tradObject.facturar) +
+                  parseFloat(pasObject.facturar) +
+                  parseFloat(navObject.facturar) +
+                  parseFloat(hallObject.facturar)
             }
             fechaHora={fechaHora}
             tipoDocumento={tipoDoc}
@@ -1045,7 +1170,10 @@ export default function FormRouteSaleAlt() {
               nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
               cuf: "",
               importeBase: parseFloat(
-                parseFloat(cancelado).toFixed(2) - parseFloat(cambio).toFixed(2)
+                isSeasonalModal
+                  ? totalFacturar
+                  : parseFloat(cancelado).toFixed(2) -
+                      parseFloat(cambio).toFixed(2)
               ).toFixed(2),
               debitoFiscal: parseFloat(
                 (parseFloat(cancelado).toFixed(2) -
@@ -1069,6 +1197,7 @@ export default function FormRouteSaleAlt() {
             }}
             emailCliente={clientEmail}
             clientId={idSelectedClient}
+            isSeasonal={isSeasonalModal}
           />
         </div>
       ) : null}

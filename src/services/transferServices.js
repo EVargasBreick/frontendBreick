@@ -191,6 +191,73 @@ const deleteTransfer = (id) => {
   });
 };
 
+const composedTransfer = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/traspaso`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        console.log("ERROR EN EL TRASPASO COMPUESTO", err);
+        reject(err);
+      });
+  });
+};
+
+const composedAcceptTransfer = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/traspaso/aceptar`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        console.log("ERROR EN EL TRASPASO COMPUESTO", err);
+        reject(err);
+      });
+  });
+};
+
+const composedEditTransfer = (body) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/compuesto/traspaso/editar`,
+        body
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        console.log("ERROR EN EL TRASPASO COMPUESTO", err);
+        reject(err);
+      });
+  });
+};
+
+const transferProductList = (id) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(
+        `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}/traspaso/productos/lista?id=${id}`
+      )
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        console.log("ERROR EN EL TRASPASO COMPUESTO", err);
+        reject(err);
+      });
+  });
+};
+
 export {
   createTransfer,
   transferList,
@@ -204,4 +271,8 @@ export {
   transitTransfer,
   acceptTransferById,
   deleteTransfer,
+  composedTransfer,
+  composedAcceptTransfer,
+  composedEditTransfer,
+  transferProductList,
 };

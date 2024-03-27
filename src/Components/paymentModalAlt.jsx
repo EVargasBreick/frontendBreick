@@ -110,12 +110,11 @@ export default function PaymentModalAlt({
     const suc = getBranchesPs();
     suc.then((resp) => {
       const sucursales = resp.data;
-      console.log("Sucursales", sucursales);
-      console.log("Id almacen", idAlmacen);
+
       const sucur = sucursales.find((sc) => idAlmacen == sc.idAgencia)
         ? sucursales.find((sc) => idAlmacen == sc.idAgencia)
         : sucursales.find((sc) => "AL001" == sc.idAgencia);
-      console.log("Sucur", sucur);
+
       const branchData = {
         nombre: sucur.nombre,
         dir: sucur.direccion,
@@ -123,7 +122,7 @@ export default function PaymentModalAlt({
         ciudad: sucur.ciudad,
         nro: sucur.idImpuestos,
       };
-      console.log("Branch data", branchData);
+
       setBranchInfo(branchData);
     });
   }, []);
@@ -133,8 +132,6 @@ export default function PaymentModalAlt({
     }
   }, [cuf, noFactura]);
   useEffect(() => {
-    console.log("Body factura", invoice);
-    console.log("Invoiceref", invoiceRef);
     if (isFactura && componentRef.current) {
       invoiceRef.current.click();
     }
@@ -434,7 +431,7 @@ export default function PaymentModalAlt({
         stock: updateStockBody,
         storeInfo: storeInfo,
       };
-
+      console.log("BODY COMPUESTO", composedBody);
       try {
         setFechaHora(dateString());
         const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
@@ -487,12 +484,18 @@ export default function PaymentModalAlt({
             setIsAlertSec(false);
             setAlert(`${invocieResponse.data.message}`);
             setIsAlert(true);
+            setTimeout(() => {
+              setIsAlert(false);
+            }, 4000);
           } else {
             await debouncedFullInvoiceProcess.cancel();
-            const error = JSON.parse(invocieResponse.data.error).data.errors[0];
-            console.log("Error", error);
+            const error = JSON.parse(
+              JSON.parse(invocieResponse.data.error).data.data.errors
+            );
+            const errors = Object.values(error);
+            console.log("Error al facturar", errors[0]);
             setIsAlertSec(false);
-            setAlert(`${invocieResponse.data.message} : ${error}`);
+            setAlert(`${invocieResponse.data.message} : ${errors[0]}`);
             setIsAlert(true);
           }
         }

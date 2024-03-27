@@ -13,12 +13,16 @@ import { ExportTemplate } from "../services/exportServices";
 import { updateStock } from "../services/orderServices";
 import Cookies from "js-cookie";
 import { dateString } from "../services/dateServices";
-import { logProductEntry } from "../services/stockServices";
+import {
+  composedProductEntry,
+  logProductEntry,
+} from "../services/stockServices";
 export default function FormUpdateProducts() {
   const navigate = useNavigate();
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
   const [prodList, setprodList] = useState([]);
+  const [auxProdList, setAuxProdList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [alert, setAlert] = useState("");
   const [isAlert, setIsAlert] = useState(false);
@@ -27,6 +31,7 @@ export default function FormUpdateProducts() {
   const fileRef = useRef();
   const [upFile, setUpFile] = useState(null);
   const [jsonExcel, setJsonExcel] = useState([]);
+  const [search, setSearch] = useState("");
   useEffect(() => {
     const UsuarioAct = Cookies.get("userAuth");
     if (UsuarioAct) {
@@ -35,6 +40,7 @@ export default function FormUpdateProducts() {
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
       setprodList(fetchedProducts.data.data);
+      setAuxProdList(fetchedProducts.data.data);
     });
   }, []);
   const checkFileExtension = (name) => {
@@ -134,7 +140,7 @@ export default function FormUpdateProducts() {
       }
     });
   }
-  function updateWarehouseStock() {
+  /*function updateWarehouseStock() {
     if (selectedProducts.length > 0) {
       setAlertSec("Actualizando productos");
       setIsAlertSec(true);
@@ -169,12 +175,62 @@ export default function FormUpdateProducts() {
       setAlert("Seleccione al menos un producto por favor");
       setIsAlert(true);
     }
+  }*/
+
+  async function updateWarehouseStockAlt() {
+    if (selectedProducts.length > 0) {
+      setAlertSec("Actualizando productos");
+      setIsAlertSec(true);
+      const logObj = {
+        idUsuarioCrea: userId,
+        fechaCrea: dateString(),
+        products: selectedProducts,
+      };
+
+      const objStock = {
+        accion: "add",
+        idAlmacen: "AL001",
+        productos: selectedProducts,
+      };
+
+      try {
+        const entered = await composedProductEntry({
+          stock: objStock,
+          log: logObj,
+        });
+        setAlertSec("Productos ingresados correctamente");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } catch (error) {
+        setIsAlertSec(false);
+        setAlert("Error al ingresar", error);
+        setIsAlert(true);
+      }
+    } else {
+      setAlert("Seleccione al menos un producto por favor");
+      setIsAlert(true);
+    }
   }
+
   function EraseData() {
     setSelectedProducts([]);
     fileRef.current.value = "";
     setUpFile(null);
   }
+
+  function filterProducts(value) {
+    setSearch(value);
+    const newList = auxProdList.filter(
+      (dt) =>
+        dt.nombreProducto.toLowerCase().includes(value.toLowerCase()) ||
+        dt.codInterno.toString().includes(value.toString()) ||
+        dt.codigoBarras.toString().includes(value.toString())
+    );
+    console.log("FILTERED", newList);
+    setprodList([...newList]);
+  }
+
   return (
     <div>
       <div className="formLabel">CARGA DE PRODUCTOS A ALMACÉN CENTRAL</div>
@@ -199,14 +255,21 @@ export default function FormUpdateProducts() {
         </Modal.Footer>
       </Modal>
       <Form>
-        <Form.Group
-          className="mb-3"
-          controlId="prod-list"
-          onChange={(e) => {
-            addProductToList(e.target.value);
-          }}
-        >
-          <Form.Select>
+        <Form.Group className="mb-3" controlId="prod-list">
+          <Form.Label>Buscar Producto</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="buscar"
+            value={search}
+            style={{ width: "50%", marginBottom: "20px" }}
+            onChange={(e) => filterProducts(e.target.value)}
+          />
+
+          <Form.Select
+            onChange={(e) => {
+              addProductToList(e.target.value);
+            }}
+          >
             <option>Seleccione producto</option>
             {prodList.map((producto) => {
               return (
@@ -307,7 +370,7 @@ export default function FormUpdateProducts() {
               <Button
                 variant="light"
                 className="cyan"
-                onClick={() => updateWarehouseStock()}
+                onClick={() => updateWarehouseStockAlt()}
               >
                 Actualizar productos
               </Button>

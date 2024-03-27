@@ -3,48 +3,29 @@ import { useState, useEffect } from "react";
 import { Button, Form, Modal, Table, Spinner } from "react-bootstrap";
 import { emizorService } from "../services/emizorService";
 import { Loader } from "./loader/Loader";
+import Cookies from "js-cookie";
+
 export default function FormRePrintInvoicesAlt() {
   const [nit, setNit] = useState("");
   const [nitError, setNitError] = useState("");
   const [facturas, setFacturas] = useState([]);
   const [facturasAux, setFacturasAux] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState(new Date().toISOString().slice(0, 10));
-
+  const [userStore, setUserStore] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
   useEffect(() => {
-    if (dateStart && dateEnd) {
-      const filtered = facturasAux.filter((fact) => {
-        var dateString = fact.fechaHora;
-        var dateParts = dateString.split(" ");
-        var date = dateParts[0].split("/");
-        var day = parseInt(date[0], 10);
-        var month = parseInt(date[1], 10) - 1; // Month is zero-based
-        var year = parseInt(date[2], 10);
-        // Create the Date object
-        var date = new Date(year, month, day);
-        const startDateParts = dateStart.split("-");
-        const startDate = new Date(
-          startDateParts[0],
-          startDateParts[1] - 1,
-          startDateParts[2]
-        );
-        const endDateParts = dateEnd.split("-");
-        const endDate = new Date(
-          endDateParts[0],
-          endDateParts[1] - 1,
-          endDateParts[2]
-        );
-        console.log("startDate: ", startDate);
-        console.log("endDate: ", endDate);
-        console.log("date: ", date);
-        return date >= startDate && date <= endDate;
-      });
-      setFacturas(filtered);
-    } else {
-      setFacturas(rows);
+    const UsuarioAct = Cookies.get("userAuth");
+    const parsedUser = JSON.parse(UsuarioAct);
+    if (parsedUser) {
+      const sudStore = Cookies.get("sudostore");
+      if (sudStore) {
+        setUserStore(sudStore);
+      } else {
+        setUserStore(parsedUser.idAlmacen);
+      }
     }
-  }, [dateStart, dateEnd]);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -52,10 +33,9 @@ export default function FormRePrintInvoicesAlt() {
       setNitError("NIT es requerido");
     } else {
       setLoading(true);
-
       console.log("nit: ", nit);
       emizorService
-        .getFacturas(nit)
+        .getFacturas(nit, userStore, dateEnd)
         .then((response) => {
           console.log("response: ", response);
           setFacturas(response.data);
@@ -80,7 +60,13 @@ export default function FormRePrintInvoicesAlt() {
     setNitError("");
     setFacturas([]);
     setFacturasAux([]);
-    setDateStart("");
+    setInvoiceNumber("");
+  };
+
+  const handleNumberSearch = (value) => {
+    setInvoiceNumber(value);
+    const filtered = facturasAux.filter((fa) => fa.nroFactura.includes(value));
+    setFacturas(filtered);
   };
 
   const rows = facturas.map((factura, index) => (
@@ -133,33 +119,11 @@ export default function FormRePrintInvoicesAlt() {
               {nitError}
             </Form.Control.Feedback>
           </Form.Group>
-          <div className="d-flex justify-content-around p-3">
-            <Button type="submit" variant="success">
-              Buscar Factura(s)
-            </Button>
-            <Button
-              type="reset"
-              variant="warning"
-              onClick={(e) => clearData(e)}
-            >
-              Ingresar Otros Datos
-            </Button>
-          </div>
-        </Form>
-        {(rows.length > 0 || (dateEnd && dateStart)) && (
+
           <Form>
             <div className="d-xl-flex justify-content-center p-3">
               <Form.Group className="p-2" controlId="dateField1">
-                <Form.Label>Fecha Inicio:</Form.Label>
-                <Form.Control
-                  type="date"
-                  placeholder="1818915"
-                  value={dateStart}
-                  onChange={(e) => setDateStart(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group className="p-2" controlId="dateField2">
-                <Form.Label>Fecha Fin:</Form.Label>
+                <Form.Label>Fecha:</Form.Label>
                 <Form.Control
                   type="date"
                   placeholder="1818915"
@@ -169,26 +133,54 @@ export default function FormRePrintInvoicesAlt() {
               </Form.Group>
             </div>
           </Form>
-        )}
-      </div>
 
-      <div className="d-flex justify-content-center">
-        <div className="tableOne">
-          <Table striped bordered responsive>
-            <thead>
-              <tr className="tableHeader">
-                <th className="tableColumn">Numero Factura</th>
-                <th className="tableColumn">Razon Social</th>
-                <th className="tableColumn">Nit Cliente</th>
-                <th className="tableColumn">Fecha</th>
-                <th className="tableColumn">Monto</th>
-                <th className="tableColumn">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>{rows}</tbody>
-          </Table>
-        </div>
+          <div className="d-flex justify-content-around p-3">
+            <Button type="submit" variant="success">
+              Buscar Factura(s)
+            </Button>
+            <Button
+              type="reset"
+              variant="warning"
+              onClick={(e) => clearData(e)}
+            >
+              Limpiar búsqueda
+            </Button>
+          </div>
+        </Form>
       </div>
+      {facturasAux.length > 0 && (
+        <div>
+          <Form>
+            <Form.Label>Buscar por número de factura</Form.Label>
+            <Form.Control
+              type="number"
+              value={invoiceNumber}
+              onChange={(e) => handleNumberSearch(e.target.value)}
+            />
+          </Form>
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <div className="d-flex justify-content-center">
+          <div className="tableOne">
+            <Table striped bordered responsive>
+              <thead>
+                <tr className="tableHeader">
+                  <th className="tableColumn">Numero Factura</th>
+                  <th className="tableColumn">Razon Social</th>
+                  <th className="tableColumn">Nit Cliente</th>
+                  <th className="tableColumn">Fecha</th>
+                  <th className="tableColumn">Monto</th>
+                  <th className="tableColumn">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>{rows}</tbody>
+            </Table>
+          </div>
+        </div>
+      )}
+
       {loading && <Loader />}
     </div>
   );

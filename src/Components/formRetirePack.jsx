@@ -7,7 +7,7 @@ import loading2 from "../assets/loading2.gif";
 import { getOnlyStores } from "../services/storeServices";
 import { getPacks } from "../services/packServices";
 import { getCurrentStockStore } from "../services/stockServices";
-import { updateMultipleStock, updateStock } from "../services/orderServices";
+import { updateMultipleStock } from "../services/orderServices";
 
 export default function FormRetirePack() {
   // Listas cargadas en render
@@ -111,9 +111,6 @@ export default function FormRetirePack() {
         detalle: `DVPACK-${selectedPackId}`,
       };
 
-      // const updatedForTake = updateStock(objProdsTake);
-      // const updatedForAdd = updateStock(objProdsAdd);
-
       const updateMultiple = updateMultipleStock([objProdsTake, objProdsAdd]);
 
       updateMultiple.then((res) => {
@@ -124,7 +121,7 @@ export default function FormRetirePack() {
             setTimeout(() => {
               window.location.reload();
             }, 2000);
-          }else{
+          } else {
             setAlertSec("Error al retirar pack");
             setIsAlertSec(true);
             setTimeout(() => {

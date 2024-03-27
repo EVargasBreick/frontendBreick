@@ -17,6 +17,7 @@ export default function CancelInvoiceAlt() {
         JSON.parse(Cookies.get("userAuth")).rol != 8 ||
         JSON.parse(Cookies.get("userAuth")).rol != 10
       ) {
+        navigate("/facturas/anulacion");
       } else {
         navigate("/principal");
       }

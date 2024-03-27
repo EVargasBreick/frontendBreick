@@ -61,6 +61,7 @@ export default function FormOrderReception() {
           zona: detallesPedido[0].zona,
           origen: detallesPedido[0].origen,
           destino: detallesPedido[0].destino,
+          fecha_edicion: detallesPedido[0]?.fecha_edicion,
         };
         array.push(element);
       });

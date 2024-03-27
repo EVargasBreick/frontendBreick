@@ -14,6 +14,8 @@ export default function FindClient() {
     if (user) {
       if (
         JSON.parse(Cookies.get("userAuth")).rol <= 10 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 12 ||
+        JSON.parse(Cookies.get("userAuth")).rol == 13 ||
         (JSON.parse(Cookies.get("userAuth")).rol == 10 &&
           JSON.parse(Cookies.get("userAuth")).idDepto != 1)
       ) {

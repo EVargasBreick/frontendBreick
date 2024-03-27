@@ -98,6 +98,7 @@ export default function FormCancelInvoiceAlt() {
     facturas.then((fc) => {
       const filteredDates = filterDates(fc.data);
       filteredDates.then((res) => {
+        console.log("ENTRANDO ACA FLAG 2");
         setAllFacts(res);
         let uniqueArray = res.reduce((acc, curr) => {
           if (!acc.find((obj) => obj.idFactura === curr.idFactura)) {
@@ -125,7 +126,8 @@ export default function FormCancelInvoiceAlt() {
     );
     setFacturas([...newList]);
   }
-  async function cancelInvoice(invoice) {
+  /*async function cancelInvoice(invoice) {
+    setIsCanceled(false);
     setIsAlert(true);
     setAlert("Anulando Factura");
     console.log("Datos factura anulando", invoice);
@@ -151,10 +153,10 @@ export default function FormCancelInvoiceAlt() {
         setAlert("Error al devolver stock");
       }
     } catch (error) {
-      const errors = error.response?.data?.data?.data?.errors ?? [
+      /*const errors = error.response?.data?.data?.data?.errors ?? [
         "Error al anular factura",
       ];
-      console.log("TCL: cancelInvoice -> errors", errors);
+      console.log("ERROR AL ANULAR", JSON.parse(error));
       setAlert(
         errors.map((err) => {
           return err + "\n";
@@ -164,6 +166,40 @@ export default function FormCancelInvoiceAlt() {
       setTimeout(() => {
         setIsAlert(false);
       }, 3000);
+    }
+  }*/
+
+  async function cancelInvoiceAlt(invoice) {
+    setIsCanceled(false);
+    setIsAlert(true);
+    setAlert("Anulando Factura");
+    console.log("Datos factura anulando", invoice);
+    try {
+      const products = allFacts.filter(
+        (af) => af.idFactura == invoice.idFactura
+      );
+      const returnToStock = {
+        accion: "add",
+        idAlmacen: selectedInvoice.idAgencia,
+        productos: products,
+        detalle: `ANFAC-${invoice.idFactura}`,
+      };
+      const cancelar = await emizorService.composedAnularFactura(
+        invoice.cuf,
+        motivo,
+        returnToStock
+      );
+      console.log("cancelar", cancelar);
+      setAlert("Factura Anulada");
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
+    } catch (error) {
+      setIsAlert(false);
+      setAlert(error);
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
     }
   }
 
@@ -184,16 +220,16 @@ export default function FormCancelInvoiceAlt() {
     const mes_actual = today.getMonth() + 1;
     const anio_actual = today.getFullYear();
     const filtered = [];
-
     array.map((ar) => {
       const fecha = ar.fechaHora.split(" ").shift();
       const fechaParts = fecha.split("/");
       const anio_fac = fechaParts[2];
       const mes_fac = fechaParts[1];
       if (anio_actual > anio_fac) {
+        console.log("FLAG 1");
         if (mes_actual === 1) {
           if (13 - mes_fac < 2) {
-            if (dia_actual < 11) {
+            if (dia_actual < 10) {
               filtered.push(ar);
             }
           }
@@ -242,7 +278,7 @@ export default function FormCancelInvoiceAlt() {
         <Modal.Footer className="modalFooter">
           <Button
             variant="warning"
-            onClick={() => cancelInvoice(selectedInvoice)}
+            onClick={() => cancelInvoiceAlt(selectedInvoice)}
           >
             Anular
           </Button>

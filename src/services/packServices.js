@@ -46,4 +46,26 @@ const addPackid = (params) => {
   });
 };
 
-export { registerPack, getPacks, addPackid };
+const updatePack = async (body) => {
+  const url = "/packs/actualizar";
+  const base = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}`;
+  try {
+    const response = await axios.put(base + url, body);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+const updatePackState = async (body) => {
+  const url = "/packs/estado";
+  const base = `${process.env.REACT_APP_ENDPOINT_URL}${process.env.REACT_APP_ENDPOINT_PORT}`;
+  try {
+    const response = await axios.put(base + url, body);
+    return response;
+  } catch (error) {
+    return error;
+  }
+};
+
+export { registerPack, getPacks, addPackid, updatePack, updatePackState };

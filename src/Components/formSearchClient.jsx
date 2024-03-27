@@ -26,7 +26,8 @@ export default function FormSearchClient() {
       setArrayDias(d.data);
     });
   }, []);
-  function searchClient() {
+  function searchClient(e) {
+    e.preventDefault();
     setisLoading(true);
     const found = getClient(search);
     found
@@ -42,7 +43,7 @@ export default function FormSearchClient() {
     <div>
       <div className="formLabel">LISTADO DE CLIENTES</div>
       <div>
-        <Form className="d-flex">
+        <Form className="d-flex" onSubmit={(e) => searchClient(e)}>
           <Form.Control
             value={search}
             type="search"
@@ -54,7 +55,7 @@ export default function FormSearchClient() {
             }}
           />
           <Button
-            onClick={() => searchClient()}
+            onClick={(e) => searchClient(e)}
             variant="warning"
             className="search"
           >

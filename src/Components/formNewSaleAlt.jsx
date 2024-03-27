@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Form, Button, Table, Modal, Image } from "react-bootstrap";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import loading2 from "../assets/loading2.gif";
 import "../styles/formLayouts.css";
 import "../styles/dynamicElements.css";
@@ -37,6 +37,7 @@ import {
 import { updateStock } from "../services/orderServices";
 import FormSimpleRegisterClient from "./formSimpleRegisterClient";
 import SaleModalAlt from "./saleModalAlt";
+import { roundToTwoDecimalPlaces } from "../services/mathServices";
 
 export default function FormNewSaleAlt() {
   const [isClient, setIsClient] = useState(false);
@@ -102,8 +103,11 @@ export default function FormNewSaleAlt() {
   const searchRef = useRef(null);
   const productRef = useRef(null);
   const quantref = useRef(null);
+  const discref = useRef(null);
   const saleModalRef = useRef();
   const [clientEmail, setClientEmail] = useState("");
+  const [modalDiscount, setModalDiscount] = useState(0);
+  const [isIndividualDiscount, setIsIndividualDiscount] = useState(true);
   useEffect(() => {
     console.log(
       "Es isla?",
@@ -161,6 +165,7 @@ export default function FormNewSaleAlt() {
       });
       const suc = getBranchesPs();
       suc.then((resp) => {
+        console.log("SUCURSALES", resp.data);
         const sucursales = resp.data;
         const alm = JSON.parse(Cookies.get("userAuth")).idAlmacen;
         console.log("Dataaa", data);
@@ -236,15 +241,24 @@ export default function FormNewSaleAlt() {
     setisLoading(true);
     const found = getClient(search);
     found.then((res) => {
-      console.log("Data", res.data.data);
-      setIsClient(true);
+      console.log("Data del cliente", res.data.data);
+      const cli = res.data.data;
       if (res.data.data.length > 0) {
-        if (res.data.data.length == 1) {
-          filterSelectedOnlyClient(res.data.data);
-          setClientEmail(res.data.data[0].correo);
+        setIsClient(true);
+        if (search == "0") {
+          const filtered = cli.find((cl) => cl.nit == "0");
+          console.log("filtered", filtered);
+          filterSelectedOnlyClient([filtered]);
+          setClientEmail(filtered.correo);
         } else {
-          setClientes(res.data.data);
+          if (res.data.data.length == 1) {
+            filterSelectedOnlyClient(res.data.data);
+            setClientEmail(res.data.data[0].correo);
+          } else {
+            setClientes(res.data.data);
+          }
         }
+
         setisLoading(false);
       } else {
         setIsClient(false);
@@ -319,14 +333,19 @@ export default function FormNewSaleAlt() {
           precioDeFabrica:
             JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
               ? produc.precioPDV
+              : clientes[0]?.issuper == 1
+              ? produc.precioSuper
               : produc.precioDeFabrica,
           descuentoProd: 0,
           total:
             JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
               ? produc.precioPDV
+              : clientes[0]?.issuper == 1
+              ? produc.precioSuper
               : produc.precioDeFabrica,
           tipoProducto: produc.tipoProducto,
           unidadDeMedida: produc.unidadDeMedida,
+          // descuento
         };
         setCurrentProd(productObj);
         setSelectedProducts([...selectedProducts, productObj]);
@@ -366,12 +385,16 @@ export default function FormNewSaleAlt() {
             precioDeFabrica:
               JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
                 ? selected.precioPDV
+                : clientes[0]?.issuper == 1
+                ? selected.precioSuper
                 : selected.precioDeFabrica,
             precioDescuentoFijo: selected.precioDescuentoFijo,
             descuentoProd: 0,
             total:
               JSON.parse(Cookies.get("userAuth")).idAlmacen === "AG009"
                 ? selected.precioPDV
+                : clientes[0]?.issuper == 1
+                ? selected.precioSuper
                 : selected.precioDeFabrica,
             tipoProducto: selected.tipoProducto,
             unidadDeMedida: selected.unidadDeMedida,
@@ -390,19 +413,23 @@ export default function FormNewSaleAlt() {
     }
   }
   function changeQuantitiesModal(e) {
-    e.preventDefault();
+    // e.preventDefault();
+    console.log("CANTIDAD EN EL MODAL", modalQuantity);
     const index = selectedProducts.length - 1;
     const selectedProd = selectedProducts[index];
     changeQuantities(index, modalQuantity, selectedProd, false);
     setIsQuantity(false);
     setModalQuantity("");
     setAvailable(auxProducts);
-
     searchRef.current.focus();
   }
 
   function handleModalQuantity(cantidad) {
     setModalQuantity(cantidad);
+  }
+
+  function handleModalDiscount(discount) {
+    setModalDiscount(discount);
   }
 
   const handleClose = () => {
@@ -553,11 +580,11 @@ export default function FormNewSaleAlt() {
                   objStock
                 );
                 resolve(true);
-                setIsAlertSec(false);
+               // setIsAlertSec(false);
               })
               .catch((err) => {
                 setAlert(err);
-                setIsAlertSec(false);
+               // setIsAlertSec(false);
                 const deletedInvoice = deleteInvoice(createdId);
                 deletedInvoice.then((rs) => {
                   const deletedSale = deleteSale(idVenta);
@@ -571,7 +598,7 @@ export default function FormNewSaleAlt() {
         .catch((err) => {
           console.log("Error al crear la venta", err);
           const deletedInvoice = deleteInvoice(createdId);
-          setIsAlertSec(false);
+          //setIsAlertSec(false);
           setAlert("Error al crear la factura, intente nuevamente");
           reject(false);
         });
@@ -579,7 +606,7 @@ export default function FormNewSaleAlt() {
   }
   function saveInvoice() {
     setAlertSec("Registrando Venta");
-    setIsAlertSec(true);
+    //setIsAlertSec(true);
     return new Promise((resolve, reject) => {
       const invoiceBody = {
         idCliente: selectedClient,
@@ -665,7 +692,7 @@ export default function FormNewSaleAlt() {
         .catch((error) => {
           console.log("Error en la creacion de la factura", error);
           setAlert("Error al crear la factura, intente nuevamente");
-          setIsAlertSec(false);
+          //setIsAlertSec(false);
         });
 
       setIsSaleModal(!isSaleModal);
@@ -710,6 +737,16 @@ export default function FormNewSaleAlt() {
     Cookies.set("pdv", id, { expires: 0.5 });
     setIsPoint(true);
   }
+
+  function changeDiscount(index, prod, descuento) {
+    const auxSelected = [...selectedProducts];
+    auxSelected[index].descuentoProd = descuento;
+    console.log("Descuento", auxSelected[index]);
+
+    setSelectedProducts(auxSelected);
+    setAuxSelectedProducts(auxSelected);
+  }
+
   return (
     <div>
       <div className="formLabel">VENTAS AGENCIA</div>
@@ -735,27 +772,31 @@ export default function FormNewSaleAlt() {
         </Modal.Body>
       </Modal>
       <Modal show={isQuantity}>
-        <Modal.Header className="modalHeader">INGRESE CANTIDAD</Modal.Header>
-        <Modal.Body>
-          <div className="productModal">{currentProd.nombreProducto}</div>
-          <Form>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            changeQuantitiesModal(e.target[0].value);
+          }}
+        >
+          <Modal.Header className="modalHeader">{`INGRESE CANTIDAD`}</Modal.Header>
+          <Modal.Body>
+            <div className="productModal">{currentProd.nombreProducto}</div>
             <Form.Control
               type="number"
               onChange={(e) => handleModalQuantity(e.target.value)}
-              onKeyDown={(e) =>
-                e.key === "Enter" ? changeQuantitiesModal(e) : null
-              }
+              required
+              step={"any"}
               ref={quantref}
               value={modalQuantity}
-              min={0.01}
+              min={0}
             />
-          </Form>
-        </Modal.Body>
-        <Modal.Footer className="modalFooter">
-          <Button variant="success" onClick={(e) => changeQuantitiesModal(e)}>
-            Confirmar
-          </Button>
-        </Modal.Footer>
+          </Modal.Body>
+          <Modal.Footer className="modalFooter">
+            <Button variant="success" type="submit">
+              Confirmar
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
       {isInvoice ? (
         <div>
@@ -787,20 +828,57 @@ export default function FormNewSaleAlt() {
             setAlert={setAlert}
             setIsAlert={setIsAlert}
             branchInfo={branchInfo}
-            selectedProducts={selectedProducts}
+            selectedProducts={[...selectedProducts].map((sp) => {
+              return {
+                ...sp,
+                descuentoProd: Number((sp.descuentoProd / 100) * sp.total),
+              };
+            })}
             invoice={invoice}
             total={totalPrevio}
             descuentoCalculado={
-              totalPrevio -
-              (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total);
-              }, 0) *
-                (100 - descuento)) /
-                100
+              ((totalPrevio -
+                (selectedProducts.reduce((accumulator, object) => {
+                  return (
+                    accumulator +
+                    parseFloat(object.total * (1 - object.descuentoProd / 100))
+                  );
+                }, 0) *
+                  (100 - descuento)) /
+                  100) *
+                1000) %
+                5 ==
+              0
+                ? totalPrevio -
+                  (selectedProducts.reduce((accumulator, object) => {
+                    return (
+                      accumulator +
+                      parseFloat(
+                        object.total * (1 - object.descuentoProd / 100)
+                      )
+                    );
+                  }, 0) *
+                    (100 - descuento)) /
+                    100 -
+                  0.001
+                : totalPrevio -
+                  (selectedProducts.reduce((accumulator, object) => {
+                    return (
+                      accumulator +
+                      parseFloat(
+                        object.total * (1 - object.descuentoProd / 100)
+                      )
+                    );
+                  }, 0) *
+                    (100 - descuento)) /
+                    100
             }
             totalDescontado={
               (selectedProducts.reduce((accumulator, object) => {
-                return accumulator + parseFloat(object.total);
+                return (
+                  accumulator +
+                  parseFloat(object.total * (1 - object.descuentoProd / 100))
+                );
               }, 0) *
                 (100 - descuento)) /
               100
@@ -850,7 +928,12 @@ export default function FormNewSaleAlt() {
                 idPedido: "",
                 idFactura: 0,
               },
-              productos: selectedProducts,
+              productos: [...selectedProducts].map((sp) => {
+                return {
+                  ...sp,
+                  descuentoProd: Number((sp.descuentoProd / 100) * sp.total),
+                };
+              }),
             }}
             invoiceBody={{
               idCliente: selectedClient,
@@ -916,7 +999,12 @@ export default function FormNewSaleAlt() {
             }}
             updateStockBody={{
               idAlmacen: userStore,
-              productos: selectedProducts,
+              productos: [...selectedProducts].map((sp) => {
+                return {
+                  ...sp,
+                  descuentoProd: Number((sp.descuentoProd / 100) * sp.total),
+                };
+              }),
             }}
             emailCliente={clientEmail}
             clientId={idSelectedClient}
@@ -1068,7 +1156,12 @@ export default function FormNewSaleAlt() {
         </Form>
       </div>
       <div>
-        <Form>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            validateQuantities();
+          }}
+        >
           {selectedProducts.length > 0 ? (
             <div className="tableOne">
               <Table>
@@ -1088,7 +1181,13 @@ export default function FormNewSaleAlt() {
                     <th className="smallTableColumn">{`${
                       isMobile ? "Cant" : "Cantidad"
                     } /Peso (Gr)`}</th>
+                    <th className="smallTableColumn">Descuento %</th>
+
                     <th className="smallTableColumn">Total</th>
+
+                    <th className="smallTableColumn">
+                      {isMobile ? "Total Desc" : "Total con Descuento"}
+                    </th>
                     <th className="smallTableColumn">
                       {isMobile ? "Cant Disp" : "Cantidad Disponible"}
                     </th>
@@ -1127,15 +1226,59 @@ export default function FormNewSaleAlt() {
                             className="smallInput"
                             type="number"
                             min="0"
-                            placeholder="0"
+                            step={"any"}
+                            required
+                            placeholder="Ingresar Valor"
                             value={sp.cantProducto}
                             onChange={(e) => {
                               changeQuantities(index, e.target.value, sp);
                             }}
                           />
                         </td>
+
                         <td className="smallTableColumn">
-                          {parseFloat(sp.total).toFixed(2)}
+                          <div className="input-group mb-3">
+                            <input
+                              type="number"
+                              className="form-control"
+                              placeholder="0"
+                              aria-label="0"
+                              aria-describedby="0 de descuento"
+                              min={0}
+                              max={100}
+                              value={sp.descuentoProd}
+                              onChange={(e) => {
+                                const inputRes = Number(e.target.value);
+
+                                if (
+                                  inputRes > 100 ||
+                                  inputRes < 0 ||
+                                  typeof inputRes !== "number"
+                                ) {
+                                  return;
+                                }
+
+                                changeDiscount(index, sp, inputRes);
+                              }}
+                            />
+                            <div className="input-group-append">
+                              <span
+                                className="input-group-text"
+                                id="basic-addon2"
+                              >
+                                %
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="smallTableColumn">
+                          {parseFloat(Number(sp.total)).toFixed(2)}
+                        </td>
+
+                        <td>
+                          {parseFloat(
+                            Number(sp.total) * (1 - sp.descuentoProd / 100)
+                          ).toFixed(2)}
                         </td>
                         <td className="smallTableColumn">
                           {sp.unidadDeMedida == "Unidad"
@@ -1153,6 +1296,8 @@ export default function FormNewSaleAlt() {
                     ) : null}
                     <th className="smallTableColumnalt"></th>
                     <th></th>
+                    <th></th>
+
                     <th className="smallTableColumn">{"Total: "}</th>
                     <th className="smallTableColumn">
                       {`${selectedProducts.reduce((accumulator, object) => {
@@ -1160,16 +1305,20 @@ export default function FormNewSaleAlt() {
                       }, 0)} Bs.`}
                     </th>
                     <th className="smallTableColumn">
-                      {isMobile ? "Total Descon tado" : "Total descontado: "}
+                      {isMobile ? "Total Descontado" : "Total descontado: "}
                     </th>
-                    <th className="smallTableColumn">{`${
+                    <th className="smallTableColumn">{`${roundToTwoDecimalPlaces(
                       (selectedProducts.reduce((accumulator, object) => {
-                        return accumulator + parseFloat(object.total);
+                        return (
+                          accumulator +
+                          object.total * (1 - object.descuentoProd / 100)
+                        );
                       }, 0) *
                         (100 - descuento)) /
-                      100
-                    }
+                        100
+                    )}
                      Bs.`}</th>
+                    <th></th>
                   </tr>
                 </tfoot>
               </Table>
@@ -1193,7 +1342,8 @@ export default function FormNewSaleAlt() {
                   <Button
                     variant="warning"
                     className="yellowLarge"
-                    onClick={() => validateQuantities()}
+                    type="submit"
+                    // onClick={() => ()}
                   >
                     Ir A Facturar
                   </Button>

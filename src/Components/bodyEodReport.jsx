@@ -51,11 +51,15 @@ export default function BodyEodReport() {
   const [parsedDate, setParsedDate] = useState("");
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
+  const [fromHour, setFromHour] = useState("");
+  const [toHour, setToHour] = useState("");
+  const [anuladas, setAnuladas] = useState([]);
   const componentRef = useRef();
   useEffect(() => {
     setFecha(dateString().split(" ").shift());
     setHora(dateString().split(" ").pop());
     const UsuarioAct = Cookies.get("userAuth");
+    const sudostore = Cookies.get("sudostore");
     if (UsuarioAct) {
       var data;
       const rol = JSON.parse(UsuarioAct).rol;
@@ -66,7 +70,7 @@ export default function BodyEodReport() {
       console.log("Punto de venta", PuntoDeVenta);
 
       const mobilepdvdata = getMobileSalePoints(
-        JSON.parse(UsuarioAct).idAlmacen
+        sudostore ? sudostore : JSON.parse(UsuarioAct).idAlmacen
       );
       mobilepdvdata.then((res) => {
         const datos = res.data[0];
@@ -76,7 +80,9 @@ export default function BodyEodReport() {
           setPuntoDeVenta(datos.nroPuntoDeVenta);
           setIsMobile(true);
           setIdSucursal(0);
-          setUserStore(JSON.parse(UsuarioAct).idAlmacen);
+          setUserStore(
+            sudostore ? sudostore : JSON.parse(UsuarioAct).idAlmacen
+          );
           const storeNameList = getSalePointsAndStores("AL001");
           storeNameList.then((sn) => {
             console.log("Store names", sn);
@@ -88,7 +94,9 @@ export default function BodyEodReport() {
             setStoreData(nameSetter);
           });
         } else {
-          const idAlmacen = JSON.parse(UsuarioAct).idAlmacen;
+          const idAlmacen = sudostore
+            ? sudostore
+            : JSON.parse(UsuarioAct).idAlmacen;
           setUserStore(idAlmacen);
           const sucps = getBranchesPs();
           sucps.then((res) => {
@@ -100,7 +108,11 @@ export default function BodyEodReport() {
             setIdSucursal(sucur.idImpuestos);
             setPuntoDeVenta(PuntoDeVenta);
             const storeNameList = getSalePointsAndStores(
-              rol == 4 ? "AL001" : JSON.parse(UsuarioAct).idAlmacen
+              rol == 4
+                ? "AL001"
+                : sudostore
+                ? sudostore
+                : JSON.parse(UsuarioAct).idAlmacen
             );
             storeNameList.then((sn) => {
               console.log("Store names", sn);
@@ -124,11 +136,6 @@ export default function BodyEodReport() {
     const current = `${date.getFullYear()}-${
       date.getMonth() + 1
     }-${date.getDate()}`;
-    setSelectedDate(current);
-    console.log("Current", current);
-    if (selectedDate == "") {
-      setSelectedDate(current);
-    }
 
     const report = getEndOfDayReport({
       idSucursal: idSucursal,
@@ -136,10 +143,13 @@ export default function BodyEodReport() {
       idAgencia: userStore,
       ruta: userRol == 4 ? true : false,
       fecha: selectedDate === "" ? current : selectedDate,
+      fromHour,
+      toHour,
     });
     report.then((rp) => {
-      const data = rp.data;
       console.log("data", rp.data);
+      const data = rp.data.totales;
+      setAnuladas(rp.data.anulados);
       const sum = data.reduce((accumulator, currentValue) => {
         return accumulator + parseFloat(currentValue.totalVoucher);
       }, 0);
@@ -165,67 +175,51 @@ export default function BodyEodReport() {
         const intTot = otros.find((ot) => ot.idOtroPago == 4);
         qrTot
           ? setQr(
-              parseFloat(
-                qrTot.totalPagado -
-                  qrTot.totalCambio -
-                  parseFloat(qrTot.totalVoucher)
-              )
+              parseFloat(qrTot.totalImporte - parseFloat(qrTot.totalVoucher))
             )
           : setQr(0);
         qhantuyTot
           ? setQhantuy(
-              parseFloat(qhantuyTot.totalPagado) -
-                parseFloat(qhantuyTot.totalCambio) -
-                parseFloat(qhantuyTot.totalVoucher)
+              qhantuyTot.totalImporte - parseFloat(qhantuyTot.totalVoucher)
             )
           : setQhantuy(0);
         clnTot
-          ? setCln(
-              parseFloat(clnTot.totalPagado) -
-                parseFloat(clnTot.totalCambio) -
-                parseFloat(clnTot.totalVoucher)
-            )
+          ? setCln(clnTot.totalImporte - parseFloat(clnTot.totalVoucher))
           : setCln(0);
         intTot
           ? setIntercambio(
-              parseFloat(intTot.totalPagado) -
-                parseFloat(intTot.totalCambio) -
-                parseFloat(intTot.totalVoucher)
+              intTot.totalImporte - parseFloat(intTot.totalVoucher)
             )
           : setIntercambio(0);
       }
       const totalTarjeta =
         (tarjeta
-          ? tarjeta.totalPagado -
-            tarjeta.totalCambio -
-            parseFloat(tarjeta.totalVoucher)
+          ? tarjeta.totalImporte - parseFloat(tarjeta.totalVoucher)
           : 0) + (mixto ? Math.abs(mixto.totalCambio) : 0);
       setTarjeta(totalTarjeta);
       const totalEfectivo =
-        (efectivo ? efectivo.totalPagado : 0) -
-        (efectivo ? efectivo.totalVoucher : 0) -
-        (efectivo ? efectivo.totalCambio : 0) +
+        (efectivo ? efectivo.totalImporte : 0) -
+        (efectivo ? efectivo.totalVoucher : 0) +
         (mixto ? mixto.totalPagado : 0) +
-        ((pagadoVale ? pagadoVale.totalPagado : 0) -
-          (pagadoVale ? pagadoVale.totalCambio : 0) -
+        ((pagadoVale ? pagadoVale.totalImporte : 0) -
           (pagadoVale ? pagadoVale.totalVoucher : 0));
       setEfectivo(totalEfectivo);
       cheque
-        ? setCheque(cheque.totalPagado - parseFloat(cheque.totalVoucher))
+        ? setCheque(cheque.totalImporte - parseFloat(cheque.totalVoucher))
         : setCheque(0);
       posterior
         ? setPosterior(
-            posterior.totalPagado - parseFloat(posterior.totalVoucher)
+            posterior.totalImporte - parseFloat(posterior.totalVoucher)
           )
         : setPosterior(0);
       transfer
-        ? setTransfer(transfer.totalPagado - parseFloat(transfer.totalVoucher))
+        ? setTransfer(transfer.totalImporte - parseFloat(transfer.totalVoucher))
         : setTransfer(0);
       deposito
-        ? setDeposito(deposito.totalPagado - parseFloat(deposito.totalVoucher))
+        ? setDeposito(deposito.totalImporte - parseFloat(deposito.totalVoucher))
         : setDeposito(0);
       swift
-        ? setSwift(swift.totalPagado - parseFloat(swift.totalVoucher))
+        ? setSwift(swift.totalImporte - parseFloat(swift.totalVoucher))
         : setSwift(0);
 
       const details = firstAndLastReport({
@@ -237,7 +231,7 @@ export default function BodyEodReport() {
       });
       details.then((dt) => {
         const det = dt.data[0];
-        setSelectedDate("");
+
         setNumberInv(det.CantidadFacturas);
         setFirstInv(det.PrimeraFactura);
         setLastInv(det.UltimaFactura);
@@ -272,6 +266,15 @@ export default function BodyEodReport() {
     console.log("Selected date", value);
   }
 
+  function handleHour(value, type) {
+    if (type === 1) {
+      setFromHour(value);
+    } else {
+      setToHour(value);
+    }
+    console.log(value);
+  }
+
   return (
     <div>
       <div>
@@ -286,6 +289,8 @@ export default function BodyEodReport() {
                 <th>Agencia</th>
                 <th>Caja</th>
                 <th>Fecha</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
               </tr>
             </thead>
             <tbody>
@@ -303,11 +308,33 @@ export default function BodyEodReport() {
                     </Form>
                   }
                 </td>
+                <td>
+                  {
+                    <Form>
+                      <Form.Control
+                        type="time"
+                        value={fromHour}
+                        onChange={(e) => handleHour(e.target.value, 1)}
+                      />
+                    </Form>
+                  }
+                </td>
+                <td>
+                  {
+                    <Form>
+                      <Form.Control
+                        type="time"
+                        value={toHour}
+                        onChange={(e) => handleHour(e.target.value, 2)}
+                      />
+                    </Form>
+                  }
+                </td>
               </tr>
             </tbody>
             <tfoot className="tableHeader">
               <tr>
-                <th colSpan={3}></th>
+                <th colSpan={5}></th>
               </tr>
             </tfoot>
           </Table>
@@ -434,6 +461,65 @@ export default function BodyEodReport() {
               </tr>
             </tfoot>
           </Table>
+          {anuladas.length > 0 && (
+            <Table>
+              <thead className="tableHeader">
+                <tr>
+                  <th colSpan={6}>
+                    Facturas anuladas emitidas en la fecha y horas seleccionadas
+                  </th>
+                </tr>
+                <tr>
+                  <th>Nro Factura</th>
+                  <th>Nit</th>
+                  <th>Razon Social</th>
+                  <th>Fecha Emisión</th>
+                  <th>Fecha Anulación</th>
+                  <th>Importe</th>
+                </tr>
+              </thead>
+              <tbody className="tableRow">
+                {anuladas.map((an, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>{an.nroFactura}</td>
+                      <td>{an.nitCliente}</td>
+                      <td>{an.razonSocial}</td>
+                      <td>{an.fechaHora}</td>
+                      <td>{an.fechaAnulacion}</td>
+                      <td
+                        style={{ textAlign: "right" }}
+                      >{`${an.importeBase?.toFixed(2)} Bs.`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="tableHeader">
+                  <th
+                    colSpan={5}
+                    style={{
+                      textAlign: "right",
+                    }}
+                  >{`Total Anulaciones:  `}</th>
+                  <td
+                    colSpan={1}
+                    style={{
+                      backgroundColor: "white",
+                      color: "#6a4593",
+                      textAlign: "right",
+                    }}
+                  >
+                    {`${anuladas
+                      .reduce((accumulator, object) => {
+                        return accumulator + Number(object.importeBase);
+                      }, 0)
+                      ?.toFixed(2)} Bs.`}
+                  </td>
+                </tr>
+              </tfoot>
+            </Table>
+          )}
 
           {isNota ? (
             <div className="wrappedButton">
@@ -484,6 +570,17 @@ export default function BodyEodReport() {
                       parseFloat(intercambio.toFixed(2)) +
                       parseFloat(voucher.toFixed(2))
                     ).toFixed(2),
+                  }}
+                  anuladas={{
+                    anuladas: anuladas,
+                    totalAnuladas:
+                      anuladas.length > 0
+                        ? anuladas
+                            .reduce((accumulator, object) => {
+                              return accumulator + Number(object.importeBase);
+                            }, 0)
+                            ?.toFixed(2)
+                        : "0.00",
                   }}
                   usuario={userName}
                 />

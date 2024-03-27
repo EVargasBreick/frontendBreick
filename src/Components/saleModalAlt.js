@@ -11,7 +11,7 @@ import { SoapInvoice } from "../Xml/soapInvoice";
 import xml2js from "xml2js";
 import { SoapInvoiceTransaction } from "../Xml/soapInvoiceTransaction";
 import { dateString } from "../services/dateServices";
-import { registerDrop } from "../services/dropServices";
+import { composedDrop, registerDrop } from "../services/dropServices";
 import { updateStock } from "../services/orderServices";
 import { DropComponent } from "./dropComponent";
 import html2canvas from "html2canvas";
@@ -34,6 +34,7 @@ import { updateClientEmail } from "../services/clientServices";
 import { v4 as uuidv4 } from "uuid";
 import { emizorService } from "../services/emizorService";
 import { TipoPagoComponent } from "./tipoPagoCOmponent";
+import { roundToTwoDecimalPlaces } from "../services/mathServices";
 
 function SaleModalAlt(
   {
@@ -83,6 +84,7 @@ function SaleModalAlt(
     updateStockBody,
     emailCliente,
     clientId,
+    isSeasonal,
   },
   ref
 ) {
@@ -115,6 +117,7 @@ function SaleModalAlt(
   const [descuentoFactura, setDescuentoFactura] = useState(totalDesc);
   const [isDownloadable, setIsDownloadable] = useState(false);
   const [transactionObject, setTransactionObject] = useState("");
+  const [offlineText, setOfflineText] = useState("");
   const [isLogged, setIsLogged] = useState(false);
   const [isEmailModal, setIsEmailModal] = useState(false);
   const [clientEmail, setClientEmail] = useState(emailCliente);
@@ -133,6 +136,8 @@ function SaleModalAlt(
   const [valeForm, setValeForm] = useState({});
   const [voucher, setVoucher] = useState(0);
   const [isPya, setIsPya] = useState(false);
+  const canc = valeForm.cancelado ? valeForm.cancelado : cancelado;
+
   function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
@@ -140,7 +145,7 @@ function SaleModalAlt(
   }
   const uniqueId = uuidv4();
   const isMobile = isMobileDevice();
-  console.log("Data del branch", branchInfo);
+  //console.log("Data del branch", branchInfo);
   useEffect(() => {
     console.log("Is mobile", isMobile);
     console.log("CUF guardado");
@@ -150,6 +155,8 @@ function SaleModalAlt(
     }
   }, [cuf]);
   useEffect(() => {
+    //console.log("Total descontado", totalDescontado);
+    //console.log("Total descontado en datos", datos.totalDescontado);
     if (isFactura && !isMobile) {
       const node = invoiceWrapRef.current;
       if (node) {
@@ -179,25 +186,22 @@ function SaleModalAlt(
   }, [isFactura, isDrop]);
 
   useEffect(() => {
-    console.log(
-      "Cambio",
+    const data = Math.abs(
       cancelado - (total * (1 - datos.descuento / 100) - giftCard)
     );
+    const rounded = (data * 1000) % 5 == 0 ? data - 0.001 : data;
+    console.log("Cambio", rounded);
+
     setCambio(
-      isRoute
-        ? cancelado - totalDescontado
-        : Math.abs(
-          (
-            cancelado -
-            (total * (1 - datos.descuento / 100) - giftCard)
-          ).toFixed()
-        )
+      isRoute ? cancelado - roundToTwoDecimalPlaces(totalDescontado) : rounded
     );
   }, [cancelado]);
 
   useEffect(() => {
     if (isSaved) {
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     }
   }, [isSaved]);
 
@@ -211,10 +215,14 @@ function SaleModalAlt(
   }, [isDownloadable]);
 
   useEffect(() => {
-    setTotalFacturar(datos.total - giftCard);
+    console.log("ACA SE ESTA SETTEANDO");
+    setTotalFacturar(roundToTwoDecimalPlaces(totalDescontado) - giftCard);
     setTotalDesc(descuentoCalculado);
     setCancelado(
-      parseFloat(parseFloat(-giftCard) + parseFloat(datos.total)).toFixed(2)
+      parseFloat(
+        parseFloat(-giftCard) +
+          parseFloat(roundToTwoDecimalPlaces(totalDescontado))
+      ).toFixed(2)
     );
     setCambio(0);
     setDescuentoFactura(total - totalDesc + parseFloat(giftCard));
@@ -258,13 +266,13 @@ function SaleModalAlt(
         break;
       case "2":
         setStringPago("Tarjeta");
-        setCancelado(totalDescontado);
+        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
         setCambio(0);
         setOfp(0);
         break;
       case "3":
         setStringPago("Cheque");
-        setCancelado(totalDescontado);
+        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -280,7 +288,7 @@ function SaleModalAlt(
         break;
       case "5":
         setStringPago("Otros");
-        setCancelado(totalDescontado);
+        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
         setCambio(0);
         setCardNumbersA("");
         setCardNumbersB("");
@@ -288,7 +296,7 @@ function SaleModalAlt(
       case "6":
         setStringPago("Pago Posterior");
         setAPagar(0);
-        setCancelado(totalDescontado);
+        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -296,7 +304,7 @@ function SaleModalAlt(
         break;
       case "7":
         setStringPago("Transferencia");
-        setCancelado(totalDescontado);
+        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -305,7 +313,7 @@ function SaleModalAlt(
         break;
       case "8":
         setStringPago("Deposito");
-        setCancelado(totalDescontado);
+        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -314,7 +322,7 @@ function SaleModalAlt(
         break;
       case "9":
         setStringPago("Transferencia Swift");
-        setCancelado(totalDescontado);
+        setCancelado(roundToTwoDecimalPlaces(totalDescontado));
         setCambio(0);
         setOfp(0);
         setCardNumbersA("");
@@ -323,7 +331,9 @@ function SaleModalAlt(
         break;
       case "10":
         setStringPago("Efectivo-tarjeta");
-        setCancelado(parseFloat(totalDescontado).toFixed(2));
+        setCancelado(
+          parseFloat(roundToTwoDecimalPlaces(totalDescontado)).toFixed(2)
+        );
         setOfp(0);
         setCambio(0);
         setGiftCard(0);
@@ -350,14 +360,26 @@ function SaleModalAlt(
       setOfp(valeForm.ofp);
       setGiftCard(valeForm.vale);
     }
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (tipoPago == 0) {
         setAlert("Seleccione un metodo de pago");
         setIsAlert(true);
       } else {
         if (tipoPago == 1) {
-          console.log("Cancelado", cancelado, totalDescontado, giftCard, voucher);
-          if (cancelado == 0 || (Number(cancelado) + Number(voucher)) - (totalDescontado + giftCard) < 0) {
+          console.log(
+            "Cancelado",
+            cancelado,
+            roundToTwoDecimalPlaces(totalDescontado),
+            giftCard,
+            voucher
+          );
+          if (
+            cancelado == 0 ||
+            Number(cancelado) +
+              Number(voucher) -
+              (roundToTwoDecimalPlaces(totalDescontado) + giftCard) <
+              0
+          ) {
             setAlert("Ingrese un monto mayor o igual al monto de la compra");
             setIsAlert(true);
           } else {
@@ -372,15 +394,22 @@ function SaleModalAlt(
               invoicingProcess();
             }
           }
-          if (tipoPago == 4 && totalDescontado > giftCard) {
+          if (
+            tipoPago == 4 &&
+            roundToTwoDecimalPlaces(totalDescontado) > giftCard
+          ) {
             console.log(
               "Solo deberia correr esto en caso de vale menor al total"
             );
+            console.log("Cancelado", cancelado);
+            console.log("Total desc", roundToTwoDecimalPlaces(totalDescontado));
+            console.log("giftc", giftCard);
+            console.log("Valeform", valeForm);
             if (giftCard == 0) {
               setAlert("Ingrese un valor válido para el vale");
               setIsAlert(true);
             } else {
-              if (cancelado < totalDescontado - giftCard) {
+              if (canc < roundToTwoDecimalPlaces(totalDescontado) - giftCard) {
                 setAlert("Ingrese un valor mayor al saldo");
                 setIsAlert(true);
               } else {
@@ -408,47 +437,53 @@ function SaleModalAlt(
           }
           if (
             tipoPago == 11 ||
-            (tipoPago == 4 && totalDescontado <= giftCard)
+            (tipoPago == 4 &&
+              roundToTwoDecimalPlaces(totalDescontado) <= giftCard)
           ) {
             console.log("Entro aca");
-            if (!valeForm || tipoPago == 11) {
+            console.log("Valeform", valeForm);
+            if (valeForm || tipoPago == 11) {
               setAlertSec("Guardando baja");
               setIsAlertSec(true);
-
               const objBaja = {
                 motivo:
-                  tipoPago == 4 && totalDescontado <= giftCard
+                  tipoPago == 4 &&
+                  roundToTwoDecimalPlaces(totalDescontado) <= giftCard
                     ? "vale"
                     : motivo,
                 fechaBaja: dateString(),
                 idUsuario: userId,
                 idAlmacen: userStore,
                 productos: selectedProducts,
-                totalbaja: totalDescontado,
+                totalbaja: roundToTwoDecimalPlaces(totalDescontado),
                 vale: giftCard,
+                ci: datos.nit,
               };
-              const bajaRegistrada = registerDrop(objBaja);
-              bajaRegistrada
-                .then((res) => {
-                  setDropId(res.data.id);
-                  const objStock = {
-                    accion: "take",
-                    idAlmacen: userStore,
-                    productos: selectedProducts,
-                    detalle: `SPRBJ-${res.data.id}`,
-                  };
-                  const updatedStock = updateStock(objStock);
-                  updatedStock
-                    .then((res) => {
-                      setIsDrop(true);
-                    })
-                    .catch((err) => {
-                      console.log("Error al updatear stock", err);
-                    });
-                })
-                .catch((err) => {
-                  console.log("error al registrar la baja", err);
-                });
+              const objStock = {
+                accion: "take",
+                idAlmacen: userStore,
+                productos: selectedProducts,
+              };
+              const compObj = {
+                baja: objBaja,
+                stock: objStock,
+              };
+              try {
+                const createdDrop = await composedDrop(compObj);
+                console.log("Baja creada", createdDrop);
+                setDropId(createdDrop.data.idCreado);
+                setIsDrop(true);
+              } catch (error) {
+                const errMessage = error.response.data.data.includes(
+                  "stock_nonnegative"
+                )
+                  ? "El stock requerido de algun producto seleccionado ya no se encuentra disponible"
+                  : "";
+                console.log("Error al crear la baja", errMessage);
+                setIsAlertSec(false);
+                setAlert(`Error al crear la baja:  ${errMessage}`);
+                setIsAlert(true);
+              }
             }
           }
         }
@@ -501,6 +536,7 @@ function SaleModalAlt(
         parseFloat(descuentoCalculado) + parseFloat(giftCard);
       const nroTarjeta = `${cardNumbersA}00000000${cardNumbersB}`;
       const productos = formatInvoiceProducts(selectedProducts);
+      console.log("Descuento calculado", descAdicional);
 
       const saleBodyNew = {
         pedido: {
@@ -513,12 +549,14 @@ function SaleModalAlt(
           descCalculado:
             parseFloat(saleBody.pedido.descCalculado) + parseFloat(giftCard),
           montoFacturar:
-            parseFloat(saleBody.pedido.montoFacturar) - parseFloat(giftCard),
+            parseFloat(roundToTwoDecimalPlaces(totalDescontado)) -
+            parseFloat(giftCard),
           idPedido: "",
           idFactura: 0,
         },
         productos: saleBody.productos,
       };
+
       const invoiceBodyNew = {
         idCliente: invoiceBody.idCliente,
         nroFactura: invoiceBody.nroFactura,
@@ -529,16 +567,23 @@ function SaleModalAlt(
         razonSocial: invoiceBody.razonSocial,
         tipoPago: tipoPago,
         pagado: cancelado,
-        cambio: cancelado - parseFloat(totalDescontado - giftCard).toFixed(2),
+        cambio:
+          cancelado -
+          parseFloat(
+            roundToTwoDecimalPlaces(totalDescontado) - giftCard
+          ).toFixed(2),
         nroTarjeta: `${cardNumbersA}-${cardNumbersB}`,
         cuf: "",
-        importeBase: parseFloat(totalDescontado - giftCard).toFixed(2),
-        debitoFiscal: parseFloat((totalDescontado - giftCard) * 0.13).toFixed(
-          2
-        ),
+        importeBase: parseFloat(
+          roundToTwoDecimalPlaces(totalDescontado) - giftCard
+        ).toFixed(2),
+        debitoFiscal: parseFloat(
+          (roundToTwoDecimalPlaces(totalDescontado) - giftCard) * 0.13
+        ).toFixed(2),
         desembolsada: 0,
-        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${invoiceBody.idAgencia
-          }`,
+        autorizacion: `${dateString()}|${invoiceBody.puntoDeVenta}|${
+          invoiceBody.idAgencia
+        }`,
         cufd: "",
         fechaEmision: "",
         nroTransaccion: 0,
@@ -550,6 +595,7 @@ function SaleModalAlt(
         voucher: voucher,
         pya: isPya,
       };
+      console.log("DESCUENTO ADICIONAL TEST", descAdicional);
       const emizorBody = {
         numeroFactura: 0,
         nombreRazonSocial: datos.razonSocial,
@@ -566,12 +612,16 @@ function SaleModalAlt(
         codigoMetodoPago: tipoPago,
         numeroTarjeta: nroTarjeta.length == 16 ? nroTarjeta : "",
         montoTotal: parseFloat(
-          parseFloat(totalDescontado - giftCard).toFixed(2)
+          parseFloat(
+            roundToTwoDecimalPlaces(totalDescontado) - giftCard
+          ).toFixed(2)
         ),
         codigoMoneda: 1,
         tipoCambio: 1,
         montoTotalMoneda: parseFloat(
-          parseFloat(totalDescontado - giftCard).toFixed(2)
+          parseFloat(
+            roundToTwoDecimalPlaces(totalDescontado) - giftCard
+          ).toFixed(2)
         ),
         usuario: userName,
         emailCliente: clientEmail,
@@ -579,11 +629,17 @@ function SaleModalAlt(
         extras: { facturaTicket: uniqueId },
         codigoLeyenda: 0,
         montoTotalSujetoIva: parseFloat(
-          parseFloat(parseFloat(totalDescontado) - giftCard).toFixed(2)
+          parseFloat(
+            parseFloat(roundToTwoDecimalPlaces(totalDescontado)) - giftCard
+          ).toFixed(2)
         ),
         tipoCambio: 1,
         detalles: productos,
       };
+      console.log(
+        "Total facturar ROUNDED",
+        roundToTwoDecimalPlaces(roundToTwoDecimalPlaces(totalDescontado))
+      );
       const composedBody = {
         venta: saleBodyNew,
         invoice: invoiceBodyNew,
@@ -591,6 +647,7 @@ function SaleModalAlt(
         stock: updateStockBody,
         storeInfo: storeInfo,
       };
+      console.log("Composed body", composedBody);
       try {
         const invocieResponse = await debouncedFullInvoiceProcess(composedBody);
         console.log("Respuesta de la fac", invocieResponse);
@@ -603,16 +660,25 @@ function SaleModalAlt(
             setLeyenda(invocieResponse.data.leyenda);
             setUrlSin(parsed.urlSin);
           } else {
-            console.log("Factura fuera de linea", parsed.shortLink);
-            setNoFactura(parsed.numeroFactura);
-            downloadAndPrintFile(parsed.shortLink, parsed.numeroFactura);
-            setAlertSec(
-              "El servicio del SIN se encuentra no disponible, puede escanear el qr de esta nota para ir a su factura en las siguientes horas, muchas gracias"
-            );
-            setIsAlertSec(true);
-            setTimeout(() => {
-              window.location.reload();
-            }, 5000);
+            if (isMobile) {
+              setOfflineText(`"Este documento es la Representación Gráfica de un Documento Fiscal
+              Digital emitido en una modalidad de facturación fuera de línea"`);
+              setNoFactura(parsed.numeroFactura);
+              saveNewEmail(parsed.cuf);
+              setLeyenda(invocieResponse.data.leyenda);
+              setUrlSin(parsed.urlSin);
+            } else {
+              console.log("Factura fuera de linea", parsed.shortLink);
+              setNoFactura(parsed.numeroFactura);
+              downloadAndPrintFile(parsed.shortLink, parsed.numeroFactura);
+              setAlertSec(
+                "El servicio del SIN se encuentra no disponible, puede escanear el qr de esta nota para ir a su factura en las siguientes horas, muchas gracias"
+              );
+              setIsAlertSec(true);
+              setTimeout(() => {
+                window.location.reload();
+              }, 8000);
+            }
           }
         } else {
           await debouncedFullInvoiceProcess.cancel();
@@ -638,9 +704,9 @@ function SaleModalAlt(
             console.log("Lista de errores", errorList);
             setAlert(
               "Error al facturar:\n" +
-              errorList.map((item) => {
-                return item + `\n`;
-              })
+                errorList.map((item) => {
+                  return item + `\n`;
+                })
             );
             setIsAlert(true);
             //setAlert(`${invocieResponse.data.message} : ${error}`);
@@ -669,7 +735,7 @@ function SaleModalAlt(
     }
   }
 
-  const downloadAndPrintFile = async (url, numeroFactura) => {
+  /*const downloadAndPrintFile = async (url, numeroFactura) => {
     const response = await fetch(url);
     const blob = await response.blob();
     const urlObject = URL.createObjectURL(blob);
@@ -699,7 +765,66 @@ function SaleModalAlt(
     document.body.removeChild(link);
 
     return newWindow;
+  };*/
+
+  const downloadAndPrintFile = async (url, numeroFactura) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const urlObject = URL.createObjectURL(blob);
+
+    // Download PDF
+    const downloadLink = document.createElement("a");
+    downloadLink.href = urlObject;
+    downloadLink.download = `factura-${numeroFactura}.pdf`; // Set the desired filename and extension
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+
+    // Print PDF
+    const printPDF = () => {
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = urlObject;
+
+      iframe.onload = () => {
+        setTimeout(() => {
+          iframe.contentWindow.print();
+        }, 1000); // Adjust the delay if needed
+      };
+
+      document.body.appendChild(iframe);
+    };
+
+    // Check if the device is mobile
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    if (isMobile) {
+      // For mobile devices, directly print PDF
+      printPDF();
+    } else {
+      // For desktop devices, open new window for printing
+      const newWindow = window.open(urlObject);
+
+      if (newWindow) {
+        newWindow.onload = () => {
+          URL.revokeObjectURL(urlObject);
+          newWindow.print();
+          // Optional: Close the window after printing
+          // newWindow.close();
+        };
+      } else {
+        // Prompt the user to enable pop-ups manually
+        window.alert(
+          "Por favor, habilite las ventanas emergentes para imprimir el archivo automáticamente"
+        );
+      }
+    }
   };
+
   function logInnvoice() {
     setAlertSec("Registrando factura para impresion posterior");
     setIsAlertSec(true);
@@ -905,12 +1030,12 @@ function SaleModalAlt(
                     }}
                     paymentData={{
                       tipoPago: stringPago,
-                      cancelado: cancelado,
-                      cambio: !valeForm
-                        ? parseFloat(cancelado) + parseFloat(voucher) -(
-                        parseFloat(totalDescontado) +
-                        parseFloat(giftCard))
-                        : 0,
+                      cancelado: canc,
+                      cambio:
+                        parseFloat(canc) +
+                        parseFloat(voucher) -
+                        parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
+                        parseFloat(giftCard),
                       fechaHora: fechaHora,
                     }}
                     totalsData={{
@@ -918,12 +1043,14 @@ function SaleModalAlt(
                       descuentoCalculado: isRoute
                         ? descuentoCalculado
                         : descuentoFactura,
-                      totalDescontado: totalDescontado - giftCard,
+                      totalDescontado:
+                        roundToTwoDecimalPlaces(totalDescontado) - giftCard,
                     }}
                     giftCard={giftCard}
                     invoiceNumber={noFactura}
                     leyenda={leyenda}
                     urlSin={urlSin}
+                    offlineText={offlineText}
                   />
                 </Button>
               </div>
@@ -951,10 +1078,10 @@ function SaleModalAlt(
                   }}
                   paymentData={{
                     tipoPago: stringPago,
-                    cancelado: cancelado,
+                    cancelado: canc,
                     cambio:
-                      parseFloat(cancelado) -
-                      parseFloat(totalDescontado) +
+                      parseFloat(canc) -
+                      parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
                       parseFloat(giftCard),
                     fechaHora: fechaHora,
                   }}
@@ -963,11 +1090,13 @@ function SaleModalAlt(
                     descuentoCalculado: isRoute
                       ? descuentoCalculado
                       : descuentoFactura,
-                    totalDescontado: totalDescontado - giftCard,
+                    totalDescontado:
+                      roundToTwoDecimalPlaces(totalDescontado) - giftCard,
                   }}
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
                   urlSin={urlSin}
+                  offlineText={offlineText}
                 />
                 <InvoiceComponentCopy
                   ref={componentCopyRef}
@@ -981,10 +1110,10 @@ function SaleModalAlt(
                   }}
                   paymentData={{
                     tipoPago: stringPago,
-                    cancelado: cancelado,
+                    cancelado: canc,
                     cambio:
-                      parseFloat(cancelado) -
-                      parseFloat(totalDescontado) +
+                      parseFloat(canc) -
+                      parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
                       parseFloat(giftCard),
                     fechaHora: fechaHora,
                   }}
@@ -993,11 +1122,13 @@ function SaleModalAlt(
                     descuentoCalculado: isRoute
                       ? descuentoCalculado
                       : descuentoFactura,
-                    totalDescontado: totalDescontado - giftCard,
+                    totalDescontado:
+                      roundToTwoDecimalPlaces(totalDescontado) - giftCard,
                   }}
                   invoiceNumber={noFactura}
                   leyenda={leyenda}
                   urlSin={urlSin}
+                  offlineText={offlineText}
                 />
               </div>
             </div>
@@ -1031,7 +1162,7 @@ function SaleModalAlt(
                   razonSocial: datos.razonSocial,
                 }}
                 dropId={dropId}
-                total={totalDescontado}
+                total={roundToTwoDecimalPlaces(totalDescontado)}
                 vale={giftCard}
               />
             </Button>
@@ -1056,7 +1187,7 @@ function SaleModalAlt(
               razonSocial: datos.razonSocial,
             }}
             dropId={dropId}
-            total={totalDescontado}
+            total={roundToTwoDecimalPlaces(totalDescontado)}
             vale={giftCard}
           />
         </div>
@@ -1094,7 +1225,9 @@ function SaleModalAlt(
             <div className="modalRows">
               <div className="modalLabel"> Total a pagar:</div>
               <div className="modalData">{`${parseFloat(
-                tipoPago == 4 ? total - giftCard : totalDescontado
+                tipoPago == 4
+                  ? roundToTwoDecimalPlaces(totalDescontado) - giftCard
+                  : roundToTwoDecimalPlaces(totalDescontado)
               ).toFixed(2)} Bs.`}</div>
             </div>
             <div className="modalRows">
@@ -1107,7 +1240,7 @@ function SaleModalAlt(
               <div className="modalData">
                 {" "}
                 <Form.Control
-                  disabled={auxClientEmail !== ""}
+                  disabled={auxClientEmail !== "" || datos.nit == "0"}
                   type="email"
                   value={clientEmail}
                   isInvalid={!isEmailValid && auxClientEmail === ""}
@@ -1219,11 +1352,18 @@ function SaleModalAlt(
                 </div>
                 <div className="modalRows">
                   <div className="modalLabel"> Cambio:</div>
-                  <div className="modalData">{
-                    `${Number(cancelado) - Number(totalDescontado) + Number(voucher) < 0
+                  <div className="modalData">{`${
+                    Number(canc) -
+                      Number(roundToTwoDecimalPlaces(totalDescontado)) +
+                      Number(voucher) <
+                    0
                       ? `Ingrese un monto igual o superiores al total`
-                      : `${(Number(cancelado) - Number(totalDescontado) + Number(voucher)).toFixed(2)} Bs.`
-                    } `}</div>
+                      : `${(
+                          Number(canc) -
+                          Number(roundToTwoDecimalPlaces(totalDescontado)) +
+                          Number(voucher)
+                        ).toFixed(2)} Bs.`
+                  } `}</div>
                 </div>
               </div>
             ) : tipoPago == 2 ? (
@@ -1275,7 +1415,8 @@ function SaleModalAlt(
                 <div className="modalRows">
                   <div className="modalLabel"> A cobrar con tarjeta:</div>
                   <div className="modalData">{`${(
-                    -cancelado + parseFloat(totalDescontado)
+                    -cancelado +
+                    parseFloat(roundToTwoDecimalPlaces(totalDescontado))
                   ).toFixed(2)} Bs.`}</div>
                 </div>
                 <div className="modalRows">
@@ -1400,10 +1541,10 @@ function SaleModalAlt(
                     <Form.Select onChange={(e) => setMotivo(e.target.value)}>
                       <option>Seleccione Motivo</option>
                       <option value="socio">Socio</option>
-                      <option value="vale">Vale</option>
+
                       <option value="promo">Promoción</option>
                       <option value="muestra">Muestra</option>
-                      <option value="muestra">Venta en línea</option>
+                      <option value="online">Venta en línea</option>
                     </Form.Select>
                   }
                 </div>
@@ -1446,11 +1587,10 @@ function SaleModalAlt(
               }}
               paymentData={{
                 tipoPago: stringPago,
-                cancelado: cancelado,
-
+                cancelado: canc,
                 cambio:
-                  parseFloat(cancelado) -
-                  parseFloat(totalDescontado) +
+                  parseFloat(canc) -
+                  parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
                   parseFloat(giftCard),
                 fechaHora: fechaHora,
               }}
@@ -1459,11 +1599,13 @@ function SaleModalAlt(
                 descuentoCalculado: isRoute
                   ? descuentoCalculado
                   : descuentoFactura,
-                totalDescontado: totalDescontado - giftCard,
+                totalDescontado:
+                  roundToTwoDecimalPlaces(totalDescontado) - giftCard,
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}
               urlSin={urlSin}
+              offlineText={offlineText}
             />
             <InvoiceComponentCopy
               ref={componentCopyRef}
@@ -1477,10 +1619,10 @@ function SaleModalAlt(
               }}
               paymentData={{
                 tipoPago: stringPago,
-                cancelado: cancelado,
+                cancelado: canc,
                 cambio:
-                  parseFloat(cancelado) -
-                  parseFloat(totalDescontado) +
+                  parseFloat(canc) -
+                  parseFloat(roundToTwoDecimalPlaces(totalDescontado)) +
                   parseFloat(giftCard),
                 fechaHora: fechaHora,
               }}
@@ -1489,11 +1631,13 @@ function SaleModalAlt(
                 descuentoCalculado: isRoute
                   ? descuentoCalculado
                   : descuentoFactura,
-                totalDescontado: totalDescontado - giftCard,
+                totalDescontado:
+                  roundToTwoDecimalPlaces(totalDescontado) - giftCard,
               }}
               invoiceNumber={noFactura}
               leyenda={leyenda}
               urlSin={urlSin}
+              offlineText={offlineText}
             />
           </div>
         </div>

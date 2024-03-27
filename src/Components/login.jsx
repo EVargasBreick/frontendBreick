@@ -15,9 +15,10 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../Context/UserContext";
 import Cookies from "js-cookie";
-
+import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { useEffect } from "react";
 import Alert from "react-bootstrap/Alert";
+import { InputGroup } from "react-bootstrap";
 export default function Login() {
   const horaActual =
     new Date().getHours() < 10
@@ -32,9 +33,11 @@ export default function Login() {
   useEffect(() => {
     const isLogged = Cookies.get("userAuth");
     if (isLogged !== undefined) {
+      console.log("Redireccionando");
       setIsAuth(true);
       navigate("/principal");
     } else {
+      console.log("No logged");
       setIsAuth(false);
     }
   }, []);
@@ -45,6 +48,7 @@ export default function Login() {
   const { setuserData } = useContext(UserContext);
   const [alert, setAlert] = useState("");
   const [isAlert, setIsAlert] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   function login() {
     const inputControl = loginInputControl(username, password);
     if (inputControl) {
@@ -55,38 +59,61 @@ export default function Login() {
         setisLoading(false);
         console.log("User encontrado", userDataFetchd);
         if (userDataFetchd.data.message === "Usuario encontrado") {
-          setuserData(JSON.stringify(userDataFetchd.data.data[0]));
-          Cookies.set("userAuth", JSON.stringify(userDataFetchd.data.data[0]), {
-            expires: 0.5,
-          });
+          if (userDataFetchd.data.data[0].acceso == 1) {
+            console.log("Usuario activo");
+            setuserData(JSON.stringify(userDataFetchd.data.data[0]));
+            Cookies.set(
+              "userAuth",
+              JSON.stringify(userDataFetchd.data.data[0]),
+              {
+                expires: 0.5,
+              }
+            );
 
-          if (
-            Date.parse("01/01/2000 " + horaFinal) <
-              Date.parse(
-                "01/01/2000 " + userDataFetchd.data.data[0].horaEntrada + ":00"
-              ) ||
-            Date.parse("01/01/2000 " + horaFinal) >
-              Date.parse(
-                "01/01/2000 " + userDataFetchd.data.data[0].horaSalida + ":00"
-              )
-          ) {
+            if (
+              Date.parse("01/01/2000 " + horaFinal) <
+                Date.parse(
+                  "01/01/2000 " +
+                    userDataFetchd.data.data[0].horaEntrada +
+                    ":00"
+                ) ||
+              Date.parse("01/01/2000 " + horaFinal) >
+                Date.parse(
+                  "01/01/2000 " + userDataFetchd.data.data[0].horaSalida + ":00"
+                )
+            ) {
+            }
+
+            navigate("/principal");
           } else {
+            console.log("Usuario bloqueado");
+            setIsAlert(true);
+            setAlert(
+              "Su usuario se encuentra bloqueado, por favor contacte al encargado del sistema "
+            );
+            setTimeout(() => {
+              setIsAlert(false);
+            }, 3000);
           }
-
-          navigate("/principal");
         }
         if (userDataFetchd.data.message === "Usuario no encontrado") {
           setIsAlert(true);
           setAlert("Usuario no encontrado");
-          setUsername("");
           setPassword("");
         }
       });
     } else {
       setIsAlert(true);
       setAlert("Por favor ingrese usuario y contraseña ");
+      setTimeout(() => {
+        setIsAlert(false);
+      }, 3000);
     }
   }
+
+  const clickHandler = () => {
+    setShowPass(!showPass);
+  };
   return (
     <div className="appContainer">
       <div className="center">
@@ -115,12 +142,20 @@ export default function Login() {
 
             <Form.Group className="inputGroup" controlId="formBasicPassword">
               <Form.Label className="label">Contraseña:</Form.Label>
-              <Form.Control
-                value={password}
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => (e.key === "Enter" ? login() : null)}
-              />
+              <InputGroup>
+                <Form.Control
+                  value={password}
+                  type={showPass ? "text" : "password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => (e.key === "Enter" ? login() : null)}
+                />
+                <InputGroup.Text
+                  onClick={clickHandler}
+                  style={{ backgroundColor: "white" }}
+                >
+                  {showPass ? <BsEye /> : <BsEyeSlash />}
+                </InputGroup.Text>
+              </InputGroup>
             </Form.Group>
             <Button
               disabled={isLoading}
@@ -135,7 +170,6 @@ export default function Login() {
               )}
             </Button>
           </Form>
-
           <Image src={Powered2} className="powered"></Image>
         </div>
       </div>

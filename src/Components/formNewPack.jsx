@@ -4,28 +4,50 @@ import Form from "react-bootstrap/Form";
 import "../styles/tableStyles.css";
 import "../styles/generalStyle.css";
 import loading2 from "../assets/loading2.gif";
-import { getProducts, newProduct } from "../services/productServices";
+import {
+  getProducts,
+  newProduct,
+  productTypes,
+} from "../services/productServices";
 import { addPackid, registerPack } from "../services/packServices";
 import { initializeStock } from "../services/stockServices";
 import { dateString } from "../services/dateServices";
 export default function FormNewPack() {
   // Listas cargadas en render
   const [prodList, setProdList] = useState([]);
+  const [auxProdList, setAuxProdList] = useState([]);
+  const [typeList, setTypeList] = useState([]);
   // Listas y valores cargados manualmente
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [totalPack, setTotalPack] = useState(0);
   const [nombrePack, setNombrePack] = useState("");
+  const [tipo, setTipo] = useState("");
+  const [errorMessages, setErrorMessages] = useState({
+    nombre: "",
+    tipo: "",
+  });
   // Validadores de estado
   const [alert, setAlert] = useState("");
   const [isAlert, setIsAlert] = useState(false);
   const [isAlertSec, setIsAlertSec] = useState(false);
   const [alertSec, setAlertSec] = useState("");
+  const [search, setSearch] = useState("");
   useEffect(() => {
     const allProducts = getProducts("all");
     allProducts.then((fetchedProducts) => {
       console.log("Test", fetchedProducts);
       setProdList(fetchedProducts.data.data);
+      setAuxProdList(fetchedProducts.data.data);
     });
+    const tipos = productTypes();
+    tipos
+      .then((tipos) => {
+        setTypeList(tipos.data);
+        console.log("Tipos", tipos);
+      })
+      .catch((err) => {
+        console.log("Error al cargar los tipos", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -42,7 +64,19 @@ export default function FormNewPack() {
     setIsAlertSec(false);
     window.location.reload();
   };
-  function selectProduct(prod) {
+
+  function selectBySummit(e) {
+    e.preventDefault();
+    const filtered = auxProdList.filter(
+      (ap) =>
+        ap.nombreProducto.toLowerCase().includes(search) ||
+        ap.codInterno == search
+    );
+    selectProduct(e, JSON.stringify(filtered[0]));
+  }
+
+  function selectProduct(e, prod) {
+    e.preventDefault();
     const product = JSON.parse(prod);
     const prodObj = {
       idProducto: product.idProducto,
@@ -52,6 +86,8 @@ export default function FormNewPack() {
       precioDeFabrica: product.precioDeFabrica,
     };
     setSelectedProducts([...selectedProducts, prodObj]);
+    setProdList(auxProdList);
+    setSearch("");
   }
   function changeQuantities(cantidad, index) {
     const updatedArray = [...selectedProducts];
@@ -67,70 +103,92 @@ export default function FormNewPack() {
     setSelectedProducts(auxArray);
   }
   function savePack() {
-    setAlertSec("Guardando pack");
-    setIsAlertSec(true);
-    const objSave = {
-      nombrePack: nombrePack,
-      precioPack: totalPack,
-      descPack: nombrePack,
-      productos: selectedProducts,
-    };
-    const packSaved = registerPack(objSave);
-    packSaved
-      .then((ps) => {
-        saveProduct(ps);
-      })
-      .catch((err) => {
-        console.log("Error al guardar", err);
-      });
-  }
-  function saveProduct(data) {
-    console.log("Pack registrado", data);
-    const packId = data.data.id;
-    const objProd = {
-      codInterno: parseInt(500000 + packId),
-      nombreProducto: nombrePack,
-      descProducto: nombrePack,
-      gramajeProducto: 0,
-      precioDeFabrica: totalPack,
-      codigoBarras: "-",
-      cantCajon: 0,
-      unidadDeMedida: "Unidad",
-      tiempoDeVida: 1,
-      activo: 1,
-      precioPDV: 0,
-      cantDisplay: 0,
-      aplicaDescuento: "No",
-      tipoProducto: 5,
-      precioDescuentoFijo: totalPack,
-      actividadEconomica: 107900,
-      codigoSin: 99100,
-      codigoUnidad: 57,
-      origenProducto: 1,
-    };
-    const added = newProduct(objProd);
-    added
-      .then((res) => {
-        const addedId = addPackid({
-          idProducto: res.data.id,
-          idPack: packId,
+    if (nombrePack == "" || tipo == "") {
+      let errorName = "";
+      let errorType = "";
+      if (nombrePack == "") {
+        errorName = "El nombre es obligatorio";
+      }
+      if (tipo == "") {
+        errorType = "El tipo es obligatorio";
+      }
+      setErrorMessages({ nombre: errorName, tipo: errorType });
+    } else {
+      setAlertSec("Guardando pack");
+      setIsAlertSec(true);
+      const objSave = {
+        nombrePack: nombrePack,
+        precioPack: totalPack,
+        descPack: nombrePack,
+        productos: selectedProducts,
+      };
+      const packSaved = registerPack(objSave);
+      packSaved
+        .then((ps) => {
+          saveProduct(ps);
+        })
+        .catch((err) => {
+          console.log("Error al guardar", err);
         });
-        addedId.then((ai) => {
-          const inicializado = initializeStock({
+    }
+    function saveProduct(data) {
+      console.log("Pack registrado", data);
+      const packId = data.data.id;
+      const objProd = {
+        codInterno: parseInt(500000 + packId),
+        nombreProducto: nombrePack,
+        descProducto: nombrePack,
+        gramajeProducto: 0,
+        precioDeFabrica: totalPack,
+        codigoBarras: "-",
+        cantCajon: 0,
+        unidadDeMedida: "Unidad",
+        tiempoDeVida: 1,
+        activo: 1,
+        precioPDV: totalPack,
+        cantDisplay: 0,
+        aplicaDescuento: "No",
+        tipoProducto: tipo,
+        precioDescuentoFijo: totalPack,
+        actividadEconomica: 107900,
+        codigoSin: 99100,
+        codigoUnidad: 57,
+        origenProducto: 1,
+      };
+      const added = newProduct(objProd);
+      added
+        .then((res) => {
+          const addedId = addPackid({
             idProducto: res.data.id,
-            fechaHora: dateString(),
+            idPack: packId,
           });
-          inicializado.then((response) => {
-            setAlertSec("Pack Guardado Correctamente");
-            setIsAlertSec(true);
-            setTimeout(() => {
-              window.location.reload(false);
-            }, 2000);
+          addedId.then((ai) => {
+            const inicializado = initializeStock({
+              idProducto: res.data.id,
+              fechaHora: dateString(),
+            });
+            inicializado.then((response) => {
+              setAlertSec("Pack Guardado Correctamente");
+              setIsAlertSec(true);
+              setTimeout(() => {
+                window.location.reload(false);
+              }, 2000);
+            });
           });
-        });
-      })
-      .catch((err) => console.log("Error al crear producto", err));
+        })
+        .catch((err) => console.log("Error al crear producto", err));
+    }
   }
+  function searchProduct(value) {
+    setSearch(value);
+    const filtered = auxProdList.filter(
+      (ap) =>
+        ap.nombreProducto.toLowerCase().includes(value) ||
+        ap.codInterno == value
+    );
+    setProdList(filtered);
+  }
+
   return (
     <div>
       <div className="formLabel">CREAR PACKS BREICK</div>
@@ -155,8 +213,15 @@ export default function FormNewPack() {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Form>
-        <Form.Select onChange={(e) => selectProduct(e.target.value)}>
+
+      <Form
+        style={{ display: "flex", justifyContent: "space-evenly" }}
+        onSubmit={(e) => selectBySummit(e)}
+      >
+        <Form.Select
+          onChange={(e) => selectProduct(e, e.target.value)}
+          style={{ width: "45%" }}
+        >
           <option>{"Seleccione producto"}</option>
           {prodList.map((pr, index) => {
             return (
@@ -166,10 +231,17 @@ export default function FormNewPack() {
             );
           })}
         </Form.Select>
+        <Form.Control
+          value={search}
+          style={{ width: "45%" }}
+          type="text"
+          placeholder="buscar"
+          onChange={(e) => searchProduct(e.target.value)}
+        />
       </Form>
       {selectedProducts.length > 0 ? (
         <div>
-          <div className="formLabelAlt">Productos Seleccionados</div>
+          <div style={{ margin: "20px" }}>Productos Seleccionados</div>
           <Table className="tableOneAlt">
             <thead className="tableHeader">
               <tr>
@@ -234,15 +306,52 @@ export default function FormNewPack() {
           <div className="formLabelAlt">Nombre del Pack</div>
           <Form>
             <Form.Control
+              required
               type="text"
               onChange={(e) => setNombrePack(e.target.value)}
               value={nombrePack}
               placeholder="Ingrese nombre del nuevo pack"
             />
+            {errorMessages.nombre != "" && (
+              <div style={{ color: "red", textAlign: "left" }}>
+                {errorMessages.nombre}
+              </div>
+            )}
           </Form>
-          <div className="formLabelAlt"></div>
+          <div
+            style={{
+              textAlign: "left",
+              marginBottom: "20px",
+              marginTop: "20px",
+            }}
+          >
+            Tipo de pack
+          </div>
+          <Form>
+            <Form.Select onChange={(e) => setTipo(e.target.value)} required>
+              <option>Seleccione tipo pack</option>
+              {typeList.map((tl, index) => {
+                if (tl.idTiposProducto < 6) {
+                  return (
+                    <option value={tl.idTiposProducto} key={index}>
+                      {tl.tipoProducto}
+                    </option>
+                  );
+                }
+              })}
+            </Form.Select>
+            {errorMessages.tipo != "" && (
+              <div style={{ color: "red", textAlign: "left" }}>
+                {errorMessages.tipo}
+              </div>
+            )}
+          </Form>
           <div>
-            <Button variant="success" onClick={() => savePack()}>
+            <Button
+              variant="success"
+              onClick={() => savePack()}
+              style={{ marginTop: "15px" }}
+            >
               Guardar Pack
             </Button>
           </div>
