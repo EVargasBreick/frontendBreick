@@ -107,9 +107,10 @@ export default function FormNewSaleNew() {
       console.log("SUDSTORE", sudStore);
       if (isSudoStore) {
         if (sudStore) {
+          console.log("ENTRANDO AL IF");
           const PuntoDeVenta = Cookies.get("pdv");
           console.log("Datos punto de venta", PuntoDeVenta);
-          if (PuntoDeVenta) {
+          if (PuntoDeVenta && !isNaN(PuntoDeVenta)) {
             setIsPoint(true);
             setPointOfsale(PuntoDeVenta);
           } else {
@@ -182,7 +183,7 @@ export default function FormNewSaleNew() {
       } else {
         const PuntoDeVenta = Cookies.get("pdv");
         console.log("Datos punto de venta", PuntoDeVenta);
-        if (PuntoDeVenta) {
+        if (PuntoDeVenta && !isNaN(PuntoDeVenta)) {
           setIsPoint(true);
           setPointOfsale(PuntoDeVenta);
         } else {
@@ -860,7 +861,10 @@ export default function FormNewSaleNew() {
           }}
         >
           {auxSelectedProducts.length > 0 ? (
-            <div className="tableOne">
+            <div
+              className="tableOne"
+              style={{ width: "77vw", overflow: "auto" }}
+            >
               <Table>
                 <thead>
                   <tr className="tableHeader">
@@ -878,7 +882,7 @@ export default function FormNewSaleNew() {
                     <th className="smallTableColumn">{`${
                       isMobile ? "Cant" : "Cantidad"
                     } /Peso (Gr)`}</th>
-                    <th className="smallTableColumn">Descuento %</th>
+                    <th>Descuento %</th>
 
                     <th className="smallTableColumn">Total</th>
 
@@ -933,7 +937,7 @@ export default function FormNewSaleNew() {
                           />
                         </td>
 
-                        <td className="smallTableColumn">
+                        <td style={{ minWidth: "15%", width: "15%" }}>
                           <div className="input-group mb-3">
                             <input
                               type="number"
